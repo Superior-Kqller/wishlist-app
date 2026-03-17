@@ -20,7 +20,7 @@ services:
       - proxy
 
   wishlist-app:
-    image: ghcr.io/superior-kqller/wishlist-sh-app:latest
+    image: ghcr.io/superior-kqller/wishlist-app:latest
     container_name: wishlist-app
     restart: unless-stopped
     env_file:

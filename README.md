@@ -29,67 +29,65 @@
 
 ## Быстрый старт (Деплой на Ubuntu VM)
 
-### 1. Скопировать проект
+### 1. Подготовить директорию
 
 ```bash
-git clone https://github.com/Superior-Kqller/wishlist-sh-app.git /opt/wishlist
-cd /opt/wishlist
+mkdir -p /opt/wishlist && cd /opt/wishlist
 ```
 
-### 2. Создать proxy network (если ещё не создана)
+### 2. Скачать docker-compose и .env.example
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Superior-Kqller/wishlist-app/main/docker-compose.prod.yml -o docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/Superior-Kqller/wishlist-app/main/.env.example -o .env
+```
+
+### 3. Создать proxy network (если ещё не создана)
 
 ```bash
 docker network create proxy
 ```
 
-### 3. Настроить окружение
+### 4. Настроить окружение
+
+Сгенерировать пароль БД и секрет NextAuth:
 
 ```bash
-cp .env.example .env
+# сгенерировать надёжный пароль для PostgreSQL
+echo "DB_PASSWORD=$(openssl rand -hex 32)"
+
+# сгенерировать секрет для NextAuth
+echo "NEXTAUTH_SECRET=$(openssl rand -base64 32)"
+```
+
+Вставить сгенерированные значения в `.env`:
+
+```bash
 nano .env
 ```
 
 **Обязательно измените:**
 
-```env
-# Пароль для PostgreSQL
-DB_PASSWORD=your-strong-password
+- `DB_PASSWORD` — вставить сгенерированный пароль
+- `NEXTAUTH_SECRET` — вставить сгенерированный секрет
+- `NEXTAUTH_URL` — URL вашего приложения (`https://wishlist.yourdomain.com`)
+- `SEED_USER*` — логины, пароли и имена пользователей
 
-# Секрет для NextAuth (сгенерируйте: openssl rand -base64 32)
-NEXTAUTH_SECRET=your-generated-secret
-
-# URL вашего приложения
-NEXTAUTH_URL=https://wishlist.yourdomain.com
-
-# Логины и пароли пользователей
-SEED_USER1_USERNAME=user1
-SEED_USER1_PASSWORD=strong-password-1
-SEED_USER1_NAME=Имя Первого
-
-SEED_USER2_USERNAME=user2
-SEED_USER2_PASSWORD=strong-password-2
-SEED_USER2_NAME=Имя Второго
-```
-
-### 4. Запустить приложение
+### 5. Запустить приложение
 
 ```bash
-# если образ приватный — залогиниться в GHCR
-echo "$GH_TOKEN" | docker login ghcr.io -u <github-username> --password-stdin
-
-# запуск
-docker compose -f docker-compose.prod.yml pull
-docker compose -f docker-compose.prod.yml up -d
+docker compose pull
+docker compose up -d
 ```
 
 Проверить статус:
 
 ```bash
-docker compose -f docker-compose.prod.yml ps
-docker compose -f docker-compose.prod.yml logs -f wishlist-app
+docker compose ps
+docker compose logs -f wishlist-app
 ```
 
-### 5. Создать пользователей (автоматически)
+### 6. Создать пользователей (автоматически)
 
 Пользователи создаются автоматически при первом запуске контейнера.
 Логины и пароли берутся из `.env` файла (переменные `SEED_USER*`).
@@ -99,16 +97,16 @@ docker compose -f docker-compose.prod.yml logs -f wishlist-app
 При необходимости можно пересоздать вручную:
 
 ```bash
-docker compose -f docker-compose.prod.yml exec wishlist-app node prisma/seed.js
+docker compose exec wishlist-app node prisma/seed.js
 ```
 
 Или повысить существующего пользователя до админа:
 
 ```bash
-docker compose -f docker-compose.prod.yml exec wishlist-app node prisma/promote-admin.js
+docker compose exec wishlist-app node prisma/promote-admin.js
 ```
 
-### 6. Настроить Nginx Proxy Manager
+### 7. Настроить Nginx Proxy Manager
 
 1. Откройте Nginx Proxy Manager
 2. Добавьте Proxy Host:
@@ -156,30 +154,30 @@ npm run dev
 
 ```bash
 # Остановить
-docker compose -f docker-compose.prod.yml down
+docker compose down
 
 # Остановить с удалением volumes (БД будет очищена!)
-docker compose -f docker-compose.prod.yml down -v
+docker compose down -v
 
 # Посмотреть логи
-docker compose -f docker-compose.prod.yml logs -f
+docker compose logs -f
 
 # Бэкап БД
-docker compose -f docker-compose.prod.yml exec wishlist-db pg_dump -U wishlist wishlist > backup.sql
+docker compose exec wishlist-db pg_dump -U wishlist wishlist > backup.sql
 
 # Восстановить БД из бэкапа
-cat backup.sql | docker compose -f docker-compose.prod.yml exec -T wishlist-db psql -U wishlist wishlist
+cat backup.sql | docker compose exec -T wishlist-db psql -U wishlist wishlist
 
 # Повысить первого пользователя до админа (если нужно)
-docker compose -f docker-compose.prod.yml exec wishlist-app node prisma/promote-admin.js
+docker compose exec wishlist-app node prisma/promote-admin.js
 ```
 
 ## Обновление приложения
 
 ```bash
 cd /opt/wishlist
-docker compose -f docker-compose.prod.yml pull
-docker compose -f docker-compose.prod.yml up -d
+docker compose pull
+docker compose up -d
 ```
 
 ## GitHub Actions (Docker)
@@ -193,8 +191,8 @@ docker compose -f docker-compose.prod.yml up -d
 
 Для публикации в GHCR отдельные секреты не нужны: используется встроенный `GITHUB_TOKEN`.
 
-По умолчанию используется образ `ghcr.io/superior-kqller/wishlist-sh-app:latest`.
-При необходимости смените его на тег релиза (`vX.Y.Z`) в `docker-compose.prod.yml`.
+По умолчанию используется образ `ghcr.io/superior-kqller/wishlist-app:latest`.
+При необходимости смените его на тег релиза (`vX.Y.Z`) в `docker-compose.yml`.
 
 ## Архитектура
 
