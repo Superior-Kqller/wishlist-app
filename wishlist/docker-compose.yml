@@ -1,0 +1,53 @@
+services:
+  wishlist-db:
+    image: postgres:17-alpine
+    container_name: wishlist-db
+    restart: unless-stopped
+    volumes:
+      - /home/supkq/docker/wishlist/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: wishlist
+      POSTGRES_USER: wishlist
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wishlist"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - wishlist-internal
+
+  wishlist-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wishlist-app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${APP_PORT:-4030}:4030"
+    depends_on:
+      wishlist-db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://wishlist:${DB_PASSWORD:-changeme}@wishlist-db:5432/wishlist
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      SEED_USER1_USERNAME: ${SEED_USER1_USERNAME:-user1}
+      SEED_USER1_PASSWORD: ${SEED_USER1_PASSWORD:-changeme}
+      SEED_USER1_NAME: ${SEED_USER1_NAME:-User One}
+      SEED_USER2_USERNAME: ${SEED_USER2_USERNAME:-user2}
+      SEED_USER2_PASSWORD: ${SEED_USER2_PASSWORD:-changeme}
+      SEED_USER2_NAME: ${SEED_USER2_NAME:-User Two}
+    volumes:
+      - /home/supkq/docker/wishlist/uploads:/app/public/uploads
+    networks:
+      - proxy
+      - wishlist-internal
+
+networks:
+  proxy:
+    name: proxy
+    external: true
+  wishlist-internal:
+    driver: bridge
+

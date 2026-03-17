@@ -1,0 +1,16 @@
+{
+  "plugins": {
+    "continual-learning": {
+      "enabled": true
+    },
+    "superpowers": {
+      "enabled": true
+    },
+    "context7-plugin": {
+      "enabled": true
+    },
+    "prisma": {
+      "enabled": true
+    }
+  }
+}

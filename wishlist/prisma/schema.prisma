@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String        @id @default(cuid())
+  username      String        @unique
+  password      String
+  name          String
+  avatarUrl     String?
+  role          Role          @default(USER)
+  items         Item[]
+  lists         List[]
+  listViewers   ListViewer[]
+  itemComments  ItemComment[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([username])
+  @@index([role])
+}
+
+model List {
+  id        String       @id @default(cuid())
+  name      String
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     Item[]
+  viewers   ListViewer[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([userId])
+}
+
+model ListViewer {
+  listId   String
+  list     List     @relation(fields: [listId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedAt DateTime @default(now())
+
+  @@id([listId, userId])
+  @@index([userId])
+}
+
+model Item {
+  id          String        @id @default(cuid())
+  title       String
+  url         String?
+  price       Float?
+  currency    String        @default("RUB")
+  priority    Int           @default(3) // 1-5
+  images      String[] // Array of image URLs
+  notes       String?
+  purchased   Boolean       @default(false)
+  purchasedAt DateTime?
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listId      String?
+  list        List?         @relation(fields: [listId], references: [id], onDelete: SetNull)
+  tags        Tag[]
+  comments    ItemComment[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([listId])
+  @@index([purchased])
+  @@index([createdAt])
+  @@index([userId, purchased])
+  @@index([userId, createdAt])
+}
+
+model ItemComment {
+  id        String   @id @default(cuid())
+  text      String   @db.VarChar(2000)
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([itemId])
+  @@index([userId])
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String @unique
+  color String @default("#6366f1")
+  items Item[]
+
+  @@index([name])
+}
