@@ -10,8 +10,8 @@ chown -R nextjs:nodejs /app/public/uploads || true
 echo "Waiting for database to be ready..."
 sleep 3
 
-echo "Applying database schema..."
-npx prisma db push --schema=./prisma/schema.prisma
+echo "Applying database migrations..."
+npx prisma migrate deploy --schema=./prisma/schema.prisma
 
 echo "Seeding users (if needed)..."
 node ./prisma/seed.js || echo "Seed skipped or failed (non-critical)"

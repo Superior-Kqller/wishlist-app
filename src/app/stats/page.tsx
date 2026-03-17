@@ -3,18 +3,12 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
-import { Header } from "@/components/Header";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { UserWithStats } from "@/types";
 import { formatPrice } from "@/lib/utils";
-
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error("Ошибка загрузки");
-    return r.json();
-  });
+import { fetcher } from "@/lib/fetcher";
 
 export default function StatsPage() {
   const { status } = useSession();
@@ -47,11 +41,6 @@ export default function StatsPage() {
 
   return (
     <div className="min-h-screen page-bg">
-      <Header
-        onAddItem={() => router.push("/")}
-        onParseUrl={() => router.push("/")}
-      />
-
       <main className="container mx-auto px-4 py-6 max-w-6xl">
         <div className="space-y-6">
           <div>

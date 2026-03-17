@@ -4,18 +4,12 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
-import { Header } from "@/components/Header";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { PasswordForm } from "@/components/settings/PasswordForm";
 import { ThemeSection } from "@/components/settings/ThemeSection";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error("Ошибка загрузки");
-    return r.json();
-  });
+import { fetcher } from "@/lib/fetcher";
 
 export default function SettingsPage() {
   const { status } = useSession();
@@ -48,11 +42,6 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen page-bg">
-      <Header
-        onAddItem={() => router.push("/")}
-        onParseUrl={() => router.push("/")}
-      />
-
       <main className="container mx-auto px-4 py-6 max-w-2xl">
         <div className="space-y-6">
           <div>

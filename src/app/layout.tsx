@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 import { Providers } from "./providers";
+import { Header } from "@/components/Header";
 
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
@@ -29,15 +31,19 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const hdrs = await headers();
+  const nonce = hdrs.get("x-nonce") ?? undefined;
+
   return (
     <html lang="ru" suppressHydrationWarning>
       <head>
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -49,7 +55,10 @@ export default function RootLayout({
         />
       </head>
       <body className={manrope.className}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   );

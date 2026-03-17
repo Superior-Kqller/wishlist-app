@@ -56,7 +56,7 @@ export function ItemDetailDialog({
   onTogglePurchased,
 }: ItemDetailDialogProps) {
   const { data: session } = useSession();
-  const currentUserId = (session?.user as { id?: string })?.id;
+  const currentUserId = session?.user?.id;
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
@@ -106,10 +106,8 @@ export function ItemDetailDialog({
   };
 
   const handleDelete = () => {
-    if (typeof window !== "undefined" && window.confirm("Удалить это желание?")) {
-      onDelete(item.id);
-      onClose();
-    }
+    onDelete(item.id);
+    onClose();
   };
 
   const handleTogglePurchased = () => {

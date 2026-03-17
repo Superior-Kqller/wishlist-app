@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useMemo, useCallback, Suspense } from "react";
+import { useState, useMemo, useCallback, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import useSWR, { mutate } from "swr";
-import { Header } from "@/components/Header";
+import { useHeaderActions } from "@/lib/header-actions";
 import { WishlistGrid } from "@/components/WishlistGrid";
 import { ItemFormDialog } from "@/components/ItemFormDialog";
 import { ParseUrlDialog } from "@/components/ParseUrlDialog";
@@ -15,6 +15,7 @@ import { ListFilter } from "@/components/ListFilter";
 import { ListFormDialog } from "@/components/ListFormDialog";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { FiltersDrawer } from "@/components/FiltersDrawer";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, SlidersHorizontal } from "lucide-react";
@@ -27,12 +28,7 @@ import {
   ListWithMeta,
 } from "@/types";
 import { toast } from "sonner";
-
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error("Ошибка загрузки");
-    return r.json();
-  });
+import { fetcher } from "@/lib/fetcher";
 
 // Поддержка старого формата (массив) и нового (объект с пагинацией)
 function extractItems(data: WishlistItem[] | { items: WishlistItem[]; pagination?: unknown }): WishlistItem[] {
@@ -47,7 +43,7 @@ function HomePageContent() {
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentUserId = (session?.user as any)?.id;
+  const currentUserId = session?.user?.id;
 
   // Получаем userId и listId из URL параметров
   const userIdParam = searchParams.get("userId");
@@ -118,6 +114,19 @@ function HomePageContent() {
   const [editingList, setEditingList] = useState<ListWithMeta | null>(null);
   const [detailItem, setDetailItem] = useState<WishlistItem | null>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
+
+  const { setActions } = useHeaderActions();
+  useEffect(() => {
+    setActions({
+      onAddItem: () => {
+        setParsedData(null);
+        setAddDialogOpen(true);
+      },
+      onParseUrl: () => setParseDialogOpen(true),
+    });
+    return () => setActions({});
+  }, [setActions]);
 
   // Filter states
   const [search, setSearch] = useState("");
@@ -216,13 +225,18 @@ function HomePageContent() {
     [editingItem]
   );
 
-  const handleDeleteItem = useCallback(async (id: string) => {
-    if (!window.confirm("Удалить это желание?")) return;
-    const res = await fetch(`/api/items/${id}`, { method: "DELETE" });
+  const handleDeleteItem = useCallback((id: string) => {
+    setDeletingItemId(id);
+  }, []);
+
+  const confirmDeleteItem = useCallback(async () => {
+    if (!deletingItemId) return;
+    const res = await fetch(`/api/items/${deletingItemId}`, { method: "DELETE" });
     if (!res.ok) throw new Error("Ошибка при удалении желания");
     toast.success("Удалено");
     mutate("/api/items");
-  }, []);
+    setDeletingItemId(null);
+  }, [deletingItemId]);
 
   const handleTogglePurchased = useCallback(
     async (id: string, purchased: boolean) => {
@@ -271,14 +285,6 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen page-bg">
-      <Header
-        onAddItem={() => {
-          setParsedData(null);
-          setAddDialogOpen(true);
-        }}
-        onParseUrl={() => setParseDialogOpen(true)}
-      />
-
       <main className="container mx-auto px-4 py-6 space-y-4">
         <div className="sticky top-16 z-30 -mx-4 px-4 py-2 sm:py-3 bg-background/95 backdrop-blur-sm border-b border-border/50 sm:border-0 sm:bg-transparent sm:backdrop-blur-none sm:static sm:z-auto flex flex-col gap-2 sm:gap-3 min-w-0">
           {/* Мобильная компактная строка: только поиск + кнопка «Фильтры» */}
@@ -449,6 +455,17 @@ function HomePageContent() {
         onTogglePurchased={handleTogglePurchased}
       />
 
+      {/* Confirm delete dialog */}
+      <ConfirmDialog
+        open={!!deletingItemId}
+        onOpenChange={(open) => !open && setDeletingItemId(null)}
+        title="Удалить желание?"
+        description="Это действие нельзя отменить."
+        confirmLabel="Удалить"
+        variant="destructive"
+        onConfirm={confirmDeleteItem}
+      />
+
       {/* List create/edit dialog */}
       <ListFormDialog
         open={listDialogOpen}
@@ -470,16 +487,8 @@ function HomePageContent() {
 export default function HomePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen page-bg">
-        <Header
-          onAddItem={() => {}}
-          onParseUrl={() => {}}
-        />
-        <main className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-center min-h-[50vh]">
-            <div className="text-muted-foreground">Загрузка...</div>
-          </div>
-        </main>
+      <div className="min-h-screen page-bg flex items-center justify-center min-h-[50vh]">
+        <div className="text-muted-foreground">Загрузка...</div>
       </div>
     }>
       <HomePageContent />

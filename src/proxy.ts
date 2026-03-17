@@ -5,15 +5,34 @@ import { getToken } from "next-auth/jwt";
 export default withAuth(
   async function proxy(req) {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-    const isAdmin = (token?.role as string) === "ADMIN";
+    const isAdmin = token?.role === "ADMIN";
     const isAdminPage = req.nextUrl.pathname.startsWith("/admin");
 
-    // Защита админ-страниц: только для админов
     if (isAdminPage && !isAdmin) {
       return NextResponse.redirect(new URL("/", req.url));
     }
 
-    return NextResponse.next();
+    const nonce = crypto.randomUUID().replace(/-/g, "");
+
+    const csp = [
+      "default-src 'self'",
+      `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https:",
+      "font-src 'self' data:",
+      "connect-src 'self'",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join("; ");
+
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set("x-nonce", nonce);
+
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
+    response.headers.set("Content-Security-Policy", csp);
+
+    return response;
   },
   {
     pages: {
@@ -24,14 +43,6 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    /*
-     * Match all paths except:
-     * - /login
-     * - /api/auth (NextAuth routes)
-     * - /_next (static files)
-     * - /favicon.ico
-     * - /api/health (health check)
-     */
     "/((?!login|api/auth|api/health|_next|favicon.ico).*)",
   ],
 };

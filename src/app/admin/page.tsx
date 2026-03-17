@@ -4,19 +4,13 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
-import { Header } from "@/components/Header";
 import { UserTable } from "@/components/admin/UserTable";
 import { CreateUserDialog } from "@/components/admin/CreateUserDialog";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
 import { User } from "@/types";
 import { toast } from "sonner";
-
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error("Ошибка загрузки");
-    return r.json();
-  });
+import { fetcher } from "@/lib/fetcher";
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -41,8 +35,7 @@ export default function AdminPage() {
     }
 
     if (status === "authenticated" && session?.user) {
-      const userRole = (session.user as any).role;
-      if (userRole !== "ADMIN") {
+      if (session.user.role !== "ADMIN") {
         toast.error("Доступ запрещен. Требуются права администратора.");
         router.push("/");
       }
@@ -57,15 +50,10 @@ export default function AdminPage() {
     );
   }
 
-  const currentUserId = (session?.user as any)?.id;
+  const currentUserId = session?.user?.id;
 
   return (
     <div className="min-h-screen page-bg">
-      <Header
-        onAddItem={() => router.push("/")}
-        onParseUrl={() => router.push("/")}
-      />
-
       <main className="container mx-auto px-4 py-6">
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

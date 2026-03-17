@@ -22,7 +22,7 @@ const updateItemSchema = z.object({
 
 async function getUserId(): Promise<string | null> {
   const session = await getServerSession(authOptions);
-  const id = (session?.user as any)?.id as string | undefined;
+  const id = session?.user?.id;
   if (!id) return null;
   const user = await prisma.user.findUnique({ where: { id }, select: { id: true } });
   return user ? id : null;

@@ -4,7 +4,6 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**" },
-      { protocol: "http", hostname: "**" },
     ],
   },
   async headers() {
@@ -19,20 +18,6 @@ const nextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
-          },
-          {
-            key: "Content-Security-Policy",
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'", // Next.js требует unsafe-eval и unsafe-inline
-              "style-src 'self' 'unsafe-inline'", // Tailwind требует unsafe-inline
-              "img-src 'self' data: https: http:",
-              "font-src 'self' data:",
-              "connect-src 'self'",
-              "frame-ancestors 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-            ].join("; "),
           },
         ],
       },

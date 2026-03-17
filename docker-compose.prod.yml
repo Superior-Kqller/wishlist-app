@@ -19,6 +19,25 @@ services:
     networks:
       - proxy
 
+  wishlist-redis:
+    image: redis:9-alpine
+    container_name: wishlist-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --maxmemory 64mb
+      --maxmemory-policy allkeys-lru
+      --port 0
+      --unixsocket /run/redis/redis.sock
+      --unixsocketperm 777
+    healthcheck:
+      test: ["CMD", "redis-cli", "-s", "/run/redis/redis.sock", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    volumes:
+      - redis-socket:/run/redis
+
   wishlist-app:
     image: ghcr.io/superior-kqller/wishlist-app:latest
     container_name: wishlist-app
@@ -30,10 +49,14 @@ services:
     depends_on:
       wishlist-db:
         condition: service_healthy
+      wishlist-redis:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://wishlist:${DB_PASSWORD}@wishlist-db:5432/wishlist
+      REDIS_URL: /run/redis/redis.sock
     volumes:
       - uploads-data:/app/public/uploads
+      - redis-socket:/run/redis:ro
     networks:
       - proxy
 
@@ -45,3 +68,4 @@ networks:
 volumes:
   postgres-data:
   uploads-data:
+  redis-socket:

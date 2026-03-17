@@ -15,13 +15,10 @@ import { Gift, LogOut, Plus, Link, Settings, Shield, BarChart3, Menu, Sun, Moon,
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { useHeaderActions } from "@/lib/header-actions";
 
-interface HeaderProps {
-  onAddItem?: () => void;
-  onParseUrl?: () => void;
-}
-
-export function Header({ onAddItem, onParseUrl }: HeaderProps) {
+export function Header() {
+  const { actions: { onAddItem, onParseUrl } } = useHeaderActions();
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
@@ -29,7 +26,7 @@ export function Header({ onAddItem, onParseUrl }: HeaderProps) {
   const [mounted, setMounted] = useState(false);
   const [colorTheme, setColorTheme] = useState<string>("purple");
 
-  const isAdmin = ((session?.user as { role?: string } | undefined)?.role === "ADMIN");
+  const isAdmin = session?.user?.role === "ADMIN";
   const isMainPage = pathname === "/";
 
   useEffect(() => {

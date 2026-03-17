@@ -18,3 +18,8 @@ LICENSE
 .env.*
 !.env.example
 docker-compose*.yml
+e2e
+playwright.config.ts
+playwright-report
+test-results
+vitest.config.ts

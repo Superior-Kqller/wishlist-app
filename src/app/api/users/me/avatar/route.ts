@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
       where: { id: userId },
       data: { 
         avatarUrl: avatarUrl,
-      } as any, // Prisma types могут быть не синхронизированы после миграции
+      },
     });
 
     return NextResponse.json({ avatarUrl });

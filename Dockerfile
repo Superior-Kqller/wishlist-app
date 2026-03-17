@@ -73,8 +73,19 @@ COPY --from=builder /app/node_modules/split2 ./node_modules/split2
 COPY --from=builder /app/node_modules/@prisma/driver-adapter-utils ./node_modules/@prisma/driver-adapter-utils
 COPY --from=builder /app/node_modules/bcryptjs ./node_modules/bcryptjs
 COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
+COPY --from=builder /app/node_modules/ioredis ./node_modules/ioredis
+COPY --from=builder /app/node_modules/@ioredis ./node_modules/@ioredis
+COPY --from=builder /app/node_modules/cluster-key-slot ./node_modules/cluster-key-slot
+COPY --from=builder /app/node_modules/denque ./node_modules/denque
+COPY --from=builder /app/node_modules/lodash.defaults ./node_modules/lodash.defaults
+COPY --from=builder /app/node_modules/lodash.isarguments ./node_modules/lodash.isarguments
+COPY --from=builder /app/node_modules/redis-errors ./node_modules/redis-errors
+COPY --from=builder /app/node_modules/redis-parser ./node_modules/redis-parser
+COPY --from=builder /app/node_modules/standard-as-callback ./node_modules/standard-as-callback
+COPY --from=builder /app/node_modules/debug ./node_modules/debug
+COPY --from=builder /app/node_modules/ms ./node_modules/ms
 
-# Copy prisma.config.ts for prisma db push at runtime
+# Copy prisma.config.ts for prisma migrate deploy at runtime
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
 # Startup script
