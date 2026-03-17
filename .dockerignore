@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+postgres
+.gitignore
+*.md
+.env
+.env.local
+.env.*
+!.env.example
+docker-compose*.yml
+.vscode
+.github
+*.sh
+*.dump

@@ -1,0 +1,47 @@
+services:
+  wishlist-db:
+    image: postgres:17-alpine
+    container_name: wishlist-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: wishlist
+      POSTGRES_USER: wishlist
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wishlist"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - proxy
+
+  wishlist-app:
+    image: ghcr.io/superior-kqller/wishlist-sh-app:latest
+    container_name: wishlist-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:${APP_PORT:-4030}:4030"
+    depends_on:
+      wishlist-db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://wishlist:${DB_PASSWORD}@wishlist-db:5432/wishlist
+    volumes:
+      - uploads-data:/app/public/uploads
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    name: proxy
+    external: true
+
+volumes:
+  postgres-data:
+  uploads-data:
