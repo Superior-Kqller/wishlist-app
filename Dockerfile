@@ -13,8 +13,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma client
-RUN npx prisma generate
+# Generate Prisma client (dummy URL — реальное подключение не требуется)
+RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" npx prisma generate
 
 # Create upload directories in builder stage so they are copied with public folder
 # Create a .gitkeep file to ensure the directory is copied
