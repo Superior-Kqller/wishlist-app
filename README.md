@@ -2,6 +2,12 @@
 
 Современное приложение для создания и управления списками желаний.
 
+## Скриншоты
+
+<p align="center">
+  <img src="assets/dark-theme.png" alt="Тёмная тема" width="800">
+</p>
+
 ## Технологии
 
 - **Frontend & Backend:** Next.js 16 (App Router)
