@@ -302,3 +302,5 @@ MIT
 ## Автор
 
 Superior-Kqller
+
+Проект создан с помощью AI (Claude / Cursor IDE).
