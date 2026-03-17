@@ -20,7 +20,7 @@ services:
       - proxy
 
   wishlist-valkey:
-    image: valkey/valkey:8-alpine
+    image: valkey/valkey:8.1-alpine
     container_name: wishlist-valkey
     restart: unless-stopped
     command: >
