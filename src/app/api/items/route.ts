@@ -79,12 +79,14 @@ export async function GET(req: NextRequest) {
     conditions.push({ listId: listIdParam.trim() });
   } else {
     const visibleListIds = await getVisibleListIdsForUser(currentUserId);
-    conditions.push({
-      OR: [
-        { listId: null },
-        { listId: { in: visibleListIds } },
-      ],
-    });
+    if (visibleListIds.length > 0) {
+      conditions.push({ listId: { in: visibleListIds } });
+    } else {
+      return NextResponse.json(
+        { items: [], pagination: { hasMore: false, nextCursor: null, limit } },
+        { headers: { "Cache-Control": "private, s-maxage=30, stale-while-revalidate=60" } }
+      );
+    }
   }
 
   const where = conditions.length > 0 ? { AND: conditions } : {};

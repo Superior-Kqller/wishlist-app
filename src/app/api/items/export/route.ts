@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
+import { getVisibleListIdsForUser } from "@/lib/list-utils";
 
 export async function GET(req: NextRequest) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.read);
@@ -19,8 +20,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Invalid format" }, { status: 400 });
   }
 
+  const visibleListIds = await getVisibleListIdsForUser(userId);
+
   const items = await prisma.item.findMany({
-    where: { userId },
+    where: {
+      userId,
+      listId: { in: visibleListIds },
+    },
     include: { tags: true },
     orderBy: { createdAt: "desc" },
   });

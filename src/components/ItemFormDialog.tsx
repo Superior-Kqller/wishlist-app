@@ -24,7 +24,7 @@ import {
 import { PriorityStars } from "./PriorityStars";
 import { WishlistItem, CreateItemPayload, Tag, ListWithMeta } from "@/types";
 import { getTagColor } from "@/lib/utils";
-import { Loader2, Plus, X } from "lucide-react";
+import { AlertTriangle, Loader2, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 
@@ -218,6 +218,12 @@ export function ItemFormDialog({
                   ))}
                 </SelectContent>
               </Select>
+              {!listId && (
+                <p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                  <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                  Товар без подборки будет скрыт. Привяжите его к подборке, чтобы он стал виден.
+                </p>
+              )}
             </div>
           )}
 

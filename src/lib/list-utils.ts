@@ -30,7 +30,8 @@ export async function getVisibleListIdsForUser(userId: string): Promise<string[]
 }
 
 /**
- * Проверяет, может ли пользователь видеть товар: без подборки — да (общий список), в подборке — по доступу к подборке.
+ * Проверяет, может ли пользователь видеть товар.
+ * Товар без подборки (listId == null) скрыт от всех до привязки к подборке.
  */
 export async function canUserSeeItem(
   itemId: string,
@@ -41,6 +42,6 @@ export async function canUserSeeItem(
     select: { listId: true },
   });
   if (!item) return false;
-  if (!item.listId) return true;
+  if (!item.listId) return false;
   return canUserSeeList(item.listId, userId);
 }

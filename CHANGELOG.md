@@ -5,6 +5,21 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект использует [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [1.1.0] — 2026-03-17
+
+### Изменено
+
+- **Права видимости товаров** — товары без подборки (`listId = null`) больше не отображаются в общей выдаче. Товар виден только если привязан к подборке, доступной пользователю
+- `GET /api/items` исключает `listId: null` из фильтрации
+- `GET /api/items/:id` проверяет доступ через `canUserSeeItem`
+- `GET /api/items/export` экспортирует только товары из видимых подборок
+- `canUserSeeItem()` теперь возвращает `false` для товаров без подборки
+- UI: предупреждение при выборе «Без подборки» в форме добавления товара
+
+### Добавлено
+
+- Unit-тесты для `list-utils.ts` (10 тестов: canUserSeeList, canUserSeeItem, getVisibleListIdsForUser)
+
 ## [1.0.1] — 2026-03-17
 
 ### Исправлено

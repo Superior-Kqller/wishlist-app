@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getTagColor } from "@/lib/utils";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
+import { canUserSeeItem } from "@/lib/list-utils";
 import { z } from "zod";
 
 const updateItemSchema = z.object({
@@ -28,12 +29,11 @@ async function getUserId(): Promise<string | null> {
   return user ? id : null;
 }
 
-// GET /api/items/[id] — любой залогиненный пользователь может просматривать (общий список)
+// GET /api/items/[id] — только если пользователь имеет доступ (через подборку)
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Rate limiting
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.read);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -43,6 +43,12 @@ export async function GET(
   }
 
   const { id } = await params;
+
+  const canSee = await canUserSeeItem(id, userId);
+  if (!canSee) {
+    return NextResponse.json({ error: "Не найдено" }, { status: 404 });
+  }
+
   const item = await prisma.item.findFirst({
     where: { id },
     include: { tags: true, user: { select: { id: true, name: true, avatarUrl: true } } },
