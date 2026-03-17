@@ -17,6 +17,7 @@ pnpm-debug.log*
 Thumbs.db
 public/uploads/
 .cursor
+docs/
 
 # Playwright
 playwright-report/
