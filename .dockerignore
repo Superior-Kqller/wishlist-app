@@ -11,5 +11,5 @@ postgres
 docker-compose*.yml
 .vscode
 .github
-*.sh
+seed-production.sh
 *.dump
