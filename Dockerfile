@@ -13,18 +13,17 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma client (dummy URL — реальное подключение не требуется)
-RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" npx prisma generate
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
+ENV NEXTAUTH_SECRET="build-secret-placeholder"
+ENV NEXTAUTH_URL="http://localhost:3000"
 
-# Create upload directories in builder stage so they are copied with public folder
-# Create a .gitkeep file to ensure the directory is copied
+RUN npx prisma generate
+
 RUN mkdir -p /app/public/uploads/avatars && \
     touch /app/public/uploads/avatars/.gitkeep
 
-# Build Next.js
 RUN npm run build
 
-# Bundle prisma CLI with ALL its transitive deps (for runtime migrations)
 RUN mkdir /prisma-cli && cd /prisma-cli && \
     echo '{"dependencies":{"prisma":"'$(node -e "console.log(require('/app/node_modules/prisma/package.json').version)")'"}}'> package.json && \
     npm install --production 2>/dev/null
@@ -45,28 +44,44 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copy Prisma client for runtime queries
+# Copy prisma CLI (first, so specific modules overlay it below)
+COPY --from=builder /prisma-cli/node_modules ./node_modules
+
+# Copy Prisma client (overlay after prisma-cli)
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
-# Copy prisma CLI + ALL deps for migrations (overlay into node_modules)
-COPY --from=builder /prisma-cli/node_modules ./node_modules
-
-# Copy bcryptjs for seed script
+# Copy runtime deps for entrypoint/seed: adapter-pg, pg, bcryptjs, dotenv
+COPY --from=builder /app/node_modules/@prisma/adapter-pg ./node_modules/@prisma/adapter-pg
+COPY --from=builder /app/node_modules/pg ./node_modules/pg
+COPY --from=builder /app/node_modules/pg-types ./node_modules/pg-types
+COPY --from=builder /app/node_modules/pg-protocol ./node_modules/pg-protocol
+COPY --from=builder /app/node_modules/pg-pool ./node_modules/pg-pool
+COPY --from=builder /app/node_modules/pg-connection-string ./node_modules/pg-connection-string
+COPY --from=builder /app/node_modules/pgpass ./node_modules/pgpass
+COPY --from=builder /app/node_modules/pg-cloudflare ./node_modules/pg-cloudflare 
+COPY --from=builder /app/node_modules/pg-numeric ./node_modules/pg-numeric
+COPY --from=builder /app/node_modules/postgres-array ./node_modules/postgres-array
+COPY --from=builder /app/node_modules/postgres-bytea ./node_modules/postgres-bytea
+COPY --from=builder /app/node_modules/postgres-date ./node_modules/postgres-date
+COPY --from=builder /app/node_modules/postgres-interval ./node_modules/postgres-interval
+COPY --from=builder /app/node_modules/postgres-range ./node_modules/postgres-range
+COPY --from=builder /app/node_modules/obuf ./node_modules/obuf
+COPY --from=builder /app/node_modules/pg-int8 ./node_modules/pg-int8
+COPY --from=builder /app/node_modules/split2 ./node_modules/split2
+COPY --from=builder /app/node_modules/@prisma/driver-adapter-utils ./node_modules/@prisma/driver-adapter-utils
 COPY --from=builder /app/node_modules/bcryptjs ./node_modules/bcryptjs
+COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
 
-# Startup script - fix Windows CRLF line endings
+# Copy prisma.config.ts for prisma db push at runtime
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+
+# Startup script
 COPY docker-entrypoint.sh ./
 RUN sed -i 's/\r$//' docker-entrypoint.sh && chmod +x docker-entrypoint.sh
 
-# Set ownership for the entire app directory BEFORE switching to nextjs user
-# Upload directories will be created in docker-entrypoint.sh as root
 RUN chown -R nextjs:nodejs /app
-
-# Note: We don't switch to nextjs user here because docker-entrypoint.sh needs to run as root
-# to create directories when volume is mounted. We'll switch to nextjs in docker-entrypoint.sh
-# USER nextjs
 
 EXPOSE 4030
 ENV PORT=4030
