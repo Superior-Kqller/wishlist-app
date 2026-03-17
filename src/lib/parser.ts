@@ -307,9 +307,103 @@ async function parseWildberries(url: string): Promise<ParsedProduct> {
   };
 }
 
-// --- Ozon ---
+// --- Ozon (internal API + HTML fallback) ---
 
-async function parseOzon(url: string, html: string): Promise<ParsedProduct> {
+const OZON_API_HEADERS: Record<string, string> = {
+  "User-Agent": "ozonapp_android/17.40.1+14901",
+  Accept: "application/json",
+  "Accept-Language": "ru-RU,ru;q=0.9",
+  "x-o3-app-name": "ozonapp_android",
+  "x-o3-app-version": "17.40.1",
+};
+
+function extractOzonProductPath(url: string): string | null {
+  const match = url.match(/\/product\/([\w-]*\d+)\/?/);
+  return match ? match[1] : null;
+}
+
+async function resolveOzonShortUrl(url: string): Promise<string> {
+  const resp = await fetch(url, {
+    headers: HEADERS,
+    redirect: "manual",
+    signal: AbortSignal.timeout(5000),
+  });
+  const location = resp.headers.get("location");
+  if (location && location.includes("/product/")) {
+    return location.startsWith("http") ? location : `https://www.ozon.ru${location}`;
+  }
+  throw new Error("Не удалось развернуть короткую ссылку Ozon");
+}
+
+function parseOzonPriceString(text: string): number | null {
+  if (!text) return null;
+  const cleaned = text.replace(/[^\d.,]/g, "").replace(/,/g, ".");
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? null : num;
+}
+
+function findWidgetState(widgetStates: Record<string, string>, prefix: string): any | null {
+  for (const [key, value] of Object.entries(widgetStates)) {
+    if (key.startsWith(prefix)) {
+      try {
+        return JSON.parse(value);
+      } catch {
+        continue;
+      }
+    }
+  }
+  return null;
+}
+
+async function parseOzonViaApi(url: string, productPath: string): Promise<ParsedProduct | null> {
+  const apiUrl = `https://api.ozon.ru/composer-api.bx/page/json/v2?url=/product/${productPath}/`;
+
+  const response = await fetch(apiUrl, {
+    headers: OZON_API_HEADERS,
+    signal: AbortSignal.timeout(10000),
+  });
+
+  if (!response.ok) return null;
+
+  const data = await response.json();
+  const ws: Record<string, string> | undefined = data?.widgetStates;
+  if (!ws || Object.keys(ws).length === 0) return null;
+
+  const heading = findWidgetState(ws, "webProductHeading");
+  const priceWidget = findWidgetState(ws, "webPrice");
+  const gallery = findWidgetState(ws, "webGallery");
+
+  const title = (heading?.title || "")
+    .replace(/\s+/g, " ")
+    .replace(/ - купить.*$/i, "")
+    .replace(/ \| OZON$/i, "")
+    .trim();
+
+  if (!title) return null;
+
+  const price = parseOzonPriceString(
+    priceWidget?.cardPrice || priceWidget?.price || priceWidget?.originalPrice || "",
+  );
+
+  const images: string[] = [];
+  if (gallery?.coverImage) images.push(gallery.coverImage);
+  if (gallery?.images && Array.isArray(gallery.images)) {
+    for (const img of gallery.images) {
+      const src = typeof img === "string" ? img : img?.src || img?.url;
+      if (src && !images.includes(src)) images.push(src);
+    }
+  }
+
+  return {
+    title,
+    price,
+    currency: "RUB",
+    images: images.slice(0, 5),
+    url,
+  };
+}
+
+async function parseOzonViaHtml(url: string, html: string): Promise<ParsedProduct> {
   const $ = cheerio.load(html);
   const jsonLd = extractJsonLd($);
   const og = extractOpenGraph($);
@@ -338,6 +432,28 @@ async function parseOzon(url: string, html: string): Promise<ParsedProduct> {
     .trim();
 
   return { title, price, currency, images: Array.from(new Set(images)), url };
+}
+
+async function parseOzon(url: string): Promise<ParsedProduct> {
+  let resolvedUrl = url;
+
+  // Короткие ссылки /t/... — разворачиваем
+  if (new URL(url).pathname.startsWith("/t/")) {
+    resolvedUrl = await resolveOzonShortUrl(url);
+  }
+
+  const productPath = extractOzonProductPath(resolvedUrl);
+  if (!productPath) {
+    throw new Error("Не удалось извлечь ID товара из URL Ozon");
+  }
+
+  // Сначала API
+  const apiResult = await parseOzonViaApi(resolvedUrl, productPath).catch(() => null);
+  if (apiResult) return apiResult;
+
+  // Fallback на HTML
+  const html = await fetchHtml(resolvedUrl);
+  return parseOzonViaHtml(resolvedUrl, html);
 }
 
 // --- AliExpress ---
@@ -479,11 +595,13 @@ export async function parseProductUrl(url: string): Promise<ParsedProduct> {
     return parseWildberries(url);
   }
 
+  if (marketplace === "ozon") {
+    return parseOzon(url);
+  }
+
   const html = await fetchHtml(url);
 
   switch (marketplace) {
-    case "ozon":
-      return parseOzon(url, html);
     case "aliexpress":
       return parseAliexpress(url, html);
     default:

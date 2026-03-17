@@ -149,55 +149,90 @@ describe("parseProductUrl — Wildberries", () => {
 // --- Ozon parsing ---
 
 describe("parseProductUrl — Ozon", () => {
-  it("парсит Ozon через JSON-LD", async () => {
+  it("парсит Ozon через внутренний API (widgetStates)", async () => {
     mockResolve4.mockResolvedValue(["185.71.76.1"]);
     mockResolve6.mockRejectedValue(new Error("no"));
 
-    const html = `
-      <html><head>
-        <title>Тестовый товар Ozon | OZON</title>
-        <meta property="og:title" content="Тестовый товар Ozon" />
-        <meta property="og:image" content="https://cdn.ozon.ru/img.jpg" />
-        <script type="application/ld+json">
-          {"@type":"Product","name":"Тестовый товар Ozon","offers":{"price":"2499","priceCurrency":"RUB"},"image":"https://cdn.ozon.ru/product.jpg"}
-        </script>
-      </head><body></body></html>
-    `;
+    const ozonApiResponse = {
+      widgetStates: {
+        "webProductHeading-3456-default-1": JSON.stringify({
+          title: "Наушники Bluetooth",
+        }),
+        "webPrice-3457-default-1": JSON.stringify({
+          price: "2 499 ₽",
+          cardPrice: "2 199 ₽",
+          originalPrice: "3 999 ₽",
+        }),
+        "webGallery-3458-default-1": JSON.stringify({
+          coverImage: "https://ir.ozoncdn.net/cover.jpg",
+          images: [
+            { src: "https://ir.ozoncdn.net/img1.jpg" },
+            { src: "https://ir.ozoncdn.net/img2.jpg" },
+          ],
+        }),
+      },
+    };
 
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(html, { status: 200 }),
+      new Response(JSON.stringify(ozonApiResponse), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
     );
 
-    const result = await parseProductUrl("https://www.ozon.ru/product/test-123/");
-    expect(result.title).toBe("Тестовый товар Ozon");
-    expect(result.price).toBe(2499);
+    const result = await parseProductUrl(
+      "https://www.ozon.ru/product/naushniki-bluetooth-123456/",
+    );
+
+    expect(result.title).toBe("Наушники Bluetooth");
+    expect(result.price).toBe(2199);
     expect(result.currency).toBe("RUB");
-    expect(result.images).toContain("https://cdn.ozon.ru/product.jpg");
+    expect(result.images).toContain("https://ir.ozoncdn.net/cover.jpg");
+    expect(result.images.length).toBe(3);
 
     fetchSpy.mockRestore();
   });
 
-  it("парсит Ozon через embedded JSON (webPrice)", async () => {
+  it("fallback на HTML при ошибке API", async () => {
     mockResolve4.mockResolvedValue(["185.71.76.1"]);
     mockResolve6.mockRejectedValue(new Error("no"));
 
     const html = `
       <html><head>
-        <meta property="og:title" content="Товар Ozon Embedded" />
-      </head><body>
-        <script>window.__NUXT_DATA__={"webPrice":1999,"name":"Товар Ozon Embedded"}</script>
-      </body></html>
+        <meta property="og:title" content="Товар Ozon Fallback" />
+        <script type="application/ld+json">
+          {"@type":"Product","name":"Товар Ozon Fallback","offers":{"price":"1999","priceCurrency":"RUB"}}
+        </script>
+      </head><body></body></html>
     `;
 
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(html, { status: 200 }),
+    let callCount = 0;
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+      callCount++;
+      if (callCount === 1) {
+        return new Response("", { status: 403 });
+      }
+      return new Response(html, { status: 200 });
+    });
+
+    const result = await parseProductUrl(
+      "https://www.ozon.ru/product/fallback-789/",
     );
 
-    const result = await parseProductUrl("https://www.ozon.ru/product/embedded-456/");
-    expect(result.title).toBe("Товар Ozon Embedded");
+    expect(result.title).toBe("Товар Ozon Fallback");
     expect(result.price).toBe(1999);
+    expect(callCount).toBe(2);
 
     fetchSpy.mockRestore();
+  });
+
+  it("выбрасывает ошибку при неверном URL Ozon", async () => {
+    mockResolve4.mockResolvedValue(["185.71.76.1"]);
+    mockResolve6.mockRejectedValue(new Error("no"));
+
+    await expect(
+      parseProductUrl("https://www.ozon.ru/category/electronics/"),
+    ).rejects.toThrow("Не удалось извлечь ID товара");
   });
 });
 
