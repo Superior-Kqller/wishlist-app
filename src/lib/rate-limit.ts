@@ -13,7 +13,7 @@ interface RateLimitEntry {
   resetAt: number;
 }
 
-// --- Redis client (lazy singleton) ---
+// --- Valkey client (lazy singleton, via ioredis) ---
 
 let redisClient: import("ioredis").default | null = null;
 let redisFailed = false;
@@ -75,7 +75,7 @@ function checkMemoryRateLimit(key: string, max: number, windowMs: number) {
   return { allowed: true, remaining: max - entry.count, resetAt: entry.resetAt };
 }
 
-// --- Redis rate limit ---
+// --- Valkey rate limit ---
 
 async function checkRedisRateLimit(
   redis: import("ioredis").default,

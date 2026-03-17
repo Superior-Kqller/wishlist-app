@@ -9,7 +9,7 @@ vi.mock("./auth", () => ({
 }));
 
 vi.mock("ioredis", () => {
-  throw new Error("No redis in test");
+  throw new Error("No valkey in test");
 });
 
 describe("rate-limit (in-memory fallback)", () => {
