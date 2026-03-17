@@ -8,16 +8,15 @@
   <img src="assets/dark-theme.png" alt="Тёмная тема" width="800">
 </p>
 
-## Технологии
+## Стек (кратко)
 
-- **Frontend & Backend:** Next.js 16 (App Router)
-- **База данных:** PostgreSQL 17
-- **ORM:** Prisma
+- **Приложение:** Next.js 16 (App Router)
+- **База данных:** PostgreSQL 17 + Prisma
 - **UI:** Tailwind CSS + shadcn/ui + Framer Motion
 - **Аутентификация:** NextAuth.js с ролями (USER/ADMIN)
-- **Деплой:** Docker + Docker Compose
+- **Инфраструктура:** Docker + Docker Compose
 
-## Возможности
+## Основные возможности
 
 - 🔐 Безопасная аутентификация с ролями (USER/ADMIN)
 - 👥 Управление пользователями (создание, редактирование, удаление)
@@ -29,7 +28,7 @@
 - 🎨 7 цветовых тем + светлая/тёмная/системная
 - 📱 Адаптивный дизайн
 - 🚀 Пагинация для больших списков
-- 🛡️ Rate limiting, CSP headers, валидация данных
+  (rate limiting, CSP, валидация и др. — под капотом, без лишних настроек)
 
 ## Быстрый старт (Деплой на Ubuntu VM)
 
@@ -43,7 +42,7 @@ mkdir -p /opt/wishlist && cd /opt/wishlist
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Superior-Kqller/wishlist-app/main/docker-compose.prod.yml -o docker-compose.yml
-curl -fsSL https://raw.githubusercontent.com/Superior-Kqller/wishlist-app/main/.env.example -o .env
+curl -fsSL https://raw.githubusercontent.com/Superior-Kqller/wishlist-app/main/.env.example -o .env.example
 ```
 
 ### 3. Создать proxy network (если ещё не создана)
@@ -54,26 +53,32 @@ docker network create proxy
 
 ### 4. Настроить окружение
 
-Сгенерировать пароль БД и секрет NextAuth:
+Создать `.env` из шаблона и сразу подставить случайные значения.
+
+**Linux/macOS:**
 
 ```bash
-# сгенерировать надёжный пароль для PostgreSQL
-echo "DB_PASSWORD=$(openssl rand -hex 32)"
+cp .env.example .env
 
-# сгенерировать секрет для NextAuth
-echo "NEXTAUTH_SECRET=$(openssl rand -base64 32)"
+DB_PASSWORD=$(openssl rand -hex 32)
+NEXTAUTH_SECRET=$(openssl rand -base64 32)
+
+sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
+sed -i "s/^NEXTAUTH_SECRET=.*/NEXTAUTH_SECRET=$NEXTAUTH_SECRET/" .env
 ```
 
-Вставить сгенерированные значения в `.env`:
+**Windows (PowerShell, идея команды):**
 
-```bash
-nano .env
+```powershell
+Copy-Item .env.example .env
+$secret = [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }) )
+(Get-Content .env) -replace '^NEXTAUTH_SECRET=.*',\"NEXTAUTH_SECRET=$secret\" | Set-Content .env
 ```
 
-**Обязательно измените:**
+После этого отредактируйте `.env` любым удобным редактором и убедитесь, что заданы:
 
-- `DB_PASSWORD` — вставить сгенерированный пароль
-- `NEXTAUTH_SECRET` — вставить сгенерированный секрет
+- `DB_PASSWORD` — пароль для PostgreSQL
+- `NEXTAUTH_SECRET` — секрет NextAuth
 - `NEXTAUTH_URL` — URL вашего приложения (`https://wishlist.yourdomain.com`)
 - `SEED_USER*` — логины, пароли и имена пользователей
 
@@ -172,69 +177,18 @@ docker compose pull
 docker compose up -d
 ```
 
-## Архитектура
+## Статус парсера маркетплейсов
 
-```text
-wishlist/
-├── prisma/
-│   ├── schema.prisma      # Схема БД
-│   ├── seed.ts            # Seed пользователей (TS)
-│   ├── seed.js            # Seed пользователей (JS для Docker)
-│   └── promote-admin.js   # Скрипт повышения до админа
-├── src/
-│   ├── app/               # Next.js App Router
-│   │   ├── api/           # API routes
-│   │   │   ├── auth/      # NextAuth
-│   │   │   ├── items/     # CRUD для wishlist (с пагинацией)
-│   │   │   ├── tags/      # Теги
-│   │   │   ├── users/     # Управление пользователями
-│   │   │   │   ├── route.ts        # Список/создание
-│   │   │   │   ├── [id]/route.ts   # Редактирование/удаление
-│   │   │   │   ├── [id]/password/  # Смена пароля
-│   │   │   │   └── me/route.ts     # Свой профиль
-│   │   │   └── health/    # Health check
-│   │   ├── admin/         # Страница администрирования
-│   │   ├── settings/      # Страница настроек пользователя
-│   │   ├── login/         # Страница логина
-│   │   └── page.tsx       # Главная страница
-│   ├── components/        # React компоненты
-│   │   ├── ui/            # UI примитивы (shadcn)
-│   │   ├── admin/         # Компоненты админки
-│   │   ├── settings/      # Компоненты настроек
-│   │   ├── Header.tsx
-│   │   ├── ThemeSelector.tsx
-│   │   ├── WishlistCard.tsx
-│   │   └── ...
-│   ├── lib/
-│   │   ├── prisma.ts      # Prisma клиент
-│   │   ├── auth.ts        # NextAuth конфиг
-│   │   ├── auth-utils.ts  # Утилиты авторизации
-│   │   ├── rate-limit.ts  # Rate limiting
-│   │   ├── logger.ts      # Санитизированное логирование
-│   │   ├── password-validation.ts
-│   │   └── utils.ts       # Утилиты
-│   ├── proxy.ts           # Next.js proxy (защита роутов)
-│   └── types/             # TypeScript типы
-├── docker-compose.prod.yml # Compose конфигурация (GHCR-образ)
-├── Dockerfile             # Multi-stage build (для CI)
-├── docker-entrypoint.sh   # Скрипт запуска с миграциями
-└── .env                   # Переменные окружения
-```
+В ранних версиях приложения использовался парсер карточек товаров с маркетплейсов (Wildberries, Ozon, AliExpress).
 
-## Безопасность
+Сейчас эта функциональность нестабильна из‑за частых изменений сайтов и **не считается частью официального функционала**. В релизах 1.x парсер может быть частично отключён или работать только для отдельных кейсов.
 
-- ✅ JWT сессии с NextAuth
-- ✅ Bcrypt для паролей (12 rounds)
-- ✅ HTTPS через Nginx Proxy Manager
-- ✅ CORS и CSP headers настроены
-- ✅ Rate limiting на всех API endpoints
-- ✅ Валидация данных (Zod)
-- ✅ SQL injection защита (Prisma)
-- ✅ Санитизация логов (скрытие паролей, токенов)
-- ✅ Защита от удаления последнего админа
-- ✅ Транзакции для критичных операций (race condition защита)
-- ✅ Сложность паролей (минимум 8 символов, буквы, цифры, спецсимволы)
-- ✅ Индексы БД для производительности
+Основной сценарий использования приложения — ручное добавление ссылок и товаров.
+
+## Changelog и релизы
+
+- История изменений: `CHANGELOG.md`
+- Стабильные релизы и теги: раздел Releases в GitHub‑репозитории
 
 ## Лицензия
 
