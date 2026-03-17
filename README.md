@@ -110,19 +110,7 @@ docker compose exec wishlist-app node prisma/seed.js
 docker compose exec wishlist-app node prisma/promote-admin.js
 ```
 
-### 7. Настроить Nginx Proxy Manager
-
-1. Откройте Nginx Proxy Manager
-2. Добавьте Proxy Host:
-   - **Domain Names:** `wishlist.yourdomain.com`
-   - **Forward Hostname/IP:** `wishlist-app` (или IP вашей VM)
-   - **Forward Port:** `4030`
-   - **WebSocket Support:** ✅
-3. SSL: Request Let's Encrypt Certificate
-
-**Примечание:** Если используете proxy network, NPM автоматически найдет контейнер `wishlist-app` по имени.
-
-Готово! Приложение доступно по адресу `https://wishlist.yourdomain.com`
+Готово! Приложение доступно на порту `4030`. Настройте reverse proxy (Nginx, Caddy, NPM) по необходимости.
 
 ## Локальная разработка
 
