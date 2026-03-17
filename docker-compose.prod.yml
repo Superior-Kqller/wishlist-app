@@ -37,6 +37,8 @@ services:
       retries: 3
     volumes:
       - valkey-socket:/run/valkey
+    networks:
+      - proxy
 
   wishlist-app:
     image: ghcr.io/superior-kqller/wishlist-app:latest
