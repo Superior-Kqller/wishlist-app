@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { Gift, LogOut, Plus, Link, Settings, Shield, BarChart3, Menu, Sun, Moon, Monitor, Check } from "lucide-react";
+import { Gift, LogOut, Plus, Link, Settings, Shield, BarChart3, Menu, Sun, Moon, Monitor, Check, Download } from "lucide-react";
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -28,6 +28,19 @@ export function Header() {
 
   const isAdmin = session?.user?.role === "ADMIN";
   const isMainPage = pathname === "/";
+
+  const handleExport = async (format: "csv" | "json") => {
+    const res = await fetch(`/api/items/export?format=${format}`);
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = res.headers.get("Content-Disposition")?.match(/filename="(.+)"/)?.[1] ||
+      `wishlist.${format}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -133,6 +146,24 @@ export function Header() {
               <Settings className="w-4 h-4" />
             </Button>
 
+            {isMainPage && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-9 w-9" title="Экспорт">
+                    <Download className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleExport("csv")}>
+                    Экспорт CSV
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport("json")}>
+                    Экспорт JSON
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
             <ThemeSelector />
 
             <Button
@@ -177,6 +208,20 @@ export function Header() {
                   <Settings className="w-4 h-4 mr-2" />
                   Настройки
                 </DropdownMenuItem>
+                {isMainPage && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Экспорт</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => handleExport("csv")}>
+                      <Download className="w-4 h-4 mr-2" />
+                      CSV
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport("json")}>
+                      <Download className="w-4 h-4 mr-2" />
+                      JSON
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>Цветовая тема</DropdownMenuLabel>
                 {mounted && colorThemes.map((t) => (

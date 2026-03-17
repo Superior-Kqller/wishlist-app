@@ -9,6 +9,7 @@ import { PasswordForm } from "@/components/settings/PasswordForm";
 import { ThemeSection } from "@/components/settings/ThemeSection";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { fetcher } from "@/lib/fetcher";
 
 export default function SettingsPage() {
@@ -16,7 +17,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const { data: user, isLoading, mutate } = useSWR(
+  const { data: user, isLoading, error, mutate } = useSWR(
     status === "authenticated" ? "/api/users/me" : null,
     fetcher
   );
@@ -27,10 +28,23 @@ export default function SettingsPage() {
     }
   }, [status, router]);
 
-  if (status === "loading" || isLoading || !user) {
+  if (status === "loading" || isLoading) {
     return (
       <div className="min-h-screen page-bg flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (error || !user) {
+    return (
+      <div className="min-h-screen page-bg flex items-center justify-center">
+        <div className="text-center space-y-2">
+          <p className="text-destructive font-medium">Не удалось загрузить профиль</p>
+          <Button variant="outline" size="sm" onClick={() => mutate()}>
+            Повторить
+          </Button>
+        </div>
       </div>
     );
   }

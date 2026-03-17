@@ -27,7 +27,11 @@ interface WishlistCardProps {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
+  onPriorityChange?: (id: string, priority: number) => void;
   onOpenDetail?: (item: WishlistItem) => void;
+  selectionMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }
 
 export const WishlistCard = memo(function WishlistCard({
@@ -36,7 +40,11 @@ export const WishlistCard = memo(function WishlistCard({
   onEdit,
   onDelete,
   onTogglePurchased,
+  onPriorityChange,
   onOpenDetail,
+  selectionMode,
+  isSelected,
+  onToggleSelect,
 }: WishlistCardProps) {
   const [showActions, setShowActions] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -46,6 +54,10 @@ export const WishlistCard = memo(function WishlistCard({
   const hasMultipleImages = images.length > 1;
 
   const handleCardClick = () => {
+    if (selectionMode) {
+      onToggleSelect?.(item.id);
+      return;
+    }
     onOpenDetail?.(item);
   };
 
@@ -62,7 +74,8 @@ export const WishlistCard = memo(function WishlistCard({
           "group overflow-hidden card-elevated transition-all duration-200 hover:-translate-y-1 hover:shadow-lg",
           priorityBorderClass(item.priority),
           item.purchased && "opacity-60",
-          onOpenDetail && "cursor-pointer"
+          (onOpenDetail || selectionMode) && "cursor-pointer",
+          isSelected && "ring-2 ring-primary",
         )}
         onMouseEnter={() => setShowActions(true)}
         onMouseLeave={() => setShowActions(false)}
@@ -169,6 +182,22 @@ export const WishlistCard = memo(function WishlistCard({
             </div>
           )}
 
+          {/* Selection checkbox */}
+          {selectionMode && (
+            <div className="absolute top-2 left-2 z-20">
+              <div
+                className={cn(
+                  "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors",
+                  isSelected
+                    ? "bg-primary border-primary text-primary-foreground"
+                    : "bg-background/80 border-muted-foreground/40",
+                )}
+              >
+                {isSelected && <Check className="w-3.5 h-3.5" />}
+              </div>
+            </div>
+          )}
+
           {/* Purchased overlay */}
           {item.purchased && (
             <div className="absolute inset-0 bg-background/60 flex items-center justify-center pointer-events-none">
@@ -262,7 +291,10 @@ export const WishlistCard = memo(function WishlistCard({
             >
               {item.title}
             </h3>
-            <PriorityStars priority={item.priority} />
+            <PriorityStars
+              priority={item.priority}
+              onChange={onPriorityChange ? (p) => onPriorityChange(item.id, p) : undefined}
+            />
           </div>
 
           {item.notes && (

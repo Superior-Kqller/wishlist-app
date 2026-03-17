@@ -14,8 +14,12 @@ interface WishlistGridProps {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
+  onPriorityChange?: (id: string, priority: number) => void;
   onEmptyAdd?: () => void;
   onOpenDetail?: (item: WishlistItem) => void;
+  selectionMode?: boolean;
+  selectedIds?: Set<string>;
+  onToggleSelect?: (id: string) => void;
 }
 
 export function WishlistGrid({
@@ -24,8 +28,12 @@ export function WishlistGrid({
   onEdit,
   onDelete,
   onTogglePurchased,
+  onPriorityChange,
   onEmptyAdd,
   onOpenDetail,
+  selectionMode,
+  selectedIds,
+  onToggleSelect,
 }: WishlistGridProps) {
   if (isLoading) {
     return (
@@ -80,7 +88,11 @@ export function WishlistGrid({
             onEdit={onEdit}
             onDelete={onDelete}
             onTogglePurchased={onTogglePurchased}
+            onPriorityChange={onPriorityChange}
             onOpenDetail={onOpenDetail}
+            selectionMode={selectionMode}
+            isSelected={selectedIds?.has(item.id)}
+            onToggleSelect={onToggleSelect}
           />
         ))}
       </AnimatePresence>

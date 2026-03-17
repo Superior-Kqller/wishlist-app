@@ -45,6 +45,15 @@ export interface Tag {
   color: string;
 }
 
+export interface ItemsPage {
+  items: WishlistItem[];
+  pagination: {
+    hasMore: boolean;
+    nextCursor: string | null;
+    limit: number;
+  };
+}
+
 export interface CreateItemPayload {
   title: string;
   url?: string;

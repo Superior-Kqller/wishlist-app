@@ -17,15 +17,16 @@ export default function AdminPage() {
   const router = useRouter();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
-  const { data: usersData, isLoading, mutate } = useSWR<{ users: User[]; pagination?: any } | User[]>(
-    "/api/users",
+  const isAdminReady = status === "authenticated" && session?.user?.role === "ADMIN";
+
+  const { data: usersData, isLoading, error, mutate } = useSWR<{ users: User[]; pagination?: any } | User[]>(
+    isAdminReady ? "/api/users" : null,
     fetcher,
     {
       revalidateOnFocus: false,
     }
   );
 
-  // Обработка старого формата (массив) и нового (объект с пагинацией)
   const users = Array.isArray(usersData) ? usersData : usersData?.users || [];
 
   useEffect(() => {
@@ -71,7 +72,14 @@ export default function AdminPage() {
             </Button>
           </div>
 
-          {users && (
+          {error ? (
+            <div className="text-center py-12 space-y-2">
+              <p className="text-destructive font-medium">Не удалось загрузить пользователей</p>
+              <Button variant="outline" size="sm" onClick={() => mutate()}>
+                Повторить
+              </Button>
+            </div>
+          ) : (
             <UserTable
               users={users}
               currentUserId={currentUserId}

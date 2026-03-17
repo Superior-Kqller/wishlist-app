@@ -44,34 +44,50 @@ export async function GET(req: NextRequest) {
   // Пагинация и фильтрация по пользователю и подборке
   const searchParams = req.nextUrl.searchParams;
   const cursor = searchParams.get("cursor");
-  const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100); // Макс 100
+  const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
   const userIdParam = searchParams.get("userId");
   const listIdParam = searchParams.get("listId");
+  const search = searchParams.get("search")?.trim() || "";
 
-  const where: any = cursor ? { createdAt: { lt: new Date(cursor) } } : {};
+  const conditions: any[] = [];
 
-  // Фильтрация по пользователю: "me" — только текущий, конкретный id — товары этого пользователя
-  if (userIdParam === "me") {
-    where.userId = currentUserId;
-  } else if (userIdParam && userIdParam.trim() !== "") {
-    where.userId = userIdParam.trim();
+  if (cursor) {
+    conditions.push({ createdAt: { lt: new Date(cursor) } });
   }
 
-  // Фильтрация по подборке: только если пользователь может видеть эту подборку
+  if (search) {
+    conditions.push({
+      OR: [
+        { title: { contains: search, mode: "insensitive" } },
+        { notes: { contains: search, mode: "insensitive" } },
+        { tags: { some: { name: { contains: search, mode: "insensitive" } } } },
+      ],
+    });
+  }
+
+  if (userIdParam === "me") {
+    conditions.push({ userId: currentUserId });
+  } else if (userIdParam && userIdParam.trim() !== "") {
+    conditions.push({ userId: userIdParam.trim() });
+  }
+
   if (listIdParam && listIdParam.trim() !== "") {
     const canSee = await canUserSeeList(listIdParam.trim(), currentUserId);
     if (!canSee) {
       return NextResponse.json({ items: [], pagination: { hasMore: false, nextCursor: null, limit } });
     }
-    where.listId = listIdParam.trim();
+    conditions.push({ listId: listIdParam.trim() });
   } else {
-    // Показывать товары без подборки или в подборках, доступных пользователю
     const visibleListIds = await getVisibleListIdsForUser(currentUserId);
-    where.OR = [
-      { listId: null },
-      { listId: { in: visibleListIds } },
-    ];
+    conditions.push({
+      OR: [
+        { listId: null },
+        { listId: { in: visibleListIds } },
+      ],
+    });
   }
+
+  const where = conditions.length > 0 ? { AND: conditions } : {};
 
   const items = await prisma.item.findMany({
     where,
