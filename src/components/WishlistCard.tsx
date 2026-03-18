@@ -75,7 +75,7 @@ export const WishlistCard = memo(function WishlistCard({
           priorityBorderClass(item.priority),
           item.purchased && "opacity-70",
           (onOpenDetail || selectionMode) && "cursor-pointer",
-          isSelected && "ring-2 ring-primary",
+          isSelected && "shadow-[0_0_0_1px_hsl(var(--primary)/0.3),0_0_15px_hsl(var(--primary)/0.25)] scale-[1.01] brightness-[1.03]",
         )}
         onMouseEnter={() => setShowActions(true)}
         onMouseLeave={() => setShowActions(false)}

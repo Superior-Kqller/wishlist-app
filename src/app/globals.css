@@ -90,7 +90,7 @@
 
     /* Glassmorphism - dark (усиленные эффекты) */
     --glass-bg: 240 10% 8% / 0.5;
-    --glass-border: 240 3.7% 20% / 0.3;
+    --glass-border: 240 3.7% 25% / 0.12;
     --glass-glow: 262 83% 58% / 0.4;
     --glass-blur: 20px;
   }

@@ -5,6 +5,13 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект использует [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [1.2.3] — 2026-03-18
+
+### Улучшено
+
+- **UI: Мягкое выделение карточек** — заменена резкая обводка `ring-2` на soft glow (1px + 15px свечение)
+- **UI: Тоньше glass-border** — opacity уменьшена с 30% до 12% для более чистого вида
+
 ## [1.2.2] — 2026-03-18
 
 ### Улучшено
