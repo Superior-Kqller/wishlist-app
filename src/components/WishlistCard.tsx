@@ -166,6 +166,7 @@ export const WishlistCard = memo(function WishlistCard({
                   }}
                   className={cn(
                     "p-1 rounded-full transition-colors min-w-[24px] min-h-[24px] flex items-center justify-center",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/50",
                     i === currentImageIndex
                       ? "bg-primary/80 ring-1 ring-primary ring-offset-1 ring-offset-transparent"
                       : "bg-white/50 hover:bg-white/70"
@@ -224,7 +225,7 @@ export const WishlistCard = memo(function WishlistCard({
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-background/90 backdrop-blur flex items-center justify-center hover:bg-background transition-colors shadow-sm"
+                className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-background/90 backdrop-blur flex items-center justify-center hover:bg-background transition-colors shadow-sm focus-ring"
                 title="Открыть ссылку"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -237,7 +238,7 @@ export const WishlistCard = memo(function WishlistCard({
                 e.stopPropagation();
                 onEdit(item);
               }}
-              className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-background/90 backdrop-blur flex items-center justify-center hover:bg-background transition-colors shadow-sm"
+              className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-background/90 backdrop-blur flex items-center justify-center hover:bg-background transition-colors shadow-sm focus-ring"
               title="Редактировать"
             >
               <Pencil className="w-3.5 h-3.5" />
@@ -248,7 +249,7 @@ export const WishlistCard = memo(function WishlistCard({
                 e.stopPropagation();
                 onTogglePurchased(item.id, !item.purchased);
               }}
-              className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-background/90 backdrop-blur flex items-center justify-center hover:bg-background transition-colors shadow-sm"
+              className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-background/90 backdrop-blur flex items-center justify-center hover:bg-background transition-colors shadow-sm focus-ring"
               title={item.purchased ? "Снять отметку" : "Отметить купленным"}
             >
               {item.purchased ? (
@@ -263,7 +264,7 @@ export const WishlistCard = memo(function WishlistCard({
                 e.stopPropagation();
                 onDelete(item.id);
               }}
-              className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-destructive/90 backdrop-blur flex items-center justify-center hover:bg-destructive transition-colors shadow-sm text-destructive-foreground"
+              className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-destructive/90 backdrop-blur flex items-center justify-center hover:bg-destructive transition-colors shadow-sm text-destructive-foreground focus-ring"
               title="Удалить"
             >
               <Trash2 className="w-3.5 h-3.5" />

@@ -32,7 +32,7 @@ export function TagFilter({
               key={tag.id}
               onClick={() => onToggleTag(tag.id)}
               className={cn(
-                "shrink-0 transition-transform duration-150",
+                "shrink-0 transition-transform duration-150 rounded-full focus-ring",
                 isSelected ? "scale-[0.98]" : "hover:scale-[1.02] active:scale-95"
               )}
             >
@@ -56,7 +56,7 @@ export function TagFilter({
         {selectedTags.length > 0 && (
           <button
             onClick={onClearTags}
-            className="shrink-0 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors py-1"
+            className="shrink-0 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors py-1 rounded-sm focus-ring"
           >
             <X className="w-3 h-3" />
             <span className="sm:inline">Сбросить</span>
