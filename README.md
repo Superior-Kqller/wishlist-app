@@ -5,6 +5,10 @@
 ## Скриншоты
 
 <p align="center">
+  <img src="assets/card-screen.png" alt="Карточки желаний" width="800">
+</p>
+
+<p align="center">
   <img src="assets/dark-theme.png" alt="Тёмная тема" width="800">
 </p>
 
