@@ -53,6 +53,18 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
     --radius: 0.75rem;
+
+    /* Glassmorphism */
+    --glass-bg: 0 0% 100% / 0.6;
+    --glass-border: 240 5.9% 90% / 0.3;
+    --glass-glow: 262 83% 58% / 0.15;
+    --glass-blur: 12px;
+
+    /* Semantic colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 9%;
   }
 
   .dark {
@@ -75,6 +87,12 @@
     --ring: 262 83% 58%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
+
+    /* Glassmorphism - dark */
+    --glass-bg: 240 10% 5.5% / 0.4;
+    --glass-border: 240 3.7% 15.9% / 0.2;
+    --glass-glow: 262 83% 58% / 0.25;
+    --glass-blur: 16px;
   }
 
   /* Blue theme */
