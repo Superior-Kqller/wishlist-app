@@ -95,74 +95,100 @@
     --glass-blur: 20px;
   }
 
-  /* Blue theme */
-  [data-theme="blue"] {
-    --primary: 217 91% 60%;
-    --ring: 217 91% 60%;
+  /* Rose theme */
+  [data-theme="rose"] {
+    --primary: 346 77% 50%;
+    --ring: 346 77% 50%;
+    --glass-glow: 346 77% 50% / 0.15;
   }
-  [data-theme="blue"].dark {
-    --primary: 217 91% 60%;
-    --ring: 217 91% 60%;
-  }
-
-  /* Green theme */
-  [data-theme="green"] {
-    --primary: 142 76% 36%;
-    --ring: 142 76% 36%;
-  }
-  [data-theme="green"].dark {
-    --primary: 142 71% 45%;
-    --ring: 142 71% 45%;
+  [data-theme="rose"].dark {
+    --primary: 346 77% 50%;
+    --ring: 346 77% 50%;
+    --glass-glow: 346 77% 50% / 0.4;
   }
 
   /* Orange theme */
   [data-theme="orange"] {
     --primary: 25 95% 53%;
     --ring: 25 95% 53%;
+    --glass-glow: 25 95% 53% / 0.15;
   }
   [data-theme="orange"].dark {
     --primary: 25 95% 53%;
     --ring: 25 95% 53%;
+    --glass-glow: 25 95% 53% / 0.4;
   }
 
-  /* Rose theme */
-  [data-theme="rose"] {
-    --primary: 346 77% 50%;
-    --ring: 346 77% 50%;
+  /* Green theme */
+  [data-theme="green"] {
+    --primary: 142 76% 36%;
+    --ring: 142 76% 36%;
+    --glass-glow: 142 76% 36% / 0.15;
   }
-  [data-theme="rose"].dark {
-    --primary: 346 77% 50%;
-    --ring: 346 77% 50%;
-  }
-
-  /* Purple theme (default) */
-  [data-theme="purple"] {
-    --primary: 262 83% 58%;
-    --ring: 262 83% 58%;
-  }
-  [data-theme="purple"].dark {
-    --primary: 262 83% 58%;
-    --ring: 262 83% 58%;
+  [data-theme="green"].dark {
+    --primary: 142 71% 45%;
+    --ring: 142 71% 45%;
+    --glass-glow: 142 71% 45% / 0.4;
   }
 
   /* Emerald theme */
   [data-theme="emerald"] {
     --primary: 160 84% 39%;
     --ring: 160 84% 39%;
+    --glass-glow: 160 84% 39% / 0.15;
   }
   [data-theme="emerald"].dark {
     --primary: 160 84% 39%;
     --ring: 160 84% 39%;
+    --glass-glow: 160 84% 39% / 0.4;
   }
 
   /* Cyan theme */
   [data-theme="cyan"] {
     --primary: 188 94% 43%;
     --ring: 188 94% 43%;
+    --glass-glow: 188 94% 43% / 0.15;
   }
   [data-theme="cyan"].dark {
     --primary: 188 94% 43%;
     --ring: 188 94% 43%;
+    --glass-glow: 188 94% 43% / 0.4;
+  }
+
+  /* Blue theme */
+  [data-theme="blue"] {
+    --primary: 217 91% 60%;
+    --ring: 217 91% 60%;
+    --glass-glow: 217 91% 60% / 0.15;
+  }
+  [data-theme="blue"].dark {
+    --primary: 217 91% 60%;
+    --ring: 217 91% 60%;
+    --glass-glow: 217 91% 60% / 0.4;
+  }
+
+  /* Purple theme (default) */
+  [data-theme="purple"] {
+    --primary: 262 83% 58%;
+    --ring: 262 83% 58%;
+    --glass-glow: 262 83% 58% / 0.15;
+  }
+  [data-theme="purple"].dark {
+    --primary: 262 83% 58%;
+    --ring: 262 83% 58%;
+    --glass-glow: 262 83% 58% / 0.4;
+  }
+
+  /* Violet theme */
+  [data-theme="violet"] {
+    --primary: 274 87% 51%;
+    --ring: 274 87% 51%;
+    --glass-glow: 274 87% 51% / 0.15;
+  }
+  [data-theme="violet"].dark {
+    --primary: 274 87% 51%;
+    --ring: 274 87% 51%;
+    --glass-glow: 274 87% 51% / 0.4;
   }
 }
 
@@ -269,6 +295,17 @@
   100% { background-position: 200% 0; }
 }
 
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted-foreground) / 0.1) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
 @keyframes glow-pulse {
   0%, 100% { 
     box-shadow: 0 0 20px hsl(var(--glass-glow)); 
@@ -303,6 +340,12 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Accessibility: Focus visible */
+:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
 }
 
 /* Accessibility: Reduced Motion */

@@ -15,13 +15,13 @@ export function WishlistCardSkeleton({ index = 0 }: WishlistCardSkeletonProps) {
       transition={{ duration: 0.25, delay: index * 0.05 }}
     >
       <Card className="overflow-hidden glass-card">
-        <div className="aspect-[4/3] bg-muted animate-pulse" />
+        <div className="aspect-[4/3] skeleton-shimmer" />
         <div className="p-3 space-y-2">
-          <div className="h-4 bg-muted rounded animate-pulse w-4/5" />
-          <div className="h-3 bg-muted rounded animate-pulse w-1/3" />
+          <div className="h-4 rounded w-4/5 skeleton-shimmer" />
+          <div className="h-3 rounded w-1/3 skeleton-shimmer" />
           <div className="flex gap-1">
-            <div className="h-5 w-12 bg-muted rounded animate-pulse" />
-            <div className="h-5 w-14 bg-muted rounded animate-pulse" />
+            <div className="h-5 w-12 rounded skeleton-shimmer" />
+            <div className="h-5 w-14 rounded skeleton-shimmer" />
           </div>
         </div>
       </Card>
