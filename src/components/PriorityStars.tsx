@@ -19,21 +19,25 @@ export function PriorityStars({
   const starSize = size === "sm" ? "w-3.5 h-3.5" : "w-5 h-5";
   const displayValue = hoverValue || priority;
 
+  const StarWrapper = onChange ? "button" : "span";
+
   return (
     <div
       className="flex gap-0.5"
       onMouseLeave={() => onChange && setHoverValue(0)}
+      role={onChange ? undefined : "img"}
+      aria-label={onChange ? undefined : `Приоритет: ${priority} из 5`}
     >
       {[1, 2, 3, 4, 5].map((star) => (
-        <button
+        <StarWrapper
           key={star}
-          type="button"
-          onClick={(e) => {
+          type={onChange ? "button" : undefined}
+          onClick={onChange ? (e: React.MouseEvent) => {
             e.stopPropagation();
-            onChange?.(star);
-          }}
-          onMouseEnter={() => onChange && setHoverValue(star)}
-          disabled={!onChange}
+            onChange(star);
+          } : undefined}
+          onMouseEnter={onChange ? () => setHoverValue(star) : undefined}
+          aria-label={onChange ? `Приоритет ${star}` : undefined}
           className={cn(
             "transition-all duration-100",
             onChange
@@ -50,7 +54,7 @@ export function PriorityStars({
                 : "fill-transparent text-muted-foreground/30",
             )}
           />
-        </button>
+        </StarWrapper>
       ))}
     </div>
   );
