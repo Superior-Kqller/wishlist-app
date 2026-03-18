@@ -5,6 +5,14 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект использует [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [1.2.4] — 2026-03-18
+
+### Исправлено
+
+- **Security** — убрано небезопасное `!` assertion в `auth.ts` (заменено на `?? ""`)
+- **Security** — добавлена проверка длины NEXTAUTH_SECRET (warning если < 32 символов)
+- **Code quality** — упрощён useEffect в admin page (middleware уже защищает маршрут)
+
 ## [1.2.3] — 2026-03-18
 
 ### Улучшено

@@ -9,7 +9,6 @@ import { CreateUserDialog } from "@/components/admin/CreateUserDialog";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
 import { User } from "@/types";
-import { toast } from "sonner";
 import { fetcher } from "@/lib/fetcher";
 
 export default function AdminPage() {
@@ -32,14 +31,8 @@ export default function AdminPage() {
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
-      return;
-    }
-
-    if (status === "authenticated" && session?.user) {
-      if (session.user.role !== "ADMIN") {
-        toast.error("Доступ запрещен. Требуются права администратора.");
-        router.push("/");
-      }
+    } else if (status === "authenticated" && session?.user?.role !== "ADMIN") {
+      router.push("/");
     }
   }, [status, session, router]);
 
