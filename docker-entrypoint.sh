@@ -1,20 +1,26 @@
 #!/bin/sh
 set -e
 
-# Get version from environment or default
+# Get version from environment or default, truncate if too long
 APP_VERSION="${APP_VERSION:-dev}"
+if [ ${#APP_VERSION} -gt 12 ]; then
+  DISPLAY_VERSION="$(echo "$APP_VERSION" | cut -c1-12)..."
+else
+  DISPLAY_VERSION="$APP_VERSION"
+fi
 
 # Startup banner
 echo ""
-echo "╔═══════════════════════════════════════════════════════════╗"
-echo "║                                                           ║"
-echo "║   🎁  В И Ш Л И С Т                                       ║"
-echo "║       Wishlist App v${APP_VERSION}                                  ║"
-echo "║                                                           ║"
-echo "╠═══════════════════════════════════════════════════════════╣"
-echo "║   📦 Environment: production                              ║"
-echo "║   🌐 Port: ${PORT:-4030}                                           ║"
-echo "╚═══════════════════════════════════════════════════════════╝"
+echo "┌─────────────────────────────────────────┐"
+echo "│                                         │"
+echo "│   🎁 ВИШЛИСТ                            │"
+echo "│   Wishlist App v${DISPLAY_VERSION}"
+echo "│                                         │"
+echo "├─────────────────────────────────────────┤"
+echo "│   📦 Environment: production            │"
+echo "│   🌐 Port: ${PORT:-4030}                         │"
+echo "│   🔗 Network: all interfaces (0.0.0.0)  │"
+echo "└─────────────────────────────────────────┘"
 echo ""
 
 echo "📁 Creating upload directories..."
@@ -39,9 +45,9 @@ echo "🌱 Seeding users (if needed)..."
 node ./prisma/seed.js 2>/dev/null && echo "   ✓ Seed complete" || echo "   ⊘ Seed skipped (already exists)"
 
 echo ""
-echo "═══════════════════════════════════════════════════════════════"
-echo "   🚀 Wishlist v${APP_VERSION} is starting on port ${PORT:-4030}..."
-echo "═══════════════════════════════════════════════════════════════"
+echo "────────────────────────────────────────────"
+echo "  🚀 Wishlist v${DISPLAY_VERSION} starting..."
+echo "────────────────────────────────────────────"
 echo ""
 
 exec su-exec nextjs "$@"
