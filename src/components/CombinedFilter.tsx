@@ -90,19 +90,23 @@ export function CombinedFilter({
     <div className="flex items-center gap-2 flex-wrap">
       <Tabs value={currentTab} onValueChange={handleTabChange}>
         <TabsList className="h-10">
-          <TabsTrigger value="all" className="h-8 px-3">
+          <TabsTrigger value="all" className="min-h-[36px] px-3 touch-manipulation">
             Все
           </TabsTrigger>
-          <TabsTrigger value="my" className="h-8 px-3 gap-2">
-            {currentUser && (
-              <UserAvatar
-                avatarUrl={currentUser.avatarUrl}
-                name={currentUser.name}
-                userId={currentUser.id}
-                size="sm"
-              />
-            )}
-            <span>Мои</span>
+          <TabsTrigger value="my" className="min-h-[36px] px-3 touch-manipulation">
+            <div className="flex items-center gap-2">
+              {currentUser && (
+                <div className="pointer-events-none">
+                  <UserAvatar
+                    avatarUrl={currentUser.avatarUrl}
+                    name={currentUser.name}
+                    userId={currentUser.id}
+                    size="sm"
+                  />
+                </div>
+              )}
+              <span>Мои</span>
+            </div>
           </TabsTrigger>
         </TabsList>
       </Tabs>
@@ -111,17 +115,24 @@ export function CombinedFilter({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
+              type="button"
               variant={selectedOtherUser ? "default" : "outline"}
-              className="h-10 gap-2"
+              className="h-10 gap-2 touch-manipulation"
+              aria-label={selectedOtherUser 
+                ? `Выбран: ${selectedOtherUser.name}` 
+                : "Выбрать пользователя"
+              }
             >
               {selectedOtherUser ? (
                 <>
-                  <UserAvatar
-                    avatarUrl={selectedOtherUser.avatarUrl}
-                    name={selectedOtherUser.name}
-                    userId={selectedOtherUser.id}
-                    size="sm"
-                  />
+                  <div className="pointer-events-none">
+                    <UserAvatar
+                      avatarUrl={selectedOtherUser.avatarUrl}
+                      name={selectedOtherUser.name}
+                      userId={selectedOtherUser.id}
+                      size="sm"
+                    />
+                  </div>
                   <span className="max-w-[100px] truncate">{selectedOtherUser.name}</span>
                 </>
               ) : (
@@ -145,12 +156,14 @@ export function CombinedFilter({
                   selectedUserId === user.id && "bg-accent"
                 )}
               >
-                <UserAvatar
-                  avatarUrl={user.avatarUrl}
-                  name={user.name}
-                  userId={user.id}
-                  size="md"
-                />
+                <div className="pointer-events-none">
+                  <UserAvatar
+                    avatarUrl={user.avatarUrl}
+                    name={user.name}
+                    userId={user.id}
+                    size="md"
+                  />
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{user.name}</div>
                   <div className="text-xs text-muted-foreground">
