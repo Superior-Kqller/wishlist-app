@@ -3,8 +3,18 @@ name: Docker Image
 on:
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - "README.md"
+      - "CHANGELOG.md"
+      - "**/*.md"
+      - "assets/**"
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - "README.md"
+      - "CHANGELOG.md"
+      - "**/*.md"
+      - "assets/**"
     tags:
       - "v*.*.*"
   workflow_dispatch:
