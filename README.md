@@ -53,26 +53,10 @@ docker network create proxy
 
 ### 4. Настроить окружение
 
-Создать `.env` из шаблона и сразу подставить случайные значения.
-
-**Linux/macOS:**
+Создать `.env` из шаблона и сразу подставить случайные значения (Ubuntu/Linux, одной командой):
 
 ```bash
-cp .env.example .env
-
-DB_PASSWORD=$(openssl rand -hex 32)
-NEXTAUTH_SECRET=$(openssl rand -base64 32)
-
-sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
-sed -i "s/^NEXTAUTH_SECRET=.*/NEXTAUTH_SECRET=$NEXTAUTH_SECRET/" .env
-```
-
-**Windows (PowerShell, идея команды):**
-
-```powershell
-Copy-Item .env.example .env
-$secret = [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }) )
-(Get-Content .env) -replace '^NEXTAUTH_SECRET=.*',\"NEXTAUTH_SECRET=$secret\" | Set-Content .env
+cp .env.example .env && DB_PASSWORD="$(openssl rand -hex 32)" && NEXTAUTH_SECRET="$(openssl rand -base64 32)" && sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=${DB_PASSWORD}/" .env && sed -i "s/^NEXTAUTH_SECRET=.*/NEXTAUTH_SECRET=${NEXTAUTH_SECRET}/" .env
 ```
 
 После этого отредактируйте `.env` любым удобным редактором и убедитесь, что заданы:
@@ -146,36 +130,6 @@ npm run dev
 ```
 
 Приложение доступно на `http://localhost:4030`
-
-## Полезные команды
-
-```bash
-# Остановить
-docker compose down
-
-# Остановить с удалением volumes (БД будет очищена!)
-docker compose down -v
-
-# Посмотреть логи
-docker compose logs -f
-
-# Бэкап БД
-docker compose exec wishlist-db pg_dump -U wishlist wishlist > backup.sql
-
-# Восстановить БД из бэкапа
-cat backup.sql | docker compose exec -T wishlist-db psql -U wishlist wishlist
-
-# Повысить первого пользователя до админа (если нужно)
-docker compose exec wishlist-app node prisma/promote-admin.js
-```
-
-## Обновление приложения
-
-```bash
-cd /opt/wishlist
-docker compose pull
-docker compose up -d
-```
 
 ## Статус парсера маркетплейсов
 
