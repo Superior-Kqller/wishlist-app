@@ -65,7 +65,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-lg shadow-[0_1px_0_0_hsl(var(--border)/0.5)]">
+    <header className="sticky top-0 z-40 glass border-b-0 backdrop-blur-xl shadow-[0_1px_0_0_hsl(var(--glass-border))]">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <button
           onClick={() => router.push("/")}
