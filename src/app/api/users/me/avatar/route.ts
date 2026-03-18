@@ -88,7 +88,9 @@ export async function POST(req: NextRequest) {
     await writeFile(filepath, buffer);
 
     // Обновляем avatarUrl в БД
-    const avatarUrl = `/uploads/avatars/${filename}`;
+    // Важно: добавляем cache-busting параметр, чтобы браузер/Next Image не показывали старую версию
+    // (имя файла стабильно: `${userId}.${ext}`)
+    const avatarUrl = `/uploads/avatars/${filename}?v=${Date.now()}`;
     await prisma.user.update({
       where: { id: userId },
       data: { 
