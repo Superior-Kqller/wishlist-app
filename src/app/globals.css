@@ -88,11 +88,11 @@
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
 
-    /* Glassmorphism - dark */
-    --glass-bg: 240 10% 5.5% / 0.4;
-    --glass-border: 240 3.7% 15.9% / 0.2;
-    --glass-glow: 262 83% 58% / 0.25;
-    --glass-blur: 16px;
+    /* Glassmorphism - dark (усиленные эффекты) */
+    --glass-bg: 240 10% 8% / 0.5;
+    --glass-border: 240 3.7% 20% / 0.3;
+    --glass-glow: 262 83% 58% / 0.4;
+    --glass-blur: 20px;
   }
 
   /* Blue theme */
@@ -189,8 +189,8 @@
 }
 .dark .page-bg {
   background: 
-    radial-gradient(ellipse at 20% 0%, hsl(var(--primary) / 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 100%, hsl(var(--accent) / 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 0%, hsl(var(--primary) / 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 100%, hsl(var(--accent) / 0.15) 0%, transparent 55%),
     hsl(var(--background));
 }
 
@@ -239,8 +239,9 @@
 
 .glass-glow {
   box-shadow: 
-    0 0 20px hsl(var(--glass-glow)),
-    inset 0 1px 0 hsl(var(--primary-foreground) / 0.1);
+    0 0 30px hsl(var(--glass-glow)),
+    0 4px 20px hsl(var(--glass-glow)),
+    inset 0 1px 0 hsl(var(--primary-foreground) / 0.15);
 }
 
 .glass-card {
@@ -255,9 +256,11 @@
 
 .glass-card:hover {
   box-shadow: 
-    0 0 20px hsl(var(--glass-glow)),
-    inset 0 1px 0 hsl(var(--primary-foreground) / 0.1);
-  transform: translateY(-2px);
+    0 0 30px hsl(var(--glass-glow)),
+    0 8px 32px hsl(var(--glass-glow)),
+    inset 0 1px 0 hsl(var(--primary-foreground) / 0.15);
+  transform: translateY(-4px);
+  border-color: hsl(var(--glass-border) / 0.5);
 }
 
 /* Animations */

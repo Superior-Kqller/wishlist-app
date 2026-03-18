@@ -5,6 +5,19 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект использует [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [1.2.2] — 2026-03-18
+
+### Улучшено
+
+- **Усилены glassmorphism эффекты** — более заметные визуальные эффекты в dark mode
+  - `--glass-glow`: 0.25 → 0.40 opacity (+60%)
+  - `--glass-bg`: lightness 5.5% → 8%, opacity 40% → 50%
+  - `--glass-blur`: 16px → 20px
+  - `--glass-border`: opacity 0.2 → 0.3
+- **DialogContent** — теперь использует `glass glass-glow` вместо solid background
+- **Mesh gradient** — усилен до 0.22/0.15 opacity (было 0.15/0.08)
+- **glass-card:hover** — увеличена тень (30px + 8px spread), подъём 4px вместо 2px
+
 ## [1.2.1] — 2026-03-18
 
 ### Исправлено
