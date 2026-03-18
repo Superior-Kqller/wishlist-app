@@ -16,6 +16,7 @@ import { ThemeSelector } from "@/components/ThemeSelector";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useHeaderActions } from "@/lib/header-actions";
+import { colorThemes } from "@/lib/themes";
 
 export function Header() {
   const { actions: { onAddItem } } = useHeaderActions();
@@ -47,16 +48,6 @@ export function Header() {
     const savedColorTheme = localStorage.getItem("color-theme") || "purple";
     setColorTheme(savedColorTheme);
   }, []);
-
-  const colorThemes = [
-    { value: "purple", label: "Фиолетовый", color: "bg-purple-500" },
-    { value: "blue", label: "Синий", color: "bg-blue-500" },
-    { value: "green", label: "Зелёный", color: "bg-green-500" },
-    { value: "emerald", label: "Изумрудный", color: "bg-emerald-500" },
-    { value: "cyan", label: "Бирюзовый", color: "bg-cyan-500" },
-    { value: "orange", label: "Оранжевый", color: "bg-orange-500" },
-    { value: "rose", label: "Розовый", color: "bg-rose-500" },
-  ];
 
   const handleColorThemeChange = (newColorTheme: string) => {
     setColorTheme(newColorTheme);
