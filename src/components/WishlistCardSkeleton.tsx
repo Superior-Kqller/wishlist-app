@@ -14,7 +14,7 @@ export function WishlistCardSkeleton({ index = 0 }: WishlistCardSkeletonProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: index * 0.05 }}
     >
-      <Card className="overflow-hidden card-elevated">
+      <Card className="overflow-hidden glass-card">
         <div className="aspect-[4/3] bg-muted animate-pulse" />
         <div className="p-3 space-y-2">
           <div className="h-4 bg-muted rounded animate-pulse w-4/5" />

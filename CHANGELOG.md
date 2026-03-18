@@ -5,6 +5,21 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект использует [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [1.2.1] — 2026-03-18
+
+### Исправлено
+
+- **A11y** — локализация "Close" → "Закрыть" в диалогах
+- **A11y** — aria-label для кнопки-логотипа в хедере
+- **A11y** — focus-visible стили для PriorityStars
+- **Консистентность** — WishlistCardSkeleton теперь использует glass-card
+- **Производительность** — оптимизация transition в glass-card (конкретные свойства вместо all)
+
+### Рефакторинг
+
+- Новый хук `useColorTheme()` — устранено дублирование логики в Header и ThemeSelector
+- `handleSignOut()` — вынесена общая функция выхода
+
 ## [1.2.0] — 2026-03-18
 
 ### Добавлено

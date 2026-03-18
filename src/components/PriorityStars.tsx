@@ -41,7 +41,7 @@ export function PriorityStars({
           className={cn(
             "transition-all duration-100",
             onChange
-              ? "cursor-pointer hover:scale-125 active:scale-95"
+              ? "cursor-pointer hover:scale-125 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
               : "cursor-default",
           )}
         >

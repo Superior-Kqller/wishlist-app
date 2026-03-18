@@ -14,9 +14,9 @@ import {
 import { Gift, LogOut, Plus, Settings, Shield, BarChart3, Menu, Sun, Moon, Monitor, Check, Download } from "lucide-react";
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 import { useHeaderActions } from "@/lib/header-actions";
 import { colorThemes } from "@/lib/themes";
+import { useColorTheme } from "@/hooks/useColorTheme";
 
 export function Header() {
   const { actions: { onAddItem } } = useHeaderActions();
@@ -24,8 +24,7 @@ export function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [colorTheme, setColorTheme] = useState<string>("purple");
+  const { colorTheme, setColorTheme, mounted } = useColorTheme();
 
   const isAdmin = session?.user?.role === "ADMIN";
   const isMainPage = pathname === "/";
@@ -43,16 +42,9 @@ export function Header() {
     URL.revokeObjectURL(url);
   };
 
-  useEffect(() => {
-    setMounted(true);
-    const savedColorTheme = localStorage.getItem("color-theme") || "purple";
-    setColorTheme(savedColorTheme);
-  }, []);
-
-  const handleColorThemeChange = (newColorTheme: string) => {
-    setColorTheme(newColorTheme);
-    localStorage.setItem("color-theme", newColorTheme);
-    document.documentElement.setAttribute("data-theme", newColorTheme);
+  const handleSignOut = () => {
+    const currentOrigin = typeof window !== "undefined" ? window.location.origin : "";
+    signOut({ callbackUrl: currentOrigin ? `${currentOrigin}/login` : "/login" });
   };
 
   return (
@@ -62,6 +54,7 @@ export function Header() {
           onClick={() => router.push("/")}
           className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
           title="На главную"
+          aria-label="Вишлист — на главную"
         >
           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/15 rounded-xl flex items-center justify-center shrink-0">
             <Gift className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
@@ -153,12 +146,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {
-                const currentOrigin = typeof window !== "undefined" ? window.location.origin : "";
-                signOut({ 
-                  callbackUrl: currentOrigin ? `${currentOrigin}/login` : "/login" 
-                });
-              }}
+              onClick={handleSignOut}
               className="h-9 w-9 text-muted-foreground"
               title="Выйти"
             >
@@ -211,7 +199,7 @@ export function Header() {
                 {mounted && colorThemes.map((t) => (
                   <DropdownMenuItem
                     key={t.value}
-                    onClick={() => handleColorThemeChange(t.value)}
+                    onClick={() => setColorTheme(t.value)}
                     className="flex items-center justify-between cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
@@ -261,12 +249,7 @@ export function Header() {
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => {
-                    const currentOrigin = typeof window !== "undefined" ? window.location.origin : "";
-                    signOut({ 
-                      callbackUrl: currentOrigin ? `${currentOrigin}/login` : "/login" 
-                    });
-                  }}
+                  onClick={handleSignOut}
                   className="text-destructive focus:text-destructive"
                 >
                   <LogOut className="w-4 h-4 mr-2" />

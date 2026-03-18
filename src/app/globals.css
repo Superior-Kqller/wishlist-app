@@ -249,7 +249,8 @@
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid hsl(var(--glass-border));
   border-radius: var(--radius);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,26 +13,11 @@ import {
 import { Palette, Check, Moon, Sun, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { colorThemes } from "@/lib/themes";
+import { useColorTheme } from "@/hooks/useColorTheme";
 
 export function ThemeSelector() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [colorTheme, setColorTheme] = useState<string>("purple");
-
-  useEffect(() => {
-    setMounted(true);
-    // Получаем сохранённую цветовую тему из localStorage
-    const savedColorTheme = localStorage.getItem("color-theme") || "purple";
-    setColorTheme(savedColorTheme);
-    // Применяем тему к document
-    document.documentElement.setAttribute("data-theme", savedColorTheme);
-  }, []);
-
-  const handleColorThemeChange = (newColorTheme: string) => {
-    setColorTheme(newColorTheme);
-    localStorage.setItem("color-theme", newColorTheme);
-    document.documentElement.setAttribute("data-theme", newColorTheme);
-  };
+  const { colorTheme, setColorTheme, mounted } = useColorTheme();
 
   if (!mounted) {
     return (
@@ -55,7 +39,7 @@ export function ThemeSelector() {
         {colorThemes.map((t) => (
           <DropdownMenuItem
             key={t.value}
-            onClick={() => handleColorThemeChange(t.value)}
+            onClick={() => setColorTheme(t.value)}
             className="flex items-center justify-between cursor-pointer"
           >
             <div className="flex items-center gap-2">
