@@ -30,18 +30,25 @@ export function AvatarUploadDialog({
   const [uploadMethod, setUploadMethod] = useState<"file" | "url">("file");
   const [file, setFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [fileLabel, setFileLabel] = useState<string>("");
   const [url, setUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
+    const selectedFile = e.currentTarget.files?.[0];
     if (!selectedFile) return;
+
+    setFileLabel(`${selectedFile.name}${selectedFile.type ? ` (${selectedFile.type})` : ""}`);
 
     // Валидация типа
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
     if (!allowedTypes.includes(selectedFile.type)) {
-      toast.error("Недопустимый тип файла. Разрешены: JPEG, PNG, WebP, GIF");
+      toast.error(
+        selectedFile.type
+          ? `Недопустимый тип файла: ${selectedFile.type}. Разрешены: JPEG, PNG, WebP, GIF`
+          : "Не удалось определить тип файла. Попробуйте PNG/JPEG/WebP/GIF",
+      );
       return;
     }
 
@@ -67,10 +74,12 @@ export function AvatarUploadDialog({
   const handleSubmit = async () => {
     setUploading(true);
     try {
-      if (uploadMethod === "file" && file) {
+      const selectedFile = file ?? fileInputRef.current?.files?.[0] ?? null;
+
+      if (uploadMethod === "file" && selectedFile) {
         // Загрузка файла
         const formData = new FormData();
-        formData.append("avatar", file);
+        formData.append("avatar", selectedFile);
 
         const res = await fetch("/api/users/me/avatar", {
           method: "POST",
@@ -117,6 +126,7 @@ export function AvatarUploadDialog({
       // Сброс состояния
       setFile(null);
       setFilePreview(null);
+      setFileLabel("");
       setUrl("");
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -147,6 +157,7 @@ export function AvatarUploadDialog({
       onOpenChange(false);
       setFile(null);
       setFilePreview(null);
+      setFileLabel("");
       setUrl("");
     } catch (err: any) {
       toast.error(err.message || "Ошибка при удалении аватара");
@@ -202,9 +213,22 @@ export function AvatarUploadDialog({
                   type="file"
                   accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
                   onChange={handleFileSelect}
+                  onInput={(e) => handleFileSelect(e as unknown as React.ChangeEvent<HTMLInputElement>)}
+                  onClick={() => {
+                    // Чтобы повторный выбор того же файла тоже триггерил change
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                    setFile(null);
+                    setFilePreview(null);
+                    setFileLabel("");
+                  }}
                   ref={fileInputRef}
                   disabled={uploading}
                 />
+                {fileLabel && (
+                  <p className="text-xs text-muted-foreground">
+                    Выбран файл: {fileLabel}
+                  </p>
+                )}
                 <p className="text-xs text-muted-foreground">
                   Максимальный размер: 2MB. Форматы: JPEG, PNG, WebP, GIF
                 </p>
@@ -240,7 +264,12 @@ export function AvatarUploadDialog({
             <Button
               type="button"
               onClick={handleSubmit}
-              disabled={uploading || (uploadMethod === "file" && !file) || (uploadMethod === "url" && !url.trim())}
+              disabled={
+                uploading ||
+                (uploadMethod === "file" &&
+                  !(file ?? fileInputRef.current?.files?.[0])) ||
+                (uploadMethod === "url" && !url.trim())
+              }
             >
               {uploading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Сохранить
