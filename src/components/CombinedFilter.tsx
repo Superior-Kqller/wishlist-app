@@ -49,8 +49,11 @@ export function CombinedFilter({
   const currentUser = users.find((u) => u.id === currentUserId);
   const otherUsers = users.filter((u) => u.id !== currentUserId);
 
-  const isMyMode = selectedUserId === null || selectedUserId === "me" || selectedUserId === currentUserId;
-  const selectedOtherUser = !isMyMode ? users.find((u) => u.id === selectedUserId) : null;
+  const isAllMode = selectedUserId === null;
+  const isMyMode = selectedUserId === "me" || selectedUserId === currentUserId;
+  const selectedOtherUser = !isAllMode && !isMyMode 
+    ? users.find((u) => u.id === selectedUserId) 
+    : null;
 
   const myLists = useMemo(
     () => lists.filter((l) => l.userId === currentUserId),
@@ -58,15 +61,19 @@ export function CombinedFilter({
   );
 
   const selectedUserLists = useMemo(() => {
+    if (isAllMode) return lists;
     if (isMyMode) return myLists;
     if (selectedOtherUser) {
       return lists.filter((l) => l.userId === selectedOtherUser.id);
     }
     return [];
-  }, [isMyMode, selectedOtherUser, lists, myLists]);
+  }, [isAllMode, isMyMode, selectedOtherUser, lists, myLists]);
 
   const handleTabChange = (value: string) => {
-    if (value === "my") {
+    if (value === "all") {
+      onUserChange(null);
+      onListChange(null);
+    } else if (value === "my") {
       onUserChange("me");
       onListChange(null);
     }
@@ -77,12 +84,15 @@ export function CombinedFilter({
     onListChange(null);
   };
 
-  const currentTab = isMyMode ? "my" : "other";
+  const currentTab = isAllMode ? "all" : isMyMode ? "my" : "other";
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <Tabs value={currentTab} onValueChange={handleTabChange}>
         <TabsList className="h-10">
+          <TabsTrigger value="all" className="h-8 px-3">
+            Все
+          </TabsTrigger>
           <TabsTrigger value="my" className="h-8 px-3 gap-2">
             {currentUser && (
               <UserAvatar
@@ -92,7 +102,7 @@ export function CombinedFilter({
                 size="sm"
               />
             )}
-            <span>Мои подборки</span>
+            <span>Мои</span>
           </TabsTrigger>
         </TabsList>
       </Tabs>
