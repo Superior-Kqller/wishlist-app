@@ -5,6 +5,21 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект использует [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [1.4.2] — 2026-03-18
+
+### Исправлено
+
+- **Кликабельность фильтров** — добавлен `pointer-events-none` на UserAvatar внутри кнопок
+- **Touch-устройства** — добавлен `touch-manipulation` на TabsTrigger
+- **Startup banner** — исправлено оформление, версия обрезается до 12 символов
+- **GitHub Actions** — dev-версия теперь использует короткий SHA (7 символов)
+
+### Добавлено
+
+- Вкладка "Все" в объединённом фильтре
+- Скриншот карточек в README
+- `e2e/` в .gitignore
+
 ## [1.4.1] — 2026-03-18
 
 ### Добавлено
