@@ -227,6 +227,42 @@
   display: none;
 }
 
+/* Glassmorphism utilities */
+.glass {
+  background: hsl(var(--glass-bg));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid hsl(var(--glass-border));
+}
+
+.glass-subtle {
+  background: hsl(var(--card) / 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.glass-glow {
+  box-shadow: 
+    0 0 20px hsl(var(--glass-glow)),
+    inset 0 1px 0 hsl(var(--primary-foreground) / 0.1);
+}
+
+.glass-card {
+  background: hsl(var(--glass-bg));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid hsl(var(--glass-border));
+  border-radius: var(--radius);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  box-shadow: 
+    0 0 20px hsl(var(--glass-glow)),
+    inset 0 1px 0 hsl(var(--primary-foreground) / 0.1);
+  transform: translateY(-2px);
+}
+
 @keyframes fade-in {
   0% {
     opacity: 0;
