@@ -20,8 +20,14 @@ export default function StatsPage() {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
-      dedupingInterval: 30000, // Статистика меняется реже
+      dedupingInterval: 30000,
     }
+  );
+
+  const { data: versionData } = useSWR<{ version: string }>(
+    "/api/version",
+    fetcher,
+    { revalidateOnFocus: false, dedupingInterval: 60000 }
   );
 
   if (status === "loading" || isLoading || !statsData) {
@@ -124,6 +130,15 @@ export default function StatsPage() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          )}
+
+          {/* Version info */}
+          {versionData?.version && (
+            <div className="pt-6 border-t border-border/50 text-center">
+              <p className="text-xs text-muted-foreground">
+                Вишлист v{versionData.version}
+              </p>
             </div>
           )}
         </div>

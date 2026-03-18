@@ -1,0 +1,203 @@
+"use client";
+
+import { useMemo } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserAvatar } from "@/components/UserAvatar";
+import { ListPlus, Pencil, ChevronDown, User, FolderOpen } from "lucide-react";
+import { UserWithStats, ListWithMeta } from "@/types";
+import { cn } from "@/lib/utils";
+
+interface CombinedFilterProps {
+  currentUserId: string;
+  users: UserWithStats[];
+  lists: ListWithMeta[];
+  selectedUserId: string | null;
+  selectedListId: string | null;
+  onUserChange: (userId: string | null) => void;
+  onListChange: (listId: string | null) => void;
+  onCreateList: () => void;
+  onEditList?: () => void;
+}
+
+export function CombinedFilter({
+  currentUserId,
+  users,
+  lists,
+  selectedUserId,
+  selectedListId,
+  onUserChange,
+  onListChange,
+  onCreateList,
+  onEditList,
+}: CombinedFilterProps) {
+  const currentUser = users.find((u) => u.id === currentUserId);
+  const otherUsers = users.filter((u) => u.id !== currentUserId);
+
+  const isMyMode = selectedUserId === null || selectedUserId === "me" || selectedUserId === currentUserId;
+  const selectedOtherUser = !isMyMode ? users.find((u) => u.id === selectedUserId) : null;
+
+  const myLists = useMemo(
+    () => lists.filter((l) => l.userId === currentUserId),
+    [lists, currentUserId]
+  );
+
+  const selectedUserLists = useMemo(() => {
+    if (isMyMode) return myLists;
+    if (selectedOtherUser) {
+      return lists.filter((l) => l.userId === selectedOtherUser.id);
+    }
+    return [];
+  }, [isMyMode, selectedOtherUser, lists, myLists]);
+
+  const handleTabChange = (value: string) => {
+    if (value === "my") {
+      onUserChange("me");
+      onListChange(null);
+    }
+  };
+
+  const handleSelectUser = (userId: string) => {
+    onUserChange(userId);
+    onListChange(null);
+  };
+
+  const currentTab = isMyMode ? "my" : "other";
+
+  return (
+    <div className="flex items-center gap-2 flex-wrap">
+      <Tabs value={currentTab} onValueChange={handleTabChange}>
+        <TabsList className="h-10">
+          <TabsTrigger value="my" className="h-8 px-3 gap-2">
+            {currentUser && (
+              <UserAvatar
+                avatarUrl={currentUser.avatarUrl}
+                name={currentUser.name}
+                userId={currentUser.id}
+                size="sm"
+              />
+            )}
+            <span>Мои подборки</span>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {otherUsers.length > 0 && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant={selectedOtherUser ? "default" : "outline"}
+              className="h-10 gap-2"
+            >
+              {selectedOtherUser ? (
+                <>
+                  <UserAvatar
+                    avatarUrl={selectedOtherUser.avatarUrl}
+                    name={selectedOtherUser.name}
+                    userId={selectedOtherUser.id}
+                    size="sm"
+                  />
+                  <span className="max-w-[100px] truncate">{selectedOtherUser.name}</span>
+                </>
+              ) : (
+                <>
+                  <User className="w-4 h-4" />
+                  <span>Пользователь</span>
+                </>
+              )}
+              <ChevronDown className="w-4 h-4 opacity-60" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuLabel>Выбрать пользователя</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {otherUsers.map((user) => (
+              <DropdownMenuItem
+                key={user.id}
+                onClick={() => handleSelectUser(user.id)}
+                className={cn(
+                  "flex items-center gap-3 p-2 cursor-pointer",
+                  selectedUserId === user.id && "bg-accent"
+                )}
+              >
+                <UserAvatar
+                  avatarUrl={user.avatarUrl}
+                  name={user.name}
+                  userId={user.id}
+                  size="md"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{user.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {user.stats.unpurchasedItems} желаний
+                  </div>
+                </div>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+
+      <div className="flex items-center gap-2">
+        <Select
+          value={selectedListId ?? "all"}
+          onValueChange={(v) => onListChange(v === "all" ? null : v)}
+        >
+          <SelectTrigger className="h-10 w-[180px]">
+            <FolderOpen className="w-4 h-4 mr-2 opacity-60" />
+            <SelectValue placeholder="Подборка" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Все подборки</SelectItem>
+            {selectedUserLists.map((list) => (
+              <SelectItem key={list.id} value={list.id}>
+                {list.name} ({list._count.items})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {onEditList && selectedListId && (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={onEditList}
+            className="h-10 w-10"
+            title="Изменить подборку"
+          >
+            <Pencil className="w-4 h-4" />
+          </Button>
+        )}
+
+        {isMyMode && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onCreateList}
+            className="h-10"
+          >
+            <ListPlus className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Создать</span>
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -11,8 +11,7 @@ import { ItemFormDialog } from "@/components/ItemFormDialog";
 import { ParseUrlDialog } from "@/components/ParseUrlDialog";
 import { SearchAndFilter } from "@/components/SearchAndFilter";
 import { TagFilter } from "@/components/TagFilter";
-import { UserFilter } from "@/components/UserFilter";
-import { ListFilter } from "@/components/ListFilter";
+import { CombinedFilter } from "@/components/CombinedFilter";
 import { ListFormDialog } from "@/components/ListFormDialog";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { FiltersDrawer } from "@/components/FiltersDrawer";
@@ -463,26 +462,22 @@ function HomePageContent() {
               <SlidersHorizontal className="w-4 h-4" />
             </Button>
           </div>
-          {/* Десктоп: все фильтры по строкам */}
+          {/* Десктоп: объединённый фильтр */}
           <div className="hidden sm:flex flex-row flex-wrap items-center gap-2 sm:gap-3 min-w-0">
             {currentUserId && usersWithStats.length > 0 && (
-              <UserFilter
-                selectedUserId={selectedUserId}
-                onUserChange={handleUserChange}
-                users={usersWithStats}
+              <CombinedFilter
                 currentUserId={currentUserId}
-              />
-            )}
-            {currentUserId && (
-              <ListFilter
-                selectedListId={selectedListId}
-                onListChange={handleListChange}
+                users={usersWithStats}
                 lists={lists}
-                onCreateClick={() => {
+                selectedUserId={selectedUserId}
+                selectedListId={selectedListId}
+                onUserChange={handleUserChange}
+                onListChange={handleListChange}
+                onCreateList={() => {
                   setEditingList(null);
                   setListDialogOpen(true);
                 }}
-                onEditClick={
+                onEditList={
                   selectedListId
                     ? () => {
                         const list = lists.find((l) => l.id === selectedListId);

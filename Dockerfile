@@ -13,6 +13,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+ARG APP_VERSION=dev
+ENV APP_VERSION=${APP_VERSION}
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 ENV NEXTAUTH_SECRET="build-secret-placeholder"
 ENV NEXTAUTH_URL="http://localhost:3000"
@@ -33,6 +35,8 @@ FROM node:22-alpine AS runner
 RUN apk add --no-cache openssl su-exec
 WORKDIR /app
 
+ARG APP_VERSION=dev
+ENV APP_VERSION=${APP_VERSION}
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
