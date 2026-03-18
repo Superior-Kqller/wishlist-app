@@ -8,6 +8,8 @@ import { Header } from "@/components/Header";
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
   variable: "--font-sans",
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
 });
 
 export const metadata: Metadata = {
