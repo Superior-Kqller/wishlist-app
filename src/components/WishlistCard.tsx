@@ -71,9 +71,9 @@ export const WishlistCard = memo(function WishlistCard({
     >
       <Card
         className={cn(
-          "group overflow-hidden card-elevated transition-all duration-200 hover:-translate-y-1 hover:shadow-lg",
+          "group overflow-hidden glass-card",
           priorityBorderClass(item.priority),
-          item.purchased && "opacity-60",
+          item.purchased && "opacity-70",
           (onOpenDetail || selectionMode) && "cursor-pointer",
           isSelected && "ring-2 ring-primary",
         )}
@@ -205,9 +205,9 @@ export const WishlistCard = memo(function WishlistCard({
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center"
+                className="w-12 h-12 rounded-full bg-[hsl(var(--success)/0.2)] flex items-center justify-center"
               >
-                <Check className="w-6 h-6 text-green-600 dark:text-green-400" />
+                <Check className="w-6 h-6 text-[hsl(var(--success))]" />
               </motion.div>
             </div>
           )}
