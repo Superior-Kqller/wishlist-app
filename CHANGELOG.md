@@ -5,6 +5,29 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект использует [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [1.2.0] — 2026-03-18
+
+### Добавлено
+
+- **Glassmorphism UI** — стеклянные эффекты для карточек, хедера, диалогов
+- **Mesh gradient** — улучшенный фон страницы с радиальными градиентами в dark mode
+- **Новые анимации** — shimmer, glow-pulse, float, slide-up keyframes
+- **A11y: prefers-reduced-motion** — отключение анимаций для чувствительных пользователей
+- **A11y: aria-live** — озвучивание изменений списка для screen readers
+
+### Изменено
+
+- Header: стеклянный эффект с backdrop-blur-xl
+- WishlistCard: glass-card стиль с hover glow, semantic --success color
+- Dialog: усиленный overlay (60% opacity)
+- Typography: text-wrap balance для заголовков
+- Font: добавлены fallback шрифты для Manrope
+
+### Рефакторинг
+
+- `colorThemes` вынесены в `src/lib/themes.ts`
+- PriorityStars: span вместо disabled button для read-only режима (a11y)
+
 ## [1.1.2] — 2026-03-18
 
 ### Изменено
