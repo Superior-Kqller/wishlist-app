@@ -11,14 +11,14 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { Gift, LogOut, Plus, Link, Settings, Shield, BarChart3, Menu, Sun, Moon, Monitor, Check, Download } from "lucide-react";
+import { Gift, LogOut, Plus, Settings, Shield, BarChart3, Menu, Sun, Moon, Monitor, Check, Download } from "lucide-react";
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useHeaderActions } from "@/lib/header-actions";
 
 export function Header() {
-  const { actions: { onAddItem, onParseUrl } } = useHeaderActions();
+  const { actions: { onAddItem } } = useHeaderActions();
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
@@ -93,7 +93,7 @@ export function Header() {
         </button>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          {isMainPage && onAddItem && onParseUrl && (
+          {isMainPage && onAddItem && (
             <>
               <Button size="sm" onClick={onAddItem} title="Добавить вручную" className="hidden sm:flex">
                 <Plus className="w-4 h-4 mr-2" />
@@ -101,13 +101,6 @@ export function Header() {
               </Button>
               <Button size="icon" onClick={onAddItem} title="Добавить вручную" className="sm:hidden h-8 w-8">
                 <Plus className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" onClick={onParseUrl} title="Добавить из ссылки" className="hidden sm:flex">
-                <Link className="w-4 h-4 mr-2" />
-                Из ссылки
-              </Button>
-              <Button variant="outline" size="icon" onClick={onParseUrl} title="Добавить из ссылки" className="sm:hidden h-8 w-8">
-                <Link className="w-4 h-4" />
               </Button>
             </>
           )}
