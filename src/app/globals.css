@@ -54,11 +54,11 @@
     --popover-foreground: 240 10% 3.9%;
     --radius: 0.75rem;
 
-    /* Glassmorphism */
-    --glass-bg: 0 0% 100% / 0.6;
-    --glass-border: 240 5.9% 90% / 0.3;
-    --glass-glow: 262 83% 58% / 0.15;
-    --glass-blur: 12px;
+    /* Glassmorphism - medium effect */
+    --glass-bg: 0 0% 100% / 0.7;
+    --glass-border: 240 5.9% 85% / 0.5;
+    --glass-glow: 262 83% 58% / 0.2;
+    --glass-blur: 16px;
 
     /* Semantic colors */
     --success: 142 76% 36%;
@@ -88,11 +88,11 @@
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
 
-    /* Glassmorphism - dark (усиленные эффекты) */
-    --glass-bg: 240 10% 8% / 0.5;
-    --glass-border: 240 3.7% 25% / 0.12;
-    --glass-glow: 262 83% 58% / 0.4;
-    --glass-blur: 20px;
+    /* Glassmorphism - dark (medium effect) */
+    --glass-bg: 240 10% 10% / 0.6;
+    --glass-border: 240 3.7% 30% / 0.25;
+    --glass-glow: 262 83% 58% / 0.35;
+    --glass-blur: 24px;
   }
 
   /* Rose theme */
@@ -255,6 +255,7 @@
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid hsl(var(--glass-border));
+  box-shadow: 0 1px 3px hsl(var(--foreground) / 0.05);
 }
 
 .glass-subtle {
@@ -276,17 +277,21 @@
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid hsl(var(--glass-border));
   border-radius: var(--radius);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 2px 8px hsl(var(--foreground) / 0.04),
+    0 4px 16px hsl(var(--foreground) / 0.02);
+  transition: transform 0.2s ease-out,
+              box-shadow 0.2s ease-out,
+              border-color 0.2s ease-out;
 }
 
 .glass-card:hover {
   box-shadow: 
-    0 0 30px hsl(var(--glass-glow)),
-    0 8px 32px hsl(var(--glass-glow)),
-    inset 0 1px 0 hsl(var(--primary-foreground) / 0.15);
-  transform: translateY(-4px);
-  border-color: hsl(var(--glass-border) / 0.5);
+    0 0 24px hsl(var(--glass-glow)),
+    0 8px 24px hsl(var(--foreground) / 0.08),
+    inset 0 1px 0 hsl(var(--primary-foreground) / 0.1);
+  transform: translateY(-2px);
+  border-color: hsl(var(--primary) / 0.3);
 }
 
 /* Animations */

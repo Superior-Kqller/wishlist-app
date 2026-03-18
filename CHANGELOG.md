@@ -5,6 +5,18 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект использует [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [1.4.0] — 2026-03-18
+
+### Улучшено
+
+- **Glass эффекты усилены** — более заметный blur и границы в обеих темах
+  - Light: blur 12px → 16px, border opacity 30% → 50%
+  - Dark: blur 20px → 24px, border opacity 12% → 25%
+- **Адаптивные размеры** — Header 56px mobile / 72px desktop
+- **Кнопки-иконки увеличены** — 36px → 40px на desktop, иконки 16px → 20px
+- **Сетка карточек** — адаптивные отступы (gap-3 → gap-4 → gap-5)
+- **glass-card hover** — мягче анимация (2px lift вместо 4px), граница primary/30%
+
 ## [1.3.0] — 2026-03-18
 
 ### Добавлено

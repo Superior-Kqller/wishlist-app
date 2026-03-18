@@ -49,7 +49,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 glass border-b-0 backdrop-blur-xl shadow-[0_1px_0_0_hsl(var(--glass-border))]">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-14 sm:h-[72px] flex items-center justify-between">
         <button
           onClick={() => router.push("/")}
           className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
@@ -90,16 +90,16 @@ export function Header() {
           )}
 
           {/* Desktop: показать все кнопки */}
-          <div className="hidden sm:flex items-center gap-1">
+          <div className="hidden sm:flex items-center gap-2">
             {isAdmin && (
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => router.push("/admin")}
-                className="h-9 w-9"
+                className="h-10 w-10"
                 title="Администрирование"
               >
-                <Shield className="w-4 h-4" />
+                <Shield className="w-5 h-5" />
               </Button>
             )}
 
@@ -107,27 +107,27 @@ export function Header() {
               variant="ghost"
               size="icon"
               onClick={() => router.push("/stats")}
-              className="h-9 w-9"
+              className="h-10 w-10"
               title="Статистика"
             >
-              <BarChart3 className="w-4 h-4" />
+              <BarChart3 className="w-5 h-5" />
             </Button>
 
             <Button
               variant="ghost"
               size="icon"
               onClick={() => router.push("/settings")}
-              className="h-9 w-9"
+              className="h-10 w-10"
               title="Настройки"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-5 h-5" />
             </Button>
 
             {isMainPage && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-9 w-9" title="Экспорт">
-                    <Download className="w-4 h-4" />
+                  <Button variant="ghost" size="icon" className="h-10 w-10" title="Экспорт">
+                    <Download className="w-5 h-5" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -147,10 +147,10 @@ export function Header() {
               variant="ghost"
               size="icon"
               onClick={handleSignOut}
-              className="h-9 w-9 text-muted-foreground"
+              className="h-10 w-10 text-muted-foreground"
               title="Выйти"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-5 h-5" />
             </Button>
           </div>
 
