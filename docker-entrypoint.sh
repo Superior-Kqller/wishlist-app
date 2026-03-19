@@ -34,7 +34,7 @@ print_startup_banner() {
     "$(pad_inner '')" \
     "$(pad_inner '   📦 Environment: production')" \
     "$(pad_inner "   🌐 Port: ${_port}")" \
-    "$(pad_inner "   🔗 Listen: 0.0.0.0:${_port}")" \
+    "$(pad_inner "   🔗 Listen: 0.0.0.0:${_port}")"
 }
 
 # Короткая пауза: при параллельном старте compose иногда вклиниваются строки других сервисов
