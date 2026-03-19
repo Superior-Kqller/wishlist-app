@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAdmin, getCurrentUserId } from "@/lib/auth-utils";
+import { getCurrentUserWithDbCheck, getCurrentUserId } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
@@ -23,16 +23,16 @@ export async function PATCH(
   const currentUserId = await getCurrentUserId();
 
   if (!currentUserId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
   }
 
-  // Проверка: пользователь может менять только свой пароль, админ - любой
-  const userIsAdmin = await isAdmin();
+  const dbUser = await getCurrentUserWithDbCheck();
+  const userIsAdmin = dbUser?.role === "ADMIN";
   const isOwnAccount = currentUserId === id;
 
   if (!userIsAdmin && !isOwnAccount) {
     return NextResponse.json(
-      { error: "Forbidden: You can only change your own password" },
+      { error: "Можно менять только свой пароль" },
       { status: 403 }
     );
   }
@@ -48,7 +48,7 @@ export async function PATCH(
     });
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ error: "Пользователь не найден" }, { status: 404 });
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 12);

@@ -62,6 +62,7 @@ export function ItemDetailDialog({
   const [imageError, setImageError] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
 
   const { data: comments = [], mutate: mutateComments } = useSWR<ItemComment[]>(
     item && open ? `/api/items/${item.id}/comments` : null,
@@ -97,6 +98,28 @@ export function ItemDetailDialog({
       toast.error(err instanceof Error ? err.message : "Ошибка при отправке комментария");
     } finally {
       setSubmittingComment(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!item) return;
+    setDeletingCommentId(commentId);
+    try {
+      const res = await fetch(`/api/items/${item.id}/comments/${commentId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Не удалось удалить");
+      }
+      toast.success("Комментарий удалён");
+      mutateComments();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Ошибка при удалении комментария"
+      );
+    } finally {
+      setDeletingCommentId(null);
     }
   };
 
@@ -227,25 +250,18 @@ export function ItemDetailDialog({
             </div>
           )}
 
-          {/* Actions: на мобильном — сетка 2×2 без «дыр»; на sm+ — как раньше */}
+          {/* Actions: один ряд + горизонтальный скролл на узких экранах */}
           {(item.url || currentUserId === item.userId) && (
-            <div
-              className={cn(
-                "grid w-full gap-2 border-t pt-3 sm:flex sm:flex-wrap sm:items-stretch sm:gap-2 sm:pt-2",
-                item.url && currentUserId === item.userId && "grid-cols-2",
-                item.url && currentUserId !== item.userId && "grid-cols-1",
-                !item.url && currentUserId === item.userId && "grid-cols-2",
-              )}
-            >
+            <div className="-mx-1 flex flex-nowrap items-center gap-2 overflow-x-auto overflow-y-visible border-t border-border pt-3 pb-0.5 sm:pt-2 [scrollbar-width:thin]">
               {item.url && (
                 <a
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md bg-muted px-3 py-2.5 text-sm font-medium hover:bg-muted/80 sm:min-h-9 sm:w-auto sm:justify-start sm:py-2"
+                  className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md bg-muted px-3 py-2 text-sm font-medium hover:bg-muted/80 min-h-9"
                 >
                   <ExternalLink className="h-4 w-4 shrink-0" />
-                  <span className="truncate">Открыть ссылку</span>
+                  Открыть ссылку
                 </a>
               )}
               {currentUserId === item.userId && (
@@ -254,7 +270,7 @@ export function ItemDetailDialog({
                     variant="outline"
                     size="sm"
                     onClick={handleEdit}
-                    className="min-h-10 w-full sm:min-h-9 sm:w-auto"
+                    className="h-9 shrink-0 whitespace-nowrap px-3"
                   >
                     <Pencil className="mr-2 h-4 w-4 shrink-0" />
                     Редактировать
@@ -263,7 +279,7 @@ export function ItemDetailDialog({
                     variant="outline"
                     size="sm"
                     onClick={handleTogglePurchased}
-                    className="min-h-10 w-full sm:min-h-9 sm:w-auto"
+                    className="h-9 shrink-0 whitespace-nowrap px-3"
                   >
                     {item.purchased ? (
                       <>
@@ -281,10 +297,7 @@ export function ItemDetailDialog({
                     variant="destructive"
                     size="sm"
                     onClick={handleDelete}
-                    className={cn(
-                      "min-h-10 w-full sm:min-h-9 sm:w-auto",
-                      !item.url ? "col-span-2 sm:col-span-1" : "",
-                    )}
+                    className="h-9 shrink-0 whitespace-nowrap px-3"
                   >
                     <Trash2 className="mr-2 h-4 w-4 shrink-0" />
                     Удалить
@@ -313,8 +326,8 @@ export function ItemDetailDialog({
                       userId={c.user.id}
                       size="sm"
                     />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium">{c.user.name}</span>
                         <span className="text-xs text-muted-foreground">
                           {new Date(c.createdAt).toLocaleString("ru-RU", {
@@ -326,8 +339,28 @@ export function ItemDetailDialog({
                           })}
                         </span>
                       </div>
-                      <p className="whitespace-pre-wrap break-words mt-0.5">{c.text}</p>
+                      <p className="mt-0.5 break-words whitespace-pre-wrap">
+                        {c.text}
+                      </p>
                     </div>
+                    {currentUserId === c.userId && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                        title="Удалить комментарий"
+                        aria-label="Удалить комментарий"
+                        disabled={deletingCommentId === c.id}
+                        onClick={() => handleDeleteComment(c.id)}
+                      >
+                        {deletingCommentId === c.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    )}
                   </div>
                 ))
               )}

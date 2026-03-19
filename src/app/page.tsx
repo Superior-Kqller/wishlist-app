@@ -32,6 +32,7 @@ import {
 import { toast } from "sonner";
 import { fetcher } from "@/lib/fetcher";
 import { useDebounce } from "@/lib/use-debounce";
+import { filterListsBySelectedUser } from "@/lib/list-filter-client";
 
 const ITEMS_PER_PAGE = 30;
 
@@ -203,6 +204,30 @@ function HomePageContent() {
     }
     syncFiltersToUrl();
   }, [search, sortBy, showPurchased, selectedTags]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const allowedListIdsForFilters = useMemo(() => {
+    if (!currentUserId) return new Set(lists.map((l) => l.id));
+    return new Set(
+      filterListsBySelectedUser(
+        lists,
+        usersWithStats,
+        currentUserId,
+        selectedUserId
+      ).map((l) => l.id)
+    );
+  }, [lists, usersWithStats, currentUserId, selectedUserId]);
+
+  useEffect(() => {
+    if (!selectedListId || !currentUserId) return;
+    if (!allowedListIdsForFilters.has(selectedListId)) {
+      syncFiltersToUrl({ listId: null });
+    }
+  }, [
+    selectedListId,
+    allowedListIdsForFilters,
+    currentUserId,
+    syncFiltersToUrl,
+  ]);
 
   const effectiveSelectedTags = useMemo(
     () => selectedTags.filter((id) => tagsFromItems.some((t) => t.id === id)),
@@ -417,9 +442,15 @@ function HomePageContent() {
     );
   }, []);
 
-  const handleUserChange = useCallback((userId: string | null) => {
-    syncFiltersToUrl({ userId: userId === "me" ? "me" : userId });
-  }, [syncFiltersToUrl]);
+  const handleUserChange = useCallback(
+    (userId: string | null) => {
+      const uid =
+        userId === null ? null : userId === "me" ? "me" : userId;
+      // Сброс подборки при смене «контекста» пользователя — иначе AND (userId + listId) даёт пустой список
+      syncFiltersToUrl({ userId: uid, listId: null });
+    },
+    [syncFiltersToUrl]
+  );
 
   const handleListChange = useCallback((listId: string | null) => {
     syncFiltersToUrl({ listId });

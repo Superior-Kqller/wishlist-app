@@ -30,6 +30,20 @@ export async function getCurrentUserId(): Promise<string | null> {
 }
 
 /**
+ * ID из сессии только если запись пользователя есть в БД
+ * (устраняет «битую» сессию после сброса БД / рассинхрон).
+ */
+export async function getSessionUserIdVerified(): Promise<string | null> {
+  const userId = await getCurrentUserId();
+  if (!userId) return null;
+  const row = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true },
+  });
+  return row?.id ?? null;
+}
+
+/**
  * Проверить, является ли пользователь администратором
  */
 export async function isAdmin(): Promise<boolean> {

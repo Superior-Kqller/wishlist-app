@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, memo } from "react";
+import { useState, memo, type KeyboardEvent } from "react";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -61,6 +61,16 @@ export const WishlistCard = memo(function WishlistCard({
     onOpenDetail?.(item);
   };
 
+  const isCardInteractive = Boolean(onOpenDetail || selectionMode);
+
+  const handleCardKeyDown = (e: KeyboardEvent) => {
+    if (!isCardInteractive) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleCardClick();
+    }
+  };
+
   return (
     <motion.div
       layout
@@ -74,12 +84,24 @@ export const WishlistCard = memo(function WishlistCard({
           "group overflow-hidden glass-card",
           priorityBorderClass(item.priority),
           item.purchased && "opacity-70",
-          (onOpenDetail || selectionMode) && "cursor-pointer",
+          isCardInteractive && "cursor-pointer",
+          isCardInteractive &&
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           isSelected && "shadow-[0_0_0_1px_hsl(var(--primary)/0.3),0_0_15px_hsl(var(--primary)/0.25)] scale-[1.01] brightness-[1.03]",
         )}
+        role={isCardInteractive ? "button" : undefined}
+        tabIndex={isCardInteractive ? 0 : undefined}
+        aria-label={
+          isCardInteractive
+            ? selectionMode
+              ? `Выбрать: ${item.title}`
+              : `Подробнее: ${item.title}`
+            : undefined
+        }
         onMouseEnter={() => setShowActions(true)}
         onMouseLeave={() => setShowActions(false)}
-        onClick={onOpenDetail ? handleCardClick : undefined}
+        onClick={isCardInteractive ? handleCardClick : undefined}
+        onKeyDown={isCardInteractive ? handleCardKeyDown : undefined}
       >
         {/* Image */}
         <div

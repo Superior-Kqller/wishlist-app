@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { getTagColor } from "@/lib/utils";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { canUserSeeList, getVisibleListIdsForUser } from "@/lib/list-utils";
+import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 const createItemSchema = z.object({
@@ -20,39 +20,37 @@ const createItemSchema = z.object({
   listId: z.string().trim().nullable().optional(),
 });
 
-/** Returns userId only if session exists and user still exists in DB (avoids FK after DB reset). */
-async function getUserId(): Promise<string | null> {
-  const session = await getServerSession(authOptions);
-  const id = session?.user?.id;
-  if (!id) return null;
-  const user = await prisma.user.findUnique({ where: { id }, select: { id: true } });
-  return user ? id : null;
-}
-
-// GET /api/items — общий список: все элементы всех пользователей (для двоих в семье)
+// GET /api/items — элементы в подборках, доступных текущему пользователю
 export async function GET(req: NextRequest) {
   // Rate limiting
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.read);
   if (rateLimitResponse) return rateLimitResponse;
 
   // Получаем userId один раз (устраняем дублирование)
-  const currentUserId = await getUserId();
+  const currentUserId = await getSessionUserIdVerified();
   if (!currentUserId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
   }
 
-  // Пагинация и фильтрация по пользователю и подборке
   const searchParams = req.nextUrl.searchParams;
   const cursor = searchParams.get("cursor");
-  const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
+  const limitRaw = parseInt(searchParams.get("limit") || "50", 10);
+  const limit = Math.min(
+    Number.isFinite(limitRaw) && limitRaw > 0 ? Math.floor(limitRaw) : 50,
+    100
+  );
   const userIdParam = searchParams.get("userId");
   const listIdParam = searchParams.get("listId");
   const search = searchParams.get("search")?.trim() || "";
 
-  const conditions: any[] = [];
+  const conditions: Prisma.ItemWhereInput[] = [];
 
   if (cursor) {
-    conditions.push({ createdAt: { lt: new Date(cursor) } });
+    const cursorDate = new Date(cursor);
+    if (Number.isNaN(cursorDate.getTime())) {
+      return NextResponse.json({ error: "Неверный курсор" }, { status: 400 });
+    }
+    conditions.push({ createdAt: { lt: cursorDate } });
   }
 
   if (search) {
@@ -126,9 +124,9 @@ export async function POST(req: NextRequest) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const userId = await getUserId();
+  const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
   }
 
   try {

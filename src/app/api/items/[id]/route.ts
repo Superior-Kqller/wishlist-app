@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { getTagColor } from "@/lib/utils";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { canUserSeeItem } from "@/lib/list-utils";
+import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 const updateItemSchema = z.object({
@@ -21,14 +21,6 @@ const updateItemSchema = z.object({
   listId: z.string().trim().nullable().optional(),
 });
 
-async function getUserId(): Promise<string | null> {
-  const session = await getServerSession(authOptions);
-  const id = session?.user?.id;
-  if (!id) return null;
-  const user = await prisma.user.findUnique({ where: { id }, select: { id: true } });
-  return user ? id : null;
-}
-
 // GET /api/items/[id] — только если пользователь имеет доступ (через подборку)
 export async function GET(
   req: NextRequest,
@@ -37,9 +29,9 @@ export async function GET(
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.read);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const userId = await getUserId();
+  const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -70,9 +62,9 @@ export async function PATCH(
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const userId = await getUserId();
+  const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -91,7 +83,7 @@ export async function PATCH(
     const body = await req.json();
     const data = updateItemSchema.parse(body);
 
-    const updateData: any = {};
+    const updateData: Prisma.ItemUncheckedUpdateInput = {};
 
     if (data.title !== undefined) updateData.title = data.title;
     if (data.url !== undefined) updateData.url = data.url || null;
@@ -165,9 +157,9 @@ export async function DELETE(
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const userId = await getUserId();
+  const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
   }
 
   const { id } = await params;

@@ -54,7 +54,7 @@ export default function StatsPage() {
               Статистика
             </h1>
             <p className="text-muted-foreground mt-1">
-              Общая стоимость вишлистов пользователей
+              Товары в общих подборках: стоимость по участникам
             </p>
           </div>
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
@@ -27,7 +26,6 @@ export function UserFilter({
   users,
   currentUserId,
 }: UserFilterProps) {
-  useSession();
   const currentUser = users.find((u) => u.id === currentUserId);
   const otherUsers = users.filter((u) => u.id !== currentUserId);
 

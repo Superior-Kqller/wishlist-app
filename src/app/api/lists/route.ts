@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUserId } from "@/lib/auth-utils";
+import { ensureUserIdsExist } from "@/lib/list-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
@@ -65,6 +66,18 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const data = createListSchema.parse(body);
+
+    const viewerCandidates = data.viewerIds.filter((uid) => uid !== currentUserId);
+    const viewerCheck = await ensureUserIdsExist(viewerCandidates);
+    if (!viewerCheck.ok) {
+      return NextResponse.json(
+        {
+          error: "Указаны несуществующие пользователи",
+          details: { unknownIds: viewerCheck.missing },
+        },
+        { status: 400 }
+      );
+    }
 
     const list = await prisma.list.create({
       data: {

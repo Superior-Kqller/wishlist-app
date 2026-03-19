@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +21,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { SlidersHorizontal, Eye, EyeOff } from "lucide-react";
 import type { UserWithStats, ListWithMeta, Tag } from "@/types";
+import { filterListsBySelectedUser } from "@/lib/list-filter-client";
 
 interface FiltersDrawerProps {
   open: boolean;
@@ -64,6 +66,16 @@ export function FiltersDrawer({
   onToggleTag,
   onClearTags,
 }: FiltersDrawerProps) {
+  const listsForPicker = useMemo(() => {
+    if (!currentUserId) return lists;
+    return filterListsBySelectedUser(
+      lists,
+      usersWithStats,
+      currentUserId,
+      selectedUserId
+    );
+  }, [lists, usersWithStats, currentUserId, selectedUserId]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="min-h-0 w-[min(95vw,calc(100vw-1rem))] max-w-md gap-0">
@@ -88,7 +100,7 @@ export function FiltersDrawer({
               <ListFilter
                 selectedListId={selectedListId}
                 onListChange={onListChange}
-                lists={lists}
+                lists={listsForPicker}
                 onCreateClick={onCreateList}
                 onEditClick={onEditList}
               />

@@ -22,6 +22,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { ListPlus, Pencil, ChevronDown, User, FolderOpen } from "lucide-react";
 import { UserWithStats, ListWithMeta } from "@/types";
 import { cn } from "@/lib/utils";
+import { filterListsBySelectedUser } from "@/lib/list-filter-client";
 
 interface CombinedFilterProps {
   currentUserId: string;
@@ -55,19 +56,11 @@ export function CombinedFilter({
     ? users.find((u) => u.id === selectedUserId) 
     : null;
 
-  const myLists = useMemo(
-    () => lists.filter((l) => l.userId === currentUserId),
-    [lists, currentUserId]
+  const selectedUserLists = useMemo(
+    () =>
+      filterListsBySelectedUser(lists, users, currentUserId, selectedUserId),
+    [lists, users, currentUserId, selectedUserId]
   );
-
-  const selectedUserLists = useMemo(() => {
-    if (isAllMode) return lists;
-    if (isMyMode) return myLists;
-    if (selectedOtherUser) {
-      return lists.filter((l) => l.userId === selectedOtherUser.id);
-    }
-    return [];
-  }, [isAllMode, isMyMode, selectedOtherUser, lists, myLists]);
 
   const handleTabChange = (value: string) => {
     if (value === "all") {

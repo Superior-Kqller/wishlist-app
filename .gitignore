@@ -19,6 +19,9 @@ public/uploads/
 .cursor
 docs/
 
+# Локальная память агента / правила — не в репозитории
+AGENTS.md
+
 # Playwright
 e2e/
 playwright-report/

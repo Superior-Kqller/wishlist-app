@@ -4,7 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { passwordSchema } from "@/lib/password-validation";
+import { decodeUserListCursor, encodeUserListCursor } from "@/lib/user-pagination";
 import bcrypt from "bcryptjs";
+import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 const createUserSchema = z.object({
@@ -21,18 +23,37 @@ export async function GET(req: NextRequest) {
 
   try {
     await requireAdmin();
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Forbidden";
     return NextResponse.json(
-      { error: err.message || "Forbidden" },
-      { status: err.message === "Unauthorized" ? 401 : 403 }
+      { error: message || "Forbidden" },
+      { status: message === "Unauthorized" ? 401 : 403 }
     );
   }
 
   const searchParams = req.nextUrl.searchParams;
-  const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100); // Максимум 100
-  const cursor = searchParams.get("cursor") || undefined;
+  const limitRaw = parseInt(searchParams.get("limit") || "50", 10);
+  const limit = Math.min(
+    Number.isFinite(limitRaw) && limitRaw > 0 ? Math.floor(limitRaw) : 50,
+    100
+  );
+  const cursorParam = searchParams.get("cursor");
 
-  const where = cursor ? { id: { lt: cursor } } : {};
+  let where: Prisma.UserWhereInput = {};
+  if (cursorParam) {
+    const decoded = decodeUserListCursor(cursorParam);
+    if (!decoded) {
+      return NextResponse.json({ error: "Неверный курсор" }, { status: 400 });
+    }
+    where = {
+      OR: [
+        { createdAt: { lt: decoded.createdAt } },
+        {
+          AND: [{ createdAt: decoded.createdAt }, { id: { lt: decoded.id } }],
+        },
+      ],
+    };
+  }
 
   const users = await prisma.user.findMany({
     where,
@@ -46,13 +67,17 @@ export async function GET(req: NextRequest) {
       updatedAt: true,
       _count: { select: { items: true } },
     },
-    orderBy: { createdAt: "desc" },
-    take: limit + 1, // Берем на 1 больше для проверки hasMore
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: limit + 1,
   });
 
   const hasMore = users.length > limit;
   const items = hasMore ? users.slice(0, limit) : users;
-  const nextCursor = hasMore ? items[items.length - 1]?.id : null;
+  const last = items[items.length - 1];
+  const nextCursor =
+    hasMore && last
+      ? encodeUserListCursor(last.createdAt, last.id)
+      : null;
 
   return NextResponse.json({
     users: items,
@@ -71,10 +96,11 @@ export async function POST(req: NextRequest) {
 
   try {
     await requireAdmin();
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Forbidden";
     return NextResponse.json(
-      { error: err.message || "Forbidden" },
-      { status: err.message === "Unauthorized" ? 401 : 403 }
+      { error: message || "Forbidden" },
+      { status: message === "Unauthorized" ? 401 : 403 }
     );
   }
 
@@ -104,9 +130,20 @@ export async function POST(req: NextRequest) {
           updatedAt: true,
         },
       });
-    } catch (createErr: any) {
-      // Обработка race condition: если username уже существует
-      if (createErr.code === "P2002" && createErr.meta?.target?.includes("username")) {
+    } catch (createErr: unknown) {
+      const code =
+        createErr && typeof createErr === "object" && "code" in createErr
+          ? (createErr as { code?: string }).code
+          : undefined;
+      const meta =
+        createErr && typeof createErr === "object" && "meta" in createErr
+          ? (createErr as { meta?: { target?: string[] } }).meta
+          : undefined;
+      const target = meta?.target;
+      const isUsernameConflict = Array.isArray(target)
+        ? target.includes("username")
+        : target === "username";
+      if (code === "P2002" && isUsernameConflict) {
         return NextResponse.json(
           { error: "Такой логин уже занят" },
           { status: 409 }

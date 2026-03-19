@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUserId } from "@/lib/auth-utils";
+import { ensureUserIdsExist } from "@/lib/list-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
@@ -80,8 +81,18 @@ export async function PATCH(
     const data = updateListSchema.parse(body);
 
     if (data.viewerIds !== undefined) {
-      await prisma.listViewer.deleteMany({ where: { listId: id } });
       const toAdd = data.viewerIds.filter((uid) => uid !== currentUserId);
+      const viewerCheck = await ensureUserIdsExist(toAdd);
+      if (!viewerCheck.ok) {
+        return NextResponse.json(
+          {
+            error: "Указаны несуществующие пользователи",
+            details: { unknownIds: viewerCheck.missing },
+          },
+          { status: 400 }
+        );
+      }
+      await prisma.listViewer.deleteMany({ where: { listId: id } });
       if (toAdd.length > 0) {
         await prisma.listViewer.createMany({
           data: toAdd.map((userId) => ({ listId: id, userId })),

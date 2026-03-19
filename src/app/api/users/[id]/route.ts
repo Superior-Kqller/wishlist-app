@@ -11,47 +11,53 @@ const updateUserSchema = z.object({
   role: z.enum(["USER", "ADMIN"]).optional(),
 });
 
+const LAST_ADMIN_BLOCK = "LAST_ADMIN_BLOCK";
+
+function adminAuthErrorResponse(err: unknown) {
+  const message = err instanceof Error ? err.message : "Forbidden";
+  return NextResponse.json(
+    { error: message || "Forbidden" },
+    { status: message === "Unauthorized" ? 401 : 403 }
+  );
+}
+
 /**
- * Проверить, можно ли удалить/изменить роль пользователя
- * Запрещено удалять/менять роль последнего админа
- * Использует транзакцию для предотвращения race condition
+ * Запрет удаления последнего администратора или снятия роли ADMIN → USER с последнего админа.
+ * Для PATCH с полем role: undefined (роль не меняется) вызывать не нужно.
  */
-async function canModifyUser(userId: string, newRole?: "USER" | "ADMIN"): Promise<{ allowed: boolean; reason?: string }> {
-  // Используем транзакцию для атомарной проверки
-  return await prisma.$transaction(async (tx) => {
+async function assertLastAdminSafe(
+  userId: string,
+  intent: "delete" | "demote_to_user"
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  return prisma.$transaction(async (tx) => {
     const user = await tx.user.findUnique({
       where: { id: userId },
       select: { role: true },
     });
 
     if (!user) {
-      return { allowed: false, reason: "User not found" };
+      return { ok: false, reason: "Пользователь не найден" };
     }
 
-    // Если пользователь не админ, можно изменять
     if (user.role !== "ADMIN") {
-      return { allowed: true };
+      return { ok: true };
     }
 
-    // Если пытаемся изменить роль админа на USER или удалить админа
-    // Если newRole === "ADMIN" или не указан при обновлении без изменения роли - разрешаем
-    const isRemovingAdmin = newRole === "USER" || newRole === undefined; // undefined означает удаление
+    const adminCount = await tx.user.count({
+      where: { role: "ADMIN" },
+    });
 
-    if (isRemovingAdmin) {
-      // Подсчитать количество админов атомарно в транзакции
-      const adminCount = await tx.user.count({
-        where: { role: "ADMIN" },
-      });
-
-      if (adminCount <= 1) {
-        return {
-          allowed: false,
-          reason: "Cannot remove the last admin",
-        };
-      }
+    if (adminCount <= 1) {
+      return {
+        ok: false,
+        reason:
+          intent === "delete"
+            ? "Нельзя удалить последнего администратора"
+            : "Нельзя снять роль с последнего администратора",
+      };
     }
 
-    return { allowed: true };
+    return { ok: true };
   });
 }
 
@@ -65,11 +71,8 @@ export async function GET(
 
   try {
     await requireAdmin();
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Forbidden" },
-      { status: err.message === "Unauthorized" ? 401 : 403 }
-    );
+  } catch (err: unknown) {
+    return adminAuthErrorResponse(err);
   }
 
   const { id } = await params;
@@ -89,7 +92,7 @@ export async function GET(
   });
 
   if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    return NextResponse.json({ error: "Пользователь не найден" }, { status: 404 });
   }
 
   return NextResponse.json(user);
@@ -105,11 +108,8 @@ export async function PATCH(
 
   try {
     await requireAdmin();
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Forbidden" },
-      { status: err.message === "Unauthorized" ? 401 : 403 }
-    );
+  } catch (err: unknown) {
+    return adminAuthErrorResponse(err);
   }
 
   const { id } = await params;
@@ -118,16 +118,13 @@ export async function PATCH(
     const body = await req.json();
     const data = updateUserSchema.parse(body);
 
-    // Проверка возможности изменения (внутри транзакции)
-    const canModify = await canModifyUser(id, data.role);
-    if (!canModify.allowed) {
-      return NextResponse.json(
-        { error: canModify.reason },
-        { status: 400 }
-      );
+    if (data.role === "USER") {
+      const lastAdmin = await assertLastAdminSafe(id, "demote_to_user");
+      if (!lastAdmin.ok) {
+        return NextResponse.json({ error: lastAdmin.reason }, { status: 400 });
+      }
     }
 
-    // Проверка уникальности username, если изменяется
     if (data.username) {
       const existing = await prisma.user.findFirst({
         where: {
@@ -161,22 +158,20 @@ export async function PATCH(
       );
     }
 
-    // Используем транзакцию для атомарного обновления с проверкой последнего админа
     const user = await prisma.$transaction(async (tx) => {
-      // Повторная проверка в транзакции перед обновлением (защита от race condition)
-      if (updateData.role === "USER" || updateData.role === undefined) {
+      if (updateData.role === "USER") {
         const currentUser = await tx.user.findUnique({
           where: { id },
           select: { role: true },
         });
-        
+
         if (currentUser?.role === "ADMIN") {
           const adminCount = await tx.user.count({
             where: { role: "ADMIN" },
           });
-          
+
           if (adminCount <= 1) {
-            throw new Error("Cannot remove the last admin");
+            throw new Error(LAST_ADMIN_BLOCK);
           }
         }
       }
@@ -204,6 +199,12 @@ export async function PATCH(
         { status: 400 }
       );
     }
+    if (err instanceof Error && err.message === LAST_ADMIN_BLOCK) {
+      return NextResponse.json(
+        { error: "Нельзя снять роль с последнего администратора" },
+        { status: 400 }
+      );
+    }
     sanitizeError("Update user error", err, { userId: id });
     return NextResponse.json(
       { error: "Внутренняя ошибка сервера" },
@@ -222,45 +223,49 @@ export async function DELETE(
 
   try {
     await requireAdmin();
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message || "Forbidden" },
-      { status: err.message === "Unauthorized" ? 401 : 403 }
-    );
+  } catch (err: unknown) {
+    return adminAuthErrorResponse(err);
   }
 
   const { id } = await params;
 
-  // Проверка возможности удаления (внутри транзакции)
-  const canModify = await canModifyUser(id);
-  if (!canModify.allowed) {
-    return NextResponse.json(
-      { error: canModify.reason },
-      { status: 400 }
-    );
+  const precheck = await assertLastAdminSafe(id, "delete");
+  if (!precheck.ok) {
+    return NextResponse.json({ error: precheck.reason }, { status: 400 });
   }
 
-  // Каскадное удаление в транзакции с повторной проверкой (защита от race condition)
-  await prisma.$transaction(async (tx) => {
-    // Повторная проверка в транзакции перед удалением
-    const user = await tx.user.findUnique({
-      where: { id },
-      select: { role: true },
-    });
-
-    if (user?.role === "ADMIN") {
-      const adminCount = await tx.user.count({
-        where: { role: "ADMIN" },
+  try {
+    await prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({
+        where: { id },
+        select: { role: true },
       });
 
-      if (adminCount <= 1) {
-        throw new Error("Cannot remove the last admin");
+      if (user?.role === "ADMIN") {
+        const adminCount = await tx.user.count({
+          where: { role: "ADMIN" },
+        });
+
+        if (adminCount <= 1) {
+          throw new Error(LAST_ADMIN_BLOCK);
+        }
       }
+
+      await tx.user.delete({ where: { id } });
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    if (err instanceof Error && err.message === LAST_ADMIN_BLOCK) {
+      return NextResponse.json(
+        { error: "Нельзя удалить последнего администратора" },
+        { status: 400 }
+      );
     }
-
-    // Каскадное удаление (items удалятся автоматически из-за onDelete: Cascade)
-    await tx.user.delete({ where: { id } });
-  });
-
-  return NextResponse.json({ success: true });
+    sanitizeError("Delete user error", err, { userId: id });
+    return NextResponse.json(
+      { error: "Внутренняя ошибка сервера" },
+      { status: 500 }
+    );
+  }
 }
