@@ -28,7 +28,6 @@ import {
   ImageIcon,
   Loader2,
 } from "lucide-react";
-import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -41,6 +40,7 @@ const fetcher = (url: string) =>
 
 interface ItemDetailDialogProps {
   item: WishlistItem | null;
+  currentUserId?: string;
   open: boolean;
   onClose: () => void;
   onEdit: (item: WishlistItem) => void;
@@ -51,6 +51,7 @@ interface ItemDetailDialogProps {
 
 export function ItemDetailDialog({
   item,
+  currentUserId,
   open,
   onClose,
   onEdit,
@@ -58,9 +59,6 @@ export function ItemDetailDialog({
   onTogglePurchased,
   onSetStatus,
 }: ItemDetailDialogProps) {
-  const { data: session } = useSession();
-  const currentUserId = session?.user?.id;
-
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
   const [commentText, setCommentText] = useState("");

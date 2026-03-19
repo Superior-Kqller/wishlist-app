@@ -642,6 +642,7 @@ function HomePageContent() {
 
         <WishlistGrid
           items={filteredItems}
+          currentUserId={currentUserId}
           isLoading={isLoading}
           onEdit={(item) => {
             setEditingItem(item);
@@ -709,6 +710,7 @@ function HomePageContent() {
       {/* Item detail dialog */}
       <ItemDetailDialog
         item={detailItem}
+        currentUserId={currentUserId}
         open={!!detailItem}
         onClose={() => setDetailItem(null)}
         onEdit={(item) => {

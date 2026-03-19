@@ -10,6 +10,7 @@ import { Plus } from "lucide-react";
 
 interface WishlistGridProps {
   items: WishlistItem[];
+  currentUserId?: string;
   isLoading?: boolean;
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
@@ -25,6 +26,7 @@ interface WishlistGridProps {
 
 export function WishlistGrid({
   items,
+  currentUserId,
   isLoading,
   onEdit,
   onDelete,
@@ -91,6 +93,7 @@ export function WishlistGrid({
           <WishlistCard
             key={item.id}
             item={item}
+            currentUserId={currentUserId}
             index={index}
             onEdit={onEdit}
             onDelete={onDelete}

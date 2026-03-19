@@ -46,11 +46,28 @@ export async function GET(req: NextRequest) {
   const conditions: Prisma.ItemWhereInput[] = [];
 
   if (cursor) {
-    const cursorDate = new Date(cursor);
+    const [cursorDateRaw, cursorIdRaw] = cursor.split("|");
+    const cursorDate = new Date(cursorDateRaw);
+    const cursorId = cursorIdRaw?.trim();
     if (Number.isNaN(cursorDate.getTime())) {
       return NextResponse.json({ error: "Неверный курсор" }, { status: 400 });
     }
-    conditions.push({ createdAt: { lt: cursorDate } });
+    if (cursorId) {
+      conditions.push({
+        OR: [
+          { createdAt: { lt: cursorDate } },
+          {
+            AND: [
+              { createdAt: cursorDate },
+              { id: { lt: cursorId } },
+            ],
+          },
+        ],
+      });
+    } else {
+      // Backward compatibility for old cursor format (date only).
+      conditions.push({ createdAt: { lt: cursorDate } });
+    }
   }
 
   if (search) {
@@ -96,13 +113,16 @@ export async function GET(req: NextRequest) {
       user: { select: { id: true, name: true, avatarUrl: true } },
       claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: limit + 1, // Берем на 1 больше для проверки наличия следующей страницы
   });
 
   const hasMore = items.length > limit;
   const data = hasMore ? items.slice(0, limit) : items;
-  const nextCursor = hasMore && data.length > 0 ? data[data.length - 1].createdAt.toISOString() : null;
+  const nextCursor =
+    hasMore && data.length > 0
+      ? `${data[data.length - 1].createdAt.toISOString()}|${data[data.length - 1].id}`
+      : null;
 
   // Кэширование на 30 секунд для списка items (данные могут часто меняться)
   return NextResponse.json(

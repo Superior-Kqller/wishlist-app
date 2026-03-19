@@ -24,6 +24,7 @@ import { motion } from "framer-motion";
 
 interface WishlistCardProps {
   item: WishlistItem;
+  currentUserId?: string;
   index?: number;
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
@@ -38,6 +39,7 @@ interface WishlistCardProps {
 
 export const WishlistCard = memo(function WishlistCard({
   item,
+  currentUserId,
   index = 0,
   onEdit,
   onDelete,
@@ -55,6 +57,7 @@ export const WishlistCard = memo(function WishlistCard({
   const images = item.images?.length ? item.images : [];
   const mainImage = images[currentImageIndex];
   const hasMultipleImages = images.length > 1;
+  const isOwner = currentUserId === item.userId;
 
   const handleCardClick = () => {
     if (selectionMode) {
@@ -239,13 +242,14 @@ export const WishlistCard = memo(function WishlistCard({
           )}
 
           {/* Action buttons */}
-          <div
-            className={cn(
-              "absolute top-2 right-2 flex gap-1 transition-opacity duration-200",
-              showActions ? "opacity-100" : "opacity-0"
-            )}
-          >
-            {item.url && (
+          {(item.url || isOwner) && (
+            <div
+              className={cn(
+                "absolute top-2 right-2 flex gap-1 transition-opacity duration-200",
+                showActions ? "opacity-100" : "opacity-0"
+              )}
+            >
+              {item.url && (
               <a
                 href={item.url}
                 target="_blank"
@@ -256,51 +260,56 @@ export const WishlistCard = memo(function WishlistCard({
               >
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
-            )}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(item);
-              }}
-              className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-background/90 backdrop-blur flex items-center justify-center hover:bg-background transition-colors shadow-sm focus-ring"
-              title="Редактировать"
-            >
-              <Pencil className="w-3.5 h-3.5" />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onSetStatus) {
-                  const nextStatus =
-                    item.status === "PURCHASED" ? "AVAILABLE" : "PURCHASED";
-                  onSetStatus(item.id, nextStatus);
-                } else {
-                  onTogglePurchased(item.id, !item.purchased);
-                }
-              }}
-              className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-background/90 backdrop-blur flex items-center justify-center hover:bg-background transition-colors shadow-sm focus-ring"
-              title={item.status === "PURCHASED" ? "Снять отметку" : "Отметить купленным"}
-            >
-              {item.status === "PURCHASED" ? (
-                <Undo2 className="w-3.5 h-3.5" />
-              ) : (
-                <ShoppingCart className="w-3.5 h-3.5" />
               )}
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(item.id);
-              }}
-              className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-destructive/90 backdrop-blur flex items-center justify-center hover:bg-destructive transition-colors shadow-sm text-destructive-foreground focus-ring"
-              title="Удалить"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
+              {isOwner && (
+                <>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(item);
+                  }}
+                  className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-background/90 backdrop-blur flex items-center justify-center hover:bg-background transition-colors shadow-sm focus-ring"
+                  title="Редактировать"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onSetStatus) {
+                      const nextStatus =
+                        item.status === "PURCHASED" ? "AVAILABLE" : "PURCHASED";
+                      onSetStatus(item.id, nextStatus);
+                    } else {
+                      onTogglePurchased(item.id, !item.purchased);
+                    }
+                  }}
+                  className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-background/90 backdrop-blur flex items-center justify-center hover:bg-background transition-colors shadow-sm focus-ring"
+                  title={item.status === "PURCHASED" ? "Снять отметку" : "Отметить купленным"}
+                >
+                  {item.status === "PURCHASED" ? (
+                    <Undo2 className="w-3.5 h-3.5" />
+                  ) : (
+                    <ShoppingCart className="w-3.5 h-3.5" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(item.id);
+                  }}
+                  className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-destructive/90 backdrop-blur flex items-center justify-center hover:bg-destructive transition-colors shadow-sm text-destructive-foreground focus-ring"
+                  title="Удалить"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Price badge */}
           {item.price && (
