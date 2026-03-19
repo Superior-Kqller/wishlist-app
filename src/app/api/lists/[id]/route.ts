@@ -4,6 +4,7 @@ import { ensureUserIdsExist } from "@/lib/list-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 const updateListSchema = z.object({
@@ -81,8 +82,14 @@ export async function PATCH(
     const data = updateListSchema.parse(body);
 
     if (data.viewerIds !== undefined) {
-      const toAdd = data.viewerIds.filter((uid) => uid !== currentUserId);
-      const viewerCheck = await ensureUserIdsExist(toAdd);
+      const normalizedViewerIds = Array.from(
+        new Set(
+          data.viewerIds
+            .map((uid) => uid.trim())
+            .filter((uid) => uid.length > 0 && uid !== currentUserId)
+        )
+      );
+      const viewerCheck = await ensureUserIdsExist(normalizedViewerIds);
       if (!viewerCheck.ok) {
         return NextResponse.json(
           {
@@ -92,12 +99,14 @@ export async function PATCH(
           { status: 400 }
         );
       }
-      await prisma.listViewer.deleteMany({ where: { listId: id } });
-      if (toAdd.length > 0) {
-        await prisma.listViewer.createMany({
-          data: toAdd.map((userId) => ({ listId: id, userId })),
-        });
-      }
+      await prisma.$transaction(async (tx) => {
+        await tx.listViewer.deleteMany({ where: { listId: id } });
+        if (normalizedViewerIds.length > 0) {
+          await tx.listViewer.createMany({
+            data: normalizedViewerIds.map((userId) => ({ listId: id, userId })),
+          });
+        }
+      });
     }
 
     const updateData: { name?: string } = {};
@@ -126,6 +135,18 @@ export async function PATCH(
       return NextResponse.json(
         { error: "Ошибка проверки данных", details: err.issues },
         { status: 400 }
+      );
+    }
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2002"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Конфликт при обновлении доступа к подборке. Удалите дубликаты и повторите попытку.",
+        },
+        { status: 409 }
       );
     }
     sanitizeError("Update list error", err, { listId: id });

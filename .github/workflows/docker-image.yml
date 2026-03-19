@@ -21,7 +21,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: superior-kqller/wishlist-app
 
 jobs:
   build:
@@ -33,6 +33,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Verify base/head commits are available
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "0000000000000000000000000000000000000000" ]; then
+            git cat-file -e "$BASE_SHA^{commit}" || {
+              echo "BASE_SHA commit is not available locally: $BASE_SHA"
+              exit 1
+            }
+            git cat-file -e "$HEAD_SHA^{commit}" || {
+              echo "HEAD_SHA commit is not available locally: $HEAD_SHA"
+              exit 1
+            }
+          fi
 
       - name: Verify Prisma migration exists when schema changes
         env:
