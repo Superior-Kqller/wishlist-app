@@ -1,6 +1,6 @@
 {
   "name": "wishlist",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "db:push": "prisma db push",
+    "db:check-migrations": "node scripts/check-prisma-migrations.mjs",
     "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio",
     "test": "vitest run",

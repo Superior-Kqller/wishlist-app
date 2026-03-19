@@ -5,6 +5,16 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект использует [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [1.6.2] — 2026-03-20
+
+### Добавлено
+
+- **Автопроверка Prisma-миграций** — новый скрипт `db:check-migrations` (`scripts/check-prisma-migrations.mjs`) блокирует изменения `prisma/schema.prisma` без соответствующего `prisma/migrations/*/migration.sql`
+
+### Изменено
+
+- **CI (Docker Image workflow)** — добавлен шаг проверки миграций на `push` и `pull_request`, чтобы релизы не уходили с несинхронизированной схемой БД
+
 ## [1.6.1] — 2026-03-20
 
 ### Исправлено

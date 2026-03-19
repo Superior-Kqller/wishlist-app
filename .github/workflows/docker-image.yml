@@ -34,6 +34,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Verify Prisma migration exists when schema changes
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "0000000000000000000000000000000000000000" ]; then
+            npm run db:check-migrations -- --base=$BASE_SHA --head=$HEAD_SHA
+          else
+            echo "BASE_SHA not available (first push/tag), skipping strict diff check."
+          fi
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
