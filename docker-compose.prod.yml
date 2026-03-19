@@ -1,5 +1,3 @@
-# Логи `docker compose logs` смешивают stdout всех сервисов — баннер приложения может «рваться».
-# Только контейнер приложения: docker logs -f wishlist-app
 services:
   wishlist-db:
     image: postgres:17-alpine
