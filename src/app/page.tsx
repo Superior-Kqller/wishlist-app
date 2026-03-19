@@ -427,8 +427,8 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen page-bg">
-      <main className="container mx-auto px-4 py-6 space-y-4">
-        <div className="sticky top-16 z-30 -mx-4 px-4 py-2 sm:py-3 bg-background/95 backdrop-blur-sm border-b border-border/50 sm:border-0 sm:bg-transparent sm:backdrop-blur-none sm:static sm:z-auto flex flex-col gap-2 sm:gap-3 min-w-0">
+      <main className="container mx-auto px-4 py-3 sm:py-6 space-y-2 sm:space-y-4">
+        <div className="sticky top-14 sm:top-[72px] z-30 -mx-4 px-4 py-1.5 sm:py-3 bg-background/95 backdrop-blur-sm border-b border-border/50 sm:border-0 sm:bg-transparent sm:backdrop-blur-none sm:static sm:z-auto flex flex-col gap-1.5 sm:gap-3 min-w-0">
           {/* Мобильная компактная строка: только поиск + кнопка «Фильтры» */}
           <div className="flex sm:hidden items-center gap-2 min-w-0">
             <div className="relative flex-1 min-w-0">
@@ -580,7 +580,7 @@ function HomePageContent() {
         />
 
         {/* Sentinel для Intersection Observer + кнопка "Загрузить ещё" */}
-        <div ref={sentinelRef} className="flex justify-center py-6">
+        <div ref={sentinelRef} className="flex justify-center py-4 sm:py-6">
           {isLoadingMore && (
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           )}

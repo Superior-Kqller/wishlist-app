@@ -125,7 +125,7 @@ export function ItemDetailDialog({
               alt={item.title}
               fill
               className={cn(
-                "object-contain sm:object-cover",
+                "object-cover",
                 item.purchased && "grayscale"
               )}
               sizes="(max-width: 768px) 100vw, 672px"
@@ -174,10 +174,10 @@ export function ItemDetailDialog({
           )}
         </div>
 
-        <div className="p-4 sm:p-6 space-y-4">
-          <DialogHeader>
-            <div className="flex items-start justify-between gap-4">
-              <DialogTitle className={cn("text-xl", item.purchased && "line-through")}>
+        <div className="p-3 sm:p-6 space-y-3 sm:space-y-4">
+          <DialogHeader className="space-y-0">
+            <div className="flex items-start justify-between gap-3 sm:gap-4">
+              <DialogTitle className={cn("text-lg sm:text-xl", item.purchased && "line-through")}>
                 {item.title}
               </DialogTitle>
               <PriorityStars priority={item.priority} />
@@ -213,7 +213,7 @@ export function ItemDetailDialog({
           )}
 
           {item.user && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground pb-0.5">
               <UserAvatar
                 avatarUrl={item.user.avatarUrl || undefined}
                 name={item.user.name}
@@ -224,52 +224,75 @@ export function ItemDetailDialog({
             </div>
           )}
 
-          {/* Actions */}
-          <div className="flex flex-wrap gap-2 pt-2 border-t">
-            {item.url && (
-              <a
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-muted hover:bg-muted/80 text-sm font-medium"
-              >
-                <ExternalLink className="w-4 h-4" />
-                Открыть ссылку
-              </a>
-            )}
-            {currentUserId === item.userId && (
-              <>
-                <Button variant="outline" size="sm" onClick={handleEdit}>
-                  <Pencil className="w-4 h-4 mr-2" />
-                  Редактировать
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleTogglePurchased}
+          {/* Actions: на мобильном — сетка 2×2 без «дыр»; на sm+ — как раньше */}
+          {(item.url || currentUserId === item.userId) && (
+            <div
+              className={cn(
+                "grid w-full gap-2 border-t pt-3 sm:flex sm:flex-wrap sm:items-stretch sm:gap-2 sm:pt-2",
+                item.url && currentUserId === item.userId && "grid-cols-2",
+                item.url && currentUserId !== item.userId && "grid-cols-1",
+                !item.url && currentUserId === item.userId && "grid-cols-2",
+              )}
+            >
+              {item.url && (
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md bg-muted px-3 py-2.5 text-sm font-medium hover:bg-muted/80 sm:min-h-9 sm:w-auto sm:justify-start sm:py-2"
                 >
-                  {item.purchased ? (
-                    <>
-                      <Undo2 className="w-4 h-4 mr-2" />
-                      Снять отметку
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      Отметить купленным
-                    </>
-                  )}
-                </Button>
-                <Button variant="destructive" size="sm" onClick={handleDelete}>
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Удалить
-                </Button>
-              </>
-            )}
-          </div>
+                  <ExternalLink className="h-4 w-4 shrink-0" />
+                  <span className="truncate">Открыть ссылку</span>
+                </a>
+              )}
+              {currentUserId === item.userId && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleEdit}
+                    className="min-h-10 w-full sm:min-h-9 sm:w-auto"
+                  >
+                    <Pencil className="mr-2 h-4 w-4 shrink-0" />
+                    Редактировать
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleTogglePurchased}
+                    className="min-h-10 w-full sm:min-h-9 sm:w-auto"
+                  >
+                    {item.purchased ? (
+                      <>
+                        <Undo2 className="mr-2 h-4 w-4 shrink-0" />
+                        Снять отметку
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="mr-2 h-4 w-4 shrink-0" />
+                        Отметить купленным
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleDelete}
+                    className={cn(
+                      "min-h-10 w-full sm:min-h-9 sm:w-auto",
+                      !item.url ? "col-span-2 sm:col-span-1" : "",
+                    )}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4 shrink-0" />
+                    Удалить
+                  </Button>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Comments */}
-          <div className="pt-4 border-t space-y-3">
+          <div className="space-y-2.5 border-t pt-3 sm:space-y-3 sm:pt-4">
             <h3 className="text-sm font-semibold">Комментарии</h3>
 
             <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -307,18 +330,26 @@ export function ItemDetailDialog({
               )}
             </div>
 
-            <form onSubmit={handleAddComment} className="flex gap-2">
+            <form
+              onSubmit={handleAddComment}
+              className="flex flex-col gap-2 sm:flex-row sm:items-end"
+            >
               <Textarea
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 placeholder="Добавить комментарий..."
-                className="min-h-[80px] resize-none"
+                className="min-h-[72px] resize-none sm:min-h-[80px] sm:flex-1"
                 maxLength={2000}
                 disabled={submittingComment}
               />
-              <Button type="submit" size="sm" disabled={!commentText.trim() || submittingComment}>
+              <Button
+                type="submit"
+                size="sm"
+                className="w-full shrink-0 sm:w-auto"
+                disabled={!commentText.trim() || submittingComment}
+              >
                 {submittingComment ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   "Отправить"
                 )}

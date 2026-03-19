@@ -16,7 +16,7 @@ export function WishlistCardSkeleton({ index = 0 }: WishlistCardSkeletonProps) {
     >
       <Card className="overflow-hidden glass-card">
         <div className="aspect-[4/3] skeleton-shimmer" />
-        <div className="p-3 space-y-2">
+        <div className="p-2.5 sm:p-3 space-y-1.5 sm:space-y-2">
           <div className="h-4 rounded w-4/5 skeleton-shimmer" />
           <div className="h-3 rounded w-1/3 skeleton-shimmer" />
           <div className="flex gap-1">

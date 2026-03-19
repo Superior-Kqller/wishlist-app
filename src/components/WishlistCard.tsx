@@ -282,7 +282,7 @@ export const WishlistCard = memo(function WishlistCard({
         </div>
 
         {/* Content */}
-        <div className="p-3 space-y-2">
+        <div className="p-2.5 sm:p-3 space-y-1.5 sm:space-y-2">
           <div className="flex items-start justify-between gap-2">
             <h3
               className={cn(
