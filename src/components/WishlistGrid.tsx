@@ -14,6 +14,7 @@ interface WishlistGridProps {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
+  onSetStatus?: (id: string, status: "AVAILABLE" | "CLAIMED" | "PURCHASED") => void;
   onPriorityChange?: (id: string, priority: number) => void;
   onEmptyAdd?: () => void;
   onOpenDetail?: (item: WishlistItem) => void;
@@ -28,6 +29,7 @@ export function WishlistGrid({
   onEdit,
   onDelete,
   onTogglePurchased,
+  onSetStatus,
   onPriorityChange,
   onEmptyAdd,
   onOpenDetail,
@@ -93,6 +95,7 @@ export function WishlistGrid({
             onEdit={onEdit}
             onDelete={onDelete}
             onTogglePurchased={onTogglePurchased}
+            onSetStatus={onSetStatus}
             onPriorityChange={onPriorityChange}
             onOpenDetail={onOpenDetail}
             selectionMode={selectionMode}

@@ -1,3 +1,5 @@
+export type ItemStatus = "AVAILABLE" | "CLAIMED" | "PURCHASED";
+
 export interface WishlistItem {
   id: string;
   title: string;
@@ -9,9 +11,13 @@ export interface WishlistItem {
   notes: string | null;
   purchased: boolean;
   purchasedAt: string | null;
+  status: ItemStatus;
+  claimedByUserId: string | null;
+  claimedAt: string | null;
   userId: string;
   listId: string | null;
   user?: { id: string; name: string; avatarUrl?: string | null };
+  claimedByUser?: { id: string; name: string; avatarUrl?: string | null } | null;
   tags: Tag[];
   createdAt: string;
   updatedAt: string;
@@ -68,6 +74,7 @@ export interface CreateItemPayload {
 
 export interface UpdateItemPayload extends Partial<CreateItemPayload> {
   purchased?: boolean;
+  status?: ItemStatus;
 }
 
 export interface ParsedProductResponse {

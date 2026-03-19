@@ -7,6 +7,8 @@ import { sanitizeError } from "@/lib/logger";
 import { canUserSeeItem } from "@/lib/list-utils";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
+import { canClaimItem, canUnclaimItem } from "@/lib/access-policy";
+import { canTransitionStatus } from "@/lib/item-status";
 
 const updateItemSchema = z.object({
   title: z.string().min(1).max(500).optional(),
@@ -17,6 +19,7 @@ const updateItemSchema = z.object({
   images: z.array(z.string().url()).optional(),
   notes: z.string().max(2000).optional().or(z.null()),
   purchased: z.boolean().optional(),
+  status: z.enum(["AVAILABLE", "CLAIMED", "PURCHASED"]).optional(),
   tags: z.array(z.string()).optional(),
   listId: z.string().trim().nullable().optional(),
 });
@@ -43,7 +46,11 @@ export async function GET(
 
   const item = await prisma.item.findFirst({
     where: { id },
-    include: { tags: true, user: { select: { id: true, name: true, avatarUrl: true } } },
+    include: {
+      tags: true,
+      user: { select: { id: true, name: true, avatarUrl: true } },
+      claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
+    },
   });
 
   if (!item) {
@@ -69,21 +76,43 @@ export async function PATCH(
 
   const { id } = await params;
 
-  // Verify ownership
+  const canSee = await canUserSeeItem(id, userId);
+  if (!canSee) {
+    return NextResponse.json({ error: "Не найдено" }, { status: 404 });
+  }
+
   const existing = await prisma.item.findFirst({
-    where: { id, userId },
-    include: { tags: true },
+    where: { id },
+    include: {
+      tags: true,
+      list: { select: { userId: true, viewers: { select: { userId: true } } } },
+    },
   });
 
   if (!existing) {
     return NextResponse.json({ error: "Не найдено" }, { status: 404 });
   }
+  const isOwner = existing.userId === userId;
 
   try {
     const body = await req.json();
     const data = updateItemSchema.parse(body);
 
     const updateData: Prisma.ItemUncheckedUpdateInput = {};
+    const hasOwnerOnlyFields =
+      data.title !== undefined ||
+      data.url !== undefined ||
+      data.price !== undefined ||
+      data.currency !== undefined ||
+      data.priority !== undefined ||
+      data.images !== undefined ||
+      data.notes !== undefined ||
+      data.tags !== undefined ||
+      data.listId !== undefined;
+
+    if (hasOwnerOnlyFields && !isOwner) {
+      return NextResponse.json({ error: "Доступ запрещён" }, { status: 403 });
+    }
 
     if (data.title !== undefined) updateData.title = data.title;
     if (data.url !== undefined) updateData.url = data.url || null;
@@ -93,9 +122,84 @@ export async function PATCH(
     if (data.images !== undefined) updateData.images = data.images;
     if (data.notes !== undefined) updateData.notes = data.notes || null;
     if (data.purchased !== undefined) {
+      if (!isOwner) {
+        return NextResponse.json({ error: "Доступ запрещён" }, { status: 403 });
+      }
       updateData.purchased = data.purchased;
       updateData.purchasedAt = data.purchased ? new Date() : null;
+      updateData.status = data.purchased ? "PURCHASED" : "AVAILABLE";
+      if (!data.purchased) {
+        updateData.claimedByUserId = null;
+        updateData.claimedAt = null;
+      }
     }
+    if (data.status !== undefined) {
+      const currentStatus = existing.status;
+      const nextStatus = data.status;
+      const claimerUserId = existing.claimedByUserId;
+
+      if (
+        nextStatus === "CLAIMED" &&
+        !canClaimItem({
+          actorUserId: userId,
+          ownerUserId: existing.userId,
+          claimerUserId,
+          isVisibleToActor: true,
+          status: currentStatus,
+        })
+      ) {
+        return NextResponse.json(
+          { error: "Нельзя забронировать этот товар" },
+          { status: 409 }
+        );
+      }
+
+      if (
+        nextStatus === "AVAILABLE" &&
+        !canUnclaimItem({
+          actorUserId: userId,
+          ownerUserId: existing.userId,
+          claimerUserId,
+          isVisibleToActor: true,
+          status: currentStatus,
+        })
+      ) {
+        return NextResponse.json(
+          { error: "Нельзя снять бронь для этого товара" },
+          { status: 403 }
+        );
+      }
+
+      if (
+        !canTransitionStatus(currentStatus, nextStatus, {
+          actorUserId: userId,
+          ownerUserId: existing.userId,
+          claimerUserId,
+        })
+      ) {
+        return NextResponse.json(
+          { error: "Недопустимый переход статуса" },
+          { status: 409 }
+        );
+      }
+
+      updateData.status = nextStatus;
+      if (nextStatus === "CLAIMED") {
+        updateData.claimedByUserId = userId;
+        updateData.claimedAt = new Date();
+        updateData.purchased = false;
+        updateData.purchasedAt = null;
+      } else if (nextStatus === "AVAILABLE") {
+        updateData.claimedByUserId = null;
+        updateData.claimedAt = null;
+        updateData.purchased = false;
+        updateData.purchasedAt = null;
+      } else if (nextStatus === "PURCHASED") {
+        updateData.purchased = true;
+        updateData.purchasedAt = new Date();
+      }
+    }
+
     if (data.listId !== undefined) {
       if (data.listId) {
         const list = await prisma.list.findUnique({ where: { id: data.listId }, select: { userId: true } });
@@ -129,7 +233,11 @@ export async function PATCH(
     const item = await prisma.item.update({
       where: { id },
       data: updateData,
-      include: { tags: true, user: { select: { id: true, name: true, avatarUrl: true } } },
+      include: {
+        tags: true,
+        user: { select: { id: true, name: true, avatarUrl: true } },
+        claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
+      },
     });
 
     return NextResponse.json(item);

@@ -145,7 +145,7 @@ export function CombinedFilter({
             {otherUsers.map((user) => (
               <DropdownMenuItem
                 key={user.id}
-                onClick={() => handleSelectUser(user.id)}
+                onSelect={() => handleSelectUser(user.id)}
                 className={cn(
                   "flex items-center gap-3 p-2 cursor-pointer",
                   selectedUserId === user.id && "bg-accent"

@@ -375,6 +375,29 @@ function HomePageContent() {
     [mutateItems],
   );
 
+  const handleSetItemStatus = useCallback(
+    async (id: string, status: "AVAILABLE" | "CLAIMED" | "PURCHASED") => {
+      const res = await fetch(`/api/items/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Ошибка смены статуса");
+      }
+      const statusText =
+        status === "AVAILABLE"
+          ? "Бронь снята"
+          : status === "CLAIMED"
+            ? "Товар забронирован"
+            : "Отмечено купленным";
+      toast.success(statusText);
+      mutateItems();
+    },
+    [mutateItems]
+  );
+
   const handlePriorityChange = useCallback(
     async (id: string, priority: number) => {
       // Оптимистичное обновление
@@ -627,6 +650,7 @@ function HomePageContent() {
           }}
           onDelete={handleDeleteItem}
           onTogglePurchased={handleTogglePurchased}
+          onSetStatus={handleSetItemStatus}
           onPriorityChange={handlePriorityChange}
           onEmptyAdd={() => {
             setParsedData(null);
@@ -694,6 +718,7 @@ function HomePageContent() {
         }}
         onDelete={handleDeleteItem}
         onTogglePurchased={handleTogglePurchased}
+        onSetStatus={handleSetItemStatus}
       />
 
       {/* Confirm delete dialog */}

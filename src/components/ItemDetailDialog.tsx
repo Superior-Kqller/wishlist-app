@@ -17,6 +17,7 @@ import { WishlistItem } from "@/types";
 import { ItemComment } from "@/types";
 import { formatPrice, getTagColor } from "@/lib/utils";
 import {
+  Clock3,
   ExternalLink,
   Pencil,
   Trash2,
@@ -45,6 +46,7 @@ interface ItemDetailDialogProps {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
+  onSetStatus?: (id: string, status: "AVAILABLE" | "CLAIMED" | "PURCHASED") => void;
 }
 
 export function ItemDetailDialog({
@@ -54,6 +56,7 @@ export function ItemDetailDialog({
   onEdit,
   onDelete,
   onTogglePurchased,
+  onSetStatus,
 }: ItemDetailDialogProps) {
   const { data: session } = useSession();
   const currentUserId = session?.user?.id;
@@ -134,7 +137,18 @@ export function ItemDetailDialog({
   };
 
   const handleTogglePurchased = () => {
+    if (onSetStatus) {
+      const nextStatus = item.status === "PURCHASED" ? "AVAILABLE" : "PURCHASED";
+      onSetStatus(item.id, nextStatus);
+      return;
+    }
     onTogglePurchased(item.id, !item.purchased);
+  };
+
+  const handleClaimAction = () => {
+    if (!onSetStatus) return;
+    if (item.status === "AVAILABLE") onSetStatus(item.id, "CLAIMED");
+    if (item.status === "CLAIMED") onSetStatus(item.id, "AVAILABLE");
   };
 
   return (
@@ -203,9 +217,20 @@ export function ItemDetailDialog({
         <div className="space-y-3 sm:space-y-4 px-3 pt-3 sm:px-6 sm:pt-6 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
           <DialogHeader className="space-y-0">
             <div className="flex items-start justify-between gap-3 sm:gap-4">
-              <DialogTitle className={cn("text-lg sm:text-xl", item.purchased && "line-through")}>
-                {item.title}
-              </DialogTitle>
+              <div>
+                <DialogTitle className={cn("text-lg sm:text-xl", item.purchased && "line-through")}>
+                  {item.title}
+                </DialogTitle>
+                {item.status === "CLAIMED" && (
+                  <Badge variant="secondary" className="mt-2 text-xs">
+                    <Clock3 className="w-3 h-3 mr-1" />
+                    Забронировано
+                  </Badge>
+                )}
+                {item.status === "PURCHASED" && (
+                  <Badge className="mt-2 text-xs">Куплено</Badge>
+                )}
+              </div>
               <PriorityStars priority={item.priority} />
             </div>
           </DialogHeader>
@@ -250,9 +275,9 @@ export function ItemDetailDialog({
             </div>
           )}
 
-          {/* Actions: один ряд + горизонтальный скролл на узких экранах */}
+          {/* Actions: на mobile горизонтальный скролл, на desktop перенос строк */}
           {(item.url || currentUserId === item.userId) && (
-            <div className="-mx-1 flex flex-nowrap items-center gap-2 overflow-x-auto overflow-y-visible border-t border-border pt-3 pb-0.5 sm:pt-2 [scrollbar-width:thin]">
+            <div className="-mx-1 flex flex-nowrap items-center gap-2 overflow-x-auto overflow-y-visible border-t border-border pt-3 pb-0.5 [scrollbar-width:thin] sm:mx-0 sm:flex-wrap sm:overflow-x-visible sm:pt-2">
               {item.url && (
                 <a
                   href={item.url}
@@ -281,7 +306,7 @@ export function ItemDetailDialog({
                     onClick={handleTogglePurchased}
                     className="h-9 shrink-0 whitespace-nowrap px-3"
                   >
-                    {item.purchased ? (
+                    {item.status === "PURCHASED" ? (
                       <>
                         <Undo2 className="mr-2 h-4 w-4 shrink-0" />
                         Снять отметку
@@ -293,6 +318,16 @@ export function ItemDetailDialog({
                       </>
                     )}
                   </Button>
+                  {onSetStatus && item.status !== "PURCHASED" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleClaimAction}
+                      className="h-9 shrink-0 whitespace-nowrap px-3"
+                    >
+                      {item.status === "CLAIMED" ? "Снять бронь" : "Забронировать"}
+                    </Button>
+                  )}
                   <Button
                     variant="destructive"
                     size="sm"
@@ -303,6 +338,16 @@ export function ItemDetailDialog({
                     Удалить
                   </Button>
                 </>
+              )}
+              {currentUserId !== item.userId && onSetStatus && item.status !== "PURCHASED" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClaimAction}
+                  className="h-9 shrink-0 whitespace-nowrap px-3"
+                >
+                  {item.status === "CLAIMED" ? "Снять бронь" : "Забронировать"}
+                </Button>
               )}
             </div>
           )}

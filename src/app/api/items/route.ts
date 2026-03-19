@@ -91,7 +91,11 @@ export async function GET(req: NextRequest) {
 
   const items = await prisma.item.findMany({
     where,
-    include: { tags: true, user: { select: { id: true, name: true, avatarUrl: true } } },
+    include: {
+      tags: true,
+      user: { select: { id: true, name: true, avatarUrl: true } },
+      claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
+    },
     orderBy: { createdAt: "desc" },
     take: limit + 1, // Берем на 1 больше для проверки наличия следующей страницы
   });
@@ -163,11 +167,16 @@ export async function POST(req: NextRequest) {
         priority: data.priority,
         images: data.images,
         notes: data.notes || null,
+        status: "AVAILABLE",
         userId,
         listId,
         tags: { connect: tagConnections },
       },
-      include: { tags: true, user: { select: { id: true, name: true, avatarUrl: true } } },
+      include: {
+        tags: true,
+        user: { select: { id: true, name: true, avatarUrl: true } },
+        claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
+      },
     });
 
     return NextResponse.json(item, { status: 201 });

@@ -10,6 +10,7 @@ import { WishlistItem } from "@/types";
 import { formatPrice, cn, getTagColor, priorityBorderClass } from "@/lib/utils";
 import {
   Check,
+  Clock3,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
@@ -27,6 +28,7 @@ interface WishlistCardProps {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
+  onSetStatus?: (id: string, status: "AVAILABLE" | "CLAIMED" | "PURCHASED") => void;
   onPriorityChange?: (id: string, priority: number) => void;
   onOpenDetail?: (item: WishlistItem) => void;
   selectionMode?: boolean;
@@ -40,6 +42,7 @@ export const WishlistCard = memo(function WishlistCard({
   onEdit,
   onDelete,
   onTogglePurchased,
+  onSetStatus,
   onPriorityChange,
   onOpenDetail,
   selectionMode,
@@ -269,12 +272,18 @@ export const WishlistCard = memo(function WishlistCard({
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                onTogglePurchased(item.id, !item.purchased);
+                if (onSetStatus) {
+                  const nextStatus =
+                    item.status === "PURCHASED" ? "AVAILABLE" : "PURCHASED";
+                  onSetStatus(item.id, nextStatus);
+                } else {
+                  onTogglePurchased(item.id, !item.purchased);
+                }
               }}
               className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-background/90 backdrop-blur flex items-center justify-center hover:bg-background transition-colors shadow-sm focus-ring"
-              title={item.purchased ? "Снять отметку" : "Отметить купленным"}
+              title={item.status === "PURCHASED" ? "Снять отметку" : "Отметить купленным"}
             >
-              {item.purchased ? (
+              {item.status === "PURCHASED" ? (
                 <Undo2 className="w-3.5 h-3.5" />
               ) : (
                 <ShoppingCart className="w-3.5 h-3.5" />
@@ -306,14 +315,25 @@ export const WishlistCard = memo(function WishlistCard({
         {/* Content */}
         <div className="p-2.5 sm:p-3 space-y-1.5 sm:space-y-2">
           <div className="flex items-start justify-between gap-2">
-            <h3
-              className={cn(
-                "font-medium text-sm leading-snug line-clamp-2",
-                item.purchased && "line-through"
+            <div className="min-w-0">
+              <h3
+                className={cn(
+                  "font-medium text-sm leading-snug line-clamp-2",
+                  item.purchased && "line-through"
+                )}
+              >
+                {item.title}
+              </h3>
+              {item.status === "CLAIMED" && (
+                <Badge variant="secondary" className="mt-1 text-[10px]">
+                  <Clock3 className="w-3 h-3 mr-1" />
+                  Забронировано
+                </Badge>
               )}
-            >
-              {item.title}
-            </h3>
+              {item.status === "PURCHASED" && (
+                <Badge className="mt-1 text-[10px]">Куплено</Badge>
+              )}
+            </div>
             <PriorityStars
               priority={item.priority}
               onChange={onPriorityChange ? (p) => onPriorityChange(item.id, p) : undefined}
