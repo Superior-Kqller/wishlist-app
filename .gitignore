@@ -17,10 +17,7 @@ pnpm-debug.log*
 Thumbs.db
 public/uploads/
 .cursor
-# Локальная документация в docs/, кроме отслеживаемых планов
-docs/*
-!docs/plans/
-!docs/plans/**
+docs/
 
 # Playwright
 e2e/
