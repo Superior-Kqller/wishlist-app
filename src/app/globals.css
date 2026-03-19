@@ -271,6 +271,21 @@
     inset 0 1px 0 hsl(var(--primary-foreground) / 0.15);
 }
 
+/* Модалки: тяжёлый внешний glow + inset даёт артефакты у скруглений на iOS WebKit */
+.dialog-modal-surface {
+  box-shadow:
+    0 8px 32px rgb(0 0 0 / 0.22),
+    0 2px 8px rgb(0 0 0 / 0.12);
+}
+@media (hover: hover) and (pointer: fine) {
+  .dialog-modal-surface {
+    box-shadow:
+      0 0 30px hsl(var(--glass-glow)),
+      0 4px 20px hsl(var(--glass-glow)),
+      inset 0 1px 0 hsl(var(--primary-foreground) / 0.12);
+  }
+}
+
 .glass-card {
   background: hsl(var(--glass-bg));
   backdrop-filter: blur(var(--glass-blur));

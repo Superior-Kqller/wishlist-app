@@ -66,7 +66,7 @@ export function FiltersDrawer({
 }: FiltersDrawerProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] max-w-md">
+      <DialogContent className="min-h-0 w-[min(95vw,calc(100vw-1rem))] max-w-md gap-0">
         <DialogHeader>
           <DialogTitle className="text-lg">Фильтры</DialogTitle>
         </DialogHeader>

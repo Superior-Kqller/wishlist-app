@@ -5,6 +5,12 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект использует [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [1.5.1] — 2026-03-19
+
+### Исправлено
+
+- **iOS Safari / модалки** — `viewport-fit: cover`, safe-area отступы, высота через `dvh`, внутренняя прокрутка без «ломания» скруглений; ослаблен внешний glow у диалогов на touch-устройствах (отдельный `.dialog-modal-surface`)
+
 ## [1.5.0] — 2026-03-19
 
 ### Улучшено

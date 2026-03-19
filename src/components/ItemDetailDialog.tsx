@@ -116,7 +116,10 @@ export function ItemDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0">
+      <DialogContent
+        className="max-w-2xl gap-0"
+        bodyClassName="p-0 gap-0 overflow-y-auto overscroll-y-contain"
+      >
         {/* Gallery */}
         <div className="relative aspect-[4/3] sm:aspect-[2/1] bg-muted shrink-0">
           {mainImage && !imageError ? (
@@ -174,7 +177,7 @@ export function ItemDetailDialog({
           )}
         </div>
 
-        <div className="p-3 sm:p-6 space-y-3 sm:space-y-4">
+        <div className="space-y-3 sm:space-y-4 px-3 pt-3 sm:px-6 sm:pt-6 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
           <DialogHeader className="space-y-0">
             <div className="flex items-start justify-between gap-3 sm:gap-4">
               <DialogTitle className={cn("text-lg sm:text-xl", item.purchased && "line-through")}>
