@@ -59,6 +59,25 @@ function HomePageContent() {
     return tagsParam ? tagsParam.split(",").filter(Boolean) : [];
   });
 
+  const { data: usersStatsData } = useSWR<{ users: UserWithStats[] }>(
+    "/api/users/stats",
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 10000, // Статистика меняется реже
+    }
+  );
+  const usersWithStats = useMemo(
+    () => usersStatsData?.users ?? [],
+    [usersStatsData?.users]
+  );
+  const normalizedSelectedUserId = useMemo(
+    () =>
+      normalizeSelectedUserId(selectedUserId, currentUserId, usersWithStats),
+    [selectedUserId, currentUserId, usersWithStats]
+  );
+
   // Data fetching (infinite scroll)
   const getKey = useCallback(
     (pageIndex: number, previousPageData: ItemsPage | null) => {
@@ -133,25 +152,6 @@ function HomePageContent() {
       dedupingInterval: 5000, // Теги меняются реже, можно кэшировать дольше
     }
   );
-  const { data: usersStatsData } = useSWR<{ users: UserWithStats[] }>(
-    "/api/users/stats",
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      dedupingInterval: 10000, // Статистика меняется реже
-    }
-  );
-  const usersWithStats = useMemo(
-    () => usersStatsData?.users ?? [],
-    [usersStatsData?.users]
-  );
-  const normalizedSelectedUserId = useMemo(
-    () =>
-      normalizeSelectedUserId(selectedUserId, currentUserId, usersWithStats),
-    [selectedUserId, currentUserId, usersWithStats]
-  );
-
   const { data: listsData, mutate: mutateLists } = useSWR<ListWithMeta[]>(
     "/api/lists",
     fetcher,

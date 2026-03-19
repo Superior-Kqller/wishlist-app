@@ -16,15 +16,13 @@ COPY . .
 ARG APP_VERSION=dev
 ENV APP_VERSION=${APP_VERSION}
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
-ENV NEXTAUTH_SECRET="build-secret-placeholder"
-ENV NEXTAUTH_URL="http://localhost:3000"
 
 RUN npx prisma generate
 
 RUN mkdir -p /app/public/uploads/avatars && \
     touch /app/public/uploads/avatars/.gitkeep
 
-RUN npm run build
+RUN NEXTAUTH_SECRET="build-secret-placeholder" NEXTAUTH_URL="http://localhost:3000" npm run build
 
 RUN mkdir /prisma-cli && cd /prisma-cli && \
     echo '{"dependencies":{"prisma":"'$(node -e "console.log(require('/app/node_modules/prisma/package.json').version)")'"}}'> package.json && \
