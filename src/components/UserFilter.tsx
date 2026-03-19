@@ -50,7 +50,7 @@ export function UserFilter({
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <Tabs value={getCurrentTab()} onValueChange={handleTabChange}>
-        <TabsList className="min-h-[44px] overflow-x-auto flex-nowrap">
+        <TabsList className="relative min-h-[44px] overflow-x-auto flex-nowrap">
           <TabsTrigger value="all" className="min-h-[36px] touch-manipulation">Все</TabsTrigger>
           <TabsTrigger value="me" className="min-h-[36px] touch-manipulation">
             {currentUser && (
@@ -65,6 +65,14 @@ export function UserFilter({
               </div>
             )}
             {!currentUser && "Мои желания"}
+          </TabsTrigger>
+          <TabsTrigger
+            value="other"
+            className="sr-only absolute h-px w-px p-0 opacity-0 pointer-events-none"
+            tabIndex={-1}
+            aria-hidden
+          >
+            .
           </TabsTrigger>
         </TabsList>
       </Tabs>

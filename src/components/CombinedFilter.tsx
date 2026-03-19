@@ -82,7 +82,7 @@ export function CombinedFilter({
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <Tabs value={currentTab} onValueChange={handleTabChange}>
-        <TabsList className="h-10">
+        <TabsList className="relative h-10">
           <TabsTrigger value="all" className="min-h-[36px] px-3 touch-manipulation">
             Все
           </TabsTrigger>
@@ -100,6 +100,15 @@ export function CombinedFilter({
               )}
               <span>Мои</span>
             </div>
+          </TabsTrigger>
+          {/* Radix Tabs: value должен совпадать с существующим Trigger — иначе ломается переключение «Все/Мои» */}
+          <TabsTrigger
+            value="other"
+            className="sr-only absolute h-px w-px p-0 opacity-0 pointer-events-none"
+            tabIndex={-1}
+            aria-hidden
+          >
+            .
           </TabsTrigger>
         </TabsList>
       </Tabs>
