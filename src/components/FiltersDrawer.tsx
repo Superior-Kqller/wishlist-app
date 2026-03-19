@@ -109,7 +109,7 @@ export function FiltersDrawer({
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Сортировка</Label>
             <Select value={sortBy} onValueChange={onSortChange}>
-              <SelectTrigger className="w-full min-h-[40px]">
+              <SelectTrigger className="w-full min-h-[44px]">
                 <SlidersHorizontal className="w-4 h-4 mr-2 shrink-0" />
                 <SelectValue placeholder="Сортировка" />
               </SelectTrigger>
@@ -127,7 +127,7 @@ export function FiltersDrawer({
             <Label className="text-xs text-muted-foreground">Купленные</Label>
             <Button
               variant={showPurchased ? "secondary" : "outline"}
-              className="w-full min-h-[40px] justify-start"
+              className="w-full min-h-[44px] justify-start"
               onClick={onTogglePurchased}
             >
               {showPurchased ? (
@@ -150,7 +150,7 @@ export function FiltersDrawer({
             </div>
           )}
           <Button
-            className="w-full mt-2"
+            className="w-full min-h-[44px] mt-2"
             onClick={() => onOpenChange(false)}
           >
             Готово

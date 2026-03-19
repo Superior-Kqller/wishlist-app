@@ -23,6 +23,7 @@ import { ListPlus, Pencil, ChevronDown, User, FolderOpen } from "lucide-react";
 import { UserWithStats, ListWithMeta } from "@/types";
 import { cn } from "@/lib/utils";
 import { filterListsBySelectedUser } from "@/lib/list-filter-client";
+import { resolveUserScope } from "@/lib/filter-state";
 
 interface CombinedFilterProps {
   currentUserId: string;
@@ -50,8 +51,9 @@ export function CombinedFilter({
   const currentUser = users.find((u) => u.id === currentUserId);
   const otherUsers = users.filter((u) => u.id !== currentUserId);
 
-  const isAllMode = selectedUserId === null;
-  const isMyMode = selectedUserId === "me" || selectedUserId === currentUserId;
+  const userScope = resolveUserScope(selectedUserId, currentUserId);
+  const isAllMode = userScope === "all";
+  const isMyMode = userScope === "me";
   const selectedOtherUser = !isAllMode && !isMyMode 
     ? users.find((u) => u.id === selectedUserId) 
     : null;
@@ -77,16 +79,16 @@ export function CombinedFilter({
     onListChange(null);
   };
 
-  const currentTab = isAllMode ? "all" : isMyMode ? "my" : "other";
+  const currentTab = isMyMode ? "my" : "all";
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <Tabs value={currentTab} onValueChange={handleTabChange}>
-        <TabsList className="relative h-10">
-          <TabsTrigger value="all" className="min-h-[36px] px-3 touch-manipulation">
+        <TabsList className="relative min-h-[44px]">
+          <TabsTrigger value="all" className="min-h-[44px] px-3 touch-manipulation">
             Все
           </TabsTrigger>
-          <TabsTrigger value="my" className="min-h-[36px] px-3 touch-manipulation">
+          <TabsTrigger value="my" className="min-h-[44px] px-3 touch-manipulation">
             <div className="flex items-center gap-2">
               {currentUser && (
                 <div className="pointer-events-none">
@@ -101,15 +103,6 @@ export function CombinedFilter({
               <span>Мои</span>
             </div>
           </TabsTrigger>
-          {/* Radix Tabs: value должен совпадать с существующим Trigger — иначе ломается переключение «Все/Мои» */}
-          <TabsTrigger
-            value="other"
-            className="sr-only absolute h-px w-px p-0 opacity-0 pointer-events-none"
-            tabIndex={-1}
-            aria-hidden
-          >
-            .
-          </TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -119,7 +112,7 @@ export function CombinedFilter({
             <Button
               type="button"
               variant={selectedOtherUser ? "default" : "outline"}
-              className="h-10 gap-2 touch-manipulation"
+              className="min-h-[44px] gap-2 touch-manipulation"
               aria-label={selectedOtherUser 
                 ? `Выбран: ${selectedOtherUser.name}` 
                 : "Выбрать пользователя"
@@ -183,7 +176,7 @@ export function CombinedFilter({
           value={selectedListId ?? "all"}
           onValueChange={(v) => onListChange(v === "all" ? null : v)}
         >
-          <SelectTrigger className="h-10 w-[180px]">
+          <SelectTrigger className="min-h-[44px] w-[180px]">
             <FolderOpen className="w-4 h-4 mr-2 opacity-60" />
             <SelectValue placeholder="Подборка" />
           </SelectTrigger>
@@ -203,7 +196,7 @@ export function CombinedFilter({
             variant="outline"
             size="icon"
             onClick={onEditList}
-            className="h-10 w-10"
+            className="h-11 w-11"
             title="Изменить подборку"
           >
             <Pencil className="w-4 h-4" />
@@ -216,7 +209,7 @@ export function CombinedFilter({
             variant="outline"
             size="sm"
             onClick={onCreateList}
-            className="h-10"
+            className="min-h-[44px]"
           >
             <ListPlus className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Создать</span>

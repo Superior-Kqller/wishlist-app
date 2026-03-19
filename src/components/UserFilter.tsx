@@ -12,6 +12,7 @@ import { UserWithStats } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { resolveUserScope } from "@/lib/filter-state";
 
 interface UserFilterProps {
   selectedUserId: string | null; // null = все, "me" = мои, userId = конкретный
@@ -37,11 +38,8 @@ export function UserFilter({
     }
   };
 
-  const getCurrentTab = () => {
-    if (selectedUserId === null) return "all";
-    if (selectedUserId === "me" || selectedUserId === currentUserId) return "me";
-    return "other";
-  };
+  const getCurrentTab = () =>
+    resolveUserScope(selectedUserId, currentUserId) === "me" ? "me" : "all";
 
   const selectedUser = selectedUserId && selectedUserId !== "me" && selectedUserId !== currentUserId
     ? users.find((u) => u.id === selectedUserId)
@@ -51,8 +49,8 @@ export function UserFilter({
     <div className="flex items-center gap-2 flex-wrap">
       <Tabs value={getCurrentTab()} onValueChange={handleTabChange}>
         <TabsList className="relative min-h-[44px] overflow-x-auto flex-nowrap">
-          <TabsTrigger value="all" className="min-h-[36px] touch-manipulation">Все</TabsTrigger>
-          <TabsTrigger value="me" className="min-h-[36px] touch-manipulation">
+          <TabsTrigger value="all" className="min-h-[44px] touch-manipulation">Все</TabsTrigger>
+          <TabsTrigger value="me" className="min-h-[44px] touch-manipulation">
             {currentUser && (
               <div className="flex items-center gap-2">
                 <UserAvatar
@@ -65,14 +63,6 @@ export function UserFilter({
               </div>
             )}
             {!currentUser && "Мои желания"}
-          </TabsTrigger>
-          <TabsTrigger
-            value="other"
-            className="sr-only absolute h-px w-px p-0 opacity-0 pointer-events-none"
-            tabIndex={-1}
-            aria-hidden
-          >
-            .
           </TabsTrigger>
         </TabsList>
       </Tabs>

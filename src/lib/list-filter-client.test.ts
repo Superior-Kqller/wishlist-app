@@ -76,8 +76,8 @@ describe("filterListsBySelectedUser", () => {
     ]);
   });
 
-  it("если выбран неизвестный userId — пустой массив", () => {
-    expect(filterListsBySelectedUser(lists, users, "u1", "ghost")).toEqual([]);
+  it("если выбран неизвестный userId — fallback в режим «все»", () => {
+    expect(filterListsBySelectedUser(lists, users, "u1", "ghost")).toEqual(lists);
   });
 
   it("пустой список подборок — пустой результат во всех режимах", () => {

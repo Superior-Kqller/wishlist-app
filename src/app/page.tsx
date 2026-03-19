@@ -33,6 +33,7 @@ import { toast } from "sonner";
 import { fetcher } from "@/lib/fetcher";
 import { useDebounce } from "@/lib/use-debounce";
 import { filterListsBySelectedUser } from "@/lib/list-filter-client";
+import { normalizeSelectedUserId } from "@/lib/filter-state";
 
 const ITEMS_PER_PAGE = 30;
 
@@ -63,7 +64,12 @@ function HomePageContent() {
     (pageIndex: number, previousPageData: ItemsPage | null) => {
       if (previousPageData && !previousPageData.pagination?.hasMore) return null;
       const params = new URLSearchParams();
-      if (selectedUserId) params.set("userId", selectedUserId === "me" ? "me" : selectedUserId);
+      if (normalizedSelectedUserId) {
+        params.set(
+          "userId",
+          normalizedSelectedUserId === "me" ? "me" : normalizedSelectedUserId
+        );
+      }
       if (selectedListId) params.set("listId", selectedListId);
       if (debouncedSearch) params.set("search", debouncedSearch);
       params.set("limit", String(ITEMS_PER_PAGE));
@@ -72,7 +78,7 @@ function HomePageContent() {
       }
       return `/api/items?${params.toString()}`;
     },
-    [selectedUserId, selectedListId, debouncedSearch],
+    [normalizedSelectedUserId, selectedListId, debouncedSearch],
   );
 
   const {
@@ -136,14 +142,22 @@ function HomePageContent() {
       dedupingInterval: 10000, // Статистика меняется реже
     }
   );
-  const usersWithStats = usersStatsData?.users || [];
+  const usersWithStats = useMemo(
+    () => usersStatsData?.users ?? [],
+    [usersStatsData?.users]
+  );
+  const normalizedSelectedUserId = useMemo(
+    () =>
+      normalizeSelectedUserId(selectedUserId, currentUserId, usersWithStats),
+    [selectedUserId, currentUserId, usersWithStats]
+  );
 
   const { data: listsData, mutate: mutateLists } = useSWR<ListWithMeta[]>(
     "/api/lists",
     fetcher,
     { revalidateOnFocus: false, dedupingInterval: 10000 }
   );
-  const lists = listsData || [];
+  const lists = useMemo(() => listsData ?? [], [listsData]);
 
   // Dialog states
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -178,7 +192,7 @@ function HomePageContent() {
     (overrides: Record<string, string | null> = {}) => {
       const params = new URLSearchParams();
       const vals: Record<string, string | null> = {
-        userId: selectedUserId,
+        userId: normalizedSelectedUserId,
         listId: selectedListId,
         search: search || null,
         sort: sortBy !== "newest" ? sortBy : null,
@@ -192,11 +206,25 @@ function HomePageContent() {
       const qs = params.toString();
       router.replace(qs ? `/?${qs}` : "/", { scroll: false });
     },
-    [selectedUserId, selectedListId, search, sortBy, showPurchased, selectedTags, router],
+    [
+      normalizedSelectedUserId,
+      selectedListId,
+      search,
+      sortBy,
+      showPurchased,
+      selectedTags,
+      router,
+    ],
   );
 
   // Sync когда меняются локальные фильтры (search, sort, purchased, tags)
   const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (selectedUserId !== normalizedSelectedUserId) {
+      syncFiltersToUrl({ userId: normalizedSelectedUserId, listId: null });
+    }
+  }, [selectedUserId, normalizedSelectedUserId, syncFiltersToUrl]);
+
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
@@ -212,10 +240,10 @@ function HomePageContent() {
         lists,
         usersWithStats,
         currentUserId,
-        selectedUserId
+        normalizedSelectedUserId
       ).map((l) => l.id)
     );
-  }, [lists, usersWithStats, currentUserId, selectedUserId]);
+  }, [lists, usersWithStats, currentUserId, normalizedSelectedUserId]);
 
   useEffect(() => {
     if (!selectedListId || !currentUserId) return;
@@ -468,13 +496,13 @@ function HomePageContent() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Поиск..."
-                className="pl-8 h-9 text-sm"
+                className="pl-8 h-11 text-sm"
               />
             </div>
             <Button
               variant={selectionMode ? "default" : "outline"}
               size="icon"
-              className="h-9 w-9 shrink-0"
+              className="h-11 w-11 shrink-0"
               onClick={() => {
                 setSelectionMode(!selectionMode);
                 if (selectionMode) setSelectedIds(new Set());
@@ -486,7 +514,7 @@ function HomePageContent() {
             <Button
               variant="outline"
               size="icon"
-              className="h-9 w-9 shrink-0"
+              className="h-11 w-11 shrink-0"
               onClick={() => setMobileFiltersOpen(true)}
               title="Фильтры"
             >
@@ -500,7 +528,7 @@ function HomePageContent() {
                 currentUserId={currentUserId}
                 users={usersWithStats}
                 lists={lists}
-                selectedUserId={selectedUserId}
+                selectedUserId={normalizedSelectedUserId}
                 selectedListId={selectedListId}
                 onUserChange={handleUserChange}
                 onListChange={handleListChange}
@@ -558,7 +586,7 @@ function HomePageContent() {
             onOpenChange={setMobileFiltersOpen}
             currentUserId={currentUserId}
             usersWithStats={usersWithStats}
-            selectedUserId={selectedUserId}
+            selectedUserId={normalizedSelectedUserId}
             onUserChange={handleUserChange}
             lists={lists}
             selectedListId={selectedListId}
