@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { canTransitionStatus, getNextStatusActionLabel } from "./item-status";
+import {
+  canTransitionStatus,
+  getNextStatusActionLabel,
+  hasConflictingStatusPayload,
+} from "./item-status";
 
 describe("item-status transitions", () => {
   it("разрешает переход AVAILABLE -> CLAIMED", () => {
@@ -56,6 +60,22 @@ describe("item-status labels", () => {
     expect(getNextStatusActionLabel("AVAILABLE")).toBe("Забронировать");
     expect(getNextStatusActionLabel("CLAIMED")).toBe("Отметить купленным");
     expect(getNextStatusActionLabel("PURCHASED")).toBe("Уже куплено");
+  });
+});
+
+describe("item-status payload conflicts", () => {
+  it("считает payload конфликтным при одновременном status и purchased", () => {
+    expect(
+      hasConflictingStatusPayload({
+        status: "CLAIMED",
+        purchased: false,
+      })
+    ).toBe(true);
+  });
+
+  it("не считает payload конфликтным при единственном поле", () => {
+    expect(hasConflictingStatusPayload({ status: "AVAILABLE" })).toBe(false);
+    expect(hasConflictingStatusPayload({ purchased: true })).toBe(false);
   });
 });
 

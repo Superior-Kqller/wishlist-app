@@ -7,8 +7,15 @@ import { sanitizeError } from "@/lib/logger";
 import { canUserSeeItem } from "@/lib/list-utils";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
-import { canClaimItem, canUnclaimItem } from "@/lib/access-policy";
-import { canTransitionStatus } from "@/lib/item-status";
+import {
+  canClaimItem,
+  canSeeClaimerIdentity,
+  canUnclaimItem,
+} from "@/lib/access-policy";
+import {
+  canTransitionStatus,
+  hasConflictingStatusPayload,
+} from "@/lib/item-status";
 
 const updateItemSchema = z.object({
   title: z.string().min(1).max(500).optional(),
@@ -23,6 +30,27 @@ const updateItemSchema = z.object({
   tags: z.array(z.string()).optional(),
   listId: z.string().trim().nullable().optional(),
 });
+
+function maskClaimedByUserForActor<
+  T extends {
+    claimedByUserId: string | null;
+    claimedByUser: unknown;
+    list: { userId: string } | null;
+    userId: string;
+  },
+>(item: T, actorUserId: string) {
+  const ownerUserId = item.list?.userId ?? item.userId;
+  const canSee = canSeeClaimerIdentity({
+    actorUserId,
+    ownerUserId,
+    claimerUserId: item.claimedByUserId,
+    isClaimPrivate: true,
+  });
+  return {
+    ...item,
+    claimedByUser: canSee ? item.claimedByUser : null,
+  };
+}
 
 // GET /api/items/[id] — только если пользователь имеет доступ (через подборку)
 export async function GET(
@@ -50,6 +78,7 @@ export async function GET(
       tags: true,
       user: { select: { id: true, name: true, avatarUrl: true } },
       claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
+      list: { select: { userId: true } },
     },
   });
 
@@ -57,7 +86,9 @@ export async function GET(
     return NextResponse.json({ error: "Не найдено" }, { status: 404 });
   }
 
-  return NextResponse.json(item);
+  const masked = maskClaimedByUserForActor(item, userId);
+  const { list: _list, ...response } = masked;
+  return NextResponse.json(response);
 }
 
 // PATCH /api/items/[id]
@@ -97,6 +128,17 @@ export async function PATCH(
   try {
     const body = await req.json();
     const data = updateItemSchema.parse(body);
+    if (
+      hasConflictingStatusPayload({
+        status: data.status,
+        purchased: data.purchased,
+      })
+    ) {
+      return NextResponse.json(
+        { error: "Нельзя одновременно передавать status и purchased" },
+        { status: 400 }
+      );
+    }
 
     const updateData: Prisma.ItemUncheckedUpdateInput = {};
     const hasOwnerOnlyFields =
@@ -109,6 +151,15 @@ export async function PATCH(
       data.notes !== undefined ||
       data.tags !== undefined ||
       data.listId !== undefined;
+    const hasNonStatusFields =
+      hasOwnerOnlyFields || data.purchased !== undefined;
+
+    if (data.status !== undefined && hasNonStatusFields) {
+      return NextResponse.json(
+        { error: "Операция смены status должна быть отдельным запросом" },
+        { status: 400 }
+      );
+    }
 
     if (hasOwnerOnlyFields && !isOwner) {
       return NextResponse.json({ error: "Доступ запрещён" }, { status: 403 });
@@ -183,21 +234,57 @@ export async function PATCH(
         );
       }
 
-      updateData.status = nextStatus;
+      const now = new Date();
+      const atomicUpdateData: Prisma.ItemUncheckedUpdateInput = {
+        status: nextStatus,
+      };
       if (nextStatus === "CLAIMED") {
-        updateData.claimedByUserId = userId;
-        updateData.claimedAt = new Date();
-        updateData.purchased = false;
-        updateData.purchasedAt = null;
+        atomicUpdateData.claimedByUserId = userId;
+        atomicUpdateData.claimedAt = now;
+        atomicUpdateData.purchased = false;
+        atomicUpdateData.purchasedAt = null;
       } else if (nextStatus === "AVAILABLE") {
-        updateData.claimedByUserId = null;
-        updateData.claimedAt = null;
-        updateData.purchased = false;
-        updateData.purchasedAt = null;
+        atomicUpdateData.claimedByUserId = null;
+        atomicUpdateData.claimedAt = null;
+        atomicUpdateData.purchased = false;
+        atomicUpdateData.purchasedAt = null;
       } else if (nextStatus === "PURCHASED") {
-        updateData.purchased = true;
-        updateData.purchasedAt = new Date();
+        atomicUpdateData.purchased = true;
+        atomicUpdateData.purchasedAt = now;
       }
+
+      const updated = await prisma.$transaction(async (tx) => {
+        const result = await tx.item.updateMany({
+          where: {
+            id,
+            status: currentStatus,
+            claimedByUserId:
+              currentStatus === "CLAIMED" ? claimerUserId : existing.claimedByUserId,
+          },
+          data: atomicUpdateData,
+        });
+        if (result.count !== 1) return null;
+        return tx.item.findUnique({
+          where: { id },
+          include: {
+            tags: true,
+            user: { select: { id: true, name: true, avatarUrl: true } },
+            claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
+            list: { select: { userId: true } },
+          },
+        });
+      });
+
+      if (!updated) {
+        return NextResponse.json(
+          { error: "Состояние товара изменилось, обновите страницу" },
+          { status: 409 }
+        );
+      }
+
+      const masked = maskClaimedByUserForActor(updated, userId);
+      const { list: _list, ...response } = masked;
+      return NextResponse.json(response);
     }
 
     if (data.listId !== undefined) {
@@ -237,10 +324,12 @@ export async function PATCH(
         tags: true,
         user: { select: { id: true, name: true, avatarUrl: true } },
         claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
+        list: { select: { userId: true } },
       },
     });
-
-    return NextResponse.json(item);
+    const masked = maskClaimedByUserForActor(item, userId);
+    const { list: _list, ...response } = masked;
+    return NextResponse.json(response);
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(

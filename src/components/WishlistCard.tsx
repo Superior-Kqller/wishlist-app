@@ -30,6 +30,7 @@ interface WishlistCardProps {
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
   onSetStatus?: (id: string, status: "AVAILABLE" | "CLAIMED" | "PURCHASED") => void;
+  statusPending?: boolean;
   onPriorityChange?: (id: string, priority: number) => void;
   onOpenDetail?: (item: WishlistItem) => void;
   selectionMode?: boolean;
@@ -45,6 +46,7 @@ export const WishlistCard = memo(function WishlistCard({
   onDelete,
   onTogglePurchased,
   onSetStatus,
+  statusPending = false,
   onPriorityChange,
   onOpenDetail,
   selectionMode,
@@ -269,6 +271,7 @@ export const WishlistCard = memo(function WishlistCard({
                     e.stopPropagation();
                     onEdit(item);
                   }}
+                  disabled={statusPending}
                   className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-background/90 backdrop-blur flex items-center justify-center hover:bg-background transition-colors shadow-sm focus-ring"
                   title="Редактировать"
                 >
@@ -286,6 +289,7 @@ export const WishlistCard = memo(function WishlistCard({
                       onTogglePurchased(item.id, !item.purchased);
                     }
                   }}
+                  disabled={statusPending}
                   className="min-w-[44px] min-h-[44px] w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-background/90 backdrop-blur flex items-center justify-center hover:bg-background transition-colors shadow-sm focus-ring"
                   title={item.status === "PURCHASED" ? "Снять отметку" : "Отметить купленным"}
                 >

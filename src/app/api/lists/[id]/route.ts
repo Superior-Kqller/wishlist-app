@@ -81,14 +81,17 @@ export async function PATCH(
     const body = await req.json();
     const data = updateListSchema.parse(body);
 
-    if (data.viewerIds !== undefined) {
-      const normalizedViewerIds = Array.from(
-        new Set(
-          data.viewerIds
-            .map((uid) => uid.trim())
-            .filter((uid) => uid.length > 0 && uid !== currentUserId)
-        )
-      );
+    const normalizedViewerIds =
+      data.viewerIds !== undefined
+        ? Array.from(
+            new Set(
+              data.viewerIds
+                .map((uid) => uid.trim())
+                .filter((uid) => uid.length > 0 && uid !== currentUserId)
+            )
+          )
+        : undefined;
+    if (normalizedViewerIds !== undefined) {
       const viewerCheck = await ensureUserIdsExist(normalizedViewerIds);
       if (!viewerCheck.ok) {
         return NextResponse.json(
@@ -99,26 +102,28 @@ export async function PATCH(
           { status: 400 }
         );
       }
-      await prisma.$transaction(async (tx) => {
-        await tx.listViewer.deleteMany({ where: { listId: id } });
-        if (normalizedViewerIds.length > 0) {
-          await tx.listViewer.createMany({
-            data: normalizedViewerIds.map((userId) => ({ listId: id, userId })),
-          });
-        }
-      });
     }
 
     const updateData: { name?: string } = {};
     if (data.name !== undefined) updateData.name = data.name;
-
-    const list = await prisma.list.update({
-      where: { id },
-      data: updateData,
-      include: {
-        _count: { select: { items: true } },
-        viewers: { select: { userId: true } },
-      },
+    const list = await prisma.$transaction(async (tx) => {
+      if (normalizedViewerIds !== undefined) {
+        await tx.listViewer.deleteMany({ where: { listId: id } });
+        if (normalizedViewerIds.length > 0) {
+          await tx.listViewer.createMany({
+            data: normalizedViewerIds.map((userId) => ({ listId: id, userId })),
+            skipDuplicates: true,
+          });
+        }
+      }
+      return tx.list.update({
+        where: { id },
+        data: updateData,
+        include: {
+          _count: { select: { items: true } },
+          viewers: { select: { userId: true } },
+        },
+      });
     });
 
     return NextResponse.json({
@@ -182,8 +187,10 @@ export async function DELETE(
   }
 
   try {
-    await prisma.item.updateMany({ where: { listId: id }, data: { listId: null } });
-    await prisma.list.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      await tx.item.updateMany({ where: { listId: id }, data: { listId: null } });
+      await tx.list.delete({ where: { id } });
+    });
     return NextResponse.json({ success: true });
   } catch (err) {
     sanitizeError("Delete list error", err, { listId: id });

@@ -47,6 +47,7 @@ interface ItemDetailDialogProps {
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
   onSetStatus?: (id: string, status: "AVAILABLE" | "CLAIMED" | "PURCHASED") => void;
+  statusPending?: boolean;
 }
 
 export function ItemDetailDialog({
@@ -58,6 +59,7 @@ export function ItemDetailDialog({
   onDelete,
   onTogglePurchased,
   onSetStatus,
+  statusPending = false,
 }: ItemDetailDialogProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
@@ -135,6 +137,7 @@ export function ItemDetailDialog({
   };
 
   const handleTogglePurchased = () => {
+    if (statusPending) return;
     if (onSetStatus) {
       const nextStatus = item.status === "PURCHASED" ? "AVAILABLE" : "PURCHASED";
       onSetStatus(item.id, nextStatus);
@@ -144,6 +147,7 @@ export function ItemDetailDialog({
   };
 
   const handleClaimAction = () => {
+    if (statusPending) return;
     if (!onSetStatus) return;
     if (item.status === "AVAILABLE") onSetStatus(item.id, "CLAIMED");
     if (item.status === "CLAIMED") onSetStatus(item.id, "AVAILABLE");
@@ -303,6 +307,7 @@ export function ItemDetailDialog({
                     size="sm"
                     onClick={handleTogglePurchased}
                     className="h-9 shrink-0 whitespace-nowrap px-3"
+                    disabled={statusPending}
                   >
                     {item.status === "PURCHASED" ? (
                       <>
@@ -322,6 +327,7 @@ export function ItemDetailDialog({
                       size="sm"
                       onClick={handleClaimAction}
                       className="h-9 shrink-0 whitespace-nowrap px-3"
+                      disabled={statusPending}
                     >
                       {item.status === "CLAIMED" ? "Снять бронь" : "Забронировать"}
                     </Button>
@@ -343,6 +349,7 @@ export function ItemDetailDialog({
                   size="sm"
                   onClick={handleClaimAction}
                   className="h-9 shrink-0 whitespace-nowrap px-3"
+                  disabled={statusPending}
                 >
                   {item.status === "CLAIMED" ? "Снять бронь" : "Забронировать"}
                 </Button>

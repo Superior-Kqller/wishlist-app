@@ -364,4 +364,24 @@ describe("parseProductUrl — Generic", () => {
 
     fetchSpy.mockRestore();
   });
+
+  it("блокирует редирект на внутренний адрес", async () => {
+    mockResolve4.mockResolvedValue(["93.184.216.34"]);
+    mockResolve6.mockRejectedValue(new Error("no"));
+
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(
+        new Response("", {
+          status: 302,
+          headers: { location: "http://127.0.0.1/internal" },
+        })
+      );
+
+    await expect(parseProductUrl("https://example.com/product")).rejects.toThrow(
+      "Internal URLs are not allowed"
+    );
+
+    fetchSpy.mockRestore();
+  });
 });

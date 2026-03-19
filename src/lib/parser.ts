@@ -323,14 +323,16 @@ function extractOzonProductPath(url: string): string | null {
 }
 
 async function resolveOzonShortUrl(url: string): Promise<string> {
-  const resp = await fetch(url, {
-    headers: HEADERS,
-    redirect: "manual",
-    signal: AbortSignal.timeout(5000),
-  });
-  const location = resp.headers.get("location");
-  if (location && location.includes("/product/")) {
-    return location.startsWith("http") ? location : `https://www.ozon.ru${location}`;
+  const { finalUrl } = await fetchWithSafeRedirects(
+    url,
+    {
+      headers: HEADERS,
+      signal: AbortSignal.timeout(5000),
+    },
+    5
+  );
+  if (finalUrl.includes("/product/")) {
+    return finalUrl;
   }
   throw new Error("Не удалось развернуть короткую ссылку Ozon");
 }
@@ -558,13 +560,41 @@ async function parseGeneric(
 
 // --- Fetch HTML helper ---
 
+async function fetchWithSafeRedirects(
+  url: string,
+  init: RequestInit,
+  maxRedirects: number
+): Promise<{ response: Response; finalUrl: string }> {
+  let currentUrl = url;
+  for (let i = 0; i <= maxRedirects; i++) {
+    await validateAndResolveUrl(currentUrl);
+    const response = await fetch(currentUrl, {
+      ...init,
+      redirect: "manual",
+    });
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location");
+      if (!location) {
+        throw new Error("Redirect response without location header");
+      }
+      currentUrl = new URL(location, currentUrl).toString();
+      continue;
+    }
+    return { response, finalUrl: currentUrl };
+  }
+  throw new Error("Too many redirects");
+}
+
 async function fetchHtml(url: string): Promise<string> {
   const urlObj = new URL(url);
-  const response = await fetch(url, {
-    headers: { ...HEADERS, Referer: `${urlObj.protocol}//${urlObj.host}/` },
-    redirect: "follow",
-    signal: AbortSignal.timeout(15000),
-  });
+  const { response } = await fetchWithSafeRedirects(
+    url,
+    {
+      headers: { ...HEADERS, Referer: `${urlObj.protocol}//${urlObj.host}/` },
+      signal: AbortSignal.timeout(15000),
+    },
+    5
+  );
 
   if (!response.ok) {
     throw new Error(`Failed to fetch URL: ${response.status}`);

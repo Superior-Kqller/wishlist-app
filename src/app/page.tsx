@@ -174,6 +174,7 @@ function HomePageContent() {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkProcessing, setBulkProcessing] = useState(false);
+  const [pendingStatusByItemId, setPendingStatusByItemId] = useState<Record<string, boolean>>({});
 
   const { setActions } = useHeaderActions();
   useEffect(() => {
@@ -257,27 +258,20 @@ function HomePageContent() {
     syncFiltersToUrl,
   ]);
 
-  const effectiveSelectedTags = useMemo(
-    () => selectedTags.filter((id) => tagsFromItems.some((t) => t.id === id)),
-    [selectedTags, tagsFromItems]
+  const tagsForFilters = useMemo(
+    () => (tags && tags.length > 0 ? tags : tagsFromItems),
+    [tags, tagsFromItems]
   );
+  const effectiveSelectedTags = useMemo(() => {
+    const availableTagIds = new Set(tagsForFilters.map((t) => t.id));
+    return selectedTags.filter((id) => availableTagIds.has(id));
+  }, [selectedTags, tagsForFilters]);
 
   // Filtered + sorted items
   const filteredItems = useMemo(() => {
     if (!items) return [];
 
     let filtered = [...items];
-
-    // Search filter
-    if (search) {
-      const q = search.toLowerCase();
-      filtered = filtered.filter(
-        (item) =>
-          item.title.toLowerCase().includes(q) ||
-          item.notes?.toLowerCase().includes(q) ||
-          item.tags.some((t) => t.name.includes(q))
-      );
-    }
 
     // Purchased filter
     if (!showPurchased) {
@@ -316,7 +310,7 @@ function HomePageContent() {
     });
 
     return filtered;
-  }, [items, search, sortBy, showPurchased, effectiveSelectedTags]);
+  }, [items, sortBy, showPurchased, effectiveSelectedTags]);
 
   // Handlers
   const handleCreateItem = useCallback(async (data: CreateItemPayload) => {
@@ -377,25 +371,36 @@ function HomePageContent() {
 
   const handleSetItemStatus = useCallback(
     async (id: string, status: "AVAILABLE" | "CLAIMED" | "PURCHASED") => {
-      const res = await fetch(`/api/items/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Ошибка смены статуса");
+      if (pendingStatusByItemId[id]) return;
+      setPendingStatusByItemId((prev) => ({ ...prev, [id]: true }));
+      try {
+        const res = await fetch(`/api/items/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        });
+        if (!res.ok) {
+          if (res.status === 409) {
+            await mutateItems();
+            toast.error("Статус уже изменился, список обновлён");
+            return;
+          }
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || "Ошибка смены статуса");
+        }
+        const statusText =
+          status === "AVAILABLE"
+            ? "Бронь снята"
+            : status === "CLAIMED"
+              ? "Товар забронирован"
+              : "Отмечено купленным";
+        toast.success(statusText);
+        await mutateItems();
+      } finally {
+        setPendingStatusByItemId((prev) => ({ ...prev, [id]: false }));
       }
-      const statusText =
-        status === "AVAILABLE"
-          ? "Бронь снята"
-          : status === "CLAIMED"
-            ? "Товар забронирован"
-            : "Отмечено купленным";
-      toast.success(statusText);
-      mutateItems();
     },
-    [mutateItems]
+    [mutateItems, pendingStatusByItemId]
   );
 
   const handlePriorityChange = useCallback(
@@ -598,7 +603,7 @@ function HomePageContent() {
           </div>
           <div className="hidden sm:block">
             <TagFilter
-              tags={tagsFromItems}
+              tags={tagsForFilters}
               selectedTags={effectiveSelectedTags}
               onToggleTag={handleToggleTag}
               onClearTags={() => setSelectedTags([])}
@@ -633,7 +638,7 @@ function HomePageContent() {
             onSortChange={setSortBy}
             showPurchased={showPurchased}
             onTogglePurchased={() => setShowPurchased(!showPurchased)}
-            tags={tagsFromItems}
+            tags={tagsForFilters}
             selectedTags={effectiveSelectedTags}
             onToggleTag={handleToggleTag}
             onClearTags={() => setSelectedTags([])}
@@ -652,6 +657,7 @@ function HomePageContent() {
           onDelete={handleDeleteItem}
           onTogglePurchased={handleTogglePurchased}
           onSetStatus={handleSetItemStatus}
+          pendingStatusByItemId={pendingStatusByItemId}
           onPriorityChange={handlePriorityChange}
           onEmptyAdd={() => {
             setParsedData(null);
@@ -721,6 +727,7 @@ function HomePageContent() {
         onDelete={handleDeleteItem}
         onTogglePurchased={handleTogglePurchased}
         onSetStatus={handleSetItemStatus}
+        statusPending={detailItem ? !!pendingStatusByItemId[detailItem.id] : false}
       />
 
       {/* Confirm delete dialog */}

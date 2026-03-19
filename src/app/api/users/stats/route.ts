@@ -52,26 +52,38 @@ export async function GET(req: NextRequest) {
         username: true,
         name: true,
         avatarUrl: true,
-        items: {
-          where: { listId: { in: visibleListIds } },
-          select: {
-            price: true,
-            currency: true,
-            purchased: true,
-          },
-        },
       },
       orderBy: { createdAt: "asc" },
     });
 
+    const items = await prisma.item.findMany({
+      where: {
+        userId: { in: users.map((u) => u.id) },
+        listId: { in: visibleListIds },
+      },
+      select: {
+        userId: true,
+        price: true,
+        currency: true,
+        purchased: true,
+      },
+    });
+    const itemsByUserId = new Map<string, typeof items>();
+    for (const item of items) {
+      const arr = itemsByUserId.get(item.userId);
+      if (arr) arr.push(item);
+      else itemsByUserId.set(item.userId, [item]);
+    }
+
     const usersWithStats = users.map((user) => {
-      const totalItems = user.items.length;
-      const unpurchasedItems = user.items.filter((item) => !item.purchased).length;
+      const userItems = itemsByUserId.get(user.id) || [];
+      const totalItems = userItems.length;
+      const unpurchasedItems = userItems.filter((item) => !item.purchased).length;
 
       const pricesByCurrency: Record<string, { unpurchased: number; purchased: number }> =
         {};
 
-      user.items.forEach((item) => {
+      userItems.forEach((item) => {
         if (!item.price) return;
         const currency = item.currency || "RUB";
         if (!pricesByCurrency[currency]) {

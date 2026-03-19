@@ -39,3 +39,10 @@ export function getNextStatusActionLabel(status: ItemStatus): string {
   return "Уже куплено";
 }
 
+export function hasConflictingStatusPayload(input: {
+  status?: ItemStatus;
+  purchased?: boolean;
+}): boolean {
+  return input.status !== undefined && input.purchased !== undefined;
+}
+

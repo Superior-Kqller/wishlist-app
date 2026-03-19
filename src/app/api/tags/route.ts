@@ -26,39 +26,30 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const items = await prisma.item.findMany({
-      where: { listId: { in: visibleListIds } },
-      select: {
-        tags: {
-          select: { id: true, name: true, color: true },
+    const tags = await prisma.tag.findMany({
+      where: {
+        items: {
+          some: {
+            listId: { in: visibleListIds },
+          },
         },
       },
+      select: {
+        id: true,
+        name: true,
+        color: true,
+        _count: {
+          select: {
+            items: {
+              where: {
+                listId: { in: visibleListIds },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { name: "asc" },
     });
-
-    const byId = new Map<
-      string,
-      { id: string; name: string; color: string; _count: { items: number } }
-    >();
-
-    for (const item of items) {
-      for (const t of item.tags) {
-        const prev = byId.get(t.id);
-        if (prev) {
-          prev._count.items += 1;
-        } else {
-          byId.set(t.id, {
-            id: t.id,
-            name: t.name,
-            color: t.color,
-            _count: { items: 1 },
-          });
-        }
-      }
-    }
-
-    const tags = [...byId.values()].sort((a, b) =>
-      a.name.localeCompare(b.name, "ru")
-    );
 
     return NextResponse.json(tags, {
       headers: {
