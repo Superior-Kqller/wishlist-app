@@ -9,19 +9,37 @@ else
   DISPLAY_VERSION="$APP_VERSION"
 fi
 
-# Startup banner
-echo ""
-echo "┌─────────────────────────────────────────┐"
-echo "│                                         │"
-echo "│   🎁 ВИШЛИСТ                            │"
-echo "│   Wishlist App v${DISPLAY_VERSION}"
-echo "│                                         │"
-echo "├─────────────────────────────────────────┤"
-echo "│   📦 Environment: production            │"
-echo "│   🌐 Port: ${PORT:-4030}                         │"
-echo "│   🔗 Network: all interfaces (0.0.0.0)  │"
-echo "└─────────────────────────────────────────┘"
-echo ""
+# Box interior width (must match top/bottom ┌─┐ row length)
+BOX_INNER=41
+
+# Pad to BOX_INNER bytes, or trim (ASCII-only) if длиннее — для UTF-8 строк не обрезаем посередине символа
+pad_inner() {
+  _s="$1"
+  if [ "${#_s}" -gt "$BOX_INNER" ]; then
+    _s=$(printf '%s' "$_s" | head -c "$BOX_INNER")
+  fi
+  while [ "${#_s}" -lt "$BOX_INNER" ]; do
+    _s="${_s} "
+  done
+  printf '%s' "$_s"
+}
+
+# One printf → один сгусток записи в stdout, меньше «рваного» баннера в docker compose logs
+print_startup_banner() {
+  _port="${PORT:-4030}"
+  printf '\n┌─────────────────────────────────────────┐\n│%s│\n│%s│\n│%s│\n│%s│\n├─────────────────────────────────────────┤\n│%s│\n│%s│\n│%s│\n└─────────────────────────────────────────┘\n\n' \
+    "$(pad_inner '')" \
+    "$(pad_inner '   🎁 ВИШЛИСТ')" \
+    "$(pad_inner "   Wishlist App v${DISPLAY_VERSION}")" \
+    "$(pad_inner '')" \
+    "$(pad_inner '   📦 Environment: production')" \
+    "$(pad_inner "   🌐 Port: ${_port}")" \
+    "$(pad_inner "   🔗 Listen: 0.0.0.0:${_port}")" \
+}
+
+# Короткая пауза: при параллельном старте compose иногда вклиниваются строки других сервисов
+sleep 0.25 2>/dev/null || true
+print_startup_banner
 
 echo "📁 Creating upload directories..."
 mkdir -p /app/public/uploads/avatars
@@ -45,9 +63,10 @@ echo "🌱 Seeding users (if needed)..."
 node ./prisma/seed.js 2>/dev/null && echo "   ✓ Seed complete" || echo "   ⊘ Seed skipped (already exists)"
 
 echo ""
-echo "────────────────────────────────────────────"
-echo "  🚀 Wishlist v${DISPLAY_VERSION} starting..."
-echo "────────────────────────────────────────────"
-echo ""
+printf '%s\n' \
+  "────────────────────────────────────────────" \
+  "  🚀 Wishlist v${DISPLAY_VERSION} starting..." \
+  "────────────────────────────────────────────" \
+  ""
 
 exec su-exec nextjs "$@"
