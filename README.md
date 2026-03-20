@@ -2,6 +2,10 @@
 
 Современное приложение для создания и управления списками желаний.
 
+<p align="center">
+  <img src="assets/github/readme-banner.png" alt="Вишлист — баннер" width="960">
+</p>
+
 ## Скриншоты
 
 <p align="center">

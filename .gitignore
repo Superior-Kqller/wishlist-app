@@ -18,6 +18,7 @@ Thumbs.db
 public/uploads/
 .cursor
 docs/
+wishlist-brandbook.pdf
 
 # Локальная память агента / правила — не в репозитории
 AGENTS.md

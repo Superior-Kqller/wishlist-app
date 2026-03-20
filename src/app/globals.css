@@ -33,25 +33,25 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 40 20% 98%;
+    --foreground: 265 29% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 265 29% 12%;
     --primary: 262 83% 58%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
+    --secondary: 258 43% 95%;
+    --secondary-foreground: 265 29% 12%;
+    --muted: 258 43% 95%;
+    --muted-foreground: 262 22% 45%;
+    --accent: 258 43% 95%;
+    --accent-foreground: 265 29% 12%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
+    --border: 258 28% 91%;
+    --input: 258 28% 91%;
     --ring: 262 83% 58%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 265 29% 12%;
     --radius: 0.75rem;
 
     /* Glassmorphism - medium effect */
@@ -61,32 +61,32 @@
     --glass-blur: 16px;
 
     /* Semantic colors */
-    --success: 142 76% 36%;
+    --success: 142 70% 45%;
     --success-foreground: 0 0% 98%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 9%;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 5.5%;
-    --card-foreground: 0 0% 98%;
+    --background: 257 42% 8%;
+    --foreground: 267 43% 91%;
+    --card: 263 31% 12%;
+    --card-foreground: 267 43% 91%;
     --primary: 262 83% 58%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --secondary: 265 27% 20%;
+    --secondary-foreground: 267 43% 91%;
+    --muted: 265 27% 20%;
+    --muted-foreground: 265 26% 64%;
+    --accent: 265 27% 20%;
+    --accent-foreground: 267 43% 91%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 261 28% 20%;
+    --input: 261 28% 20%;
     --ring: 262 83% 58%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 263 31% 12%;
+    --popover-foreground: 267 43% 91%;
 
     /* Glassmorphism - dark (medium effect) */
     --glass-bg: 240 10% 10% / 0.6;
@@ -223,6 +223,12 @@
     font-weight: 600;
     letter-spacing: -0.025em;
     text-wrap: balance;
+  }
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-mono), monospace;
   }
 }
 

@@ -2,6 +2,7 @@
 
 import { signOut, useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,7 +12,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { Gift, LogOut, Plus, Settings, Shield, BarChart3, Menu, Sun, Moon, Monitor, Check, Download } from "lucide-react";
+import { LogOut, Plus, Settings, Shield, BarChart3, Menu, Sun, Moon, Monitor, Check, Download } from "lucide-react";
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { useTheme } from "next-themes";
 import { useHeaderActions } from "@/lib/header-actions";
@@ -56,18 +57,23 @@ export function Header() {
           title="На главную"
           aria-label="Вишлист — на главную"
         >
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/15 rounded-xl flex items-center justify-center shrink-0">
-            <Gift className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+          <div className="relative w-8 h-8 sm:w-10 sm:h-10 shrink-0">
+            <Image
+              src="/assets/logo/logo-color-128.png"
+              alt="Логотип Вишлист"
+              fill
+              sizes="40px"
+              className="object-contain"
+              priority
+            />
           </div>
           <div className="text-left hidden sm:block">
             <h1 className="text-lg font-semibold leading-none tracking-tight">
               Вишлист
             </h1>
-            {session?.user?.name && (
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {session.user.name}
-              </p>
-            )}
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Умный вишлист для совместных желаний
+            </p>
           </div>
           <div className="text-left sm:hidden">
             <h1 className="text-base font-semibold leading-none tracking-tight">
