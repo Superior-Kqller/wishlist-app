@@ -82,7 +82,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
         data-testid="wishlist-card-v2"
         style={{ borderTopColor: accentColor, borderLeftColor: accentColor }}
         className={cn(
-          "overflow-hidden border-t-4 border-l-3",
+          "overflow-hidden border-t-4 border-l-[3px] bg-card",
           item.purchased && "opacity-70",
           isCardInteractive && "cursor-pointer",
           isSelected && "shadow-[0_0_0_1px_hsl(var(--primary)/0.35)]"
@@ -94,7 +94,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
       >
         <div
           data-testid="wishlist-card-v2-media"
-          className="relative aspect-[4/3] overflow-hidden bg-muted/70"
+          className="relative aspect-[4/3] overflow-hidden bg-muted/60"
         >
           {image && !imageError ? (
             <Image
@@ -112,7 +112,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
           )}
         </div>
 
-        <div className="space-y-3 p-3">
+          <div className="space-y-3 p-3">
           <div className="flex items-start justify-between gap-2">
             <TooltipProvider delayDuration={120}>
               <Tooltip>
@@ -121,7 +121,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                     data-testid="wishlist-card-v2-title"
                     tabIndex={0}
                     className={cn(
-                      "line-clamp-2 text-sm font-medium leading-snug focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                      "line-clamp-2 text-sm font-semibold leading-snug text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                       item.purchased && "line-through"
                     )}
                   >
@@ -220,7 +220,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
           {item.status === "PURCHASED" && <Badge>Куплено</Badge>}
 
           <div data-testid="wishlist-card-v2-footer" className="flex items-center justify-between gap-2">
-            <span data-testid="wishlist-card-v2-price" className="text-sm font-semibold tabular-nums">
+            <span data-testid="wishlist-card-v2-price" className="text-sm font-semibold tabular-nums text-foreground">
               {item.price ? formatPrice(item.price, item.currency) : "Цена не указана"}
             </span>
             <div data-testid="wishlist-card-priority">

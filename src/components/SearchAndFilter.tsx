@@ -36,11 +36,11 @@ export function SearchAndFilter({
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Поиск..."
-          className="h-11 bg-card pl-8 text-sm placeholder:text-muted-foreground/85 sm:h-10 sm:pl-10"
+          className="h-10 bg-card pl-8 text-sm placeholder:text-muted-foreground/85 sm:pl-10"
         />
       </div>
       <Select value={sortBy} onValueChange={onSortChange}>
-        <SelectTrigger className="h-11 w-11 shrink-0 bg-card sm:h-10 sm:w-[180px] sm:px-3" title="Сортировка">
+        <SelectTrigger className="h-10 w-10 shrink-0 bg-card sm:w-[180px] sm:px-3" title="Сортировка">
           <SlidersHorizontal className="h-4 w-4 shrink-0 text-muted-foreground/85 sm:mr-2" />
           <SelectValue placeholder="Сортировка" className="sr-only sm:not-sr-only sm:inline" />
         </SelectTrigger>
@@ -56,7 +56,7 @@ export function SearchAndFilter({
       <Button
         variant={showPurchased ? "secondary" : "outline"}
         size="icon"
-        className="h-11 w-11 sm:h-10 sm:w-10 shrink-0"
+        className="h-10 w-10 shrink-0"
         onClick={onTogglePurchased}
         title={showPurchased ? "Скрыть купленные" : "Показать купленные"}
       >

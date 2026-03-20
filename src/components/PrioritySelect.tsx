@@ -28,7 +28,7 @@ export function PrioritySelect({
     >
       <SelectTrigger
         data-testid={triggerTestId}
-        className="h-8 w-[80px]"
+        className="h-8 w-[80px] rounded-md bg-background px-2 text-xs font-medium"
         aria-label={ariaLabel}
       >
         <SelectValue />

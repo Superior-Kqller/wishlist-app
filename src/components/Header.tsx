@@ -48,7 +48,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-card/95">
+    <header className="sticky top-0 z-40 border-b border-border bg-card">
       <div className="container mx-auto flex h-14 items-center justify-between px-4 sm:h-[68px]">
         <button
           onClick={() => router.push("/")}
@@ -99,7 +99,7 @@ export function Header() {
               variant="ghost"
               size="icon"
               onClick={() => router.push("/stats")}
-              className="h-10 w-10 text-muted-foreground hover:text-foreground"
+                className="h-10 w-10 text-muted-foreground hover:text-foreground"
               title="Статистика"
             >
               <BarChart3 className="w-5 h-5" />
@@ -109,7 +109,7 @@ export function Header() {
               variant="ghost"
               size="icon"
               onClick={() => router.push("/settings")}
-              className="h-10 w-10 text-muted-foreground hover:text-foreground"
+                className="h-10 w-10 text-muted-foreground hover:text-foreground"
               title="Настройки"
             >
               <Settings className="w-5 h-5" />

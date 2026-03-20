@@ -32,7 +32,7 @@ export function ListFilter({
         value={selectedListId ?? "all"}
         onValueChange={(v) => onListChange(v === "all" ? null : v)}
       >
-        <SelectTrigger className="w-full min-w-0 max-w-[180px] sm:w-[180px] min-h-[44px]">
+        <SelectTrigger className="h-10 w-full min-w-0 max-w-[180px] sm:w-[180px]">
           <SelectValue placeholder="Подборка" />
         </SelectTrigger>
         <SelectContent>
@@ -50,7 +50,7 @@ export function ListFilter({
           variant="outline"
           size="sm"
           onClick={onEditClick}
-          className="min-h-[44px]"
+          className="h-10"
           title="Изменить подборку"
         >
           <Pencil className="w-4 h-4" />
@@ -61,7 +61,7 @@ export function ListFilter({
         variant="outline"
         size="sm"
         onClick={onCreateClick}
-        className="min-h-[44px]"
+        className="h-10"
       >
         <ListPlus className="w-4 h-4 mr-2" />
         Создать подборку

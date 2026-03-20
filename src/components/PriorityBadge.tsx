@@ -11,7 +11,7 @@ export function PriorityBadge({ priority, className }: PriorityBadgeProps) {
   return (
     <Badge
       variant="secondary"
-      className={className}
+      className={`text-xs font-medium ${className ?? ""}`}
       data-testid="priority-badge"
       aria-label={`Приоритет: P${priority}`}
     >

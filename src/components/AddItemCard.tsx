@@ -24,7 +24,7 @@ export function AddItemCard({ onAdd }: AddItemCardProps) {
       aria-label="Добавить товар"
       onClick={onAdd}
       onKeyDown={onKeyDown}
-      className="flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-3 border-dashed text-center hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      className="flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-3 border-dashed bg-card text-center transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border bg-background">
         <Plus className="h-5 w-5" />

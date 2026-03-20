@@ -73,7 +73,7 @@ export function CombinedFilter({
           <Button
             type="button"
             variant="outline"
-            className="min-h-[44px] gap-2 touch-manipulation bg-card"
+            className="h-10 gap-2 touch-manipulation bg-card"
             aria-label="Выбрать пользователя"
             data-testid="combined-user-trigger"
           >
@@ -164,7 +164,7 @@ export function CombinedFilter({
           value={selectedListId ?? "all"}
           onValueChange={(v) => onListChange(v === "all" ? null : v)}
         >
-          <SelectTrigger className="min-h-[44px] w-[180px] bg-card">
+          <SelectTrigger className="h-10 w-[180px] bg-card">
             <FolderOpen className="w-4 h-4 mr-2 opacity-60" />
             <SelectValue placeholder="Подборка" />
           </SelectTrigger>
@@ -184,7 +184,7 @@ export function CombinedFilter({
             variant="outline"
             size="icon"
             onClick={onEditList}
-            className="h-11 w-11"
+            className="h-10 w-10"
             title="Изменить подборку"
           >
             <Pencil className="w-4 h-4" />
@@ -197,7 +197,7 @@ export function CombinedFilter({
             variant="outline"
             size="sm"
             onClick={onCreateList}
-            className="min-h-[44px]"
+            className="h-10"
           >
             <ListPlus className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Создать</span>

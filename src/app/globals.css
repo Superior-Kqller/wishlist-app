@@ -27,6 +27,14 @@
   --color-ring: hsl(var(--ring));
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-error: hsl(var(--error));
+  --color-error-foreground: hsl(var(--error-foreground));
+  --color-info: hsl(var(--info));
+  --color-info-foreground: hsl(var(--info-foreground));
 
   --animate-fade-in: fade-in 0.3s ease-out;
 }
@@ -57,14 +65,18 @@
     /* Strict brandbook: без тяжёлых glass-эффектов */
     --glass-bg: 0 0% 100% / 1;
     --glass-border: 258 28% 91% / 1;
-    --glass-glow: 262 83% 58% / 0.08;
+    --glass-glow: 262 83% 58% / 0.06;
     --glass-blur: 0px;
 
     /* Semantic colors */
-    --success: 142 70% 45%;
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 98%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 9%;
+    --error: 0 84% 60%;
+    --error-foreground: 0 0% 98%;
+    --info: 188 95% 43%;
+    --info-foreground: 0 0% 98%;
   }
 
   .dark {
@@ -87,11 +99,19 @@
     --ring: 262 83% 58%;
     --popover: 263 31% 12%;
     --popover-foreground: 267 43% 91%;
-
     --glass-bg: 263 31% 12% / 1;
     --glass-border: 261 28% 20% / 1;
-    --glass-glow: 262 83% 58% / 0.12;
+    --glass-glow: 262 83% 58% / 0.08;
     --glass-blur: 0px;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 9%;
+    --error: 0 72% 56%;
+    --error-foreground: 0 0% 98%;
+    --info: 190 90% 46%;
+    --info-foreground: 0 0% 98%;
   }
 
   /* Rose theme */
@@ -203,6 +223,8 @@
     min-height: 100svh;
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    font-size: 1rem;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -236,12 +258,10 @@
   background: hsl(var(--background));
 }
 .dark .page-bg {
-  background: linear-gradient(
-    180deg,
-    #0f0b1a 0%,
-    #0f0b1a 55%,
-    #120d1f 100%
-  );
+  background:
+    radial-gradient(1200px 500px at 10% -10%, hsl(var(--primary) / 0.14), transparent 55%),
+    radial-gradient(900px 450px at 90% 0%, hsl(var(--ring) / 0.1), transparent 50%),
+    hsl(var(--background));
 }
 
 /* Карточки в тёмной теме — приподнятые, рамка заметна */
@@ -287,9 +307,9 @@
 }
 
 .glass-subtle {
-  background: hsl(var(--card) / 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: hsl(var(--card));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .glass-glow {
@@ -298,37 +318,21 @@
 
 /* Модалки: тяжёлый внешний glow + inset даёт артефакты у скруглений на iOS WebKit */
 .dialog-modal-surface {
-  box-shadow:
-    0 8px 32px rgb(0 0 0 / 0.22),
-    0 2px 8px rgb(0 0 0 / 0.12);
-}
-@media (hover: hover) and (pointer: fine) {
-  .dialog-modal-surface {
-    box-shadow:
-      0 0 30px hsl(var(--glass-glow)),
-      0 4px 20px hsl(var(--glass-glow)),
-      inset 0 1px 0 hsl(var(--primary-foreground) / 0.12);
-  }
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.16);
 }
 
 .glass-card {
   background: hsl(var(--glass-bg));
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border: 1px solid hsl(var(--glass-border));
   border-radius: var(--radius);
-  box-shadow: 
-    0 2px 8px hsl(var(--foreground) / 0.04),
-    0 4px 16px hsl(var(--foreground) / 0.02);
-  transition: transform 0.2s ease-out,
-              box-shadow 0.2s ease-out,
-              border-color 0.2s ease-out;
+  box-shadow: 0 2px 10px hsl(var(--foreground) / 0.06);
+  transition: box-shadow 0.2s ease-out, border-color 0.2s ease-out;
 }
 
 .glass-card:hover {
-  box-shadow: 
-    0 6px 16px hsl(var(--foreground) / 0.16);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 14px hsl(var(--foreground) / 0.1);
   border-color: hsl(var(--primary) / 0.3);
 }
 
@@ -347,15 +351,6 @@
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
-}
-
-@keyframes glow-pulse {
-  0%, 100% { 
-    box-shadow: 0 0 20px hsl(var(--glass-glow)); 
-  }
-  50% { 
-    box-shadow: 0 0 30px hsl(var(--glass-glow)), 0 0 40px hsl(var(--glass-glow)); 
-  }
 }
 
 @keyframes float {
@@ -383,12 +378,6 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* Accessibility: Focus visible */
-:focus-visible {
-  outline: 2px solid hsl(var(--primary));
-  outline-offset: 2px;
 }
 
 .focus-ring {
