@@ -16,6 +16,8 @@ interface PrioritySelectProps {
   ariaLabel?: string;
   compact?: boolean;
   triggerClassName?: string;
+  /** Крупнее точка приоритета (например, в карточке сетки) */
+  prominentDot?: boolean;
 }
 
 export function PrioritySelect({
@@ -25,6 +27,7 @@ export function PrioritySelect({
   ariaLabel = "Приоритет",
   compact = false,
   triggerClassName,
+  prominentDot = false,
 }: PrioritySelectProps) {
   const dotClassByPriority: Record<number, string> = {
     1: "bg-violet-300/80",
@@ -49,13 +52,18 @@ export function PrioritySelect({
         className={cn(
           "h-9 min-w-[92px] rounded-lg border-input/90 bg-card/65 px-2.5 text-xs font-semibold tracking-wide backdrop-blur-[10px]",
           compact && "h-8 min-w-[126px] text-[11px]",
+          compact && prominentDot && "h-9 min-w-[154px] text-xs",
           triggerClassName
         )}
         aria-label={ariaLabel}
       >
         <span
           aria-hidden="true"
-          className={cn("h-2 w-2 rounded-full", priorityDotClass)}
+          className={cn(
+            "rounded-full",
+            prominentDot ? "h-2.5 w-2.5" : "h-2 w-2",
+            priorityDotClass
+          )}
         />
         <span className="truncate">{currentLabel}</span>
       </SelectTrigger>

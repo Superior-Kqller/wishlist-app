@@ -145,7 +145,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
             </span>
             {(item.url || isOwner) && (
               <TooltipProvider delayDuration={120}>
-                <div className="flex shrink-0 items-center gap-1">
+                <div className="grid w-[calc(2*2.25rem+0.25rem)] shrink-0 grid-cols-2 gap-1">
                   {item.url && (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -155,7 +155,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                           rel="noopener noreferrer"
                           aria-label="Открыть ссылку"
                           onClick={(e) => e.stopPropagation()}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         >
                           <ExternalLink className="h-4 w-4" />
                         </a>
@@ -176,7 +176,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                             }}
                             disabled={statusPending}
                             aria-label="Редактировать"
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                           >
                             <Pencil className="h-4 w-4" />
                           </button>
@@ -198,7 +198,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                             }}
                             disabled={statusPending}
                             aria-label={item.status === "PURCHASED" ? "Снять отметку" : "Отметить купленным"}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                           >
                             {item.status === "PURCHASED" ? <Undo2 className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
                           </button>
@@ -214,7 +214,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                               onDelete(item.id);
                             }}
                             aria-label="Удалить"
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-destructive text-destructive-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-destructive text-destructive-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -228,7 +228,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
             )}
           </div>
 
-          <div data-testid="wishlist-card-v2-footer" className="flex items-start justify-between gap-2">
+          <div data-testid="wishlist-card-v2-footer" className="flex items-start gap-2">
             <div data-testid="wishlist-card-priority" className="min-w-0">
               <div className="flex items-center gap-2">
                 {isOwner ? (
@@ -238,17 +238,52 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                     triggerTestId="priority-select-trigger"
                     ariaLabel={`Приоритет ${item.title}`}
                     compact
-                    triggerClassName="w-[136px]"
+                    prominentDot
+                    triggerClassName="min-w-[154px]"
                   />
                 ) : (
-                  <PriorityBadge priority={item.priority} className="max-w-[136px] truncate" />
+                  <PriorityBadge
+                    priority={item.priority}
+                    className="max-w-[180px] truncate px-2.5 py-1 text-xs"
+                  />
                 )}
               </div>
             </div>
-            <div className="min-w-0">
+          </div>
+
+          {item.tags.length > 0 && !item.user?.name && (
+            <div className="flex flex-wrap gap-1.5">
+              {item.tags.slice(0, 3).map((tag) => (
+                <Badge
+                  key={tag.id}
+                  variant="outline"
+                  className="h-5 border-primary/45 bg-primary/12 px-2 text-[10px] font-medium leading-none"
+                  style={{
+                    borderColor: `${tag.color}88`,
+                    backgroundColor: `${tag.color}26`,
+                    color: tag.color,
+                  }}
+                >
+                  {tag.name}
+                </Badge>
+              ))}
+            </div>
+          )}
+
+          {item.user?.name && (
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-2">
+                <UserAvatar
+                  avatarUrl={item.user.avatarUrl || undefined}
+                  name={item.user.name}
+                  userId={item.user.id}
+                  size="sm"
+                />
+                <span className="truncate text-xs text-muted-foreground">{item.user.name}</span>
+              </div>
               {item.tags.length > 0 && (
-                <div className="mt-1 flex flex-wrap justify-end gap-1.5">
-                  {item.tags.slice(0, 2).map((tag) => (
+                <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
+                  {item.tags.slice(0, 3).map((tag) => (
                     <Badge
                       key={tag.id}
                       variant="outline"
@@ -264,18 +299,6 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                   ))}
                 </div>
               )}
-            </div>
-          </div>
-
-          {item.user?.name && (
-            <div className="flex items-center gap-2">
-              <UserAvatar
-                avatarUrl={item.user.avatarUrl || undefined}
-                name={item.user.name}
-                userId={item.user.id}
-                size="sm"
-              />
-              <span className="truncate text-xs text-muted-foreground">{item.user.name}</span>
             </div>
           )}
         </div>
