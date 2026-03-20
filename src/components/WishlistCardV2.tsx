@@ -240,7 +240,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
           <div data-testid="wishlist-card-v2-footer" className="flex items-end justify-between gap-2">
             <span
               data-testid="wishlist-card-v2-price"
-              className="shrink-0 whitespace-nowrap text-sm font-semibold tabular-nums text-foreground"
+              className="shrink-0 whitespace-nowrap rounded-md border border-primary/40 bg-primary/12 px-2 py-1 text-base font-extrabold tabular-nums tracking-tight text-primary"
             >
               {item.price ? formatPrice(item.price, item.currency) : "Цена не указана"}
             </span>
