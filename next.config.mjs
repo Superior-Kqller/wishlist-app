@@ -6,10 +6,27 @@ const avatarAllowedHosts = parseAvatarAllowedHosts(process.env.AVATAR_ALLOWED_HO
 const nextConfig = {
   output: "standalone",
   images: {
-    remotePatterns: avatarAllowedHosts.map((hostname) => ({
-      protocol: "https",
-      hostname,
-    })),
+    remotePatterns: [
+      ...avatarAllowedHosts.map((hostname) => ({
+        protocol: "https",
+        hostname,
+      })),
+      /**
+       * Фото товаров с произвольных доменов (парсер, маркетплейсы).
+       * Next.js 15+: `**` в hostname/pathname; осознанный риск SSRF на стороне оптимизатора —
+       * для публичного wishlist приемлемо; при жёстких требованиях замените на allowlist.
+       */
+      {
+        protocol: "https",
+        hostname: "**",
+        pathname: "/**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
+        pathname: "/**",
+      },
+    ],
   },
   async headers() {
     return [

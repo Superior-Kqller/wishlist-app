@@ -13,7 +13,11 @@ if (!databaseUrl) {
   throw new Error("DATABASE_URL is not set");
 }
 
-// Reuse a single pool/client instance across hot reloads in development.
+/**
+ * Пул для PrismaPg. Версия `pg` зафиксирована на 8.18.x: с 8.19 драйвер предупреждает
+ * (и в 9.0 запретит) параллельные `client.query()` на одном соединении; адаптер Prisma
+ * в отдельных случаях всё ещё провоцирует это. См. package.json → `pg`.
+ */
 const pool =
   globalForPrisma.pool ??
   (globalForPrisma.pool = new Pool({ connectionString: databaseUrl }));

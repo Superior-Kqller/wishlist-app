@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -75,6 +76,12 @@ export function ItemDetailDialog({
     fetcher,
     { revalidateOnFocus: false }
   );
+
+  useEffect(() => {
+    if (!open || !item) return;
+    setCurrentImageIndex(0);
+    setImageError(false);
+  }, [open, item?.id]);
 
   if (!item) return null;
 
@@ -162,6 +169,12 @@ export function ItemDetailDialog({
         className="max-w-2xl gap-0"
         bodyClassName="p-0 gap-0 overflow-y-auto overscroll-y-contain"
       >
+        <DialogDescription className="sr-only">
+          Детали желания: {item.title}
+          {item.price != null && item.price > 0
+            ? `, цена ${formatPrice(item.price, item.currency)}`
+            : ""}
+        </DialogDescription>
         {/* Gallery */}
         <div className="relative aspect-[4/3] sm:aspect-[2/1] bg-muted shrink-0">
           {mainImage && !imageError ? (
@@ -174,7 +187,9 @@ export function ItemDetailDialog({
                 item.purchased && "grayscale"
               )}
               sizes="(max-width: 768px) 100vw, 672px"
-              unoptimized={mainImage.startsWith("data:") || mainImage.startsWith("blob:")}
+              unoptimized={
+                mainImage.startsWith("data:") || mainImage.startsWith("blob:")
+              }
               onError={() => setImageError(true)}
             />
           ) : (
@@ -240,10 +255,27 @@ export function ItemDetailDialog({
             </div>
           </DialogHeader>
 
-          {(item.price != null && item.price > 0) && (
-            <p className="text-lg font-semibold tabular-nums">
-              {formatPrice(item.price, item.currency)}
-            </p>
+          {(item.user || (item.price != null && item.price > 0)) && (
+            <div className="flex items-center justify-between gap-3">
+              {item.user ? (
+                <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
+                  <UserAvatar
+                    avatarUrl={item.user.avatarUrl || undefined}
+                    name={item.user.name}
+                    userId={item.user.id}
+                    size="sm"
+                  />
+                  <span className="truncate">{item.user.name}</span>
+                </div>
+              ) : (
+                <span className="min-w-0 shrink" aria-hidden />
+              )}
+              {item.price != null && item.price > 0 ? (
+                <p className="shrink-0 text-lg font-semibold tabular-nums">
+                  {formatPrice(item.price, item.currency)}
+                </p>
+              ) : null}
+            </div>
           )}
 
           {item.notes && (
@@ -265,18 +297,6 @@ export function ItemDetailDialog({
                   </Badge>
                 );
               })}
-            </div>
-          )}
-
-          {item.user && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground pb-0.5">
-              <UserAvatar
-                avatarUrl={item.user.avatarUrl || undefined}
-                name={item.user.name}
-                userId={item.user.id}
-                size="sm"
-              />
-              <span>{item.user.name}</span>
             </div>
           )}
 

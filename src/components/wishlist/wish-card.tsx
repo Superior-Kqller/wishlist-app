@@ -158,41 +158,47 @@ export const WishCard = memo(function WishCard({
         </CardHeader>
 
         <CardContent className="space-y-2 p-3 pt-0">
-          {item.price != null && (
-            <p
-              data-testid="wishlist-card-v2-price"
-              className="text-base font-bold tabular-nums tracking-tight text-fuchsia-300"
-            >
-              {formatPrice(item.price, item.currency)}
-            </p>
-          )}
-          {ownerName ? (
-            <div className="flex min-w-0 items-center gap-2">
-              <Avatar className="h-7 w-7">
-                {ownerImage && !ownerImageError ? (
-                  <Image
-                    src={ownerImage}
-                    alt={ownerName}
-                    fill
-                    className="object-cover"
-                    sizes="28px"
-                    unoptimized={ownerImage.startsWith("/uploads/")}
-                    onError={() => setOwnerImageError(true)}
-                  />
-                ) : (
-                  <AvatarFallback
-                    className={cn(
-                      "text-[10px] font-semibold text-white",
-                      getAvatarColor(ownerId)
+          {(ownerName || item.price != null) && (
+            <div className="flex items-center justify-between gap-2">
+              {ownerName ? (
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <Avatar className="h-7 w-7 shrink-0">
+                    {ownerImage && !ownerImageError ? (
+                      <Image
+                        src={ownerImage}
+                        alt={ownerName}
+                        fill
+                        className="object-cover"
+                        sizes="28px"
+                        unoptimized={ownerImage.startsWith("/uploads/")}
+                        onError={() => setOwnerImageError(true)}
+                      />
+                    ) : (
+                      <AvatarFallback
+                        className={cn(
+                          "text-[10px] font-semibold text-white",
+                          getAvatarColor(ownerId)
+                        )}
+                      >
+                        {getInitials(ownerName)}
+                      </AvatarFallback>
                     )}
-                  >
-                    {getInitials(ownerName)}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              <span className="min-w-0 truncate text-xs text-slate-400">{ownerName}</span>
+                  </Avatar>
+                  <span className="min-w-0 truncate text-xs text-slate-400">{ownerName}</span>
+                </div>
+              ) : (
+                <span className="min-w-0 shrink" aria-hidden />
+              )}
+              {item.price != null ? (
+                <p
+                  data-testid="wishlist-card-v2-price"
+                  className="shrink-0 text-right text-base font-bold tabular-nums tracking-tight text-fuchsia-300"
+                >
+                  {formatPrice(item.price, item.currency)}
+                </p>
+              ) : null}
             </div>
-          ) : null}
+          )}
         </CardContent>
 
         <CardFooter
