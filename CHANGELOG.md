@@ -18,10 +18,20 @@
 
 - **Desktop фильтр пользователя** — устранён конфликт двойного обновления URL в `CombinedFilter`, из-за которого выбор пользователя визуально срабатывал, но не применялся
 - **Единообразие выбора пользователя** — обработка пунктов в desktop-dropdown приведена к тому же событийному паттерну, что и на mobile, чтобы исключить платформенные расхождения
+- **Rate limit авторизации (credentials)** — добавлен server-side pre-check для `POST /api/auth/callback/credentials` с возвратом `429` при превышении лимита
+- **Avatar SSRF hardening** — введена строгая политика `avatarUrl` (локальные `/uploads/...` или внешние `https` только из `AVATAR_ALLOWED_HOSTS`), убран wildcard в `next/image` remote patterns
+- **Смена пароля self-service** — для смены собственного пароля теперь обязателен `currentPassword` (включая admin self-change), неверный/отсутствующий пароль возвращает `400`
+- **Seed safety в production** — seed блокирует дефолтные/пустые пароли и невалидные логины пользователей, добавлен fail-fast с понятной ошибкой
+- **SSRF deny-list парсера** — расширены блокировки внутренних диапазонов (`100.64.0.0/10`, `198.18.0.0/15`)
 
 ### Проверено
 
 - `npm run lint` — PASS (без новых ошибок)
+- `npm run test -- src/app/api/auth/[...nextauth]/route.test.ts` — PASS
+- `npm run test -- src/lib/avatar-url-policy.test.ts` — PASS
+- `npm run test -- prisma/seed.test.ts` — PASS
+- `npm run test -- src/app/api/users/[id]/password/route.test.ts` — PASS
+- `npm run test -- src/lib/parser.test.ts` — PASS
 
 ## [1.6.7] — 2026-03-20
 

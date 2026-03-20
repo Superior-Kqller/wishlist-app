@@ -1,10 +1,13 @@
 /** @type {import('next').NextConfig} */
+const avatarAllowedHosts = parseAvatarAllowedHosts(process.env.AVATAR_ALLOWED_HOSTS);
+
 const nextConfig = {
   output: "standalone",
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "**" },
-    ],
+    remotePatterns: avatarAllowedHosts.map((hostname) => ({
+      protocol: "https",
+      hostname,
+    })),
   },
   async headers() {
     return [
@@ -27,3 +30,52 @@ const nextConfig = {
 };
 
 export default nextConfig;
+
+function parseAvatarAllowedHosts(raw) {
+  if (!raw) return [];
+
+  const uniqueHosts = new Set();
+  for (const entry of raw.split(",")) {
+    const host = normalizeHost(entry);
+    if (host) {
+      uniqueHosts.add(host);
+    }
+  }
+
+  return Array.from(uniqueHosts);
+}
+
+function normalizeHost(rawHost) {
+  const host = rawHost.trim().toLowerCase();
+  if (!host) return null;
+
+  if (
+    host.includes("://") ||
+    host.includes("/") ||
+    host.includes("*") ||
+    host === "localhost" ||
+    host.endsWith(".")
+  ) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(`https://${host}`);
+    const normalized = parsed.hostname.toLowerCase();
+    if (normalized !== host || isIpLiteral(normalized)) {
+      return null;
+    }
+  } catch {
+    return null;
+  }
+
+  return host;
+}
+
+function isIpLiteral(value) {
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(value)) {
+    return true;
+  }
+
+  return value.includes(":");
+}

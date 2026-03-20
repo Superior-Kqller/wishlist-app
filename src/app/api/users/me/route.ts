@@ -4,13 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { passwordSchema } from "@/lib/password-validation";
+import { normalizeAvatarUrl } from "@/lib/avatar-url-policy";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 const updateProfileSchema = z.object({
   name: z.string().trim().min(1).max(100).optional(),
   password: passwordSchema.optional(),
-  avatarUrl: z.string().url().optional().or(z.literal("").transform(() => null)),
+  avatarUrl: z.string().max(2048).optional(),
 });
 
 // GET /api/users/me — данные текущего пользователя
@@ -74,7 +75,15 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (data.avatarUrl !== undefined) {
-      updateData.avatarUrl = data.avatarUrl;
+      const normalizedAvatarUrl = normalizeAvatarUrl(data.avatarUrl);
+      if (!normalizedAvatarUrl.ok) {
+        return NextResponse.json(
+          { error: "Некорректный avatarUrl" },
+          { status: 400 }
+        );
+      }
+
+      updateData.avatarUrl = normalizedAvatarUrl.value;
     }
 
     if (Object.keys(updateData).length === 0) {

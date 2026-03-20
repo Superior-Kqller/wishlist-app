@@ -94,6 +94,24 @@ describe("validateAndResolveUrl", () => {
       "Internal URLs are not allowed",
     );
   });
+
+  it("отклоняет 100.64.0.0/10 (shared address space)", async () => {
+    await expect(validateAndResolveUrl("http://100.64.0.1")).rejects.toThrow(
+      "Internal URLs are not allowed",
+    );
+    await expect(validateAndResolveUrl("http://100.127.255.254")).rejects.toThrow(
+      "Internal URLs are not allowed",
+    );
+  });
+
+  it("отклоняет 198.18.0.0/15 (benchmarking/testing)", async () => {
+    await expect(validateAndResolveUrl("http://198.18.0.1")).rejects.toThrow(
+      "Internal URLs are not allowed",
+    );
+    await expect(validateAndResolveUrl("http://198.19.255.254")).rejects.toThrow(
+      "Internal URLs are not allowed",
+    );
+  });
 });
 
 // --- Wildberries parsing (API-based) ---

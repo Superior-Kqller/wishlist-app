@@ -9,6 +9,7 @@ import { z } from "zod";
 
 const changePasswordSchema = z.object({
   password: passwordSchema,
+  currentPassword: z.string().min(1).optional(),
 });
 
 // PATCH /api/users/[id]/password — изменение пароля
@@ -41,14 +42,35 @@ export async function PATCH(
     const body = await req.json();
     const data = changePasswordSchema.parse(body);
 
+    const requiresCurrentPassword = isOwnAccount;
+    if (requiresCurrentPassword && !data.currentPassword) {
+      return NextResponse.json(
+        { error: "Для смены пароля укажите текущий пароль" },
+        { status: 400 }
+      );
+    }
+
     // Проверка существования пользователя
     const user = await prisma.user.findUnique({
       where: { id },
-      select: { id: true },
+      select: { id: true, password: true },
     });
 
     if (!user) {
       return NextResponse.json({ error: "Пользователь не найден" }, { status: 404 });
+    }
+
+    if (requiresCurrentPassword) {
+      const isCurrentPasswordValid =
+        typeof user.password === "string" &&
+        (await bcrypt.compare(data.currentPassword!, user.password));
+
+      if (!isCurrentPasswordValid) {
+        return NextResponse.json(
+          { error: "Текущий пароль указан неверно" },
+          { status: 400 }
+        );
+      }
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 12);
@@ -60,6 +82,13 @@ export async function PATCH(
 
     return NextResponse.json({ success: true });
   } catch (err) {
+    if (err instanceof SyntaxError) {
+      return NextResponse.json(
+        { error: "Невалидный JSON в теле запроса" },
+        { status: 400 }
+      );
+    }
+
     if (err instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Ошибка проверки данных", details: err.issues },

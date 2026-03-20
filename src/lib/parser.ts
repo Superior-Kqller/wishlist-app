@@ -33,12 +33,25 @@ const JSON_HEADERS: Record<string, string> = {
 function isPrivateIP(ip: string): boolean {
   if (net.isIPv4(ip)) {
     const parts = ip.split(".").map(Number);
-    if (parts[0] === 10) return true;
-    if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
-    if (parts[0] === 192 && parts[1] === 168) return true;
-    if (parts[0] === 127) return true;
-    if (parts[0] === 0) return true;
-    if (parts[0] === 169 && parts[1] === 254) return true;
+    const first = parts[0];
+    const second = parts[1];
+
+    // RFC1918 private ranges
+    if (first === 10) return true;
+    if (first === 172 && second >= 16 && second <= 31) return true;
+    if (first === 192 && second === 168) return true;
+
+    // Loopback, "this network", link-local
+    if (first === 127) return true;
+    if (first === 0) return true;
+    if (first === 169 && second === 254) return true;
+
+    // Shared Address Space (RFC6598): 100.64.0.0/10
+    if (first === 100 && second >= 64 && second <= 127) return true;
+
+    // Benchmarking/testing network (RFC2544): 198.18.0.0/15
+    if (first === 198 && (second === 18 || second === 19)) return true;
+
     return false;
   }
   if (net.isIPv6(ip)) {

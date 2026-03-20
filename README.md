@@ -74,6 +74,7 @@ cp .env.example .env && DB_PASSWORD="$(openssl rand -hex 32)" && NEXTAUTH_SECRET
 - `DB_PASSWORD` — пароль для PostgreSQL
 - `NEXTAUTH_SECRET` — секрет NextAuth
 - `NEXTAUTH_URL` — URL вашего приложения (`https://wishlist.yourdomain.com`)
+- `AVATAR_ALLOWED_HOSTS` — whitelist доменов для внешних аватаров (через запятую, только host без `https://`)
 - `SEED_USER*` — логины, пароли и имена пользователей
 
 ### 5. Запустить приложение
@@ -96,6 +97,7 @@ docker compose logs -f wishlist-app
 Логины и пароли берутся из `.env` файла (переменные `SEED_USER*`).
 
 **Важно:** Первый пользователь автоматически получает роль ADMIN. Если админов нет, seed скрипт автоматически повысит первого пользователя до админа.
+Для production seed теперь блокирует небезопасные значения паролей (`changeme`/пустые), а также некорректные логины seed-пользователей.
 
 При необходимости можно пересоздать вручную:
 
