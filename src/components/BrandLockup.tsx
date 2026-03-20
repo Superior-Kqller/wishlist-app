@@ -28,7 +28,7 @@ export function BrandLockup({ className }: BrandLockupProps) {
         </span>
         <span
           aria-hidden="true"
-          className="mt-2 h-0.5 w-24 rounded-full bg-primary/60 sm:w-28"
+          className="mt-2 h-0.5 w-24 rounded-full bg-gradient-to-r from-primary via-fuchsia-500/80 to-pink-500/85 sm:w-28"
         />
       </div>
     </div>

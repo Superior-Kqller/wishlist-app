@@ -24,14 +24,14 @@ export function PrioritySelect({
   ariaLabel = "Приоритет",
 }: PrioritySelectProps) {
   const dotClassByPriority: Record<number, string> = {
-    1: "bg-slate-400",
-    2: "bg-sky-400",
-    3: "bg-emerald-400",
-    4: "bg-amber-400",
-    5: "bg-rose-400",
+    1: "bg-violet-300/80",
+    2: "bg-violet-400/90",
+    3: "bg-purple-500",
+    4: "bg-fuchsia-500",
+    5: "bg-pink-500",
   };
 
-  const priorityDotClass = dotClassByPriority[priority] ?? "bg-slate-400";
+  const priorityDotClass = dotClassByPriority[priority] ?? "bg-violet-300/80";
 
   return (
     <Select
@@ -57,7 +57,7 @@ export function PrioritySelect({
                 aria-hidden="true"
                 className={cn(
                   "h-2 w-2 rounded-full",
-                  dotClassByPriority[value] ?? "bg-slate-400"
+                  dotClassByPriority[value] ?? "bg-violet-300/80"
                 )}
               />
               <span aria-hidden="true" className="text-sm leading-none">

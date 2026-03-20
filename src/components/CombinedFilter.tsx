@@ -180,7 +180,7 @@ export function CombinedFilter({
           value={selectedListId ?? "all"}
           onValueChange={(v) => onListChange(v === "all" ? null : v)}
         >
-          <SelectTrigger className="h-10 w-[180px] bg-card">
+          <SelectTrigger className="h-10 w-[180px] bg-card/65">
             <FolderOpen className="w-4 h-4 mr-2 opacity-60" />
             <SelectValue placeholder="Подборка" />
           </SelectTrigger>

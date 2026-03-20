@@ -47,7 +47,8 @@ export function UserFilter({
               "border border-input/90 bg-card/65 backdrop-blur-[10px] hover:bg-accent hover:text-accent-foreground",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               "touch-manipulation",
-              (selectedUser || isMyMode) && "bg-accent"
+              (selectedUser || isMyMode) &&
+                "border-primary/40 bg-primary/15 text-foreground shadow-[0_0_0_1px_hsl(var(--primary)/0.18)]"
             )}
             data-testid="mobile-user-trigger"
           >
@@ -90,14 +91,20 @@ export function UserFilter({
         >
           <DropdownMenuItem
             onClick={() => onUserChange(null)}
-            className={cn("cursor-pointer", selectedUserId === null && "bg-accent")}
+            className={cn(
+              "cursor-pointer",
+              selectedUserId === null && "border border-primary/40 bg-primary/15"
+            )}
             data-testid="mobile-user-option-all"
           >
             Все пользователи
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => onUserChange("me")}
-            className={cn("cursor-pointer", isMyMode && "bg-accent")}
+            className={cn(
+              "cursor-pointer",
+              isMyMode && "border border-primary/40 bg-primary/15"
+            )}
             data-testid="mobile-user-option-me"
           >
             Мои
@@ -107,7 +114,10 @@ export function UserFilter({
             <DropdownMenuItem
               key={user.id}
               onClick={() => onUserChange(user.id)}
-              className={cn("flex items-center gap-3 p-3 cursor-pointer", selectedUserId === user.id && "bg-accent")}
+              className={cn(
+                "flex items-center gap-3 p-3 cursor-pointer",
+                selectedUserId === user.id && "border border-primary/40 bg-primary/15"
+              )}
               data-testid={`mobile-user-option-${user.id}`}
             >
               <UserAvatar
