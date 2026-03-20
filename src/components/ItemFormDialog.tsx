@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PriorityStars } from "./PriorityStars";
+import { PrioritySelect } from "./PrioritySelect";
 import { WishlistItem, CreateItemPayload, Tag, ListWithMeta } from "@/types";
 import { getTagColor } from "@/lib/utils";
 import { AlertTriangle, Loader2, Plus, X } from "lucide-react";
@@ -167,12 +167,12 @@ export function ItemFormDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Редактировать" : "Добавить желание"}
+            {isEdit ? "Редактировать" : "Добавить товар"}
           </DialogTitle>
           <DialogDescription>
             {isEdit
               ? "Измените данные и сохраните"
-              : "Ссылка необязательна — можно добавить товар вручную. Заполните название и при желании цену, фото и теги."}
+              : "По ссылке / Вручную. Ссылка необязательна — заполните название и при желании цену, фото и теги."}
           </DialogDescription>
         </DialogHeader>
 
@@ -261,10 +261,10 @@ export function ItemFormDialog({
           {/* Priority */}
           <div className="space-y-2">
             <Label>Приоритет</Label>
-            <PriorityStars
+            <PrioritySelect
               priority={priority}
               onChange={setPriority}
-              size="md"
+              triggerTestId="priority-select-dialog"
             />
           </div>
 

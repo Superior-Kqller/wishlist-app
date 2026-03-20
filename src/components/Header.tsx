@@ -79,11 +79,11 @@ export function Header() {
         <div className="flex items-center gap-1 sm:gap-2">
           {isMainPage && onAddItem && (
             <>
-              <Button size="sm" onClick={onAddItem} title="Добавить вручную" className="hidden sm:flex">
+              <Button size="sm" onClick={onAddItem} title="Добавить товар" className="hidden sm:flex">
                 <Plus className="w-4 h-4 mr-2" />
-                Вручную
+                Добавить товар
               </Button>
-              <Button size="icon" onClick={onAddItem} title="Добавить вручную" className="sm:hidden h-8 w-8">
+              <Button size="icon" onClick={onAddItem} title="Добавить товар" className="sm:hidden h-8 w-8">
                 <Plus className="w-4 h-4" />
               </Button>
             </>

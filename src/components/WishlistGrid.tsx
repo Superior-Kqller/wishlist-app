@@ -1,7 +1,7 @@
 "use client";
 
 import { WishlistItem } from "@/types";
-import { WishlistCard } from "./WishlistCard";
+import { WishlistCardV2 } from "./WishlistCardV2";
 import { WishlistCardSkeleton } from "./WishlistCardSkeleton";
 import { AnimatePresence, motion } from "framer-motion";
 import { Gift } from "lucide-react";
@@ -76,7 +76,7 @@ export function WishlistGrid({
         {onEmptyAdd && (
           <Button onClick={onEmptyAdd} size="lg">
             <Plus className="w-4 h-4 mr-2" />
-            Добавить желание
+            Добавить товар
           </Button>
         )}
       </div>
@@ -92,7 +92,7 @@ export function WishlistGrid({
     >
       <AnimatePresence mode="popLayout">
         {items.map((item, index) => (
-          <WishlistCard
+          <WishlistCardV2
             key={item.id}
             item={item}
             currentUserId={currentUserId}
