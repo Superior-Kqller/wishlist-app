@@ -112,7 +112,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
           )}
         </div>
 
-        <div className="space-y-3 p-3">
+        <div className="space-y-2.5 p-3">
           <div className="flex items-start justify-between gap-2">
             <TooltipProvider delayDuration={120}>
               <Tooltip>
@@ -218,29 +218,11 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
 
           {item.status === "CLAIMED" && <Badge variant="secondary">Забронировано</Badge>}
           {item.status === "PURCHASED" && <Badge>Куплено</Badge>}
-          {item.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {item.tags.slice(0, 3).map((tag) => (
-                <Badge
-                  key={tag.id}
-                  variant="outline"
-                  className="h-6 border-primary/45 bg-primary/12 px-2 text-[11px] font-medium text-primary-foreground/90"
-                  style={{
-                    borderColor: `${tag.color}88`,
-                    backgroundColor: `${tag.color}26`,
-                    color: tag.color,
-                  }}
-                >
-                  {tag.name}
-                </Badge>
-              ))}
-            </div>
-          )}
 
           <div data-testid="wishlist-card-v2-footer" className="flex items-end justify-between gap-2">
             <span
               data-testid="wishlist-card-v2-price"
-              className="shrink-0 whitespace-nowrap rounded-md border border-primary/40 bg-primary/12 px-2 py-1 text-base font-extrabold tabular-nums tracking-tight text-primary"
+              className="shrink-0 whitespace-nowrap rounded-md border border-violet-300/60 bg-violet-500/12 px-2 py-1 text-base font-extrabold tabular-nums tracking-tight text-violet-100"
             >
               {item.price ? formatPrice(item.price, item.currency) : "Цена не указана"}
             </span>
@@ -259,6 +241,24 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                   <PriorityBadge priority={item.priority} className="max-w-[136px] truncate" />
                 )}
               </div>
+              {item.tags.length > 0 && (
+                <div className="mt-1 flex flex-wrap justify-end gap-1.5">
+                  {item.tags.slice(0, 2).map((tag) => (
+                    <Badge
+                      key={tag.id}
+                      variant="outline"
+                      className="h-5 border-primary/45 bg-primary/12 px-2 text-[10px] font-medium leading-none"
+                      style={{
+                        borderColor: `${tag.color}88`,
+                        backgroundColor: `${tag.color}26`,
+                        color: tag.color,
+                      }}
+                    >
+                      {tag.name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
