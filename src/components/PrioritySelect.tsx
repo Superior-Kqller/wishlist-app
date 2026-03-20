@@ -5,16 +5,17 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { getPriorityEmoji, getPriorityLabel } from "@/lib/priority-labels";
+import { getPriorityLabel, getPriorityShortLabel } from "@/lib/priority-labels";
 
 interface PrioritySelectProps {
   priority: number;
   onChange?: (priority: number) => void;
   triggerTestId?: string;
   ariaLabel?: string;
+  compact?: boolean;
+  triggerClassName?: string;
 }
 
 export function PrioritySelect({
@@ -22,6 +23,8 @@ export function PrioritySelect({
   onChange,
   triggerTestId,
   ariaLabel = "Приоритет",
+  compact = false,
+  triggerClassName,
 }: PrioritySelectProps) {
   const dotClassByPriority: Record<number, string> = {
     1: "bg-violet-300/80",
@@ -32,6 +35,9 @@ export function PrioritySelect({
   };
 
   const priorityDotClass = dotClassByPriority[priority] ?? "bg-violet-300/80";
+  const currentLabel = compact
+    ? getPriorityShortLabel(priority)
+    : getPriorityLabel(priority);
 
   return (
     <Select
@@ -40,14 +46,18 @@ export function PrioritySelect({
     >
       <SelectTrigger
         data-testid={triggerTestId}
-        className="h-9 min-w-[92px] rounded-lg border-input/90 bg-card/65 px-2.5 text-xs font-semibold tracking-wide backdrop-blur-[10px]"
+        className={cn(
+          "h-9 min-w-[92px] rounded-lg border-input/90 bg-card/65 px-2.5 text-xs font-semibold tracking-wide backdrop-blur-[10px]",
+          compact && "h-8 min-w-[126px] text-[11px]",
+          triggerClassName
+        )}
         aria-label={ariaLabel}
       >
         <span
           aria-hidden="true"
           className={cn("h-2 w-2 rounded-full", priorityDotClass)}
         />
-        <SelectValue />
+        <span className="truncate">{currentLabel}</span>
       </SelectTrigger>
       <SelectContent>
         {[1, 2, 3, 4, 5].map((value) => (
@@ -60,10 +70,7 @@ export function PrioritySelect({
                   dotClassByPriority[value] ?? "bg-violet-300/80"
                 )}
               />
-              <span aria-hidden="true" className="text-sm leading-none">
-                {getPriorityEmoji(value)}
-              </span>
-              <span>{getPriorityLabel(value)}</span>
+              <span>{compact ? getPriorityShortLabel(value) : getPriorityLabel(value)}</span>
             </span>
           </SelectItem>
         ))}

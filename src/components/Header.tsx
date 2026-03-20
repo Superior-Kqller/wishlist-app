@@ -48,7 +48,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-card">
+    <header className="sticky top-0 z-40 border-b border-border bg-transparent">
       <div className="container mx-auto flex h-[74px] items-center justify-between px-4 sm:h-[92px]">
         <button
           onClick={() => router.push("/")}

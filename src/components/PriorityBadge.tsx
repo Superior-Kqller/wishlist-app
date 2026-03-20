@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getPriorityEmoji, getPriorityLabel } from "@/lib/priority-labels";
+import { getPriorityLabel } from "@/lib/priority-labels";
 
 interface PriorityBadgeProps {
   priority: number;
@@ -29,7 +29,6 @@ export function PriorityBadge({ priority, className }: PriorityBadgeProps) {
       data-testid="priority-badge"
       aria-label={`Приоритет: ${getPriorityLabel(priority)}`}
     >
-      <span aria-hidden="true">{getPriorityEmoji(priority)}</span>
       {getPriorityLabel(priority)}
     </Badge>
   );

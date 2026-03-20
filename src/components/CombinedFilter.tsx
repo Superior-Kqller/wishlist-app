@@ -72,7 +72,7 @@ export function CombinedFilter({
           <Button
             type="button"
             variant="outline"
-            className="h-10 gap-2 rounded-lg border-input/90 bg-card/65 px-3 backdrop-blur-[10px] touch-manipulation"
+            className="h-10 gap-2 rounded-lg border-input/90 bg-card/65 px-3 text-foreground hover:text-foreground backdrop-blur-[10px] touch-manipulation"
             aria-label="Выбрать пользователя"
             data-testid="combined-user-trigger"
           >
@@ -104,7 +104,7 @@ export function CombinedFilter({
               </>
             ) : (
               <>
-                <User className="w-4 h-4" />
+                <User className="w-4 h-4 opacity-60" />
                 <span>Все пользователи</span>
               </>
             )}

@@ -121,7 +121,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                     data-testid="wishlist-card-v2-title"
                     tabIndex={0}
                     className={cn(
-                      "line-clamp-2 text-sm font-semibold leading-snug text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                      "line-clamp-2 text-sm font-semibold leading-snug text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:line-clamp-1",
                       item.purchased && "line-through"
                     )}
                   >
@@ -143,7 +143,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                         rel="noopener noreferrer"
                         aria-label="Открыть ссылку"
                         onClick={(e) => e.stopPropagation()}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border bg-background hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       >
                         <ExternalLink className="h-4 w-4" />
                       </a>
@@ -164,7 +164,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                           }}
                           disabled={statusPending}
                           aria-label="Редактировать"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border bg-background hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
@@ -186,7 +186,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                           }}
                           disabled={statusPending}
                           aria-label={item.status === "PURCHASED" ? "Снять отметку" : "Отметить купленным"}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border bg-background hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         >
                           {item.status === "PURCHASED" ? <Undo2 className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
                         </button>
@@ -218,23 +218,45 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
 
           {item.status === "CLAIMED" && <Badge variant="secondary">Забронировано</Badge>}
           {item.status === "PURCHASED" && <Badge>Куплено</Badge>}
+          {item.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {item.tags.slice(0, 3).map((tag) => (
+                <Badge
+                  key={tag.id}
+                  variant="outline"
+                  className="h-6 border-primary/45 bg-primary/12 px-2 text-[11px] font-medium text-primary-foreground/90"
+                  style={{
+                    borderColor: `${tag.color}88`,
+                    backgroundColor: `${tag.color}26`,
+                    color: tag.color,
+                  }}
+                >
+                  {tag.name}
+                </Badge>
+              ))}
+            </div>
+          )}
 
-          <div data-testid="wishlist-card-v2-footer" className="flex items-center justify-between gap-2">
-            <span data-testid="wishlist-card-v2-price" className="text-sm font-semibold tabular-nums text-foreground">
+          <div data-testid="wishlist-card-v2-footer" className="flex items-end justify-between gap-2">
+            <span
+              data-testid="wishlist-card-v2-price"
+              className="shrink-0 whitespace-nowrap text-sm font-semibold tabular-nums text-foreground"
+            >
               {item.price ? formatPrice(item.price, item.currency) : "Цена не указана"}
             </span>
-            <div data-testid="wishlist-card-priority">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Приоритет</span>
+            <div data-testid="wishlist-card-priority" className="min-w-0">
+              <div className="flex items-center justify-end gap-2">
                 {isOwner ? (
                   <PrioritySelect
                     priority={item.priority}
                     onChange={onPriorityChange ? (priority) => onPriorityChange(item.id, priority) : undefined}
                     triggerTestId="priority-select-trigger"
                     ariaLabel={`Приоритет ${item.title}`}
+                    compact
+                    triggerClassName="w-[136px]"
                   />
                 ) : (
-                  <PriorityBadge priority={item.priority} />
+                  <PriorityBadge priority={item.priority} className="max-w-[136px] truncate" />
                 )}
               </div>
             </div>
@@ -248,7 +270,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                 userId={item.user.id}
                 size="sm"
               />
-              <span className="text-[10px] text-muted-foreground">{item.user.name}</span>
+              <span className="truncate text-xs text-muted-foreground">{item.user.name}</span>
             </div>
           )}
         </div>

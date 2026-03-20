@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { PriorityStars } from "./PriorityStars";
+import { PriorityBadge } from "./PriorityBadge";
 import { UserAvatar } from "./UserAvatar";
 import { WishlistItem } from "@/types";
 import { ItemComment } from "@/types";
@@ -236,7 +236,7 @@ export function ItemDetailDialog({
                   <Badge className="mt-2 text-xs">Куплено</Badge>
                 )}
               </div>
-              <PriorityStars priority={item.priority} />
+              <PriorityBadge priority={item.priority} />
             </div>
           </DialogHeader>
 

@@ -11,7 +11,7 @@ export function BrandLockup({ className }: BrandLockupProps) {
   return (
     <div className={cn("flex items-center gap-3.5 sm:gap-4.5", className)}>
       <Image
-        src="/assets/logo/logo-on-dark-512.png"
+        src="/assets/logo/logo-glass-512.png"
         alt="Логотип Вишлист"
         width={72}
         height={72}
@@ -19,17 +19,19 @@ export function BrandLockup({ className }: BrandLockupProps) {
         unoptimized
         className="h-14 w-14 object-contain sm:h-16 sm:w-16"
       />
-      <div className="flex min-w-0 flex-col leading-tight">
-        <span className="truncate text-[2rem] font-extrabold tracking-[-0.02em] text-foreground sm:text-[2.35rem]">
+      <div className="flex min-w-0 flex-col items-start text-left leading-tight">
+        <span className="truncate text-[1.85rem] font-extrabold tracking-[-0.02em] text-foreground sm:text-[2.15rem]">
           Вишлист
         </span>
-        <span className="truncate text-[1.02rem] text-muted-foreground/90 sm:text-[1.28rem]">
-          Умный вишлист для желаний
-        </span>
-        <span
-          aria-hidden="true"
-          className="mt-2 h-px w-24 rounded-full bg-gradient-to-r from-primary via-fuchsia-500/80 to-pink-500/85 sm:w-30"
-        />
+        <div className="inline-flex w-fit flex-col items-start">
+          <span className="text-[0.95rem] text-muted-foreground/90 sm:text-[1.08rem]">
+            Умный вишлист для желаний
+          </span>
+          <span
+            aria-hidden="true"
+            className="mt-2 h-px w-full rounded-full bg-gradient-to-r from-primary via-fuchsia-500/80 to-pink-500/85"
+          />
+        </div>
       </div>
     </div>
   );
