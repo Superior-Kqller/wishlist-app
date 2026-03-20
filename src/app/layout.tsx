@@ -70,8 +70,8 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                const colorTheme = localStorage.getItem('color-theme') || 'purple';
-                document.documentElement.setAttribute('data-theme', colorTheme);
+                localStorage.setItem('color-theme', 'purple');
+                document.documentElement.setAttribute('data-theme', 'purple');
               })();
             `,
           }}

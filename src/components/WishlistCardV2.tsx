@@ -44,6 +44,11 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
   isSelected,
   onToggleSelect,
 }: WishlistCardV2Props) {
+  const accentPalette = ["#7C3AED", "#A78BFA", "#EC4899", "#06B6D4", "#F97316", "#EAB308"];
+  const accentSeed = item.userId || item.user?.id || item.id;
+  const accentIndex = Array.from(accentSeed).reduce((sum, char) => sum + char.charCodeAt(0), 0) % accentPalette.length;
+  const accentColor = accentPalette[accentIndex];
+
   const [imageError, setImageError] = useState(false);
   const image = item.images?.[0];
   const isOwner = currentUserId === item.userId;
@@ -75,11 +80,12 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
     >
       <Card
         data-testid="wishlist-card-v2"
+        style={{ borderTopColor: accentColor, borderLeftColor: accentColor }}
         className={cn(
-          "overflow-hidden",
+          "overflow-hidden border-t-4 border-l-3",
           item.purchased && "opacity-70",
           isCardInteractive && "cursor-pointer",
-          isSelected && "shadow-[0_0_0_1px_hsl(var(--primary)/0.3),0_0_15px_hsl(var(--primary)/0.25)]"
+          isSelected && "shadow-[0_0_0_1px_hsl(var(--primary)/0.35)]"
         )}
         role={isCardInteractive ? "button" : undefined}
         tabIndex={isCardInteractive ? 0 : undefined}

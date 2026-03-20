@@ -72,8 +72,8 @@ export function CombinedFilter({
         <DropdownMenuTrigger asChild>
           <Button
             type="button"
-            variant={selectedOtherUser || isMyMode ? "default" : "outline"}
-            className="min-h-[44px] gap-2 touch-manipulation"
+            variant="outline"
+            className="min-h-[44px] gap-2 touch-manipulation bg-card"
             aria-label="Выбрать пользователя"
             data-testid="combined-user-trigger"
           >
@@ -164,7 +164,7 @@ export function CombinedFilter({
           value={selectedListId ?? "all"}
           onValueChange={(v) => onListChange(v === "all" ? null : v)}
         >
-          <SelectTrigger className="min-h-[44px] w-[180px]">
+          <SelectTrigger className="min-h-[44px] w-[180px] bg-card">
             <FolderOpen className="w-4 h-4 mr-2 opacity-60" />
             <SelectValue placeholder="Подборка" />
           </SelectTrigger>

@@ -7,22 +7,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Palette, Check, Moon, Sun, Monitor } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { colorThemes } from "@/lib/themes";
 import { useColorTheme } from "@/hooks/useColorTheme";
 
 export function ThemeSelector() {
   const { theme, setTheme } = useTheme();
-  const { colorTheme, setColorTheme, mounted } = useColorTheme();
+  const { mounted } = useColorTheme();
 
   if (!mounted) {
     return (
@@ -40,38 +32,7 @@ export function ThemeSelector() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-auto min-w-[140px]">
-        <DropdownMenuLabel>Цветовая тема</DropdownMenuLabel>
-        <div
-          className="grid grid-cols-4 gap-2 px-2 py-1.5"
-          role="radiogroup"
-          aria-label="Выбор цветовой темы"
-        >
-          {colorThemes.map((t) => (
-            <Tooltip key={t.value} delayDuration={300}>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => setColorTheme(t.value)}
-                  role="radio"
-                  aria-checked={colorTheme === t.value}
-                  aria-label={t.label}
-                  className={cn(
-                    "w-6 h-6 rounded-full transition-all duration-200 cursor-pointer",
-                    "hover:scale-110 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                    t.color,
-                    colorTheme === t.value
-                      ? "ring-2 ring-offset-2 ring-foreground scale-110"
-                      : "opacity-80 hover:opacity-100"
-                  )}
-                />
-              </TooltipTrigger>
-              <TooltipContent side="top" className="text-xs">
-                {t.label}
-              </TooltipContent>
-            </Tooltip>
-          ))}
-        </div>
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel>Режим</DropdownMenuLabel>
+        <DropdownMenuLabel>Тема</DropdownMenuLabel>
         <DropdownMenuItem
           onClick={() => setTheme("light")}
           className="flex items-center justify-between cursor-pointer"

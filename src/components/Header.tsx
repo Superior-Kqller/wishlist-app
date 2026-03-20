@@ -16,7 +16,6 @@ import { LogOut, Plus, Settings, Shield, BarChart3, Menu, Sun, Moon, Monitor, Ch
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { useTheme } from "next-themes";
 import { useHeaderActions } from "@/lib/header-actions";
-import { colorThemes } from "@/lib/themes";
 import { useColorTheme } from "@/hooks/useColorTheme";
 
 export function Header() {
@@ -25,7 +24,7 @@ export function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
-  const { colorTheme, setColorTheme, mounted } = useColorTheme();
+  const { mounted } = useColorTheme();
 
   const isAdmin = session?.user?.role === "ADMIN";
   const isMainPage = pathname === "/";
@@ -49,36 +48,23 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 glass border-b-0 backdrop-blur-xl shadow-[0_1px_0_0_hsl(var(--glass-border))]">
-      <div className="container mx-auto px-4 h-14 sm:h-[72px] flex items-center justify-between">
+    <header className="sticky top-0 z-40 border-b border-border bg-card/95">
+      <div className="container mx-auto flex h-14 items-center justify-between px-4 sm:h-[68px]">
         <button
           onClick={() => router.push("/")}
           className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
           title="На главную"
           aria-label="Вишлист — на главную"
         >
-          <div className="relative w-8 h-8 sm:w-10 sm:h-10 shrink-0">
+          <div className="relative h-8 w-[118px] shrink-0 sm:h-10 sm:w-[150px]">
             <Image
-              src="/assets/logo/logo-color-128.png"
-              alt="Логотип Вишлист"
+              src="/assets/logo/lockup-dark-bg.png"
+              alt="Вишлист"
               fill
-              sizes="40px"
+              sizes="150px"
               className="object-contain"
               priority
             />
-          </div>
-          <div className="text-left hidden sm:block">
-            <h1 className="text-lg font-semibold leading-none tracking-tight">
-              Вишлист
-            </h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Умный вишлист для совместных желаний
-            </p>
-          </div>
-          <div className="text-left sm:hidden">
-            <h1 className="text-base font-semibold leading-none tracking-tight">
-              Вишлист
-            </h1>
           </div>
         </button>
 
@@ -96,13 +82,13 @@ export function Header() {
           )}
 
           {/* Desktop: показать все кнопки */}
-          <div className="hidden sm:flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-1.5">
             {isAdmin && (
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => router.push("/admin")}
-                className="h-10 w-10"
+                className="h-10 w-10 text-muted-foreground hover:text-foreground"
                 title="Администрирование"
               >
                 <Shield className="w-5 h-5" />
@@ -113,7 +99,7 @@ export function Header() {
               variant="ghost"
               size="icon"
               onClick={() => router.push("/stats")}
-              className="h-10 w-10"
+              className="h-10 w-10 text-muted-foreground hover:text-foreground"
               title="Статистика"
             >
               <BarChart3 className="w-5 h-5" />
@@ -123,7 +109,7 @@ export function Header() {
               variant="ghost"
               size="icon"
               onClick={() => router.push("/settings")}
-              className="h-10 w-10"
+              className="h-10 w-10 text-muted-foreground hover:text-foreground"
               title="Настройки"
             >
               <Settings className="w-5 h-5" />
@@ -132,7 +118,12 @@ export function Header() {
             {isMainPage && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-10 w-10" title="Экспорт">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-10 w-10 text-muted-foreground hover:text-foreground"
+                    title="Экспорт"
+                  >
                     <Download className="w-5 h-5" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -200,23 +191,6 @@ export function Header() {
                     </DropdownMenuItem>
                   </>
                 )}
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>Цветовая тема</DropdownMenuLabel>
-                {mounted && colorThemes.map((t) => (
-                  <DropdownMenuItem
-                    key={t.value}
-                    onClick={() => setColorTheme(t.value)}
-                    className="flex items-center justify-between cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className={`w-4 h-4 rounded-full ${t.color}`} />
-                      <span>{t.label}</span>
-                    </div>
-                    {colorTheme === t.value && (
-                      <Check className="w-4 h-4 text-primary" />
-                    )}
-                  </DropdownMenuItem>
-                ))}
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>Режим</DropdownMenuLabel>
                 {mounted && (

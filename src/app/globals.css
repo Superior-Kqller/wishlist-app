@@ -54,11 +54,11 @@
     --popover-foreground: 265 29% 12%;
     --radius: 0.75rem;
 
-    /* Glassmorphism - medium effect */
-    --glass-bg: 0 0% 100% / 0.7;
-    --glass-border: 240 5.9% 85% / 0.5;
-    --glass-glow: 262 83% 58% / 0.2;
-    --glass-blur: 16px;
+    /* Strict brandbook: без тяжёлых glass-эффектов */
+    --glass-bg: 0 0% 100% / 1;
+    --glass-border: 258 28% 91% / 1;
+    --glass-glow: 262 83% 58% / 0.08;
+    --glass-blur: 0px;
 
     /* Semantic colors */
     --success: 142 70% 45%;
@@ -88,11 +88,10 @@
     --popover: 263 31% 12%;
     --popover-foreground: 267 43% 91%;
 
-    /* Glassmorphism - dark (medium effect) */
-    --glass-bg: 240 10% 10% / 0.6;
-    --glass-border: 240 3.7% 30% / 0.25;
-    --glass-glow: 262 83% 58% / 0.35;
-    --glass-blur: 24px;
+    --glass-bg: 263 31% 12% / 1;
+    --glass-border: 261 28% 20% / 1;
+    --glass-glow: 262 83% 58% / 0.12;
+    --glass-blur: 0px;
   }
 
   /* Rose theme */
@@ -234,15 +233,15 @@
 
 /* Фон страницы: mesh gradient */
 .page-bg {
-  background: 
-    radial-gradient(ellipse at 30% 0%, hsl(var(--primary) / 0.05) 0%, transparent 40%),
-    linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--primary) / 0.02) 50%, hsl(var(--background)) 100%);
+  background: hsl(var(--background));
 }
 .dark .page-bg {
-  background: 
-    radial-gradient(ellipse at 20% 0%, hsl(var(--primary) / 0.22) 0%, transparent 55%),
-    radial-gradient(ellipse at 80% 100%, hsl(var(--accent) / 0.15) 0%, transparent 55%),
-    hsl(var(--background));
+  background: linear-gradient(
+    180deg,
+    #0f0b1a 0%,
+    #0f0b1a 55%,
+    #120d1f 100%
+  );
 }
 
 /* Карточки в тёмной теме — приподнятые, рамка заметна */
@@ -283,10 +282,8 @@
 /* Glassmorphism utilities */
 .glass {
   background: hsl(var(--glass-bg));
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid hsl(var(--glass-border));
-  box-shadow: 0 1px 3px hsl(var(--foreground) / 0.05);
+  box-shadow: none;
 }
 
 .glass-subtle {
@@ -296,10 +293,7 @@
 }
 
 .glass-glow {
-  box-shadow: 
-    0 0 30px hsl(var(--glass-glow)),
-    0 4px 20px hsl(var(--glass-glow)),
-    inset 0 1px 0 hsl(var(--primary-foreground) / 0.15);
+  box-shadow: none;
 }
 
 /* Модалки: тяжёлый внешний glow + inset даёт артефакты у скруглений на iOS WebKit */
@@ -333,9 +327,7 @@
 
 .glass-card:hover {
   box-shadow: 
-    0 0 24px hsl(var(--glass-glow)),
-    0 8px 24px hsl(var(--foreground) / 0.08),
-    inset 0 1px 0 hsl(var(--primary-foreground) / 0.1);
+    0 6px 16px hsl(var(--foreground) / 0.16);
   transform: translateY(-2px);
   border-color: hsl(var(--primary) / 0.3);
 }
