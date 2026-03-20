@@ -51,8 +51,8 @@ export function PrioritySelect({
         data-testid={triggerTestId}
         className={cn(
           "h-9 min-w-[92px] rounded-lg border-input/90 bg-card/65 px-2.5 text-xs font-semibold tracking-wide backdrop-blur-[10px]",
-          compact && "h-8 min-w-[126px] text-[11px]",
-          compact && prominentDot && "h-9 min-w-[154px] text-xs",
+          compact && "h-8 min-w-0 text-[11px] w-fit max-w-full",
+          compact && prominentDot && "h-9 text-xs",
           triggerClassName
         )}
         aria-label={ariaLabel}

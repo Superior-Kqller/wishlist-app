@@ -112,8 +112,8 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
           )}
         </div>
 
-        <div className="space-y-2.5 p-3">
-          <div className="flex items-start justify-between gap-2">
+        <div className="space-y-1.5 p-2.5">
+          <div className="min-w-0 space-y-1">
             <TooltipProvider delayDuration={120}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -131,106 +131,116 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                 <TooltipContent>{item.title}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          </div>
-
-          {item.status === "CLAIMED" && <Badge variant="secondary">Забронировано</Badge>}
-          {item.status === "PURCHASED" && <Badge>Куплено</Badge>}
-
-          <div className="flex items-center justify-between gap-2">
-            <span
-              data-testid="wishlist-card-v2-price"
-              className="shrink-0 whitespace-nowrap rounded-md border border-violet-300/60 bg-violet-500/12 px-2 py-1 text-base font-extrabold tabular-nums tracking-tight text-violet-100"
-            >
-              {item.price ? formatPrice(item.price, item.currency) : "Цена не указана"}
-            </span>
-            {(item.url || isOwner) && (
-              <TooltipProvider delayDuration={120}>
-                <div className="grid w-[calc(2*2.25rem+0.25rem)] shrink-0 grid-cols-2 gap-1">
-                  {item.url && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label="Открыть ссылку"
-                          onClick={(e) => e.stopPropagation()}
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      </TooltipTrigger>
-                      <TooltipContent>Открыть ссылку</TooltipContent>
-                    </Tooltip>
-                  )}
-                  {isOwner && (
-                    <>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            type="button"
-                            data-testid="wishlist-card-edit"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onEdit(item);
-                            }}
-                            disabled={statusPending}
-                            aria-label="Редактировать"
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>Редактировать</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            type="button"
-                            data-testid="wishlist-card-delete"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (onSetStatus) {
-                                onSetStatus(item.id, item.status === "PURCHASED" ? "AVAILABLE" : "PURCHASED");
-                              } else {
-                                onTogglePurchased(item.id, !item.purchased);
-                              }
-                            }}
-                            disabled={statusPending}
-                            aria-label={item.status === "PURCHASED" ? "Снять отметку" : "Отметить купленным"}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                          >
-                            {item.status === "PURCHASED" ? <Undo2 className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>{item.status === "PURCHASED" ? "Снять отметку" : "Отметить купленным"}</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDelete(item.id);
-                            }}
-                            aria-label="Удалить"
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-destructive text-destructive-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>Удалить</TooltipContent>
-                      </Tooltip>
-                    </>
-                  )}
-                </div>
-              </TooltipProvider>
+            {(item.status === "CLAIMED" || item.status === "PURCHASED") && (
+              <div className="flex flex-wrap gap-1">
+                {item.status === "CLAIMED" && (
+                  <Badge variant="secondary" className="text-[10px]">
+                    Забронировано
+                  </Badge>
+                )}
+                {item.status === "PURCHASED" && (
+                  <Badge className="text-[10px]">Куплено</Badge>
+                )}
+              </div>
             )}
           </div>
 
-          <div data-testid="wishlist-card-v2-footer" className="flex items-start gap-2">
-            <div data-testid="wishlist-card-priority" className="min-w-0">
-              <div className="flex items-center gap-2">
+          {/* Цена, действия и приоритет — один плотный блок без «расползания» по ширине */}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span
+                data-testid="wishlist-card-v2-price"
+                className="shrink-0 whitespace-nowrap rounded-md border border-violet-300/60 bg-violet-500/12 px-2 py-0.5 text-sm font-extrabold tabular-nums tracking-tight text-violet-100 sm:text-base"
+              >
+                {item.price ? formatPrice(item.price, item.currency) : "Цена не указана"}
+              </span>
+              {(item.url || isOwner) && (
+                <TooltipProvider delayDuration={120}>
+                  <div className="grid w-[calc(2*2rem+0.25rem)] shrink-0 grid-cols-2 gap-1">
+                    {item.url && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Открыть ссылку"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent>Открыть ссылку</TooltipContent>
+                      </Tooltip>
+                    )}
+                    {isOwner && (
+                      <>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              data-testid="wishlist-card-edit"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(item);
+                              }}
+                              disabled={statusPending}
+                              aria-label="Редактировать"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Редактировать</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              data-testid="wishlist-card-delete"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (onSetStatus) {
+                                  onSetStatus(item.id, item.status === "PURCHASED" ? "AVAILABLE" : "PURCHASED");
+                                } else {
+                                  onTogglePurchased(item.id, !item.purchased);
+                                }
+                              }}
+                              disabled={statusPending}
+                              aria-label={item.status === "PURCHASED" ? "Снять отметку" : "Отметить купленным"}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/80 bg-card/70 hover:border-primary/45 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            >
+                              {item.status === "PURCHASED" ? <Undo2 className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>{item.status === "PURCHASED" ? "Снять отметку" : "Отметить купленным"}</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(item.id);
+                              }}
+                              aria-label="Удалить"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-destructive text-destructive-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>Удалить</TooltipContent>
+                        </Tooltip>
+                      </>
+                    )}
+                  </div>
+                </TooltipProvider>
+              )}
+            </div>
+
+            <div data-testid="wishlist-card-v2-footer" className="w-fit max-w-full">
+              <div data-testid="wishlist-card-priority" className="min-w-0">
                 {isOwner ? (
                   <PrioritySelect
                     priority={item.priority}
@@ -239,13 +249,9 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
                     ariaLabel={`Приоритет ${item.title}`}
                     compact
                     prominentDot
-                    triggerClassName="min-w-[154px]"
                   />
                 ) : (
-                  <PriorityBadge
-                    priority={item.priority}
-                    className="max-w-[180px] truncate px-2.5 py-1 text-xs"
-                  />
+                  <PriorityBadge priority={item.priority} className="max-w-full truncate px-2 py-0.5 text-[11px]" />
                 )}
               </div>
             </div>
@@ -271,34 +277,29 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
           )}
 
           {item.user?.name && (
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex min-w-0 items-center gap-2">
-                <UserAvatar
-                  avatarUrl={item.user.avatarUrl || undefined}
-                  name={item.user.name}
-                  userId={item.user.id}
-                  size="sm"
-                />
-                <span className="truncate text-xs text-muted-foreground">{item.user.name}</span>
-              </div>
-              {item.tags.length > 0 && (
-                <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
-                  {item.tags.slice(0, 3).map((tag) => (
-                    <Badge
-                      key={tag.id}
-                      variant="outline"
-                      className="h-5 border-primary/45 bg-primary/12 px-2 text-[10px] font-medium leading-none"
-                      style={{
-                        borderColor: `${tag.color}88`,
-                        backgroundColor: `${tag.color}26`,
-                        color: tag.color,
-                      }}
-                    >
-                      {tag.name}
-                    </Badge>
-                  ))}
-                </div>
-              )}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <UserAvatar
+                avatarUrl={item.user.avatarUrl || undefined}
+                name={item.user.name}
+                userId={item.user.id}
+                size="sm"
+              />
+              <span className="min-w-0 truncate text-xs text-muted-foreground">{item.user.name}</span>
+              {item.tags.length > 0 &&
+                item.tags.slice(0, 3).map((tag) => (
+                  <Badge
+                    key={tag.id}
+                    variant="outline"
+                    className="h-4 shrink-0 border-primary/45 bg-primary/12 px-1.5 text-[10px] font-medium leading-none"
+                    style={{
+                      borderColor: `${tag.color}88`,
+                      backgroundColor: `${tag.color}26`,
+                      color: tag.color,
+                    }}
+                  >
+                    {tag.name}
+                  </Badge>
+                ))}
             </div>
           )}
         </div>
