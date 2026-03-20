@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, Plus, Settings, Shield, BarChart3, Menu, Sun, Moon, Monitor, Check, Download } from "lucide-react";
 import { ThemeSelector } from "@/components/ThemeSelector";
+import { BrandLockup } from "@/components/BrandLockup";
 import { useTheme } from "next-themes";
 import { useHeaderActions } from "@/lib/header-actions";
 import { useColorTheme } from "@/hooks/useColorTheme";
@@ -52,20 +52,11 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:h-[76px]">
         <button
           onClick={() => router.push("/")}
-          className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
+          className="flex items-center transition-opacity hover:opacity-80"
           title="На главную"
           aria-label="Вишлист — на главную"
         >
-          <div className="relative h-10 w-[150px] shrink-0 sm:h-12 sm:w-[188px]">
-            <Image
-              src="/assets/logo/lockup-dark-bg.png"
-              alt="Вишлист"
-              width={188}
-              height={48}
-              unoptimized
-              className="h-full w-full object-contain"
-            />
-          </div>
+          <BrandLockup />
         </button>
 
         <div className="flex items-center gap-1 sm:gap-2">

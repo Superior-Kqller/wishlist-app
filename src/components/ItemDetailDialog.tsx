@@ -61,6 +61,9 @@ export function ItemDetailDialog({
   onSetStatus,
   statusPending = false,
 }: ItemDetailDialogProps) {
+  const actionButtonClass =
+    "h-9 shrink-0 whitespace-nowrap border-primary/55 bg-card/85 px-3 text-foreground backdrop-blur-[8px] hover:border-primary/70 hover:bg-card";
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -297,7 +300,7 @@ export function ItemDetailDialog({
                     variant="outline"
                     size="sm"
                     onClick={handleEdit}
-                    className="h-9 shrink-0 whitespace-nowrap px-3"
+                    className={actionButtonClass}
                   >
                     <Pencil className="mr-2 h-4 w-4 shrink-0" />
                     Редактировать
@@ -306,7 +309,7 @@ export function ItemDetailDialog({
                     variant="outline"
                     size="sm"
                     onClick={handleTogglePurchased}
-                    className="h-9 shrink-0 whitespace-nowrap px-3"
+                    className={actionButtonClass}
                     disabled={statusPending}
                   >
                     {item.status === "PURCHASED" ? (
@@ -326,7 +329,7 @@ export function ItemDetailDialog({
                       variant="outline"
                       size="sm"
                       onClick={handleClaimAction}
-                      className="h-9 shrink-0 whitespace-nowrap px-3"
+                      className={actionButtonClass}
                       disabled={statusPending}
                     >
                       {item.status === "CLAIMED" ? "Снять бронь" : "Забронировать"}
@@ -348,7 +351,7 @@ export function ItemDetailDialog({
                   variant="outline"
                   size="sm"
                   onClick={handleClaimAction}
-                  className="h-9 shrink-0 whitespace-nowrap px-3"
+                  className={actionButtonClass}
                   disabled={statusPending}
                 >
                   {item.status === "CLAIMED" ? "Снять бронь" : "Забронировать"}
