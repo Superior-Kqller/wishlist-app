@@ -232,7 +232,7 @@ export const WishCard = memo(function WishCard({
                 ) : null}
 
                 {canManage ? (
-                  <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
+                  <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:shrink-0 sm:justify-end">
                     {!isBought ? (
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -242,6 +242,7 @@ export const WishCard = memo(function WishCard({
                             intent="success"
                             disabled={statusPending}
                             aria-label="Отметить купленным"
+                            className="w-full min-w-0 sm:w-11"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleMarkPurchased();
@@ -261,6 +262,7 @@ export const WishCard = memo(function WishCard({
                           intent="default"
                           disabled={statusPending}
                           aria-label="Редактировать"
+                          className="w-full min-w-0 sm:w-11"
                           onClick={(e) => {
                             e.stopPropagation();
                             onEdit(item);
@@ -278,6 +280,11 @@ export const WishCard = memo(function WishCard({
                           data-testid="wishlist-card-delete"
                           intent="danger"
                           aria-label="Удалить"
+                          className={cn(
+                            "w-full min-w-0 sm:w-11",
+                            // второй ряд на мобильном, если три действия
+                            !isBought && "col-span-2 sm:col-span-1",
+                          )}
                           onClick={(e) => {
                             e.stopPropagation();
                             onDelete(item.id);
