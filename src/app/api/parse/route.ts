@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { parseProductUrl } from "@/lib/parser";
+import { parseWishlistProductUrl } from "@/lib/parser";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { z } from "zod";
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { url } = parseSchema.parse(body);
 
-    const product = await parseProductUrl(url);
+    const product = await parseWishlistProductUrl(url);
 
     return NextResponse.json(product);
   } catch (err: any) {

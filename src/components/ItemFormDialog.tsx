@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -36,6 +36,8 @@ interface ItemFormDialogProps {
   initialData?: Partial<CreateItemPayload>;
   existingTags?: Tag[];
   existingLists?: ListWithMeta[];
+  /** Один раз при открытии вызвать парсинг по полю URL (для bookmarklet с fill=1) */
+  autoFillFromUrlOnce?: boolean;
 }
 
 const CURRENCIES = [
@@ -53,6 +55,7 @@ export function ItemFormDialog({
   initialData,
   existingTags = [],
   existingLists = [],
+  autoFillFromUrlOnce = false,
 }: ItemFormDialogProps) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
@@ -66,6 +69,8 @@ export function ItemFormDialog({
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [parsingUrl, setParsingUrl] = useState(false);
+  const autoFillOnceDoneRef = useRef(false);
 
   const isEdit = !!item;
 
@@ -94,6 +99,12 @@ export function ItemFormDialog({
       resetForm();
     }
   }, [item, initialData, open]);
+
+  useEffect(() => {
+    if (!open) {
+      autoFillOnceDoneRef.current = false;
+    }
+  }, [open]);
 
   function resetForm() {
     setTitle("");
@@ -132,6 +143,64 @@ export function ItemFormDialog({
   function removeImage(imgUrl: string) {
     setImages(images.filter((i) => i !== imgUrl));
   }
+
+  const handleFillFromUrl = useCallback(async () => {
+    const u = url.trim();
+    if (!u) {
+      toast.error("Вставьте ссылку в поле ниже");
+      return;
+    }
+    setParsingUrl(true);
+    try {
+      const res = await fetch("/api/parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: u }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || "Не удалось получить данные по ссылке");
+      }
+      const data: {
+        title?: string;
+        price?: number | null;
+        currency?: string;
+        images?: string[];
+        description?: string;
+      } = await res.json();
+      if (data.title?.trim()) setTitle(data.title.trim());
+      if (data.price != null && !Number.isNaN(Number(data.price))) {
+        setPrice(String(data.price));
+      }
+      if (data.currency) setCurrency(data.currency);
+      if (data.images?.length) setImages(data.images);
+      if (data.description?.trim()) {
+        const d = data.description.trim();
+        setNotes((prev) => {
+          const p = prev.trim();
+          if (!p) return d;
+          if (p.includes(d)) return prev;
+          return `${p}\n\n${d}`;
+        });
+      }
+      toast.success("Поля заполнены по ссылке");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Ошибка парсинга";
+      toast.error(msg);
+    } finally {
+      setParsingUrl(false);
+    }
+  }, [url]);
+
+  useEffect(() => {
+    if (!open || isEdit || !autoFillFromUrlOnce || autoFillOnceDoneRef.current) {
+      return;
+    }
+    const u = url.trim();
+    if (!u) return;
+    autoFillOnceDoneRef.current = true;
+    void handleFillFromUrl();
+  }, [open, isEdit, autoFillFromUrlOnce, url, handleFillFromUrl]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -192,13 +261,37 @@ export function ItemFormDialog({
           {/* URL */}
           <div className="space-y-2">
             <Label htmlFor="url">Ссылка (необязательно)</Label>
-            <Input
-              id="url"
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://..."
-            />
+            <p className="text-xs text-muted-foreground">
+              Вставьте URL страницы товара и нажмите «Заполнить» — подтянем название,
+              цену, изображения и краткое описание (Open Graph), где это доступно.
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+              <Input
+                id="url"
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://..."
+                className="sm:flex-1"
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                className="shrink-0 sm:w-auto"
+                disabled={parsingUrl || !url.trim() || isEdit}
+                onClick={handleFillFromUrl}
+                title={
+                  isEdit
+                    ? "Автозаполнение по ссылке доступно только при добавлении товара"
+                    : undefined
+                }
+              >
+                {parsingUrl && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+                )}
+                {parsingUrl ? "Загрузка…" : "Заполнить по ссылке"}
+              </Button>
+            </div>
           </div>
 
           {/* List (optional) */}

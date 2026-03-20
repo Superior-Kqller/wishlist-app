@@ -48,8 +48,9 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-transparent">
-      <div className="container mx-auto flex h-[74px] items-center justify-between px-4 sm:h-[92px]">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/90 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
+      <div className="pt-[env(safe-area-inset-top,0px)]">
+        <div className="container mx-auto flex min-h-[74px] items-center justify-between gap-2 px-4 sm:min-h-[92px]">
         <button
           onClick={() => router.push("/")}
           className="flex items-center transition-opacity hover:opacity-80"
@@ -66,8 +67,13 @@ export function Header() {
                 <Plus className="w-4 h-4 mr-2" />
                 Добавить товар
               </Button>
-              <Button size="icon" onClick={onAddItem} title="Добавить товар" className="sm:hidden h-9 w-9">
-                <Plus className="w-4 h-4" />
+              <Button
+                size="icon"
+                onClick={onAddItem}
+                title="Добавить товар"
+                className="size-11 min-h-[44px] min-w-[44px] shrink-0 sm:hidden"
+              >
+                <Plus className="h-5 w-5" />
               </Button>
             </>
           )}
@@ -146,8 +152,12 @@ export function Header() {
           <div className="sm:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                  <Menu className="w-4 h-4" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-11 min-h-[44px] min-w-[44px] shrink-0"
+                >
+                  <Menu className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -230,6 +240,7 @@ export function Header() {
             </DropdownMenu>
           </div>
         </div>
+      </div>
       </div>
     </header>
   );

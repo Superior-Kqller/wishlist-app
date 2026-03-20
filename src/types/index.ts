@@ -83,6 +83,8 @@ export interface ParsedProductResponse {
   currency: string;
   images: string[];
   url: string;
+  /** Краткое описание со страницы (Open Graph) */
+  description?: string;
 }
 
 export type UserRole = "USER" | "ADMIN";

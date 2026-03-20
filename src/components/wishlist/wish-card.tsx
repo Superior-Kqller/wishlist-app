@@ -105,7 +105,7 @@ export const WishCard = memo(function WishCard({
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "overflow-hidden border-purple-500/40 bg-card/80 shadow-[0_12px_40px_rgba(88,28,135,0.35)]",
+          "overflow-hidden border-purple-500/40 bg-card/94 shadow-[0_12px_40px_rgba(88,28,135,0.35)] backdrop-blur-sm",
           isBought && "opacity-45 grayscale",
           isCardInteractive && "cursor-pointer",
           isSelected && "shadow-[0_0_0_2px_rgba(192,38,211,0.45)]"
@@ -197,89 +197,93 @@ export const WishCard = memo(function WishCard({
 
         <CardFooter
           data-testid="wishlist-card-v2-footer"
-          className="flex flex-wrap items-center gap-2 p-3 pt-0"
+          className="flex flex-col gap-2 p-3 pt-0 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-2"
         >
           {item.url || canManage ? (
             <TooltipProvider delayDuration={200}>
-              <div className="flex w-full flex-wrap items-center gap-2">
-              {item.url ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline" size="sm" className="border-purple-500/45" asChild>
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Открыть ссылку на товар в новой вкладке"
-                        onClick={(e) => e.stopPropagation()}
+              <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                {item.url ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        asChild
+                        className="h-11 min-h-[44px] w-full justify-center border-purple-500/45 px-4 text-sm font-semibold sm:h-10 sm:min-h-10 sm:w-auto sm:min-w-[8rem]"
                       >
-                        Открыть
-                      </a>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Открыть в новой вкладке</TooltipContent>
-                </Tooltip>
-              ) : null}
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Открыть ссылку на товар в новой вкладке"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Открыть
+                        </a>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Открыть в новой вкладке</TooltipContent>
+                  </Tooltip>
+                ) : null}
 
-              {canManage ? (
-                <div className="ml-auto flex shrink-0 items-center gap-1.5">
-                  {!isBought ? (
+                {canManage ? (
+                  <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
+                    {!isBought ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <IconButton
+                            type="button"
+                            data-testid="wishlist-card-toggle-purchased"
+                            intent="success"
+                            disabled={statusPending}
+                            aria-label="Отметить купленным"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMarkPurchased();
+                            }}
+                          >
+                            <Check className="h-5 w-5" />
+                          </IconButton>
+                        </TooltipTrigger>
+                        <TooltipContent>Отметить купленным</TooltipContent>
+                      </Tooltip>
+                    ) : null}
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <IconButton
                           type="button"
-                          data-testid="wishlist-card-toggle-purchased"
-                          intent="success"
+                          data-testid="wishlist-card-edit"
+                          intent="default"
                           disabled={statusPending}
-                          aria-label="Отметить купленным"
+                          aria-label="Редактировать"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleMarkPurchased();
+                            onEdit(item);
                           }}
                         >
-                          <Check className="h-4 w-4" />
+                          <Pencil className="h-5 w-5" />
                         </IconButton>
                       </TooltipTrigger>
-                      <TooltipContent>Отметить купленным</TooltipContent>
+                      <TooltipContent>Редактировать</TooltipContent>
                     </Tooltip>
-                  ) : null}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <IconButton
-                        type="button"
-                        data-testid="wishlist-card-edit"
-                        intent="default"
-                        disabled={statusPending}
-                        aria-label="Редактировать"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEdit(item);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </IconButton>
-                    </TooltipTrigger>
-                    <TooltipContent>Редактировать</TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <IconButton
-                        type="button"
-                        data-testid="wishlist-card-delete"
-                        intent="danger"
-                        aria-label="Удалить"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDelete(item.id);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </IconButton>
-                    </TooltipTrigger>
-                    <TooltipContent>Удалить</TooltipContent>
-                  </Tooltip>
-                </div>
-              ) : null}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <IconButton
+                          type="button"
+                          data-testid="wishlist-card-delete"
+                          intent="danger"
+                          aria-label="Удалить"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(item.id);
+                          }}
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </IconButton>
+                      </TooltipTrigger>
+                      <TooltipContent>Удалить</TooltipContent>
+                    </Tooltip>
+                  </div>
+                ) : null}
               </div>
             </TooltipProvider>
           ) : null}

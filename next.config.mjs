@@ -1,3 +1,5 @@
+import withPWAInit from "@ducanh2912/next-pwa";
+
 /** @type {import('next').NextConfig} */
 const avatarAllowedHosts = parseAvatarAllowedHosts(process.env.AVATAR_ALLOWED_HOSTS);
 
@@ -29,7 +31,20 @@ const nextConfig = {
   poweredByHeader: false,
 };
 
-export default nextConfig;
+const withPWA = withPWAInit({
+  dest: "public",
+  // Включать SW только при production-сборке (`npm run build`), не при `npm run dev`
+  disable:
+    process.env.DISABLE_PWA === "1" ||
+    process.env.npm_lifecycle_event === "dev",
+  register: true,
+  scope: "/",
+});
+
+const pwaDisabled =
+  process.env.DISABLE_PWA === "1" || process.env.npm_lifecycle_event === "dev";
+
+export default pwaDisabled ? nextConfig : withPWA(nextConfig);
 
 function parseAvatarAllowedHosts(raw) {
   if (!raw) return [];

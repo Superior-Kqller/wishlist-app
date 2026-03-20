@@ -7,13 +7,9 @@ const handler = NextAuth(authOptions);
 
 export const GET = handler;
 
-type AuthRouteContext = {
-  params: Promise<{ nextauth: string[] }> | { nextauth: string[] };
-};
-
 export async function POST(
   req: NextRequest,
-  context: AuthRouteContext
+  context: { params: Promise<{ nextauth: string[] }> },
 ): Promise<Response> {
   const url = new URL(req.url);
   const normalizedPathname = url.pathname.replace(/\/+$/, "");
@@ -26,10 +22,6 @@ export async function POST(
     }
   }
 
-  const resolvedParams =
-    typeof (context.params as Promise<{ nextauth: string[] }>).then === "function"
-      ? await (context.params as Promise<{ nextauth: string[] }>)
-      : (context.params as { nextauth: string[] });
-
-  return handler(req, { params: resolvedParams } as { params: { nextauth: string[] } });
+  const params = await context.params;
+  return handler(req, { params } as { params: { nextauth: string[] } });
 }

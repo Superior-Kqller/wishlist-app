@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect, useRef, Suspense } from "react";
+import {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+  Suspense,
+} from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import useSWR, { mutate } from "swr";
@@ -42,6 +49,19 @@ function HomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentUserId = session?.user?.id;
+
+  const deepLinkRef = useRef<{
+    addUrl: string | null;
+    fill: boolean;
+    consumed: boolean;
+  } | null>(null);
+  if (deepLinkRef.current === null) {
+    deepLinkRef.current = {
+      addUrl: searchParams.get("addUrl"),
+      fill: searchParams.get("fill") === "1",
+      consumed: false,
+    };
+  }
 
   // Получаем userId и listId из URL параметров
   const userIdParam = searchParams.get("userId");
@@ -165,6 +185,7 @@ function HomePageContent() {
 
   // Dialog states
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [addDialogAutoFill, setAddDialogAutoFill] = useState(false);
   const [parseDialogOpen, setParseDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<WishlistItem | null>(null);
   const [parsedData, setParsedData] = useState<Partial<CreateItemPayload> | null>(null);
@@ -185,12 +206,48 @@ function HomePageContent() {
     setActions({
       onAddItem: () => {
         setParsedData(null);
+        setAddDialogAutoFill(false);
         setAddDialogOpen(true);
       },
       onParseUrl: () => setParseDialogOpen(true),
     });
     return () => setActions({});
   }, [setActions]);
+
+  // Bookmarklet / внешняя ссылка: /?addUrl=<encoded>&fill=1
+  useEffect(() => {
+    if (!currentUserId) return;
+    const box = deepLinkRef.current;
+    if (!box || box.consumed || !box.addUrl) return;
+
+    const paramsCleanup = () => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("addUrl");
+      params.delete("fill");
+      const qs = params.toString();
+      router.replace(qs ? `/?${qs}` : "/", { scroll: false });
+    };
+
+    let decoded: string;
+    try {
+      decoded = decodeURIComponent(box.addUrl);
+      if (decoded.length > 2048) throw new Error("too long");
+      new URL(decoded);
+    } catch {
+      toast.error("Некорректная ссылка в параметре addUrl");
+      box.consumed = true;
+      paramsCleanup();
+      return;
+    }
+
+    box.consumed = true;
+    const wantFill = box.fill;
+    paramsCleanup();
+
+    setParsedData({ url: decoded });
+    setAddDialogAutoFill(wantFill);
+    setAddDialogOpen(true);
+  }, [currentUserId, router, searchParams]);
 
   // Синхронизация фильтров в URL (без добавления в history)
   const syncFiltersToUrl = useCallback(
@@ -414,7 +471,9 @@ function HomePageContent() {
       price: data.price || undefined,
       currency: data.currency,
       images: data.images,
+      notes: data.description?.trim() || undefined,
     });
+    setAddDialogAutoFill(false);
     setAddDialogOpen(true);
   }, []);
 
@@ -490,39 +549,39 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen page-bg">
-      <main className="container mx-auto space-y-3 px-4 py-3 sm:space-y-4 sm:py-6">
-        <div className="sticky top-16 z-30 -mx-4 flex min-w-0 flex-col gap-2 border-b border-border bg-card px-4 py-2 sm:static sm:top-[76px] sm:z-auto sm:border-0 sm:bg-transparent sm:py-3">
+      <main className="container mx-auto space-y-3 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-4 sm:px-4 sm:py-6 sm:pb-6">
+        <div className="sticky z-30 -mx-3 flex min-w-0 flex-col gap-2 border-b border-border bg-card/95 px-3 py-2 backdrop-blur-md supports-[backdrop-filter]:bg-card/88 max-sm:top-[calc(4.625rem+env(safe-area-inset-top,0px))] sm:static sm:z-auto sm:-mx-4 sm:border-0 sm:bg-transparent sm:px-4 sm:py-3 sm:backdrop-blur-none">
           {/* Мобильная компактная строка: только поиск + кнопка «Фильтры» */}
           <div className="flex min-w-0 items-center gap-2 sm:hidden">
             <div className="relative flex-1 min-w-0">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground shrink-0" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 shrink-0 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Поиск..."
-                className="h-10 rounded-lg bg-card pl-8 text-sm"
+                className="h-11 min-h-[44px] rounded-lg bg-card pl-9 text-sm"
               />
             </div>
             <Button
               variant={selectionMode ? "default" : "outline"}
               size="icon"
-              className="h-10 w-10 shrink-0 rounded-lg"
+              className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
               onClick={() => {
                 setSelectionMode(!selectionMode);
                 if (selectionMode) setSelectedIds(new Set());
               }}
               title={selectionMode ? "Отменить выбор" : "Выбрать"}
             >
-              <CheckSquare className="w-4 h-4" />
+              <CheckSquare className="h-5 w-5" />
             </Button>
             <Button
               variant="outline"
               size="icon"
-              className="h-10 w-10 shrink-0 rounded-lg"
+              className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
               onClick={() => setMobileFiltersOpen(true)}
               title="Фильтры"
             >
-              <SlidersHorizontal className="w-4 h-4" />
+              <SlidersHorizontal className="h-5 w-5" />
             </Button>
           </div>
           {/* Десктоп: объединённый фильтр */}
@@ -636,6 +695,7 @@ function HomePageContent() {
           pendingStatusByItemId={pendingStatusByItemId}
           onEmptyAdd={() => {
             setParsedData(null);
+            setAddDialogAutoFill(false);
             setAddDialogOpen(true);
           }}
           onOpenDetail={setDetailItem}
@@ -664,11 +724,15 @@ function HomePageContent() {
       {/* Add item dialog */}
       <ItemFormDialog
         open={addDialogOpen}
-        onOpenChange={setAddDialogOpen}
+        onOpenChange={(open) => {
+          setAddDialogOpen(open);
+          if (!open) setAddDialogAutoFill(false);
+        }}
         onSave={handleCreateItem}
         initialData={parsedData || undefined}
         existingTags={tags || []}
         existingLists={lists}
+        autoFillFromUrlOnce={addDialogAutoFill}
       />
 
       {/* Edit item dialog */}

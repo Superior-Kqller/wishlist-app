@@ -8,6 +8,8 @@ export interface ParsedProduct {
   currency: string;
   images: string[];
   url: string;
+  /** Open Graph / meta description — для заметки в форме */
+  description?: string;
 }
 
 const HEADERS: Record<string, string> = {
@@ -143,6 +145,90 @@ function extractJsonLd($: cheerio.CheerioAPI): any | null {
     }
   }
   return null;
+}
+
+function trimText(s: string | undefined | null): string {
+  return (s ?? "").replace(/\s+/g, " ").trim();
+}
+
+function absolutizeUrl(src: string | undefined, base: string): string | null {
+  if (!src?.trim()) return null;
+  try {
+    return new URL(src.trim(), base).href;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Извлекает Open Graph и связанные meta: заголовок, описание, картинки, цену (meta / JSON-LD offers).
+ */
+function parseOpenGraphFromHtml(html: string, pageUrl: string): ParsedProduct {
+  const $ = cheerio.load(html);
+  const base = pageUrl;
+
+  const title =
+    trimText($('meta[property="og:title"]').attr("content")) ||
+    trimText($('meta[name="twitter:title"]').attr("content")) ||
+    trimText($("title").text()) ||
+    trimText($("h1").first().text());
+
+  const description =
+    trimText($('meta[property="og:description"]').attr("content")) ||
+    trimText($('meta[name="twitter:description"]').attr("content")) ||
+    trimText($('meta[name="description"]').attr("content"));
+
+  const imageAttrs = [
+    $('meta[property="og:image"]').attr("content"),
+    $('meta[property="og:image:url"]').attr("content"),
+    $('meta[property="og:image:secure_url"]').attr("content"),
+    $('meta[name="twitter:image"]').attr("content"),
+    $('meta[name="twitter:image:src"]').attr("content"),
+  ];
+  const seen = new Set<string>();
+  const images: string[] = [];
+  for (const raw of imageAttrs) {
+    const abs = absolutizeUrl(raw, base);
+    if (abs && !seen.has(abs)) {
+      seen.add(abs);
+      images.push(abs);
+    }
+  }
+
+  let price: number | null = null;
+  let currency = "RUB";
+  const priceAmount =
+    $('meta[property="product:price:amount"]').attr("content") ||
+    $('meta[property="og:price:amount"]').attr("content");
+  const priceCurrency =
+    $('meta[property="product:price:currency"]').attr("content") ||
+    $('meta[property="og:price:currency"]').attr("content");
+  if (priceAmount) {
+    const p = parseFloat(priceAmount.replace(/\s/g, "").replace(",", "."));
+    if (!Number.isNaN(p)) price = p;
+    if (priceCurrency?.trim()) {
+      currency = priceCurrency.trim().toUpperCase().slice(0, 3);
+    }
+  }
+
+  if (price === null) {
+    const jsonLd = extractJsonLd($);
+    if (jsonLd) {
+      const o = extractOffersFromJsonLd(jsonLd);
+      price = o.price;
+      currency = o.currency;
+    }
+  }
+
+  const result: ParsedProduct = {
+    title,
+    price,
+    currency,
+    images: images.slice(0, 10),
+    url: pageUrl,
+  };
+  if (description) result.description = description;
+  return result;
 }
 
 function extractOpenGraph($: cheerio.CheerioAPI): Partial<ParsedProduct> {
@@ -650,4 +736,66 @@ export async function parseProductUrl(url: string): Promise<ParsedProduct> {
     default:
       return parseGeneric(url, html);
   }
+}
+
+function mergeSpecializedWithOg(
+  specialized: ParsedProduct,
+  og: ParsedProduct,
+): ParsedProduct {
+  const images = specialized.images.length
+    ? [...new Set([...specialized.images, ...og.images])].slice(0, 10)
+    : og.images.length > 0
+      ? og.images
+      : specialized.images;
+  return {
+    ...specialized,
+    images,
+    ...(og.description ? { description: og.description } : {}),
+  };
+}
+
+function mergeGenericWithOg(og: ParsedProduct, generic: ParsedProduct): ParsedProduct {
+  const images = [...new Set([...generic.images, ...og.images])].slice(0, 10);
+  const out: ParsedProduct = {
+    title: (generic.title || og.title || "").replace(/\s+/g, " ").trim(),
+    price: generic.price ?? og.price,
+    currency: generic.currency || og.currency,
+    images,
+    url: generic.url,
+  };
+  if (og.description) out.description = og.description;
+  return out;
+}
+
+/**
+ * Парсинг для вишлиста: маркетплейсы + объединение с OG (описание, доп. картинки);
+ * для обычных сайтов — один запрос HTML и слияние generic + Open Graph.
+ */
+export async function parseWishlistProductUrl(url: string): Promise<ParsedProduct> {
+  const marketplace = detectMarketplace(url);
+
+  if (marketplace === "wildberries" || marketplace === "ozon") {
+    const specialized = await parseProductUrl(url);
+    try {
+      const html = await fetchHtml(url);
+      const og = parseOpenGraphFromHtml(html, url);
+      return mergeSpecializedWithOg(specialized, og);
+    } catch {
+      return specialized;
+    }
+  }
+
+  if (marketplace === "aliexpress") {
+    await validateAndResolveUrl(url);
+    const html = await fetchHtml(url);
+    const specialized = await parseAliexpress(url, html);
+    const og = parseOpenGraphFromHtml(html, url);
+    return mergeSpecializedWithOg(specialized, og);
+  }
+
+  await validateAndResolveUrl(url);
+  const html = await fetchHtml(url);
+  const og = parseOpenGraphFromHtml(html, url);
+  const generic = await parseGeneric(url, html);
+  return mergeGenericWithOg(og, generic);
 }

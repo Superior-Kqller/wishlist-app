@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:4030"),
   title: "Вишлист",
   description: "Умный вишлист для совместных желаний",
+  appleWebApp: {
+    capable: true,
+    title: "Вишлист",
+    statusBarStyle: "default",
+  },
   icons: {
     icon: [
       { url: "/assets/favicon/favicon-32.png", sizes: "32x32", type: "image/png" },
@@ -48,7 +53,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 5,
   viewportFit: "cover",
+  /** Мобильный Chrome/Safari: контент подстраивается под панели браузера */
+  interactiveWidget: "resizes-content",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#FAFAF9" },
     { media: "(prefers-color-scheme: dark)", color: "#0F0B1A" },

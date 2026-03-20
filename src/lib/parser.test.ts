@@ -8,7 +8,11 @@ vi.mock("node:dns", () => ({
 }));
 
 import { promises as dns } from "node:dns";
-import { validateAndResolveUrl, parseProductUrl } from "./parser";
+import {
+  validateAndResolveUrl,
+  parseProductUrl,
+  parseWishlistProductUrl,
+} from "./parser";
 
 const mockResolve4 = dns.resolve4 as ReturnType<typeof vi.fn>;
 const mockResolve6 = dns.resolve6 as ReturnType<typeof vi.fn>;
@@ -399,6 +403,79 @@ describe("parseProductUrl — Generic", () => {
     await expect(parseProductUrl("https://example.com/product")).rejects.toThrow(
       "Internal URLs are not allowed"
     );
+
+    fetchSpy.mockRestore();
+  });
+});
+
+// --- Wishlist URL (OG + merge) ---
+
+describe("parseWishlistProductUrl", () => {
+  it("добавляет og:description для обычных сайтов", async () => {
+    mockResolve4.mockResolvedValue(["93.184.216.34"]);
+    mockResolve6.mockRejectedValue(new Error("no"));
+
+    const html = `
+      <html><head>
+        <meta property="og:title" content="Товар OG" />
+        <meta property="og:description" content="Краткое описание с страницы" />
+        <meta property="og:image" content="https://shop.example.com/i.jpg" />
+      </head><body>
+        <span class="price">100 ₽</span>
+      </body></html>
+    `;
+
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(html, { status: 200 }),
+    );
+
+    const result = await parseWishlistProductUrl("https://shop.example.com/p");
+    expect(result.title).toBe("Товар OG");
+    expect(result.description).toBe("Краткое описание с страницы");
+    expect(result.price).toBe(100);
+    expect(result.images).toContain("https://shop.example.com/i.jpg");
+
+    fetchSpy.mockRestore();
+  });
+
+  it("для Wildberries подмешивает og:description со страницы товара", async () => {
+    mockResolve4.mockResolvedValue(["212.193.158.1"]);
+    mockResolve6.mockRejectedValue(new Error("no"));
+
+    const wbApiResponse = {
+      data: {
+        products: [
+          {
+            id: 123456789,
+            name: "Тестовый товар WB",
+            salePriceU: 159900,
+            pics: 2,
+          },
+        ],
+      },
+    };
+
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const u = typeof input === "string" ? input : (input as Request).url;
+      if (u.includes("card.wb.ru")) {
+        return new Response(JSON.stringify(wbApiResponse), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      return new Response(
+        `<html><head><meta property="og:description" content="Описание с карточки WB" /></head><body></body></html>`,
+        { status: 200 },
+      );
+    });
+
+    const result = await parseWishlistProductUrl(
+      "https://www.wildberries.ru/catalog/123456789/detail.aspx",
+    );
+    expect(result.title).toBe("Тестовый товар WB");
+    expect(result.price).toBe(1599);
+    expect(result.description).toBe("Описание с карточки WB");
+    expect(result.images.length).toBeGreaterThanOrEqual(2);
 
     fetchSpy.mockRestore();
   });

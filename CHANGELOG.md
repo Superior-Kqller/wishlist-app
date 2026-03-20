@@ -7,6 +7,16 @@
 
 ## [1.6.8] — 2026-03-20
 
+### Добавлено
+
+- **Парсинг по ссылке (OG + merge)** — `POST /api/parse` использует `parseWishlistProductUrl`: Open Graph (`og:title`, `og:description`, `og:image`, цена из meta/JSON-LD) и слияние с парсерами маркетплейсов; описание попадает в ответ API и в заметку формы
+- **«Заполнить по ссылке» в форме товара** — кнопка рядом с полем URL (только при добавлении)
+- **`src/app/loading.tsx`** — скелетоны shadcn при первой загрузке сегмента главной страницы
+- **Bookmarklet / deep link** — `/?addUrl=<encoded>&fill=1`: после входа открывается форма добавления с URL текущей страницы; `fill=1` запускает автопарсинг
+- **PWA** — `@ducanh2912/next-pwa`, `src/app/manifest.ts`, `appleWebApp` в layout; исключения в `proxy.ts` для `sw.js` / `workbox-*.js` / `manifest.webmanifest`
+- **`src/app/global-error.tsx`** — автономная страница ошибки без провайдеров (корректный пререндер)
+- **Сборка** — `cross-env NODE_ENV=production` в `npm run build`, опционально `DISABLE_PWA=1`; скрипт `next build --webpack` (совместимость с next-pwa)
+
 ### Изменено
 
 - **Новый brandbook (glassmorphism v2)** — обновлены dark-токены и glass-слой в `src/app/globals.css`: фон/поверхности/бордеры, blur и свечение приведены к новому визуальному языку

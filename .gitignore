@@ -33,3 +33,7 @@ blob-report/
 .env.test.local
 postgres-data/
 .postgres/
+
+# PWA (генерируются при `npm run build`, не коммитить)
+public/sw.js
+public/workbox-*.js
