@@ -1,7 +1,7 @@
 # Wishlist App
 
 <p align="center">
-  <img src="assets/github/readme-banner.png" alt="Вишлист — баннер" width="960">
+  <img src="public/assets/github/readme-banner.png" alt="Вишлист — баннер" width="960">
 </p>
 
 Современное приложение для создания и управления списками желаний.
