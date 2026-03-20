@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserAvatar } from "@/components/UserAvatar";
 import { ListPlus, Pencil, ChevronDown, User, FolderOpen } from "lucide-react";
 import { UserWithStats, ListWithMeta } from "@/types";
@@ -52,11 +51,9 @@ export function CombinedFilter({
   const otherUsers = users.filter((u) => u.id !== currentUserId);
 
   const userScope = resolveUserScope(selectedUserId, currentUserId);
-  const isAllMode = userScope === "all";
   const isMyMode = userScope === "me";
-  const selectedOtherUser = !isAllMode && !isMyMode 
-    ? users.find((u) => u.id === selectedUserId) 
-    : null;
+  const selectedOtherUser =
+    userScope === "user" ? users.find((u) => u.id === selectedUserId) : null;
 
   const selectedUserLists = useMemo(
     () =>
@@ -64,112 +61,103 @@ export function CombinedFilter({
     [lists, users, currentUserId, selectedUserId]
   );
 
-  const handleTabChange = (value: string) => {
-    if (value === "all") {
-      onUserChange(null);
-      onListChange(null);
-    } else if (value === "my") {
-      onUserChange("me");
-      onListChange(null);
-    }
-  };
-
-  const handleSelectUser = (userId: string) => {
+  const handleSelectUser = (userId: string | null) => {
     onUserChange(userId);
     onListChange(null);
   };
 
-  const currentTab = isMyMode ? "my" : "all";
-
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      <Tabs value={currentTab} onValueChange={handleTabChange}>
-        <TabsList className="relative min-h-[44px]">
-          <TabsTrigger value="all" className="min-h-[44px] px-3 touch-manipulation">
-            Все
-          </TabsTrigger>
-          <TabsTrigger value="my" className="min-h-[44px] px-3 touch-manipulation">
-            <div className="flex items-center gap-2">
-              {currentUser && (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            variant={selectedOtherUser || isMyMode ? "default" : "outline"}
+            className="min-h-[44px] gap-2 touch-manipulation"
+            aria-label="Выбрать пользователя"
+            data-testid="combined-user-trigger"
+          >
+            {selectedOtherUser ? (
+              <>
                 <div className="pointer-events-none">
                   <UserAvatar
-                    avatarUrl={currentUser.avatarUrl}
-                    name={currentUser.name}
-                    userId={currentUser.id}
+                    avatarUrl={selectedOtherUser.avatarUrl}
+                    name={selectedOtherUser.name}
+                    userId={selectedOtherUser.id}
                     size="sm"
                   />
                 </div>
-              )}
-              <span>Мои</span>
-            </div>
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      {otherUsers.length > 0 && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              type="button"
-              variant={selectedOtherUser ? "default" : "outline"}
-              className="min-h-[44px] gap-2 touch-manipulation"
-              aria-label={selectedOtherUser 
-                ? `Выбран: ${selectedOtherUser.name}` 
-                : "Выбрать пользователя"
-              }
-            >
-              {selectedOtherUser ? (
-                <>
+                <span className="max-w-[100px] truncate">{selectedOtherUser.name}</span>
+              </>
+            ) : isMyMode ? (
+              <>
+                {currentUser && (
                   <div className="pointer-events-none">
                     <UserAvatar
-                      avatarUrl={selectedOtherUser.avatarUrl}
-                      name={selectedOtherUser.name}
-                      userId={selectedOtherUser.id}
+                      avatarUrl={currentUser.avatarUrl}
+                      name={currentUser.name}
+                      userId={currentUser.id}
                       size="sm"
                     />
                   </div>
-                  <span className="max-w-[100px] truncate">{selectedOtherUser.name}</span>
-                </>
-              ) : (
-                <>
-                  <User className="w-4 h-4" />
-                  <span>Пользователь</span>
-                </>
-              )}
-              <ChevronDown className="w-4 h-4 opacity-60" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuLabel>Выбрать пользователя</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {otherUsers.map((user) => (
-              <DropdownMenuItem
-                key={user.id}
-                onSelect={() => handleSelectUser(user.id)}
-                className={cn(
-                  "flex items-center gap-3 p-2 cursor-pointer",
-                  selectedUserId === user.id && "bg-accent"
                 )}
-              >
-                <div className="pointer-events-none">
-                  <UserAvatar
-                    avatarUrl={user.avatarUrl}
-                    name={user.name}
-                    userId={user.id}
-                    size="md"
-                  />
+                <span>Я</span>
+              </>
+            ) : (
+              <>
+                <User className="w-4 h-4" />
+                <span>Все пользователи</span>
+              </>
+            )}
+            <ChevronDown className="w-4 h-4 opacity-60" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-56">
+          <DropdownMenuLabel>Пользователь</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onSelect={() => handleSelectUser(null)}
+            className={cn("cursor-pointer", selectedUserId === null && "bg-accent")}
+            data-testid="combined-user-option-all"
+          >
+            Все пользователи
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => handleSelectUser("me")}
+            className={cn("cursor-pointer", isMyMode && "bg-accent")}
+            data-testid="combined-user-option-me"
+          >
+            Я
+          </DropdownMenuItem>
+          {otherUsers.length > 0 && <DropdownMenuSeparator />}
+          {otherUsers.map((user) => (
+            <DropdownMenuItem
+              key={user.id}
+              onSelect={() => handleSelectUser(user.id)}
+              className={cn(
+                "flex items-center gap-3 p-2 cursor-pointer",
+                selectedUserId === user.id && "bg-accent"
+              )}
+              data-testid={`combined-user-option-${user.id}`}
+            >
+              <div className="pointer-events-none">
+                <UserAvatar
+                  avatarUrl={user.avatarUrl}
+                  name={user.name}
+                  userId={user.id}
+                  size="md"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium truncate">{user.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {user.stats.unpurchasedItems} желаний
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{user.name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {user.stats.unpurchasedItems} желаний
-                  </div>
-                </div>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+              </div>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <div className="flex items-center gap-2">
         <Select
