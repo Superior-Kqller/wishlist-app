@@ -22,7 +22,7 @@ RUN npx prisma generate
 RUN mkdir -p /app/public/uploads/avatars && \
     touch /app/public/uploads/avatars/.gitkeep
 
-RUN NEXTAUTH_SECRET="build-secret-placeholder" NEXTAUTH_URL="http://localhost:3000" npm run build
+RUN NEXTAUTH_SECRET="build-secret-placeholder-minimum-32-chars" NEXTAUTH_URL="http://localhost:3000" npm run build
 
 RUN mkdir /prisma-cli && cd /prisma-cli && \
     echo '{"dependencies":{"prisma":"'$(node -e "console.log(require('/app/node_modules/prisma/package.json').version)")'"}}'> package.json && \

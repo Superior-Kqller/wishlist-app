@@ -5,7 +5,7 @@ node_modules
 .vscode
 .github
 postgres
-assets
+/assets
 *.md
 *.dump
 *.sh
