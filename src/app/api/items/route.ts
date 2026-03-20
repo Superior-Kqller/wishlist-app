@@ -103,9 +103,10 @@ export async function GET(req: NextRequest) {
   }
 
   if (userIdParam === "me") {
-    conditions.push({ userId: currentUserId });
+    // "Мои" = элементы из моих подборок (owner подборки), а не автор карточки.
+    conditions.push({ list: { userId: currentUserId } });
   } else if (userIdParam && userIdParam.trim() !== "") {
-    conditions.push({ userId: userIdParam.trim() });
+    conditions.push({ list: { userId: userIdParam.trim() } });
   }
 
   if (listIdParam && listIdParam.trim() !== "") {
