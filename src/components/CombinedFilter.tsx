@@ -63,7 +63,6 @@ export function CombinedFilter({
 
   const handleSelectUser = (userId: string | null) => {
     onUserChange(userId);
-    onListChange(null);
   };
 
   return (
@@ -116,14 +115,14 @@ export function CombinedFilter({
           <DropdownMenuLabel>Пользователь</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onSelect={() => handleSelectUser(null)}
+            onClick={() => handleSelectUser(null)}
             className={cn("cursor-pointer", selectedUserId === null && "bg-accent")}
             data-testid="combined-user-option-all"
           >
             Все пользователи
           </DropdownMenuItem>
           <DropdownMenuItem
-            onSelect={() => handleSelectUser("me")}
+            onClick={() => handleSelectUser("me")}
             className={cn("cursor-pointer", isMyMode && "bg-accent")}
             data-testid="combined-user-option-me"
           >
@@ -133,7 +132,7 @@ export function CombinedFilter({
           {otherUsers.map((user) => (
             <DropdownMenuItem
               key={user.id}
-              onSelect={() => handleSelectUser(user.id)}
+              onClick={() => handleSelectUser(user.id)}
               className={cn(
                 "flex items-center gap-3 p-2 cursor-pointer",
                 selectedUserId === user.id && "bg-accent"

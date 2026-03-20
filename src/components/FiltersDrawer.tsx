@@ -78,7 +78,7 @@ export function FiltersDrawer({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="min-h-0 w-[min(95vw,calc(100vw-1rem))] max-w-md gap-0">
+      <DialogContent className="dialog-modal-surface min-h-0 w-[min(95vw,calc(100vw-1rem))] max-w-md gap-0 border border-border/80 bg-card/90 backdrop-blur-[20px]">
         <DialogHeader>
           <DialogTitle className="text-lg">Фильтры</DialogTitle>
         </DialogHeader>

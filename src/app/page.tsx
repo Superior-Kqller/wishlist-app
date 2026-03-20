@@ -515,7 +515,7 @@ function HomePageContent() {
   return (
     <div className="min-h-screen page-bg">
       <main className="container mx-auto space-y-3 px-4 py-3 sm:space-y-4 sm:py-6">
-        <div className="sticky top-14 z-30 -mx-4 flex min-w-0 flex-col gap-2 border-b border-border bg-card px-4 py-2 sm:static sm:top-[68px] sm:z-auto sm:border-0 sm:bg-transparent sm:py-3">
+        <div className="sticky top-16 z-30 -mx-4 flex min-w-0 flex-col gap-2 border-b border-border bg-card px-4 py-2 sm:static sm:top-[76px] sm:z-auto sm:border-0 sm:bg-transparent sm:py-3">
           {/* Мобильная компактная строка: только поиск + кнопка «Фильтры» */}
           <div className="flex min-w-0 items-center gap-2 sm:hidden">
             <div className="relative flex-1 min-w-0">
@@ -524,13 +524,13 @@ function HomePageContent() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Поиск..."
-                className="h-10 pl-8 text-sm"
+                className="h-10 rounded-lg bg-card pl-8 text-sm"
               />
             </div>
             <Button
               variant={selectionMode ? "default" : "outline"}
               size="icon"
-              className="h-10 w-10 shrink-0"
+              className="h-10 w-10 shrink-0 rounded-lg"
               onClick={() => {
                 setSelectionMode(!selectionMode);
                 if (selectionMode) setSelectedIds(new Set());
@@ -542,7 +542,7 @@ function HomePageContent() {
             <Button
               variant="outline"
               size="icon"
-              className="h-10 w-10 shrink-0"
+              className="h-10 w-10 shrink-0 rounded-lg"
               onClick={() => setMobileFiltersOpen(true)}
               title="Фильтры"
             >

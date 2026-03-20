@@ -49,19 +49,19 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card">
-      <div className="container mx-auto flex h-14 items-center justify-between px-4 sm:h-[68px]">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:h-[76px]">
         <button
           onClick={() => router.push("/")}
           className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
           title="На главную"
           aria-label="Вишлист — на главную"
         >
-          <div className="relative h-8 w-[118px] shrink-0 sm:h-10 sm:w-[150px]">
+          <div className="relative h-10 w-[150px] shrink-0 sm:h-12 sm:w-[188px]">
             <Image
               src="/assets/logo/lockup-dark-bg.png"
               alt="Вишлист"
-              width={150}
-              height={40}
+              width={188}
+              height={48}
               unoptimized
               className="h-full w-full object-contain"
             />
@@ -75,7 +75,7 @@ export function Header() {
                 <Plus className="w-4 h-4 mr-2" />
                 Добавить товар
               </Button>
-              <Button size="icon" onClick={onAddItem} title="Добавить товар" className="sm:hidden h-8 w-8">
+              <Button size="icon" onClick={onAddItem} title="Добавить товар" className="sm:hidden h-9 w-9">
                 <Plus className="w-4 h-4" />
               </Button>
             </>
@@ -155,7 +155,7 @@ export function Header() {
           <div className="sm:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Button variant="ghost" size="icon" className="h-9 w-9">
                   <Menu className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>

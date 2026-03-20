@@ -112,7 +112,7 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
           )}
         </div>
 
-          <div className="space-y-3 p-3">
+        <div className="space-y-3 p-3">
           <div className="flex items-start justify-between gap-2">
             <TooltipProvider delayDuration={120}>
               <Tooltip>

@@ -30,7 +30,7 @@ export function SearchAndFilter({
 }: SearchAndFilterProps) {
   return (
     <div className="flex flex-row gap-2 sm:gap-3">
-      <div className="relative flex-1 min-w-0">
+      <div className="relative min-w-0 flex-1">
         <Search className="absolute left-2.5 top-1/2 h-4 w-4 shrink-0 -translate-y-1/2 text-muted-foreground/80 sm:left-3" />
         <Input
           value={search}
@@ -40,7 +40,7 @@ export function SearchAndFilter({
         />
       </div>
       <Select value={sortBy} onValueChange={onSortChange}>
-        <SelectTrigger className="h-10 w-10 shrink-0 bg-card sm:w-[180px] sm:px-3" title="Сортировка">
+        <SelectTrigger className="h-10 w-10 shrink-0 bg-card/70 sm:w-[180px] sm:px-3" title="Сортировка">
           <SlidersHorizontal className="h-4 w-4 shrink-0 text-muted-foreground/85 sm:mr-2" />
           <SelectValue placeholder="Сортировка" className="sr-only sm:not-sr-only sm:inline" />
         </SelectTrigger>
