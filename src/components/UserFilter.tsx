@@ -9,7 +9,7 @@ import {
 import { UserAvatar } from "@/components/UserAvatar";
 import { UserWithStats } from "@/types";
 import { formatPrice } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { resolveUserScope } from "@/lib/filter-state";
 
@@ -43,8 +43,8 @@ export function UserFilter({
             type="button"
             aria-label="Выбрать пользователя"
             className={cn(
-              "flex h-10 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-              "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+              "flex h-10 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              "border border-input/90 bg-card/65 backdrop-blur-[10px] hover:bg-accent hover:text-accent-foreground",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               "touch-manipulation",
               (selectedUser || isMyMode) && "bg-accent"
@@ -74,7 +74,10 @@ export function UserFilter({
                 <span>Мои</span>
               </>
             ) : (
-              <span>Все пользователи</span>
+              <>
+                <User className="w-4 h-4 opacity-60" />
+                <span>Все пользователи</span>
+              </>
             )}
             <ChevronDown className="w-4 h-4 opacity-50" />
           </button>

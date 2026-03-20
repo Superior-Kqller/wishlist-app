@@ -72,7 +72,7 @@ export function CombinedFilter({
           <Button
             type="button"
             variant="outline"
-            className="h-10 gap-2 touch-manipulation bg-card"
+            className="h-10 gap-2 rounded-lg border-input/90 bg-card/65 px-3 backdrop-blur-[10px] touch-manipulation"
             aria-label="Выбрать пользователя"
             data-testid="combined-user-trigger"
           >

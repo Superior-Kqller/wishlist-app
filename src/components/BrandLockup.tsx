@@ -9,23 +9,27 @@ interface BrandLockupProps {
 
 export function BrandLockup({ className }: BrandLockupProps) {
   return (
-    <div className={cn("flex items-center gap-2.5 sm:gap-3", className)}>
+    <div className={cn("flex items-center gap-3 sm:gap-4", className)}>
       <Image
         src="/assets/logo/logo-glass-512.png"
         alt="Логотип Вишлист"
-        width={48}
-        height={48}
+        width={64}
+        height={64}
         priority
         unoptimized
-        className="h-10 w-10 object-contain sm:h-12 sm:w-12"
+        className="h-12 w-12 object-contain sm:h-14 sm:w-14"
       />
-      <div className="flex min-w-0 flex-col leading-none">
-        <span className="truncate text-base font-semibold text-foreground sm:text-lg">
+      <div className="flex min-w-0 flex-col">
+        <span className="truncate text-2xl font-extrabold tracking-tight text-foreground sm:text-[2rem]">
           Вишлист
         </span>
-        <span className="truncate text-[11px] text-muted-foreground sm:text-xs">
+        <span className="truncate text-sm text-muted-foreground/90 sm:text-base">
           Умный вишлист для желаний
         </span>
+        <span
+          aria-hidden="true"
+          className="mt-2 h-0.5 w-24 rounded-full bg-primary/60 sm:w-28"
+        />
       </div>
     </div>
   );
