@@ -5,10 +5,11 @@ import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PrioritySelect } from "./PrioritySelect";
+import { PriorityBadge } from "./PriorityBadge";
 import { UserAvatar } from "./UserAvatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WishlistItem } from "@/types";
-import { cn, formatPrice, priorityBorderClass } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { ExternalLink, Pencil, ShoppingCart, Trash2, Undo2, ImageIcon } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -76,7 +77,6 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
         data-testid="wishlist-card-v2"
         className={cn(
           "overflow-hidden",
-          priorityBorderClass(item.priority),
           item.purchased && "opacity-70",
           isCardInteractive && "cursor-pointer",
           isSelected && "shadow-[0_0_0_1px_hsl(var(--primary)/0.3),0_0_15px_hsl(var(--primary)/0.25)]"
@@ -218,11 +218,19 @@ export const WishlistCardV2 = memo(function WishlistCardV2({
               {item.price ? formatPrice(item.price, item.currency) : "Цена не указана"}
             </span>
             <div data-testid="wishlist-card-priority">
-              <PrioritySelect
-                priority={item.priority}
-                onChange={onPriorityChange ? (priority) => onPriorityChange(item.id, priority) : undefined}
-                triggerTestId="priority-select-trigger"
-              />
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Приоритет</span>
+                {isOwner ? (
+                  <PrioritySelect
+                    priority={item.priority}
+                    onChange={onPriorityChange ? (priority) => onPriorityChange(item.id, priority) : undefined}
+                    triggerTestId="priority-select-trigger"
+                    ariaLabel={`Приоритет ${item.title}`}
+                  />
+                ) : (
+                  <PriorityBadge priority={item.priority} />
+                )}
+              </div>
             </div>
           </div>
 
