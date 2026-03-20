@@ -100,7 +100,7 @@ export function CombinedFilter({
                     />
                   </div>
                 )}
-                <span>Я</span>
+                <span>Мои</span>
               </>
             ) : (
               <>
@@ -111,31 +111,48 @@ export function CombinedFilter({
             <ChevronDown className="w-4 h-4 opacity-60" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-56">
-          <DropdownMenuLabel>Пользователь</DropdownMenuLabel>
-          <DropdownMenuSeparator />
+        <DropdownMenuContent
+          align="start"
+          className="w-56 rounded-xl border border-border/80 bg-popover/95 p-1.5 backdrop-blur-[14px]"
+        >
+          <DropdownMenuLabel className="px-2 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
+            Пользователь
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator className="my-1 bg-border/80" />
           <DropdownMenuItem
             onClick={() => handleSelectUser(null)}
-            className={cn("cursor-pointer", selectedUserId === null && "bg-accent")}
+            className={cn(
+              "cursor-pointer rounded-md px-2.5 py-2 text-sm",
+              selectedUserId === null
+                ? "border border-primary/45 bg-primary/20 text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            )}
             data-testid="combined-user-option-all"
           >
             Все пользователи
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => handleSelectUser("me")}
-            className={cn("cursor-pointer", isMyMode && "bg-accent")}
+            className={cn(
+              "cursor-pointer rounded-md px-2.5 py-2 text-sm",
+              isMyMode
+                ? "border border-primary/45 bg-primary/20 text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            )}
             data-testid="combined-user-option-me"
           >
-            Я
+            Мои
           </DropdownMenuItem>
-          {otherUsers.length > 0 && <DropdownMenuSeparator />}
+          {otherUsers.length > 0 && <DropdownMenuSeparator className="my-1 bg-border/80" />}
           {otherUsers.map((user) => (
             <DropdownMenuItem
               key={user.id}
               onClick={() => handleSelectUser(user.id)}
               className={cn(
-                "flex items-center gap-3 p-2 cursor-pointer",
-                selectedUserId === user.id && "bg-accent"
+                "flex cursor-pointer items-center gap-3 rounded-md p-2",
+                selectedUserId === user.id
+                  ? "border border-primary/45 bg-primary/20 text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               )}
               data-testid={`combined-user-option-${user.id}`}
             >

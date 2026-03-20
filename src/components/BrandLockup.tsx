@@ -16,6 +16,7 @@ export function BrandLockup({ className }: BrandLockupProps) {
         width={48}
         height={48}
         priority
+        unoptimized
         className="h-10 w-10 object-contain sm:h-12 sm:w-12"
       />
       <div className="flex min-w-0 flex-col leading-none">

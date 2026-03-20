@@ -71,7 +71,7 @@ export function UserFilter({
                     size="sm"
                   />
                 )}
-                <span>Я</span>
+                <span>Мои</span>
               </>
             ) : (
               <span>Все пользователи</span>
@@ -97,7 +97,7 @@ export function UserFilter({
             className={cn("cursor-pointer", isMyMode && "bg-accent")}
             data-testid="mobile-user-option-me"
           >
-            Я
+            Мои
           </DropdownMenuItem>
           {otherUsers.length > 0 && <div className="my-1 h-px bg-border" />}
           {otherUsers.map((user) => (
