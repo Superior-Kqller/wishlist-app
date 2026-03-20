@@ -158,6 +158,10 @@ function HomePageContent() {
     { revalidateOnFocus: false, dedupingInterval: 10000 }
   );
   const lists = useMemo(() => listsData ?? [], [listsData]);
+  const listNameById = useMemo(
+    () => Object.fromEntries(lists.map((l) => [l.id, l.name])),
+    [lists]
+  );
 
   // Dialog states
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -403,34 +407,6 @@ function HomePageContent() {
     [mutateItems, pendingStatusByItemId]
   );
 
-  const handlePriorityChange = useCallback(
-    async (id: string, priority: number) => {
-      // Оптимистичное обновление
-      mutateItems(
-        (current) =>
-          current?.map((page) => ({
-            ...page,
-            items: page.items.map((item) =>
-              item.id === id ? { ...item, priority } : item,
-            ),
-          })),
-        { revalidate: false },
-      );
-      try {
-        const res = await fetch(`/api/items/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ priority }),
-        });
-        if (!res.ok) throw new Error();
-      } catch {
-        mutateItems();
-        toast.error("Не удалось изменить приоритет");
-      }
-    },
-    [mutateItems],
-  );
-
   const handleParsed = useCallback((data: ParsedProductResponse) => {
     setParsedData({
       title: data.title,
@@ -647,7 +623,7 @@ function HomePageContent() {
 
         <WishlistGrid
           items={filteredItems}
-          currentUserId={currentUserId}
+          listNameById={listNameById}
           isLoading={isLoading}
           onEdit={(item) => {
             setEditingItem(item);
@@ -658,7 +634,6 @@ function HomePageContent() {
           onTogglePurchased={handleTogglePurchased}
           onSetStatus={handleSetItemStatus}
           pendingStatusByItemId={pendingStatusByItemId}
-          onPriorityChange={handlePriorityChange}
           onEmptyAdd={() => {
             setParsedData(null);
             setAddDialogOpen(true);
