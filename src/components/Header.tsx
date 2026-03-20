@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -60,10 +60,10 @@ export function Header() {
             <Image
               src="/assets/logo/lockup-dark-bg.png"
               alt="Вишлист"
-              fill
-              sizes="150px"
-              className="object-contain"
-              priority
+              width={150}
+              height={40}
+              unoptimized
+              className="h-full w-full object-contain"
             />
           </div>
         </button>

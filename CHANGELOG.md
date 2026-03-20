@@ -5,6 +5,17 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект использует [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [1.6.7] — 2026-03-20
+
+### Исправлено
+
+- **Next.js metadata warning** — добавлен `metadataBase` в `src/app/layout.tsx` для корректного резолва Open Graph/Twitter image URL
+- **Header lockup image runtime error** — логотип в `Header` переведен на `next/image` с `unoptimized`, чтобы убрать ошибку `The requested resource isn't a valid image` в контейнерном рантайме
+
+### Проверено
+
+- `npx eslint src/app/layout.tsx src/components/Header.tsx` — PASS
+
 ## [1.6.6] — 2026-03-20
 
 ### Изменено

@@ -20,6 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:4030"),
   title: "Вишлист",
   description: "Умный вишлист для совместных желаний",
   icons: {
