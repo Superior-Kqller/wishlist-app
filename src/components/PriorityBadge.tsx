@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { getPriorityEmoji, getPriorityLabel } from "@/lib/priority-labels";
 
 interface PriorityBadgeProps {
   priority: number;
@@ -11,11 +12,12 @@ export function PriorityBadge({ priority, className }: PriorityBadgeProps) {
   return (
     <Badge
       variant="secondary"
-      className={`text-xs font-medium ${className ?? ""}`}
+      className={`inline-flex items-center gap-1.5 text-xs font-medium ${className ?? ""}`}
       data-testid="priority-badge"
-      aria-label={`Приоритет: P${priority}`}
+      aria-label={`Приоритет: ${getPriorityLabel(priority)}`}
     >
-      P{priority}
+      <span aria-hidden="true">{getPriorityEmoji(priority)}</span>
+      {getPriorityLabel(priority)}
     </Badge>
   );
 }
