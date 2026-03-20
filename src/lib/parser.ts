@@ -421,21 +421,6 @@ function extractOzonProductPath(url: string): string | null {
   return match ? match[1] : null;
 }
 
-async function resolveOzonShortUrl(url: string): Promise<string> {
-  const { finalUrl } = await fetchWithSafeRedirects(
-    url,
-    {
-      headers: HEADERS,
-      signal: AbortSignal.timeout(5000),
-    },
-    5
-  );
-  if (finalUrl.includes("/product/")) {
-    return finalUrl;
-  }
-  throw new Error("Не удалось развернуть короткую ссылку Ozon");
-}
-
 function parseOzonPriceString(text: string): number | null {
   if (!text) return null;
   const cleaned = text.replace(/[^\d.,]/g, "").replace(/,/g, ".");
@@ -536,25 +521,18 @@ async function parseOzonViaHtml(url: string, html: string): Promise<ParsedProduc
 }
 
 async function parseOzon(url: string): Promise<ParsedProduct> {
-  let resolvedUrl = url;
-
-  // Короткие ссылки /t/... — разворачиваем
-  if (new URL(url).pathname.startsWith("/t/")) {
-    resolvedUrl = await resolveOzonShortUrl(url);
-  }
-
-  const productPath = extractOzonProductPath(resolvedUrl);
+  const productPath = extractOzonProductPath(url);
   if (!productPath) {
     throw new Error("Не удалось извлечь ID товара из URL Ozon");
   }
 
   // Сначала API
-  const apiResult = await parseOzonViaApi(resolvedUrl, productPath).catch(() => null);
+  const apiResult = await parseOzonViaApi(url, productPath).catch(() => null);
   if (apiResult) return apiResult;
 
   // Fallback на HTML
-  const html = await fetchHtml(resolvedUrl);
-  return parseOzonViaHtml(resolvedUrl, html);
+  const html = await fetchHtml(url);
+  return parseOzonViaHtml(url, html);
 }
 
 // --- AliExpress ---
@@ -657,6 +635,76 @@ async function parseGeneric(
   };
 }
 
+// --- Redirect chain (HEAD + manual) — короткие ссылки Ozon /t/, трекеры и т.п. ---
+
+const MAX_REDIRECT_CHAIN = 12;
+
+async function discardResponseBody(response: Response): Promise<void> {
+  try {
+    if (response.body) {
+      await response.body.cancel();
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Разворачивает цепочку редиректов без скачивания HTML: HEAD + redirect: "manual"
+ * с проверкой SSRF на каждом шаге. При 405/501 на HEAD — один запрос GET с тем же режимом.
+ */
+async function expandRedirectChainHeadFirst(startUrl: string): Promise<string> {
+  let currentUrl = startUrl;
+  for (let step = 0; step <= MAX_REDIRECT_CHAIN; step++) {
+    await validateAndResolveUrl(currentUrl);
+
+    const baseInit: RequestInit = {
+      redirect: "manual",
+      headers: {
+        "User-Agent": HEADERS["User-Agent"],
+        "Accept-Language": HEADERS["Accept-Language"],
+        Accept: "*/*",
+      },
+      signal: AbortSignal.timeout(12000),
+    };
+
+    let response = await fetch(currentUrl, { ...baseInit, method: "HEAD" });
+
+    if (response.status === 405 || response.status === 501) {
+      await discardResponseBody(response);
+      response = await fetch(currentUrl, {
+        ...baseInit,
+        method: "GET",
+        headers: {
+          ...HEADERS,
+          Referer: `${new URL(currentUrl).origin}/`,
+        },
+      });
+    }
+
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location");
+      if (!location) {
+        await discardResponseBody(response);
+        throw new Error("Redirect response without location header");
+      }
+      await discardResponseBody(response);
+      currentUrl = new URL(location, currentUrl).toString();
+      continue;
+    }
+
+    await discardResponseBody(response);
+    return currentUrl;
+  }
+  throw new Error("Too many redirects");
+}
+
+/** Публичный канонический URL после валидации и цепочки редиректов (для парсера и ответа API). */
+export async function resolveCanonicalProductUrl(url: string): Promise<string> {
+  await validateAndResolveUrl(url);
+  return expandRedirectChainHeadFirst(url);
+}
+
 // --- Fetch HTML helper ---
 
 async function fetchWithSafeRedirects(
@@ -692,7 +740,7 @@ async function fetchHtml(url: string): Promise<string> {
       headers: { ...HEADERS, Referer: `${urlObj.protocol}//${urlObj.host}/` },
       signal: AbortSignal.timeout(15000),
     },
-    5
+    10
   );
 
   if (!response.ok) {
@@ -715,27 +763,30 @@ async function fetchHtml(url: string): Promise<string> {
 
 // --- Main entry point ---
 
-export async function parseProductUrl(url: string): Promise<ParsedProduct> {
-  await validateAndResolveUrl(url);
-
-  const marketplace = detectMarketplace(url);
+async function parseProductUrlResolved(resolvedUrl: string): Promise<ParsedProduct> {
+  const marketplace = detectMarketplace(resolvedUrl);
 
   if (marketplace === "wildberries") {
-    return parseWildberries(url);
+    return parseWildberries(resolvedUrl);
   }
 
   if (marketplace === "ozon") {
-    return parseOzon(url);
+    return parseOzon(resolvedUrl);
   }
 
-  const html = await fetchHtml(url);
+  const html = await fetchHtml(resolvedUrl);
 
   switch (marketplace) {
     case "aliexpress":
-      return parseAliexpress(url, html);
+      return parseAliexpress(resolvedUrl, html);
     default:
-      return parseGeneric(url, html);
+      return parseGeneric(resolvedUrl, html);
   }
+}
+
+export async function parseProductUrl(url: string): Promise<ParsedProduct> {
+  const resolvedUrl = await resolveCanonicalProductUrl(url);
+  return parseProductUrlResolved(resolvedUrl);
 }
 
 function mergeSpecializedWithOg(
@@ -772,13 +823,14 @@ function mergeGenericWithOg(og: ParsedProduct, generic: ParsedProduct): ParsedPr
  * для обычных сайтов — один запрос HTML и слияние generic + Open Graph.
  */
 export async function parseWishlistProductUrl(url: string): Promise<ParsedProduct> {
-  const marketplace = detectMarketplace(url);
+  const resolvedUrl = await resolveCanonicalProductUrl(url);
+  const marketplace = detectMarketplace(resolvedUrl);
 
   if (marketplace === "wildberries" || marketplace === "ozon") {
-    const specialized = await parseProductUrl(url);
+    const specialized = await parseProductUrlResolved(resolvedUrl);
     try {
-      const html = await fetchHtml(url);
-      const og = parseOpenGraphFromHtml(html, url);
+      const html = await fetchHtml(resolvedUrl);
+      const og = parseOpenGraphFromHtml(html, resolvedUrl);
       return mergeSpecializedWithOg(specialized, og);
     } catch {
       return specialized;
@@ -786,16 +838,14 @@ export async function parseWishlistProductUrl(url: string): Promise<ParsedProduc
   }
 
   if (marketplace === "aliexpress") {
-    await validateAndResolveUrl(url);
-    const html = await fetchHtml(url);
-    const specialized = await parseAliexpress(url, html);
-    const og = parseOpenGraphFromHtml(html, url);
+    const html = await fetchHtml(resolvedUrl);
+    const specialized = await parseAliexpress(resolvedUrl, html);
+    const og = parseOpenGraphFromHtml(html, resolvedUrl);
     return mergeSpecializedWithOg(specialized, og);
   }
 
-  await validateAndResolveUrl(url);
-  const html = await fetchHtml(url);
-  const og = parseOpenGraphFromHtml(html, url);
-  const generic = await parseGeneric(url, html);
+  const html = await fetchHtml(resolvedUrl);
+  const og = parseOpenGraphFromHtml(html, resolvedUrl);
+  const generic = await parseGeneric(resolvedUrl, html);
   return mergeGenericWithOg(og, generic);
 }
