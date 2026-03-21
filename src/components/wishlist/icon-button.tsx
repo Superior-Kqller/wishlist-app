@@ -10,11 +10,11 @@ const iconButtonVariants = cva(
     variants: {
       intent: {
         default:
-          "border-purple-500/35 bg-card/80 text-slate-200 hover:border-purple-400/55 hover:bg-card",
+          "border-fuchsia-500/40 bg-fuchsia-500/[0.08] text-fuchsia-100 hover:border-fuchsia-400/55 hover:bg-fuchsia-500/15",
         success:
-          "border-emerald-500/45 bg-emerald-500/10 text-emerald-300 hover:border-emerald-400/60 hover:bg-emerald-500/15",
+          "border-emerald-400/50 bg-emerald-500/15 text-emerald-200 hover:border-emerald-300/60 hover:bg-emerald-500/22",
         danger:
-          "border-rose-500/45 bg-rose-500/10 text-rose-300 hover:border-rose-400/60 hover:bg-rose-500/15",
+          "border-rose-400/50 bg-rose-500/12 text-rose-200 hover:border-rose-300/58 hover:bg-rose-500/20",
       },
     },
     defaultVariants: {

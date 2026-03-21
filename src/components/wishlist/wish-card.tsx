@@ -7,13 +7,11 @@ import { motion } from "framer-motion";
 import { Check, Globe2, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { WishlistItem } from "@/types";
 import { cn, formatPrice } from "@/lib/utils";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
-import { wishlistPriorityToTier } from "@/lib/wish-card-priority";
 import { PriorityBadgeOverlay } from "./priority-badge";
 import { IconButton } from "./icon-button";
 
@@ -34,7 +32,7 @@ export interface WishCardProps {
 
 export const WishCard = memo(function WishCard({
   item,
-  collectionName,
+  collectionName: _collectionName,
   index = 0,
   onEdit,
   onDelete,
@@ -51,7 +49,6 @@ export const WishCard = memo(function WishCard({
   const [ownerImageError, setOwnerImageError] = useState(false);
 
   const imageUrl = item.images?.[0] ?? null;
-  const priorityTier = wishlistPriorityToTier(item.priority);
   const isBought = item.purchased || item.status === "PURCHASED";
 
   const sessionUserId = session?.user?.id;
@@ -119,7 +116,7 @@ export const WishCard = memo(function WishCard({
           data-testid="wishlist-card-v2-media"
           className="group relative aspect-[4/5] overflow-hidden bg-slate-900/55"
         >
-          <PriorityBadgeOverlay tier={priorityTier} />
+          <PriorityBadgeOverlay priority={item.priority} />
           {showImage ? (
             <Image
               src={imageUrl!}
@@ -147,14 +144,6 @@ export const WishCard = memo(function WishCard({
           >
             {item.title}
           </CardTitle>
-          {collectionName ? (
-            <Badge
-              variant="secondary"
-              className="h-5 max-w-full truncate border-purple-500/30 bg-purple-950/40 px-2 py-0 text-[10px] font-medium uppercase tracking-wide text-slate-400"
-            >
-              {collectionName}
-            </Badge>
-          ) : null}
         </CardHeader>
 
         <CardContent className="space-y-2 p-3 pt-0">
@@ -214,7 +203,7 @@ export const WishCard = memo(function WishCard({
                       <Button
                         variant="outline"
                         asChild
-                        className="h-11 min-h-[44px] w-full justify-center border-purple-500/45 px-4 text-sm font-semibold sm:h-10 sm:min-h-10 sm:w-auto sm:min-w-[8rem]"
+                        className="h-11 min-h-[44px] w-full justify-center border-[1.5px] border-fuchsia-400/55 bg-fuchsia-500/[0.14] px-4 text-sm font-semibold text-fuchsia-100 shadow-sm shadow-fuchsia-950/20 hover:border-fuchsia-300/65 hover:bg-fuchsia-500/24 hover:text-white sm:h-10 sm:min-h-10 sm:w-auto sm:min-w-[8rem]"
                       >
                         <a
                           href={item.url}
