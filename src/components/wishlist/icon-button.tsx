@@ -5,16 +5,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const iconButtonVariants = cva(
-  "inline-flex h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg border text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 sm:h-10 sm:w-10 sm:min-h-10 sm:min-w-10",
+  "inline-flex h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg border text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 sm:h-10 sm:w-10 sm:min-h-10 sm:min-w-10",
   {
     variants: {
       intent: {
         default:
-          "border-fuchsia-500/40 bg-fuchsia-500/[0.08] text-fuchsia-100 hover:border-fuchsia-400/55 hover:bg-fuchsia-500/15",
+          "border-purple-500/30 bg-purple-950/40 text-slate-300 hover:border-purple-400/42 hover:bg-purple-900/50 hover:text-slate-100",
         success:
-          "border-emerald-400/50 bg-emerald-500/15 text-emerald-200 hover:border-emerald-300/60 hover:bg-emerald-500/22",
+          "border-emerald-800/35 bg-emerald-950/35 text-emerald-400/85 hover:border-emerald-700/45 hover:bg-emerald-950/50",
         danger:
-          "border-rose-400/50 bg-rose-500/12 text-rose-200 hover:border-rose-300/58 hover:bg-rose-500/20",
+          "border-rose-900/40 bg-rose-950/35 text-rose-300/90 hover:border-rose-800/50 hover:bg-rose-950/48",
       },
     },
     defaultVariants: {

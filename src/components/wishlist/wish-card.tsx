@@ -195,7 +195,7 @@ export const WishCard = memo(function WishCard({
           className="flex flex-col gap-2 p-3 pt-0 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-2"
         >
           {item.url || canManage ? (
-            <TooltipProvider delayDuration={200}>
+            <TooltipProvider delayDuration={450} skipDelayDuration={200}>
               <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                 {item.url ? (
                   <Tooltip>
@@ -203,7 +203,7 @@ export const WishCard = memo(function WishCard({
                       <Button
                         variant="outline"
                         asChild
-                        className="h-11 min-h-[44px] w-full justify-center border-[1.5px] border-fuchsia-400/55 bg-fuchsia-500/[0.14] px-4 text-sm font-semibold text-fuchsia-100 shadow-sm shadow-fuchsia-950/20 hover:border-fuchsia-300/65 hover:bg-fuchsia-500/24 hover:text-white sm:h-10 sm:min-h-10 sm:w-auto sm:min-w-[8rem]"
+                        className="h-11 min-h-[44px] w-full justify-center border border-purple-500/35 bg-purple-950/45 px-4 text-sm font-semibold text-slate-200 shadow-none hover:border-purple-400/45 hover:bg-purple-900/55 hover:text-white sm:h-10 sm:min-h-10 sm:w-auto sm:min-w-[8rem]"
                       >
                         <a
                           href={item.url}
