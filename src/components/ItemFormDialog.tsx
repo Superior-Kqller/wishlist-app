@@ -38,6 +38,10 @@ interface ItemFormDialogProps {
   existingLists?: ListWithMeta[];
   /** Один раз при открытии вызвать парсинг по полю URL (для bookmarklet с fill=1) */
   autoFillFromUrlOnce?: boolean;
+  /** Предвыбранная подборка при добавлении (текущий фильтр на главной) */
+  defaultListId?: string | null;
+  /** Нельзя сохранить без подборки; скрыть пункт «Без подборки» */
+  listPickerRequired?: boolean;
 }
 
 const CURRENCIES = [
@@ -56,6 +60,8 @@ export function ItemFormDialog({
   existingTags = [],
   existingLists = [],
   autoFillFromUrlOnce = false,
+  defaultListId = null,
+  listPickerRequired = false,
 }: ItemFormDialogProps) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
@@ -91,14 +97,14 @@ export function ItemFormDialog({
       setPrice(initialData.price?.toString() || "");
       setCurrency(initialData.currency || "RUB");
       setPriority(initialData.priority || 3);
-      setListId(initialData.listId ?? null);
+      setListId(initialData.listId ?? defaultListId ?? null);
       setNotes(initialData.notes || "");
       setImages(initialData.images || []);
       setTags(initialData.tags || []);
     } else {
       resetForm();
     }
-  }, [item, initialData, open]);
+  }, [item, initialData, open, defaultListId]);
 
   useEffect(() => {
     if (!open) {
@@ -112,7 +118,7 @@ export function ItemFormDialog({
     setPrice("");
     setCurrency("RUB");
     setPriority(3);
-    setListId(null);
+    setListId(listPickerRequired ? defaultListId ?? null : null);
     setNotes("");
     setImages([]);
     setNewImageUrl("");
@@ -209,6 +215,13 @@ export function ItemFormDialog({
       return;
     }
 
+    const effectiveListId =
+      listId || (listPickerRequired ? defaultListId : null);
+    if (listPickerRequired && !effectiveListId) {
+      toast.error("Выберите подборку");
+      return;
+    }
+
     setSaving(true);
     try {
       await onSave({
@@ -217,7 +230,7 @@ export function ItemFormDialog({
         price: price ? parseFloat(price) : undefined,
         currency,
         priority,
-        listId: listId || undefined,
+        listId: effectiveListId || undefined,
         notes: notes.trim() || undefined,
         images,
         tags,
@@ -294,16 +307,29 @@ export function ItemFormDialog({
             </div>
           </div>
 
-          {/* List (optional) */}
+          {/* List (optional при редактировании; при добавлении с главной — обязательна) */}
           {existingLists.length > 0 && (
             <div className="space-y-2">
-              <Label>Подборка</Label>
-              <Select value={listId ?? "none"} onValueChange={(v) => setListId(v === "none" ? null : v)}>
+              <Label>Подборка{listPickerRequired ? " *" : ""}</Label>
+              <Select
+                value={
+                  listPickerRequired
+                    ? (listId || defaultListId || existingLists[0]?.id || "")
+                    : (listId ?? "none")
+                }
+                onValueChange={(v) => setListId(v === "none" ? null : v)}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="Без подборки" />
+                  <SelectValue
+                    placeholder={
+                      listPickerRequired ? "Выберите подборку" : "Без подборки"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Без подборки</SelectItem>
+                  {!listPickerRequired && (
+                    <SelectItem value="none">Без подборки</SelectItem>
+                  )}
                   {existingLists.map((list) => (
                     <SelectItem key={list.id} value={list.id}>
                       {list.name}
@@ -311,7 +337,7 @@ export function ItemFormDialog({
                   ))}
                 </SelectContent>
               </Select>
-              {!listId && (
+              {!listPickerRequired && !listId && (
                 <p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
                   <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                   Товар без подборки будет скрыт. Привяжите его к подборке, чтобы он стал виден.

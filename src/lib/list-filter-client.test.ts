@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { filterListsBySelectedUser } from "./list-filter-client";
+import {
+  filterListsBySelectedUser,
+  getFirstListIdInScope,
+  getFirstOwnedListId,
+} from "./list-filter-client";
 import type { ListWithMeta, UserWithStats } from "@/types";
 
 const lists: ListWithMeta[] = [
@@ -85,5 +89,34 @@ describe("filterListsBySelectedUser", () => {
     expect(filterListsBySelectedUser(empty, users, "u1", null)).toEqual([]);
     expect(filterListsBySelectedUser(empty, users, "u1", "me")).toEqual([]);
     expect(filterListsBySelectedUser(empty, users, "u1", "u2")).toEqual([]);
+  });
+});
+
+describe("getFirstOwnedListId", () => {
+  it("первая подборка владельца по названию (ru)", () => {
+    expect(getFirstOwnedListId(lists, "u1")).toBe("l-me");
+    expect(getFirstOwnedListId(lists, "u2")).toBe("l-other");
+  });
+
+  it("null если своих подборок нет", () => {
+    expect(getFirstOwnedListId([], "u1")).toBeNull();
+  });
+});
+
+describe("getFirstListIdInScope", () => {
+  it("режим «все» — первая по названию среди доступных", () => {
+    expect(getFirstListIdInScope(lists, users, "u1", null)).toBe("l-me");
+  });
+
+  it("режим «мои» — первая своя", () => {
+    expect(getFirstListIdInScope(lists, users, "u1", "me")).toBe("l-me");
+  });
+
+  it("другой пользователь — первая его подборка", () => {
+    expect(getFirstListIdInScope(lists, users, "u1", "u2")).toBe("l-other");
+  });
+
+  it("пустой список — null", () => {
+    expect(getFirstListIdInScope([], users, "u1", null)).toBeNull();
   });
 });

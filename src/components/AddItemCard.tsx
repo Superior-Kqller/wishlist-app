@@ -6,9 +6,11 @@ import { type KeyboardEvent } from "react";
 
 interface AddItemCardProps {
   onAdd: () => void;
+  disabled?: boolean;
+  disabledHint?: string;
 }
 
-export function AddItemCard({ onAdd }: AddItemCardProps) {
+export function AddItemCard({ onAdd, disabled, disabledHint }: AddItemCardProps) {
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
@@ -18,13 +20,19 @@ export function AddItemCard({ onAdd }: AddItemCardProps) {
 
   return (
     <Card
-      role="button"
-      tabIndex={0}
+      role={disabled ? undefined : "button"}
+      tabIndex={disabled ? -1 : 0}
       data-testid="add-item-card"
-      aria-label="Добавить товар"
-      onClick={onAdd}
-      onKeyDown={onKeyDown}
-      className="flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-3 border-dashed bg-card text-center transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      aria-label={disabled ? (disabledHint ?? "Добавление недоступно") : "Добавить товар"}
+      aria-disabled={disabled || undefined}
+      onClick={disabled ? undefined : onAdd}
+      onKeyDown={disabled ? undefined : onKeyDown}
+      title={disabled ? disabledHint : undefined}
+      className={
+        disabled
+          ? "flex min-h-[220px] cursor-not-allowed flex-col items-center justify-center gap-3 border-dashed bg-card/50 text-center opacity-60"
+          : "flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-3 border-dashed bg-card text-center transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      }
     >
       <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border bg-background">
         <Plus className="h-5 w-5" />

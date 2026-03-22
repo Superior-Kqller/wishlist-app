@@ -109,12 +109,16 @@ export async function GET(req: NextRequest) {
     conditions.push({ list: { userId: userIdParam.trim() } });
   }
 
-  if (listIdParam && listIdParam.trim() !== "") {
-    const canSee = await canUserSeeList(listIdParam.trim(), currentUserId);
+  const listIdTrimmed = listIdParam?.trim() ?? "";
+  const listIdForFilter =
+    listIdTrimmed !== "" && listIdTrimmed !== "all" ? listIdTrimmed : "";
+
+  if (listIdForFilter) {
+    const canSee = await canUserSeeList(listIdForFilter, currentUserId);
     if (!canSee) {
       return NextResponse.json({ items: [], pagination: { hasMore: false, nextCursor: null, limit } });
     }
-    conditions.push({ listId: listIdParam.trim() });
+    conditions.push({ listId: listIdForFilter });
   } else {
     const visibleListIds = await getVisibleListIdsForUser(currentUserId);
     if (visibleListIds.length > 0) {

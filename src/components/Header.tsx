@@ -19,7 +19,13 @@ import { useHeaderActions } from "@/lib/header-actions";
 import { useColorTheme } from "@/hooks/useColorTheme";
 
 export function Header() {
-  const { actions: { onAddItem } } = useHeaderActions();
+  const {
+    actions: {
+      onAddItem,
+      addItemDisabled,
+      addItemDisabledReason,
+    },
+  } = useHeaderActions();
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
@@ -63,14 +69,21 @@ export function Header() {
         <div className="flex items-center gap-1 sm:gap-2">
           {isMainPage && onAddItem && (
             <>
-              <Button size="sm" onClick={onAddItem} title="Добавить товар" className="hidden sm:flex">
+              <Button
+                size="sm"
+                onClick={onAddItem}
+                disabled={addItemDisabled}
+                title={addItemDisabled ? addItemDisabledReason : "Добавить товар"}
+                className="hidden sm:flex"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Добавить товар
               </Button>
               <Button
                 size="icon"
                 onClick={onAddItem}
-                title="Добавить товар"
+                disabled={addItemDisabled}
+                title={addItemDisabled ? addItemDisabledReason : "Добавить товар"}
                 className="size-11 min-h-[44px] min-w-[44px] shrink-0 sm:hidden"
               >
                 <Plus className="h-5 w-5" />

@@ -39,7 +39,11 @@ import {
 import { toast } from "sonner";
 import { fetcher } from "@/lib/fetcher";
 import { useDebounce } from "@/lib/use-debounce";
-import { filterListsBySelectedUser } from "@/lib/list-filter-client";
+import {
+  filterListsBySelectedUser,
+  getFirstListIdInScope,
+  getFirstOwnedListId,
+} from "@/lib/list-filter-client";
 import { normalizeSelectedUserId } from "@/lib/filter-state";
 
 const ITEMS_PER_PAGE = 30;
@@ -67,7 +71,8 @@ function HomePageContent() {
   const userIdParam = searchParams.get("userId");
   const selectedUserId = userIdParam === "me" ? "me" : userIdParam || null;
   const listIdParam = searchParams.get("listId");
-  const selectedListId = listIdParam || null;
+  const selectedListId =
+    listIdParam && listIdParam !== "all" ? listIdParam : null;
 
   // Filter states — инициализация из URL
   const [search, setSearch] = useState(() => searchParams.get("search") || "");
@@ -183,6 +188,16 @@ function HomePageContent() {
     [lists]
   );
 
+  const canAddWish = useMemo(() => {
+    if (!currentUserId || !selectedListId) return false;
+    return lists.some(
+      (l) => l.id === selectedListId && l.userId === currentUserId
+    );
+  }, [currentUserId, selectedListId, lists]);
+
+  const addWishBlockedHint =
+    "Выберите свою подборку (не «Все подборки»), чтобы добавить желание.";
+
   // Dialog states
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [addDialogAutoFill, setAddDialogAutoFill] = useState(false);
@@ -205,66 +220,50 @@ function HomePageContent() {
   useEffect(() => {
     setActions({
       onAddItem: () => {
+        if (!canAddWish) {
+          toast.error(addWishBlockedHint);
+          return;
+        }
         setParsedData(null);
         setAddDialogAutoFill(false);
         setAddDialogOpen(true);
       },
-      onParseUrl: () => setParseDialogOpen(true),
+      onParseUrl: () => {
+        if (!canAddWish) {
+          toast.error(addWishBlockedHint);
+          return;
+        }
+        setParseDialogOpen(true);
+      },
+      addItemDisabled: !canAddWish,
+      addItemDisabledReason: addWishBlockedHint,
     });
     return () => setActions({});
-  }, [setActions]);
+  }, [setActions, canAddWish, addWishBlockedHint]);
 
-  // Bookmarklet / внешняя ссылка: /?addUrl=<encoded>&fill=1
-  useEffect(() => {
-    if (!currentUserId) return;
-    const box = deepLinkRef.current;
-    if (!box || box.consumed || !box.addUrl) return;
-
-    const paramsCleanup = () => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete("addUrl");
-      params.delete("fill");
-      const qs = params.toString();
-      router.replace(qs ? `/?${qs}` : "/", { scroll: false });
-    };
-
-    let decoded: string;
-    try {
-      decoded = decodeURIComponent(box.addUrl);
-      if (decoded.length > 2048) throw new Error("too long");
-      new URL(decoded);
-    } catch {
-      toast.error("Некорректная ссылка в параметре addUrl");
-      box.consumed = true;
-      paramsCleanup();
-      return;
-    }
-
-    box.consumed = true;
-    const wantFill = box.fill;
-    paramsCleanup();
-
-    setParsedData({ url: decoded });
-    setAddDialogAutoFill(wantFill);
-    setAddDialogOpen(true);
-  }, [currentUserId, router, searchParams]);
-
-  // Синхронизация фильтров в URL (без добавления в history)
+  // Синхронизация фильтров в URL (без добавления в history). listId всегда в query: id или all.
   const syncFiltersToUrl = useCallback(
-    (overrides: Record<string, string | null> = {}) => {
+    (overrides: Partial<Record<"userId" | "listId", string | null>> = {}) => {
+      const nextUserId =
+        overrides.userId !== undefined
+          ? overrides.userId
+          : normalizedSelectedUserId;
+      const listOverride = overrides.listId;
+      const nextListId =
+        listOverride !== undefined
+          ? listOverride === null || listOverride === "all"
+            ? "all"
+            : listOverride
+          : selectedListId || "all";
+
       const params = new URLSearchParams();
-      const vals: Record<string, string | null> = {
-        userId: normalizedSelectedUserId,
-        listId: selectedListId,
-        search: search || null,
-        sort: sortBy !== "newest" ? sortBy : null,
-        purchased: showPurchased ? null : "hide",
-        tags: selectedTags.length > 0 ? selectedTags.join(",") : null,
-        ...overrides,
-      };
-      for (const [k, v] of Object.entries(vals)) {
-        if (v) params.set(k, v);
-      }
+      if (nextUserId) params.set("userId", nextUserId);
+      params.set("listId", nextListId);
+      if (search) params.set("search", search);
+      if (sortBy !== "newest") params.set("sort", sortBy);
+      if (!showPurchased) params.set("purchased", "hide");
+      if (selectedTags.length > 0) params.set("tags", selectedTags.join(","));
+
       const qs = params.toString();
       router.replace(qs ? `/?${qs}` : "/", { scroll: false });
     },
@@ -282,10 +281,40 @@ function HomePageContent() {
   // Sync когда меняются локальные фильтры (search, sort, purchased, tags)
   const isInitialMount = useRef(true);
   useEffect(() => {
-    if (selectedUserId !== normalizedSelectedUserId) {
-      syncFiltersToUrl({ userId: normalizedSelectedUserId, listId: null });
+    if (selectedUserId === normalizedSelectedUserId) return;
+    if (!currentUserId || lists.length === 0) {
+      syncFiltersToUrl({
+        userId: normalizedSelectedUserId,
+        listId: "all",
+      });
+      return;
     }
-  }, [selectedUserId, normalizedSelectedUserId, syncFiltersToUrl]);
+    const nextList = getFirstListIdInScope(
+      lists,
+      usersWithStats,
+      currentUserId,
+      normalizedSelectedUserId,
+    );
+    syncFiltersToUrl({
+      userId: normalizedSelectedUserId,
+      listId: nextList ?? "all",
+    });
+  }, [
+    selectedUserId,
+    normalizedSelectedUserId,
+    currentUserId,
+    lists,
+    usersWithStats,
+    syncFiltersToUrl,
+  ]);
+
+  /** Первый заход / старые ссылки без listId → первая своя подборка или all */
+  useEffect(() => {
+    if (!currentUserId || lists.length === 0) return;
+    if (listIdParam !== null) return;
+    const owned = getFirstOwnedListId(lists, currentUserId);
+    syncFiltersToUrl({ listId: owned ?? "all" });
+  }, [currentUserId, lists, listIdParam, syncFiltersToUrl]);
 
   useEffect(() => {
     if (isInitialMount.current) {
@@ -309,13 +338,80 @@ function HomePageContent() {
 
   useEffect(() => {
     if (!selectedListId || !currentUserId) return;
-    if (!allowedListIdsForFilters.has(selectedListId)) {
-      syncFiltersToUrl({ listId: null });
-    }
+    if (allowedListIdsForFilters.has(selectedListId)) return;
+    const nextList = getFirstListIdInScope(
+      lists,
+      usersWithStats,
+      currentUserId,
+      normalizedSelectedUserId,
+    );
+    syncFiltersToUrl({ listId: nextList ?? "all" });
   }, [
     selectedListId,
     allowedListIdsForFilters,
     currentUserId,
+    lists,
+    usersWithStats,
+    normalizedSelectedUserId,
+    syncFiltersToUrl,
+  ]);
+
+  // Bookmarklet / внешняя ссылка: /?addUrl=<encoded>&fill=1 (после syncFiltersToUrl и дефолтного listId)
+  useEffect(() => {
+    if (!currentUserId) return;
+    if (listsData === undefined) return;
+    const box = deepLinkRef.current;
+    if (!box || box.consumed || !box.addUrl) return;
+
+    const paramsCleanup = () => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("addUrl");
+      params.delete("fill");
+      const qs = params.toString();
+      router.replace(qs ? `/?${qs}` : "/", { scroll: false });
+    };
+
+    let decoded: string;
+    try {
+      decoded = decodeURIComponent(box.addUrl);
+      if (decoded.length > 2048) throw new Error("too long");
+      new URL(decoded);
+    } catch {
+      toast.error("Некорректная ссылка в параметре addUrl");
+      box.consumed = true;
+      paramsCleanup();
+      return;
+    }
+
+    if (!canAddWish) {
+      const owned = getFirstOwnedListId(lists, currentUserId);
+      if (listIdParam === null && owned) {
+        syncFiltersToUrl({ listId: owned });
+        return;
+      }
+      toast.error(
+        "Сначала выберите свою подборку на главной — без неё нельзя добавить желание.",
+      );
+      box.consumed = true;
+      paramsCleanup();
+      return;
+    }
+
+    box.consumed = true;
+    const wantFill = box.fill;
+    paramsCleanup();
+
+    setParsedData({ url: decoded });
+    setAddDialogAutoFill(wantFill);
+    setAddDialogOpen(true);
+  }, [
+    currentUserId,
+    router,
+    searchParams,
+    canAddWish,
+    listsData,
+    lists,
+    listIdParam,
     syncFiltersToUrl,
   ]);
 
@@ -464,18 +560,25 @@ function HomePageContent() {
     [mutateItems, pendingStatusByItemId]
   );
 
-  const handleParsed = useCallback((data: ParsedProductResponse) => {
-    setParsedData({
-      title: data.title,
-      url: data.url,
-      price: data.price || undefined,
-      currency: data.currency,
-      images: data.images,
-      notes: data.description?.trim() || undefined,
-    });
-    setAddDialogAutoFill(false);
-    setAddDialogOpen(true);
-  }, []);
+  const handleParsed = useCallback(
+    (data: ParsedProductResponse) => {
+      if (!canAddWish) {
+        toast.error(addWishBlockedHint);
+        return;
+      }
+      setParsedData({
+        title: data.title,
+        url: data.url,
+        price: data.price || undefined,
+        currency: data.currency,
+        images: data.images,
+        notes: data.description?.trim() || undefined,
+      });
+      setAddDialogAutoFill(false);
+      setAddDialogOpen(true);
+    },
+    [canAddWish, addWishBlockedHint],
+  );
 
   const handleToggleSelect = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -537,15 +640,35 @@ function HomePageContent() {
     (userId: string | null) => {
       const uid =
         userId === null ? null : userId === "me" ? "me" : userId;
-      // Сброс подборки при смене «контекста» пользователя — иначе AND (userId + listId) даёт пустой список
-      syncFiltersToUrl({ userId: uid, listId: null });
+      if (!currentUserId) {
+        syncFiltersToUrl({ userId: uid, listId: "all" });
+        return;
+      }
+      const normalized = normalizeSelectedUserId(
+        uid,
+        currentUserId,
+        usersWithStats,
+      );
+      const nextList = getFirstListIdInScope(
+        lists,
+        usersWithStats,
+        currentUserId,
+        normalized,
+      );
+      syncFiltersToUrl({
+        userId: uid,
+        listId: nextList ?? "all",
+      });
     },
-    [syncFiltersToUrl]
+    [syncFiltersToUrl, currentUserId, lists, usersWithStats],
   );
 
-  const handleListChange = useCallback((listId: string | null) => {
-    syncFiltersToUrl({ listId });
-  }, [syncFiltersToUrl]);
+  const handleListChange = useCallback(
+    (listId: string | null) => {
+      syncFiltersToUrl({ listId: listId ?? "all" });
+    },
+    [syncFiltersToUrl],
+  );
 
   return (
     <div className="min-h-screen page-bg">
@@ -694,10 +817,16 @@ function HomePageContent() {
           onSetStatus={handleSetItemStatus}
           pendingStatusByItemId={pendingStatusByItemId}
           onEmptyAdd={() => {
+            if (!canAddWish) {
+              toast.error(addWishBlockedHint);
+              return;
+            }
             setParsedData(null);
             setAddDialogAutoFill(false);
             setAddDialogOpen(true);
           }}
+          emptyAddDisabled={!canAddWish}
+          emptyAddDisabledHint={addWishBlockedHint}
           onOpenDetail={setDetailItem}
           selectionMode={selectionMode}
           selectedIds={selectedIds}
@@ -733,6 +862,8 @@ function HomePageContent() {
         existingTags={tags || []}
         existingLists={lists}
         autoFillFromUrlOnce={addDialogAutoFill}
+        defaultListId={selectedListId}
+        listPickerRequired
       />
 
       {/* Edit item dialog */}

@@ -38,6 +38,7 @@ test("desktop-user-change-resets-list", async ({ page }) => {
   await page.getByTestId("combined-user-option-me").click();
 
   await expect(page).toHaveURL(/(?:\?|&)userId=me(?:&|$)/);
-  await expect(page).not.toHaveURL(/(?:\?|&)listId=/);
+  // После смены пользователя в URL выставляется первая подборка в scope или listId=all
+  await expect(page).toHaveURL(/(?:\?|&)listId=/);
 });
 

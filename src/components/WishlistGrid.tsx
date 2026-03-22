@@ -17,6 +17,8 @@ interface WishlistGridProps {
   onSetStatus?: (id: string, status: "AVAILABLE" | "CLAIMED" | "PURCHASED") => void;
   pendingStatusByItemId?: Record<string, boolean>;
   onEmptyAdd?: () => void;
+  emptyAddDisabled?: boolean;
+  emptyAddDisabledHint?: string;
   onOpenDetail?: (item: WishlistItem) => void;
   selectionMode?: boolean;
   selectedIds?: Set<string>;
@@ -33,6 +35,8 @@ export function WishlistGrid({
   onSetStatus,
   pendingStatusByItemId,
   onEmptyAdd,
+  emptyAddDisabled,
+  emptyAddDisabledHint,
   onOpenDetail,
   selectionMode,
   selectedIds,
@@ -75,7 +79,14 @@ export function WishlistGrid({
             onToggleSelect={onToggleSelect}
           />
         ))}
-        {onEmptyAdd && <AddItemCard key="add-item-card" onAdd={onEmptyAdd} />}
+        {onEmptyAdd && (
+          <AddItemCard
+            key="add-item-card"
+            onAdd={onEmptyAdd}
+            disabled={emptyAddDisabled}
+            disabledHint={emptyAddDisabledHint}
+          />
+        )}
       </AnimatePresence>
     </div>
   );
