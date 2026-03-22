@@ -126,7 +126,7 @@ export function FiltersDrawer({
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Купленные</Label>
             <Button
-              variant={showPurchased ? "secondary" : "outline"}
+              variant={showPurchased ? "glassActive" : "glass"}
               className="h-10 w-full justify-start"
               onClick={onTogglePurchased}
             >

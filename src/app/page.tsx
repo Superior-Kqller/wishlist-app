@@ -16,7 +16,10 @@ import { useHeaderActions } from "@/lib/header-actions";
 import { WishlistGrid } from "@/components/WishlistGrid";
 import { ItemFormDialog } from "@/components/ItemFormDialog";
 import { ParseUrlDialog } from "@/components/ParseUrlDialog";
-import { SearchAndFilter } from "@/components/SearchAndFilter";
+import {
+  WishlistSearchInput,
+  WishlistToolbarControls,
+} from "@/components/SearchAndFilter";
 import { TagFilter } from "@/components/TagFilter";
 import { CombinedFilter } from "@/components/CombinedFilter";
 import { ListFormDialog } from "@/components/ListFormDialog";
@@ -574,8 +577,8 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen page-bg">
-      <main className="container mx-auto space-y-3 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-4 sm:px-4 sm:py-6 sm:pb-6">
-        <div className="sticky z-30 -mx-3 flex min-w-0 flex-col gap-2 border-b border-border bg-card/95 px-3 py-2 backdrop-blur-md supports-[backdrop-filter]:bg-card/88 max-sm:top-[calc(4.625rem+env(safe-area-inset-top,0px))] sm:static sm:z-auto sm:-mx-4 sm:border-0 sm:bg-transparent sm:px-4 sm:py-3 sm:backdrop-blur-none">
+      <main className="container mx-auto space-y-3 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-3 sm:px-4 sm:py-5 sm:pb-5">
+        <div className="sticky z-30 -mx-3 flex min-w-0 flex-col gap-1.5 border-b border-border bg-card/95 px-3 py-1.5 backdrop-blur-md supports-[backdrop-filter]:bg-card/88 max-sm:top-[calc(4.625rem+env(safe-area-inset-top,0px))] sm:static sm:z-auto sm:-mx-4 sm:border-0 sm:bg-transparent sm:px-4 sm:py-2 sm:backdrop-blur-none">
           {/* Мобильная компактная строка: только поиск + кнопка «Фильтры» */}
           <div className="flex min-w-0 items-center gap-2 sm:hidden">
             <div className="relative flex-1 min-w-0">
@@ -588,7 +591,7 @@ function HomePageContent() {
               />
             </div>
             <Button
-              variant={selectionMode ? "default" : "outline"}
+              variant={selectionMode ? "glassActive" : "glass"}
               size="icon"
               className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
               onClick={() => {
@@ -600,7 +603,7 @@ function HomePageContent() {
               <CheckSquare className="h-5 w-5" />
             </Button>
             <Button
-              variant="outline"
+              variant="glass"
               size="icon"
               className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
               onClick={() => setMobileFiltersOpen(true)}
@@ -609,57 +612,48 @@ function HomePageContent() {
               <SlidersHorizontal className="h-5 w-5" />
             </Button>
           </div>
-          {/* Десктоп: объединённый фильтр */}
-          <div className="hidden sm:flex flex-row flex-wrap items-center gap-2 sm:gap-3 min-w-0">
-            {currentUserId && usersWithStats.length > 0 && (
-              <CombinedFilter
-                currentUserId={currentUserId}
-                users={usersWithStats}
-                lists={lists}
-                selectedUserId={normalizedSelectedUserId}
-                selectedListId={selectedListId}
-                onUserChange={handleUserChange}
-                onListChange={handleListChange}
-                onCreateList={() => {
-                  setEditingList(null);
-                  setListDialogOpen(true);
-                }}
-                onEditList={
-                  selectedListId
-                    ? () => {
-                        const list = lists.find((l) => l.id === selectedListId);
-                        if (list) {
-                          setEditingList(list);
-                          setListDialogOpen(true);
+          {/* Десктоп: фильтры + сортировка в одной строке, поиск ниже */}
+          <div className="hidden sm:flex min-w-0 flex-col gap-1.5">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              {currentUserId && usersWithStats.length > 0 && (
+                <CombinedFilter
+                  currentUserId={currentUserId}
+                  users={usersWithStats}
+                  lists={lists}
+                  selectedUserId={normalizedSelectedUserId}
+                  selectedListId={selectedListId}
+                  onUserChange={handleUserChange}
+                  onListChange={handleListChange}
+                  onCreateList={() => {
+                    setEditingList(null);
+                    setListDialogOpen(true);
+                  }}
+                  onEditList={
+                    selectedListId
+                      ? () => {
+                          const list = lists.find((l) => l.id === selectedListId);
+                          if (list) {
+                            setEditingList(list);
+                            setListDialogOpen(true);
+                          }
                         }
-                      }
-                    : undefined
-                }
-              />
-            )}
-          </div>
-          <div className="hidden sm:flex items-center gap-2">
-            <div className="flex-1">
-              <SearchAndFilter
-                search={search}
-                onSearchChange={setSearch}
+                      : undefined
+                  }
+                />
+              )}
+              <WishlistToolbarControls
                 sortBy={sortBy}
                 onSortChange={setSortBy}
                 showPurchased={showPurchased}
                 onTogglePurchased={() => setShowPurchased(!showPurchased)}
+                selectionMode={selectionMode}
+                onToggleSelection={() => {
+                  setSelectionMode(!selectionMode);
+                  if (selectionMode) setSelectedIds(new Set());
+                }}
               />
             </div>
-            <Button
-              variant={selectionMode ? "default" : "outline"}
-              size="sm"
-              onClick={() => {
-                setSelectionMode(!selectionMode);
-                if (selectionMode) setSelectedIds(new Set());
-              }}
-            >
-              <CheckSquare className="w-4 h-4 mr-1.5" />
-              {selectionMode ? "Отменить" : "Выбрать"}
-            </Button>
+            <WishlistSearchInput search={search} onSearchChange={setSearch} />
           </div>
           <div className="hidden sm:block">
             <TagFilter

@@ -13,9 +13,14 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:opacity-90 shadow-sm",
         outline:
-          "border-[1.5px] border-primary/60 bg-transparent text-primary hover:bg-primary/12",
+          "border border-border/80 bg-card/45 text-foreground shadow-none backdrop-blur-xl hover:border-primary/40 hover:bg-card/60",
         secondary:
           "border border-border/80 bg-card/70 text-foreground backdrop-blur-[10px] hover:border-primary/50 hover:bg-card",
+        /** Панель фильтров: единый «стеклянный» контур без кислотного primary */
+        glass:
+          "border border-border/65 bg-card/40 text-foreground shadow-none backdrop-blur-xl transition-colors hover:border-primary/38 hover:bg-card/52 dark:bg-black/22 dark:hover:bg-black/34",
+        glassActive:
+          "border border-primary/42 bg-primary/12 text-foreground shadow-none backdrop-blur-xl transition-colors hover:border-primary/50 hover:bg-primary/18 dark:bg-primary/14 dark:hover:bg-primary/22",
         ghost: "border border-transparent bg-transparent text-muted-foreground hover:bg-accent/60 hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
@@ -24,6 +29,8 @@ const buttonVariants = cva(
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-lg px-8",
         icon: "h-10 w-10",
+        /** Компактные иконки в полосе фильтров */
+        iconToolbar: "h-9 w-9 rounded-lg",
       },
     },
     defaultVariants: {

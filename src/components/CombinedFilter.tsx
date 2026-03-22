@@ -21,6 +21,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { ListPlus, Pencil, ChevronDown, User, FolderOpen } from "lucide-react";
 import { UserWithStats, ListWithMeta } from "@/types";
 import { cn } from "@/lib/utils";
+import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
 import { filterListsBySelectedUser } from "@/lib/list-filter-client";
 import { resolveUserScope } from "@/lib/filter-state";
 
@@ -71,8 +72,8 @@ export function CombinedFilter({
         <DropdownMenuTrigger asChild>
           <Button
             type="button"
-            variant="outline"
-            className="h-10 gap-2 rounded-lg border-input/90 bg-card/65 px-3 text-foreground hover:text-foreground backdrop-blur-[10px] touch-manipulation"
+            variant="glass"
+            className="h-9 gap-2 px-3 touch-manipulation"
             aria-label="Выбрать пользователя"
             data-testid="combined-user-trigger"
           >
@@ -180,7 +181,9 @@ export function CombinedFilter({
           value={selectedListId ?? "all"}
           onValueChange={(v) => onListChange(v === "all" ? null : v)}
         >
-          <SelectTrigger className="h-10 w-[180px] bg-card/65">
+          <SelectTrigger
+            className={cn("h-9 w-[min(180px,100%)] sm:w-[180px]", filterBarTriggerClass)}
+          >
             <FolderOpen className="w-4 h-4 mr-2 opacity-60" />
             <SelectValue placeholder="Подборка" />
           </SelectTrigger>
@@ -197,10 +200,9 @@ export function CombinedFilter({
         {onEditList && selectedListId && (
           <Button
             type="button"
-            variant="outline"
-            size="icon"
+            variant="glass"
+            size="iconToolbar"
             onClick={onEditList}
-            className="h-10 w-10"
             title="Изменить подборку"
           >
             <Pencil className="w-4 h-4" />
@@ -210,10 +212,10 @@ export function CombinedFilter({
         {isMyMode && (
           <Button
             type="button"
-            variant="outline"
+            variant="glass"
             size="sm"
             onClick={onCreateList}
-            className="h-10"
+            className="h-9 gap-1.5"
           >
             <ListPlus className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Создать</span>

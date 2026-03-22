@@ -9,40 +9,76 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, SlidersHorizontal, Eye, EyeOff } from "lucide-react";
+import { Search, SlidersHorizontal, Eye, EyeOff, CheckSquare } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
 
-interface SearchAndFilterProps {
+export { filterBarTriggerClass };
+
+interface WishlistSearchInputProps {
   search: string;
   onSearchChange: (value: string) => void;
+  className?: string;
+}
+
+export function WishlistSearchInput({
+  search,
+  onSearchChange,
+  className,
+}: WishlistSearchInputProps) {
+  return (
+    <div className={cn("relative min-w-0 w-full", className)}>
+      <Search className="absolute left-2.5 top-1/2 h-4 w-4 shrink-0 -translate-y-1/2 text-muted-foreground/80" />
+      <Input
+        value={search}
+        onChange={(e) => onSearchChange(e.target.value)}
+        placeholder="Поиск..."
+        className={cn(
+          "h-9 pl-8 text-sm placeholder:text-muted-foreground/85",
+          filterBarTriggerClass,
+        )}
+      />
+    </div>
+  );
+}
+
+interface WishlistToolbarControlsProps {
   sortBy: string;
   onSortChange: (value: string) => void;
   showPurchased: boolean;
   onTogglePurchased: () => void;
+  selectionMode: boolean;
+  onToggleSelection: () => void;
+  /** Скрыть кнопку «Выбрать» (для устаревшей обёртки SearchAndFilter) */
+  showSelectionButton?: boolean;
+  className?: string;
 }
 
-export function SearchAndFilter({
-  search,
-  onSearchChange,
+export function WishlistToolbarControls({
   sortBy,
   onSortChange,
   showPurchased,
   onTogglePurchased,
-}: SearchAndFilterProps) {
+  selectionMode,
+  onToggleSelection,
+  showSelectionButton = true,
+  className,
+}: WishlistToolbarControlsProps) {
   return (
-    <div className="flex flex-row gap-2 sm:gap-3">
-      <div className="relative min-w-0 flex-1">
-        <Search className="absolute left-2.5 top-1/2 h-4 w-4 shrink-0 -translate-y-1/2 text-muted-foreground/80 sm:left-3" />
-        <Input
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Поиск..."
-          className="h-10 bg-card pl-8 text-sm placeholder:text-muted-foreground/85 sm:pl-10"
-        />
-      </div>
+    <div className={cn("flex flex-shrink-0 items-center gap-2", className)}>
       <Select value={sortBy} onValueChange={onSortChange}>
-        <SelectTrigger className="h-10 w-10 shrink-0 bg-card/70 sm:w-[180px] sm:px-3" title="Сортировка">
-          <SlidersHorizontal className="h-4 w-4 shrink-0 text-muted-foreground/85 sm:mr-2" />
-          <SelectValue placeholder="Сортировка" className="sr-only sm:not-sr-only sm:inline" />
+        <SelectTrigger
+          className={cn(
+            "w-9 shrink-0 px-0 sm:w-[168px] sm:px-3",
+            filterBarTriggerClass,
+          )}
+          title="Сортировка"
+        >
+          <SlidersHorizontal className="mx-auto h-4 w-4 shrink-0 text-muted-foreground/85 sm:mx-0 sm:mr-2" />
+          <SelectValue
+            placeholder="Сортировка"
+            className="sr-only sm:not-sr-only sm:inline"
+          />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="newest">Новые сначала</SelectItem>
@@ -54,18 +90,65 @@ export function SearchAndFilter({
         </SelectContent>
       </Select>
       <Button
-        variant={showPurchased ? "secondary" : "outline"}
-        size="icon"
-        className="h-10 w-10 shrink-0"
+        type="button"
+        variant={showPurchased ? "glassActive" : "glass"}
+        size="iconToolbar"
         onClick={onTogglePurchased}
         title={showPurchased ? "Скрыть купленные" : "Показать купленные"}
       >
         {showPurchased ? (
-          <Eye className="w-4 h-4" />
+          <Eye className="h-4 w-4" />
         ) : (
-          <EyeOff className="w-4 h-4" />
+          <EyeOff className="h-4 w-4" />
         )}
       </Button>
+      {showSelectionButton ? (
+        <Button
+          type="button"
+          variant={selectionMode ? "glassActive" : "glass"}
+          size="sm"
+          className="h-9 gap-1.5 px-3"
+          title={selectionMode ? "Отменить выбор" : "Режим выбора"}
+          onClick={onToggleSelection}
+        >
+          <CheckSquare className="h-4 w-4 shrink-0" />
+          <span className="hidden min-[1100px]:inline">
+            {selectionMode ? "Отменить" : "Выбрать"}
+          </span>
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
+/** @deprecated Используйте WishlistSearchInput + WishlistToolbarControls в разметке страницы */
+export function SearchAndFilter({
+  search,
+  onSearchChange,
+  sortBy,
+  onSortChange,
+  showPurchased,
+  onTogglePurchased,
+}: {
+  search: string;
+  onSearchChange: (value: string) => void;
+  sortBy: string;
+  onSortChange: (value: string) => void;
+  showPurchased: boolean;
+  onTogglePurchased: () => void;
+}) {
+  return (
+    <div className="flex flex-row gap-2 sm:gap-2.5">
+      <WishlistSearchInput search={search} onSearchChange={onSearchChange} />
+      <WishlistToolbarControls
+        sortBy={sortBy}
+        onSortChange={onSortChange}
+        showPurchased={showPurchased}
+        onTogglePurchased={onTogglePurchased}
+        selectionMode={false}
+        onToggleSelection={() => {}}
+        showSelectionButton={false}
+      />
     </div>
   );
 }

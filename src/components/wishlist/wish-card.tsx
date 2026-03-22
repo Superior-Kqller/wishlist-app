@@ -102,7 +102,8 @@ export const WishCard = memo(function WishCard({
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "overflow-hidden border-purple-500/40 bg-card/94 shadow-[0_12px_40px_rgba(88,28,135,0.35)] backdrop-blur-sm",
+          "overflow-hidden border-purple-500/35 bg-card/50 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-lg",
+          "sm:bg-zinc-950/91 sm:backdrop-blur-2xl sm:shadow-[0_16px_48px_rgba(88,28,135,0.22),0_0_0_1px_rgba(168,85,247,0.14)]",
           isBought && "opacity-45 grayscale",
           isCardInteractive && "cursor-pointer",
           isSelected && "shadow-[0_0_0_2px_rgba(192,38,211,0.45)]"
@@ -181,7 +182,7 @@ export const WishCard = memo(function WishCard({
               {item.price != null ? (
                 <p
                   data-testid="wishlist-card-v2-price"
-                  className="shrink-0 text-right text-base font-bold tabular-nums tracking-tight text-fuchsia-300"
+                  className="shrink-0 text-right text-sm font-semibold tabular-nums tracking-tight text-muted-foreground sm:text-[15px] sm:text-violet-200/75"
                 >
                   {formatPrice(item.price, item.currency)}
                 </p>
@@ -201,9 +202,9 @@ export const WishCard = memo(function WishCard({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        variant="outline"
+                        variant="glass"
                         asChild
-                        className="h-11 min-h-[44px] w-full justify-center border border-purple-500/35 bg-purple-950/45 px-4 text-sm font-semibold text-slate-200 shadow-none hover:border-purple-400/45 hover:bg-purple-900/55 hover:text-white sm:h-10 sm:min-h-10 sm:w-auto sm:min-w-[8rem]"
+                        className="h-11 min-h-[44px] w-full justify-center border-primary/28 px-4 text-sm font-semibold shadow-none hover:border-primary/40 sm:h-9 sm:min-h-9 sm:w-auto sm:min-w-[8rem]"
                       >
                         <a
                           href={item.url}
