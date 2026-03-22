@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
   filterListsBySelectedUser,
-  getFirstListIdInScope,
   getFirstOwnedListId,
 } from "./list-filter-client";
 import type { ListWithMeta, UserWithStats } from "@/types";
@@ -100,23 +99,5 @@ describe("getFirstOwnedListId", () => {
 
   it("null если своих подборок нет", () => {
     expect(getFirstOwnedListId([], "u1")).toBeNull();
-  });
-});
-
-describe("getFirstListIdInScope", () => {
-  it("режим «все» — первая по названию среди доступных", () => {
-    expect(getFirstListIdInScope(lists, users, "u1", null)).toBe("l-me");
-  });
-
-  it("режим «мои» — первая своя", () => {
-    expect(getFirstListIdInScope(lists, users, "u1", "me")).toBe("l-me");
-  });
-
-  it("другой пользователь — первая его подборка", () => {
-    expect(getFirstListIdInScope(lists, users, "u1", "u2")).toBe("l-other");
-  });
-
-  it("пустой список — null", () => {
-    expect(getFirstListIdInScope([], users, "u1", null)).toBeNull();
   });
 });

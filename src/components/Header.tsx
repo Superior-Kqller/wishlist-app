@@ -20,11 +20,7 @@ import { useColorTheme } from "@/hooks/useColorTheme";
 
 export function Header() {
   const {
-    actions: {
-      onAddItem,
-      addItemDisabled,
-      addItemDisabledReason,
-    },
+    actions: { onAddItem },
   } = useHeaderActions();
   const { data: session } = useSession();
   const router = useRouter();
@@ -72,8 +68,7 @@ export function Header() {
               <Button
                 size="sm"
                 onClick={onAddItem}
-                disabled={addItemDisabled}
-                title={addItemDisabled ? addItemDisabledReason : "Добавить товар"}
+                title="Добавить товар"
                 className="hidden sm:flex"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -82,8 +77,7 @@ export function Header() {
               <Button
                 size="icon"
                 onClick={onAddItem}
-                disabled={addItemDisabled}
-                title={addItemDisabled ? addItemDisabledReason : "Добавить товар"}
+                title="Добавить товар"
                 className="size-11 min-h-[44px] min-w-[44px] shrink-0 sm:hidden"
               >
                 <Plus className="h-5 w-5" />

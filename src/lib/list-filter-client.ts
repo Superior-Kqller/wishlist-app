@@ -26,7 +26,7 @@ export function filterListsBySelectedUser(
   return lists;
 }
 
-/** Первая подборка текущего пользователя по названию (для URL по умолчанию). */
+/** Первая подборка текущего пользователя по названию (например, значение по умолчанию в форме создания). */
 export function getFirstOwnedListId(
   lists: ListWithMeta[],
   currentUserId: string,
@@ -35,24 +35,4 @@ export function getFirstOwnedListId(
     .filter((l) => l.userId === currentUserId)
     .sort((a, b) => a.name.localeCompare(b.name, "ru"));
   return mine[0]?.id ?? null;
-}
-
-/**
- * Первая подборка в текущем scope фильтра пользователя (по названию).
- * Если подборок нет — null (в URL тогда используется «all»).
- */
-export function getFirstListIdInScope(
-  lists: ListWithMeta[],
-  users: UserWithStats[],
-  currentUserId: string,
-  normalizedSelectedUserId: string | null,
-): string | null {
-  const scoped = filterListsBySelectedUser(
-    lists,
-    users,
-    currentUserId,
-    normalizedSelectedUserId,
-  );
-  if (scoped.length === 0) return null;
-  return [...scoped].sort((a, b) => a.name.localeCompare(b.name, "ru"))[0]!.id;
 }

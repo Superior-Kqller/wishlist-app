@@ -38,7 +38,7 @@ interface ItemFormDialogProps {
   existingLists?: ListWithMeta[];
   /** Один раз при открытии вызвать парсинг по полю URL (для bookmarklet с fill=1) */
   autoFillFromUrlOnce?: boolean;
-  /** Предвыбранная подборка при добавлении (текущий фильтр на главной) */
+  /** Предвыбранная подборка при добавлении (например, первая своя подборка) */
   defaultListId?: string | null;
   /** Нельзя сохранить без подборки; скрыть пункт «Без подборки» */
   listPickerRequired?: boolean;
@@ -218,7 +218,11 @@ export function ItemFormDialog({
     const effectiveListId =
       listId || (listPickerRequired ? defaultListId : null);
     if (listPickerRequired && !effectiveListId) {
-      toast.error("Выберите подборку");
+      toast.error(
+        existingLists.length === 0
+          ? "Сначала создайте подборку в фильтрах на главной"
+          : "Выберите подборку",
+      );
       return;
     }
 

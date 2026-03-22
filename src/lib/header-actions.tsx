@@ -5,10 +5,6 @@ import { createContext, useContext, useState, useCallback, ReactNode } from "rea
 interface HeaderActions {
   onAddItem?: () => void;
   onParseUrl?: () => void;
-  /** Кнопка «Добавить» неактивна (например, не выбрана своя подборка) */
-  addItemDisabled?: boolean;
-  /** Подсказка при наведении на неактивную кнопку добавления */
-  addItemDisabledReason?: string;
 }
 
 interface HeaderActionsContextValue {

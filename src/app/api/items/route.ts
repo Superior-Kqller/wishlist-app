@@ -109,16 +109,14 @@ export async function GET(req: NextRequest) {
     conditions.push({ list: { userId: userIdParam.trim() } });
   }
 
-  const listIdTrimmed = listIdParam?.trim() ?? "";
-  const listIdForFilter =
-    listIdTrimmed !== "" && listIdTrimmed !== "all" ? listIdTrimmed : "";
-
-  if (listIdForFilter) {
-    const canSee = await canUserSeeList(listIdForFilter, currentUserId);
+  const listIdTrim = listIdParam?.trim() ?? "";
+  // Устаревшее значение из старых ссылок — без фильтра по подборке
+  if (listIdTrim !== "" && listIdTrim !== "all") {
+    const canSee = await canUserSeeList(listIdTrim, currentUserId);
     if (!canSee) {
       return NextResponse.json({ items: [], pagination: { hasMore: false, nextCursor: null, limit } });
     }
-    conditions.push({ listId: listIdForFilter });
+    conditions.push({ listId: listIdTrim });
   } else {
     const visibleListIds = await getVisibleListIdsForUser(currentUserId);
     if (visibleListIds.length > 0) {
