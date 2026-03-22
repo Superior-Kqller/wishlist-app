@@ -480,8 +480,8 @@ function HomePageContent() {
               <SlidersHorizontal className="h-5 w-5" />
             </Button>
           </div>
-          {/* Десктоп: пользователь/подборки, поиск и панель управления в одной строке (с переносом) */}
-          <div className="hidden min-w-0 flex-wrap items-center gap-2 sm:flex">
+          {/* Десктоп: фильтры и панель слева, поиск справа от них (ml-auto) */}
+          <div className="hidden min-w-0 w-full flex-wrap items-center gap-2 sm:flex">
             {currentUserId && usersWithStats.length > 0 && (
               <CombinedFilter
                 currentUserId={currentUserId}
@@ -508,11 +508,6 @@ function HomePageContent() {
                 }
               />
             )}
-            <WishlistSearchInput
-              search={search}
-              onSearchChange={setSearch}
-              className="min-w-0 flex-1 basis-[min(100%,12rem)] sm:max-w-md"
-            />
             <WishlistToolbarControls
               sortBy={sortBy}
               onSortChange={setSortBy}
@@ -523,6 +518,11 @@ function HomePageContent() {
                 setSelectionMode(!selectionMode);
                 if (selectionMode) setSelectedIds(new Set());
               }}
+            />
+            <WishlistSearchInput
+              search={search}
+              onSearchChange={setSearch}
+              className="min-w-0 max-w-md flex-1 basis-[12rem] sm:ml-auto"
             />
           </div>
           <div className="hidden sm:block">

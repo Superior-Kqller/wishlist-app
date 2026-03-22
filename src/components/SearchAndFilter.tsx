@@ -91,15 +91,15 @@ export function WishlistToolbarControls({
       </Select>
       <Button
         type="button"
-        variant={showPurchased ? "glassActive" : "glass"}
+        variant="glass"
         size="iconToolbar"
         onClick={onTogglePurchased}
         title={showPurchased ? "Скрыть купленные" : "Показать купленные"}
       >
         {showPurchased ? (
-          <Eye className="h-4 w-4" />
+          <Eye className="h-4 w-4 text-muted-foreground/85" />
         ) : (
-          <EyeOff className="h-4 w-4" />
+          <EyeOff className="h-4 w-4 text-muted-foreground/85" />
         )}
       </Button>
       {showSelectionButton ? (

@@ -126,14 +126,14 @@ export function FiltersDrawer({
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Купленные</Label>
             <Button
-              variant={showPurchased ? "glassActive" : "glass"}
+              variant="glass"
               className="h-10 w-full justify-start"
               onClick={onTogglePurchased}
             >
               {showPurchased ? (
-                <Eye className="w-4 h-4 mr-2" />
+                <Eye className="mr-2 h-4 w-4 text-muted-foreground/85" />
               ) : (
-                <EyeOff className="w-4 h-4 mr-2" />
+                <EyeOff className="mr-2 h-4 w-4 text-muted-foreground/85" />
               )}
               {showPurchased ? "Показаны купленные" : "Скрыты купленные"}
             </Button>
