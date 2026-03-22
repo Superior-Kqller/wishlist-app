@@ -63,7 +63,7 @@ export function ItemDetailDialog({
   statusPending = false,
 }: ItemDetailDialogProps) {
   const actionButtonClass =
-    "h-9 shrink-0 whitespace-nowrap border-primary/55 bg-card/85 px-3 text-foreground backdrop-blur-[8px] hover:border-primary/70 hover:bg-card";
+    "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-primary/55 bg-card/85 px-3 text-foreground backdrop-blur-[8px] hover:border-primary/70 hover:bg-card sm:h-9 sm:min-h-9 sm:w-auto";
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
@@ -166,7 +166,12 @@ export function ItemDetailDialog({
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
-        className="max-w-2xl gap-0"
+        className={cn(
+          "max-w-2xl gap-0",
+          /* Мобильные: почти на всю ширину и высоту экрана */
+          "max-sm:max-h-[min(94dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.75rem))]",
+          "max-sm:w-[calc(100vw-0.75rem)] max-sm:max-w-[min(42rem,calc(100vw-0.75rem))]",
+        )}
         bodyClassName="p-0 gap-0 overflow-y-auto overscroll-y-contain"
       >
         <DialogDescription className="sr-only">
@@ -175,8 +180,8 @@ export function ItemDetailDialog({
             ? `, цена ${formatPrice(item.price, item.currency)}`
             : ""}
         </DialogDescription>
-        {/* Gallery */}
-        <div className="relative aspect-[4/3] sm:aspect-[2/1] bg-muted shrink-0">
+        {/* Галерея: на мобильных ограничиваем высоту — больше места под текст и кнопки */}
+        <div className="relative h-[min(42vh,280px)] w-full shrink-0 bg-muted sm:aspect-[2/1] sm:h-auto sm:min-h-0">
           {mainImage && !imageError ? (
             <Image
               src={mainImage}
@@ -186,7 +191,7 @@ export function ItemDetailDialog({
                 "object-cover",
                 item.purchased && "grayscale"
               )}
-              sizes="(max-width: 768px) 100vw, 672px"
+              sizes="(max-width: 640px) 100vw, 672px"
               unoptimized={
                 mainImage.startsWith("data:") || mainImage.startsWith("blob:")
               }
@@ -203,7 +208,7 @@ export function ItemDetailDialog({
               <button
                 type="button"
                 onClick={() => setCurrentImageIndex((i) => (i - 1 + images.length) % images.length)}
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center text-white"
+                className="absolute left-2 top-1/2 z-10 flex h-11 w-11 min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
                 aria-label="Предыдущее фото"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -211,7 +216,7 @@ export function ItemDetailDialog({
               <button
                 type="button"
                 onClick={() => setCurrentImageIndex((i) => (i + 1) % images.length)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center text-white"
+                className="absolute right-2 top-1/2 z-10 flex h-11 w-11 min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
                 aria-label="Следующее фото"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -300,15 +305,15 @@ export function ItemDetailDialog({
             </div>
           )}
 
-          {/* Actions: на mobile горизонтальный скролл, на desktop перенос строк */}
+          {/* Действия: на мобильных — столбец на всю ширину без горизонтального скролла */}
           {(item.url || currentUserId === item.userId) && (
-            <div className="-mx-1 flex flex-nowrap items-center gap-2 overflow-x-auto overflow-y-visible border-t border-border pt-3 pb-0.5 [scrollbar-width:thin] sm:mx-0 sm:flex-wrap sm:overflow-x-visible sm:pt-2">
+            <div className="flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2 sm:pt-2">
               {item.url && (
                 <a
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md bg-muted px-3 py-2 text-sm font-medium hover:bg-muted/80 min-h-9"
+                  className="inline-flex h-11 min-h-[44px] w-full shrink-0 items-center justify-center gap-2 rounded-md bg-muted px-3 text-sm font-medium hover:bg-muted/80 sm:h-9 sm:min-h-9 sm:w-auto sm:justify-start"
                 >
                   <ExternalLink className="h-4 w-4 shrink-0" />
                   Открыть ссылку
@@ -359,7 +364,7 @@ export function ItemDetailDialog({
                     variant="destructive"
                     size="sm"
                     onClick={handleDelete}
-                    className="h-9 shrink-0 whitespace-nowrap px-3"
+                    className="h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap px-3 sm:h-9 sm:min-h-9 sm:w-auto"
                   >
                     <Trash2 className="mr-2 h-4 w-4 shrink-0" />
                     Удалить

@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { ListWithMeta } from "@/types";
 import { UserWithStats } from "@/types";
@@ -24,6 +24,8 @@ interface ListFormDialogProps {
   list: ListWithMeta | null;
   users: UserWithStats[];
   onSuccess: () => void;
+  /** Запрос на удаление: родитель закроет форму и покажет подтверждение */
+  onDeleteRequest?: (list: ListWithMeta) => void;
 }
 
 export function ListFormDialog({
@@ -32,6 +34,7 @@ export function ListFormDialog({
   list,
   users,
   onSuccess,
+  onDeleteRequest,
 }: ListFormDialogProps) {
   const [name, setName] = useState("");
   const [viewerIds, setViewerIds] = useState<string[]>([]);
@@ -145,14 +148,33 @@ export function ListFormDialog({
             </div>
           )}
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Отмена
-            </Button>
-            <Button type="submit" disabled={saving}>
-              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {isEdit ? "Сохранить" : "Создать"}
-            </Button>
+          <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-between sm:gap-2">
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:gap-2">
+              {isEdit && onDeleteRequest && list ? (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  className="w-full border-destructive/80 bg-destructive/90 sm:w-auto"
+                  disabled={saving}
+                  onClick={() => {
+                    onDeleteRequest(list);
+                    onOpenChange(false);
+                  }}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Удалить подборку
+                </Button>
+              ) : null}
+            </div>
+            <div className="flex w-full flex-col-reverse gap-2 sm:w-auto sm:flex-row">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Отмена
+              </Button>
+              <Button type="submit" disabled={saving}>
+                {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {isEdit ? "Сохранить" : "Создать"}
+              </Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>

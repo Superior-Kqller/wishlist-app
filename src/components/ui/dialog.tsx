@@ -58,8 +58,19 @@ const DialogContent = React.forwardRef<
       >
         {children}
       </div>
-      <DialogPrimitive.Close className="absolute right-[max(0.75rem,env(safe-area-inset-right,0px))] top-[max(0.75rem,env(safe-area-inset-top,0px))] z-20 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-        <X className="h-4 w-4" />
+      <DialogPrimitive.Close
+        className={cn(
+          "absolute right-[max(0.5rem,env(safe-area-inset-right,0px))] top-[max(0.5rem,env(safe-area-inset-top,0px))] z-[60]",
+          "flex size-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full",
+          "border border-border/70 bg-background/90 text-foreground shadow-md backdrop-blur-md",
+          "opacity-95 ring-offset-background transition-opacity hover:opacity-100",
+          "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+          "disabled:pointer-events-none",
+          "data-[state=open]:text-foreground",
+        )}
+        aria-label="Закрыть"
+      >
+        <X className="h-5 w-5" aria-hidden />
         <span className="sr-only">Закрыть</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>

@@ -214,6 +214,10 @@ function HomePageContent() {
   const [detailItem, setDetailItem] = useState<WishlistItem | null>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
+  const [listDeleteTarget, setListDeleteTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   // Bulk selection
   const [selectionMode, setSelectionMode] = useState(false);
@@ -441,6 +445,26 @@ function HomePageContent() {
     mutateItems();
     setDeletingItemId(null);
   }, [deletingItemId, mutateItems]);
+
+  const confirmDeleteList = useCallback(async () => {
+    if (!listDeleteTarget) return;
+    const { id } = listDeleteTarget;
+    try {
+      const res = await fetch(`/api/lists/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Не удалось удалить подборку");
+      }
+      toast.success("Подборка удалена");
+      await mutateLists();
+      await mutateItems();
+      if (selectedListId === id) {
+        syncFiltersToUrl({ listId: null });
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Ошибка удаления");
+    }
+  }, [listDeleteTarget, selectedListId, syncFiltersToUrl, mutateItems, mutateLists]);
 
   const handleTogglePurchased = useCallback(
     async (id: string, purchased: boolean) => {
@@ -801,6 +825,22 @@ function HomePageContent() {
         onConfirm={confirmDeleteItem}
       />
 
+      <ConfirmDialog
+        open={!!listDeleteTarget}
+        onOpenChange={(open) => !open && setListDeleteTarget(null)}
+        title={
+          listDeleteTarget
+            ? `Удалить подборку «${listDeleteTarget.name}»?`
+            : "Удалить подборку?"
+        }
+        description="Желания останутся в общем списке, но без привязки к этой подборке. Восстановить подборку будет нельзя."
+        confirmLabel="Удалить подборку"
+        variant="destructive"
+        onConfirm={() => {
+          void confirmDeleteList();
+        }}
+      />
+
       {/* List create/edit dialog */}
       <ListFormDialog
         open={listDialogOpen}
@@ -814,6 +854,7 @@ function HomePageContent() {
           mutateLists();
           setEditingList(null);
         }}
+        onDeleteRequest={(l) => setListDeleteTarget({ id: l.id, name: l.name })}
       />
 
       {/* Bulk action bar */}
