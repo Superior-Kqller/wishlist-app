@@ -7,6 +7,7 @@ export interface WishlistItem {
   price: number | null;
   currency: string;
   priority: number;
+  /** Превью: используется только первый URL; новые записи — не более одного */
   images: string[];
   notes: string | null;
   purchased: boolean;
@@ -66,8 +67,9 @@ export interface CreateItemPayload {
   price?: number;
   currency?: string;
   priority?: number;
-  images?: string[];
   notes?: string;
+  /** Не более одного URL изображения */
+  images?: string[];
   tags?: string[]; // tag names
   listId?: string | null;
 }

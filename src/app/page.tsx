@@ -359,12 +359,13 @@ function HomePageContent() {
   );
 
   const handleParsed = useCallback((data: ParsedProductResponse) => {
+    const firstImage = data.images?.[0];
     setParsedData({
       title: data.title,
       url: data.url,
       price: data.price || undefined,
       currency: data.currency,
-      images: data.images,
+      images: firstImage ? [firstImage] : undefined,
       notes: data.description?.trim() || undefined,
     });
     setAddDialogAutoFill(false);

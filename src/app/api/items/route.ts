@@ -16,7 +16,7 @@ const createItemSchema = z.object({
   price: z.number().min(0).optional(),
   currency: z.string().default("RUB"),
   priority: z.number().min(1).max(5).default(3),
-  images: z.array(z.string().url()).default([]),
+  images: z.array(z.string().url()).max(1).default([]),
   notes: z.string().max(2000).optional(),
   tags: z.array(z.string()).default([]),
   listId: z.string().trim().nullable().optional(),

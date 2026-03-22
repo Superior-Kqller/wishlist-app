@@ -70,8 +70,7 @@ export function ItemFormDialog({
   const [priority, setPriority] = useState(3);
   const [listId, setListId] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
-  const [images, setImages] = useState<string[]>([]);
-  const [newImageUrl, setNewImageUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
@@ -88,8 +87,7 @@ export function ItemFormDialog({
     setPriority(3);
     setListId(listPickerRequired ? defaultListId ?? null : null);
     setNotes("");
-    setImages([]);
-    setNewImageUrl("");
+    setImageUrl("");
     setTagInput("");
     setTags([]);
   }, [listPickerRequired, defaultListId]);
@@ -103,7 +101,7 @@ export function ItemFormDialog({
       setPriority(item.priority);
       setListId(item.listId ?? null);
       setNotes(item.notes || "");
-      setImages(item.images || []);
+      setImageUrl(item.images?.[0] ?? "");
       setTags(item.tags.map((t) => t.name));
     } else if (initialData) {
       setTitle(initialData.title || "");
@@ -113,7 +111,7 @@ export function ItemFormDialog({
       setPriority(initialData.priority || 3);
       setListId(initialData.listId ?? defaultListId ?? null);
       setNotes(initialData.notes || "");
-      setImages(initialData.images || []);
+      setImageUrl(initialData.images?.[0] ?? "");
       setTags(initialData.tags || []);
     } else {
       resetForm();
@@ -136,18 +134,6 @@ export function ItemFormDialog({
 
   function removeTag(tag: string) {
     setTags(tags.filter((t) => t !== tag));
-  }
-
-  function addImage() {
-    const imgUrl = newImageUrl.trim();
-    if (imgUrl && !images.includes(imgUrl)) {
-      setImages([...images, imgUrl]);
-    }
-    setNewImageUrl("");
-  }
-
-  function removeImage(imgUrl: string) {
-    setImages(images.filter((i) => i !== imgUrl));
   }
 
   const handleFillFromUrl = useCallback(async () => {
@@ -179,7 +165,7 @@ export function ItemFormDialog({
         setPrice(String(data.price));
       }
       if (data.currency) setCurrency(data.currency);
-      if (data.images?.length) setImages(data.images);
+      if (data.images?.[0]) setImageUrl(data.images[0]);
       if (data.description?.trim()) {
         const d = data.description.trim();
         setNotes((prev) => {
@@ -236,7 +222,7 @@ export function ItemFormDialog({
         priority,
         listId: effectiveListId || undefined,
         notes: notes.trim() || undefined,
-        images,
+        images: imageUrl.trim() ? [imageUrl.trim()] : [],
         tags,
       });
       onOpenChange(false);
@@ -391,56 +377,38 @@ export function ItemFormDialog({
             />
           </div>
 
-          {/* Images */}
+          {/* Одно изображение по URL */}
           <div className="space-y-2">
-            <Label>Изображения</Label>
-            {images.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {images.map((img, i) => (
-                  <div
-                    key={i}
-                    className="relative w-16 h-16 rounded-lg overflow-hidden border group"
-                  >
-                    <Image
-                      src={img}
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="64px"
-                      unoptimized={img.startsWith("data:") || img.startsWith("blob:")}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(img)}
-                      className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                    >
-                      <X className="w-4 h-4 text-white" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="flex gap-2">
-              <Input
-                value={newImageUrl}
-                onChange={(e) => setNewImageUrl(e.target.value)}
-                placeholder="URL изображения"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addImage();
+            <Label htmlFor="item-image-url">Изображение</Label>
+            {imageUrl.trim() ? (
+              <div className="relative h-24 w-24 overflow-hidden rounded-lg border group">
+                <Image
+                  src={imageUrl.trim()}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="96px"
+                  unoptimized={
+                    imageUrl.trim().startsWith("data:") ||
+                    imageUrl.trim().startsWith("blob:")
                   }
-                }}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={addImage}
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
+                />
+                <button
+                  type="button"
+                  onClick={() => setImageUrl("")}
+                  className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+                  title="Убрать изображение"
+                >
+                  <X className="h-4 w-4 text-white" />
+                </button>
+              </div>
+            ) : null}
+            <Input
+              id="item-image-url"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="URL изображения (необязательно)"
+            />
           </div>
 
           {/* Tags */}

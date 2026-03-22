@@ -24,8 +24,6 @@ import {
   Trash2,
   ShoppingCart,
   Undo2,
-  ChevronLeft,
-  ChevronRight,
   ImageIcon,
   Loader2,
 } from "lucide-react";
@@ -65,7 +63,6 @@ export function ItemDetailDialog({
   const actionButtonClass =
     "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-primary/55 bg-card/85 px-3 text-foreground backdrop-blur-[8px] hover:border-primary/70 hover:bg-card sm:h-9 sm:min-h-9 sm:w-auto";
 
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
@@ -79,15 +76,12 @@ export function ItemDetailDialog({
 
   useEffect(() => {
     if (!open || !item) return;
-    setCurrentImageIndex(0);
     setImageError(false);
   }, [open, item]);
 
   if (!item) return null;
 
-  const images = item.images?.length ? item.images : [];
-  const mainImage = images[currentImageIndex];
-  const hasMultipleImages = images.length > 1;
+  const mainImage = item.images?.[0] ?? null;
 
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,40 +197,6 @@ export function ItemDetailDialog({
             </div>
           )}
 
-          {hasMultipleImages && !imageError && (
-            <>
-              <button
-                type="button"
-                onClick={() => setCurrentImageIndex((i) => (i - 1 + images.length) % images.length)}
-                className="absolute left-2 top-1/2 z-10 flex h-11 w-11 min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
-                aria-label="Предыдущее фото"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setCurrentImageIndex((i) => (i + 1) % images.length)}
-                className="absolute right-2 top-1/2 z-10 flex h-11 w-11 min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
-                aria-label="Следующее фото"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-                {images.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setCurrentImageIndex(i)}
-                    className={cn(
-                      "w-2 h-2 rounded-full transition-colors",
-                      i === currentImageIndex ? "bg-primary" : "bg-white/60 hover:bg-white/80"
-                    )}
-                    aria-label={`Фото ${i + 1}`}
-                  />
-                ))}
-              </div>
-            </>
-          )}
         </div>
 
         <div className="space-y-3 sm:space-y-4 px-3 pt-3 sm:px-6 sm:pt-6 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">

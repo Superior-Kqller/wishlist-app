@@ -24,7 +24,7 @@ const updateItemSchema = z.object({
   price: z.number().min(0).optional().or(z.null()),
   currency: z.string().optional(),
   priority: z.number().min(1).max(5).optional(),
-  images: z.array(z.string().url()).optional(),
+  images: z.array(z.string().url()).max(1).optional(),
   notes: z.string().max(2000).optional().or(z.null()),
   purchased: z.boolean().optional(),
   status: z.enum(["AVAILABLE", "CLAIMED", "PURCHASED"]).optional(),
