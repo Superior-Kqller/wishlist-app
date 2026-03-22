@@ -9,7 +9,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="dark"
+        forcedTheme="dark"
+        enableSystem={false}
+      >
         <TooltipProvider delayDuration={300}>
           <HeaderActionsProvider>
             {children}
@@ -17,7 +22,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         </TooltipProvider>
         <Toaster
           position="bottom-right"
-          theme="system"
+          theme="dark"
           richColors
           closeButton
           toastOptions={{

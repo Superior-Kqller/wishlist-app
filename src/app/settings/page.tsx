@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { PasswordForm } from "@/components/settings/PasswordForm";
-import { ThemeSection } from "@/components/settings/ThemeSection";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -68,8 +67,6 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-6">
-            <ThemeSection />
-
             <ProfileForm
               key={`profile-${refreshKey}`}
               initialName={user.name}

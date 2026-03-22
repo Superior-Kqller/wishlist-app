@@ -11,12 +11,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Plus, Settings, Shield, BarChart3, Menu, Sun, Moon, Monitor, Check, Download } from "lucide-react";
-import { ThemeSelector } from "@/components/ThemeSelector";
+import { LogOut, Plus, Settings, Shield, BarChart3, Menu, Download } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
-import { useTheme } from "next-themes";
 import { useHeaderActions } from "@/lib/header-actions";
-import { useColorTheme } from "@/hooks/useColorTheme";
 
 export function Header() {
   const {
@@ -25,9 +22,6 @@ export function Header() {
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
-  const { mounted } = useColorTheme();
-
   const isAdmin = session?.user?.role === "ADMIN";
   const isMainPage = pathname === "/";
 
@@ -142,8 +136,6 @@ export function Header() {
               </DropdownMenu>
             )}
 
-            <ThemeSelector />
-
             <Button
               variant="ghost"
               size="icon"
@@ -196,42 +188,6 @@ export function Header() {
                     <DropdownMenuItem onClick={() => handleExport("json")}>
                       <Download className="w-4 h-4 mr-2" />
                       JSON
-                    </DropdownMenuItem>
-                  </>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>Режим</DropdownMenuLabel>
-                {mounted && (
-                  <>
-                    <DropdownMenuItem
-                      onClick={() => setTheme("light")}
-                      className="flex items-center justify-between cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Sun className="w-4 h-4" />
-                        <span>Светлый</span>
-                      </div>
-                      {theme === "light" && <Check className="w-4 h-4 text-primary" />}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => setTheme("dark")}
-                      className="flex items-center justify-between cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Moon className="w-4 h-4" />
-                        <span>Тёмный</span>
-                      </div>
-                      {theme === "dark" && <Check className="w-4 h-4 text-primary" />}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => setTheme("system")}
-                      className="flex items-center justify-between cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Monitor className="w-4 h-4" />
-                        <span>Системный</span>
-                      </div>
-                      {theme === "system" && <Check className="w-4 h-4 text-primary" />}
                     </DropdownMenuItem>
                   </>
                 )}

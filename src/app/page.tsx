@@ -480,48 +480,50 @@ function HomePageContent() {
               <SlidersHorizontal className="h-5 w-5" />
             </Button>
           </div>
-          {/* Десктоп: фильтры + сортировка в одной строке, поиск ниже */}
-          <div className="hidden sm:flex min-w-0 flex-col gap-1.5">
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
-              {currentUserId && usersWithStats.length > 0 && (
-                <CombinedFilter
-                  currentUserId={currentUserId}
-                  users={usersWithStats}
-                  lists={lists}
-                  selectedUserId={normalizedSelectedUserId}
-                  selectedListId={selectedListId}
-                  onUserChange={handleUserChange}
-                  onListChange={handleListChange}
-                  onCreateList={() => {
-                    setEditingList(null);
-                    setListDialogOpen(true);
-                  }}
-                  onEditList={
-                    selectedListId
-                      ? () => {
-                          const list = lists.find((l) => l.id === selectedListId);
-                          if (list) {
-                            setEditingList(list);
-                            setListDialogOpen(true);
-                          }
-                        }
-                      : undefined
-                  }
-                />
-              )}
-              <WishlistToolbarControls
-                sortBy={sortBy}
-                onSortChange={setSortBy}
-                showPurchased={showPurchased}
-                onTogglePurchased={() => setShowPurchased(!showPurchased)}
-                selectionMode={selectionMode}
-                onToggleSelection={() => {
-                  setSelectionMode(!selectionMode);
-                  if (selectionMode) setSelectedIds(new Set());
+          {/* Десктоп: пользователь/подборки, поиск и панель управления в одной строке (с переносом) */}
+          <div className="hidden min-w-0 flex-wrap items-center gap-2 sm:flex">
+            {currentUserId && usersWithStats.length > 0 && (
+              <CombinedFilter
+                currentUserId={currentUserId}
+                users={usersWithStats}
+                lists={lists}
+                selectedUserId={normalizedSelectedUserId}
+                selectedListId={selectedListId}
+                onUserChange={handleUserChange}
+                onListChange={handleListChange}
+                onCreateList={() => {
+                  setEditingList(null);
+                  setListDialogOpen(true);
                 }}
+                onEditList={
+                  selectedListId
+                    ? () => {
+                        const list = lists.find((l) => l.id === selectedListId);
+                        if (list) {
+                          setEditingList(list);
+                          setListDialogOpen(true);
+                        }
+                      }
+                    : undefined
+                }
               />
-            </div>
-            <WishlistSearchInput search={search} onSearchChange={setSearch} />
+            )}
+            <WishlistSearchInput
+              search={search}
+              onSearchChange={setSearch}
+              className="min-w-0 flex-1 basis-[min(100%,12rem)] sm:max-w-md"
+            />
+            <WishlistToolbarControls
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+              showPurchased={showPurchased}
+              onTogglePurchased={() => setShowPurchased(!showPurchased)}
+              selectionMode={selectionMode}
+              onToggleSelection={() => {
+                setSelectionMode(!selectionMode);
+                if (selectionMode) setSelectedIds(new Set());
+              }}
+            />
           </div>
           <div className="hidden sm:block">
             <TagFilter

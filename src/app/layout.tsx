@@ -57,10 +57,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   /** Мобильный Chrome/Safari: контент подстраивается под панели браузера */
   interactiveWidget: "resizes-content",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FAFAF9" },
-    { media: "(prefers-color-scheme: dark)", color: "#0F0B1A" },
-  ],
+  themeColor: "#0F0B1A",
 };
 
 export default async function RootLayout({
@@ -72,7 +69,7 @@ export default async function RootLayout({
   const nonce = hdrs.get("x-nonce") ?? undefined;
 
   return (
-    <html lang="ru" suppressHydrationWarning>
+    <html lang="ru" className="dark" suppressHydrationWarning>
       <head>
         <script
           nonce={nonce}
