@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const product = await parseWishlistProductUrl(url);
 
     return NextResponse.json(product);
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Невалидный URL", details: err.issues },
@@ -36,16 +36,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const cause = err?.cause?.message ?? err?.message ?? "";
-    const isRedirect = /redirect count exceeded|too many redirects/i.test(cause);
-    const isFetchFailed = /fetch failed|ECONNREFUSED|ETIMEDOUT/i.test(cause);
+    const chain =
+      err instanceof Error
+        ? err.cause instanceof Error
+          ? err.cause.message
+          : err.message
+        : "";
+    const isRedirect = /redirect count exceeded|too many redirects/i.test(chain);
+    const isFetchFailed = /fetch failed|ECONNREFUSED|ETIMEDOUT/i.test(chain);
 
     sanitizeError("Parse error", err);
+    const fallback =
+      err instanceof Error ? err.message : "Не удалось получить данные со страницы";
     const message = isRedirect
       ? "Ссылка ведёт на цепочку перенаправлений. Введите ссылку на страницу товара вручную или попробуйте другой магазин."
       : isFetchFailed
         ? "Не удалось загрузить страницу (таймаут или сайт недоступен)."
-        : err.message || "Не удалось получить данные со страницы";
+        : fallback;
     return NextResponse.json({ message }, { status: 422 });
   }
 }

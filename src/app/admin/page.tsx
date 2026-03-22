@@ -18,7 +18,9 @@ export default function AdminPage() {
 
   const isAdminReady = status === "authenticated" && session?.user?.role === "ADMIN";
 
-  const { data: usersData, isLoading, error, mutate } = useSWR<{ users: User[]; pagination?: any } | User[]>(
+  const { data: usersData, isLoading, error, mutate } = useSWR<
+    { users: User[]; pagination?: { total?: number; page?: number } } | User[]
+  >(
     isAdminReady ? "/api/users" : null,
     fetcher,
     {

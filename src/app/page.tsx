@@ -11,7 +11,6 @@ import {
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import useSWR, { mutate } from "swr";
-import useSWRInfinite from "swr/infinite";
 import { useHeaderActions } from "@/lib/header-actions";
 import { WishlistGrid } from "@/components/WishlistGrid";
 import { ItemFormDialog } from "@/components/ItemFormDialog";
@@ -32,7 +31,6 @@ import { Button } from "@/components/ui/button";
 import { Search, SlidersHorizontal, Loader2, CheckSquare } from "lucide-react";
 import {
   WishlistItem,
-  ItemsPage,
   Tag,
   CreateItemPayload,
   ParsedProductResponse,
@@ -47,8 +45,10 @@ import {
   getFirstOwnedListId,
 } from "@/lib/list-filter-client";
 import { normalizeSelectedUserId } from "@/lib/filter-state";
-
-const ITEMS_PER_PAGE = 30;
+import { filterAndSortWishlistItems } from "@/lib/home/filter-wishlist-items";
+import { useInfiniteWishlistItems } from "@/hooks/use-infinite-wishlist-items";
+import { useWishlistUrlSync } from "@/hooks/use-wishlist-url-sync";
+import { useWishlistAddUrlDeepLink } from "@/hooks/use-wishlist-add-url-deeplink";
 
 function HomePageContent() {
   const { data: session } = useSession();
@@ -106,62 +106,20 @@ function HomePageContent() {
     [selectedUserId, currentUserId, usersWithStats]
   );
 
-  // Data fetching (infinite scroll)
-  const getKey = useCallback(
-    (pageIndex: number, previousPageData: ItemsPage | null) => {
-      if (previousPageData && !previousPageData.pagination?.hasMore) return null;
-      const params = new URLSearchParams();
-      if (normalizedSelectedUserId) {
-        params.set(
-          "userId",
-          normalizedSelectedUserId === "me" ? "me" : normalizedSelectedUserId
-        );
-      }
-      if (selectedListId) params.set("listId", selectedListId);
-      if (debouncedSearch) params.set("search", debouncedSearch);
-      params.set("limit", String(ITEMS_PER_PAGE));
-      if (previousPageData?.pagination?.nextCursor) {
-        params.set("cursor", previousPageData.pagination.nextCursor);
-      }
-      return `/api/items?${params.toString()}`;
-    },
-    [normalizedSelectedUserId, selectedListId, debouncedSearch],
-  );
-
   const {
-    data: pages,
-    size,
-    setSize,
+    items,
+    hasMore,
     isLoading,
-    isValidating,
-    mutate: mutateItems,
-  } = useSWRInfinite<ItemsPage>(getKey, fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: true,
-    revalidateFirstPage: true,
-    dedupingInterval: 2000,
-  });
-
-  const items = useMemo(() => pages?.flatMap((p) => p.items) ?? [], [pages]);
-  const hasMore = pages ? pages[pages.length - 1]?.pagination?.hasMore ?? false : false;
-  const isLoadingMore = isValidating && size > 1;
-
-  // Intersection Observer для бесконечной прокрутки
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isValidating) {
-          setSize((s) => s + 1);
-        }
-      },
-      { rootMargin: "200px" },
-    );
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [hasMore, isValidating, setSize]);
+    isLoadingMore,
+    mutateItems,
+    setSize,
+    size,
+    sentinelRef,
+  } = useInfiniteWishlistItems(
+    normalizedSelectedUserId,
+    selectedListId,
+    debouncedSearch,
+  );
   const tagsFromItems = useMemo(() => {
     const byId = new Map<string, Tag>();
     items.forEach((item) => {
@@ -186,10 +144,6 @@ function HomePageContent() {
     { revalidateOnFocus: false, dedupingInterval: 10000 }
   );
   const lists = useMemo(() => listsData ?? [], [listsData]);
-  const listNameById = useMemo(
-    () => Object.fromEntries(lists.map((l) => [l.id, l.name])),
-    [lists]
-  );
 
   /** Только свои подборки — для диалога создания (подстановка первой + обязательный выбор). */
   const ownedListsForCreate = useMemo(() => {
@@ -238,58 +192,6 @@ function HomePageContent() {
     return () => setActions({});
   }, [setActions]);
 
-  // Синхронизация фильтров в URL (без добавления в history)
-  const syncFiltersToUrl = useCallback(
-    (overrides: Record<string, string | null> = {}) => {
-      const params = new URLSearchParams();
-      const vals: Record<string, string | null> = {
-        userId: normalizedSelectedUserId,
-        listId: selectedListId,
-        search: search || null,
-        sort: sortBy !== "newest" ? sortBy : null,
-        purchased: showPurchased ? null : "hide",
-        tags: selectedTags.length > 0 ? selectedTags.join(",") : null,
-        ...overrides,
-      };
-      for (const [k, v] of Object.entries(vals)) {
-        if (v) params.set(k, v);
-      }
-      const qs = params.toString();
-      router.replace(qs ? `/?${qs}` : "/", { scroll: false });
-    },
-    [
-      normalizedSelectedUserId,
-      selectedListId,
-      search,
-      sortBy,
-      showPurchased,
-      selectedTags,
-      router,
-    ],
-  );
-
-  /** Убрать из URL устаревшее listId=all — эквивалент «все подборки». */
-  useEffect(() => {
-    if (listIdParam !== "all") return;
-    syncFiltersToUrl({ listId: null });
-  }, [listIdParam, syncFiltersToUrl]);
-
-  // Sync когда меняются локальные фильтры (search, sort, purchased, tags)
-  const isInitialMount = useRef(true);
-  useEffect(() => {
-    if (selectedUserId !== normalizedSelectedUserId) {
-      syncFiltersToUrl({ userId: normalizedSelectedUserId, listId: null });
-    }
-  }, [selectedUserId, normalizedSelectedUserId, syncFiltersToUrl]);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-    syncFiltersToUrl();
-  }, [search, sortBy, showPurchased, selectedTags]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const allowedListIdsForFilters = useMemo(() => {
     if (!currentUserId) return new Set(lists.map((l) => l.id));
     return new Set(
@@ -302,52 +204,29 @@ function HomePageContent() {
     );
   }, [lists, usersWithStats, currentUserId, normalizedSelectedUserId]);
 
-  useEffect(() => {
-    if (!selectedListId || !currentUserId) return;
-    if (!allowedListIdsForFilters.has(selectedListId)) {
-      syncFiltersToUrl({ listId: null });
-    }
-  }, [
+  const { syncFiltersToUrl } = useWishlistUrlSync({
+    replace: router.replace,
+    normalizedSelectedUserId,
     selectedListId,
-    allowedListIdsForFilters,
+    selectedUserId,
+    search,
+    sortBy,
+    showPurchased,
+    selectedTags,
+    listIdParam,
     currentUserId,
-    syncFiltersToUrl,
-  ]);
+    allowedListIdsForFilters,
+  });
 
-  // Bookmarklet / внешняя ссылка: /?addUrl=<encoded>&fill=1
-  useEffect(() => {
-    if (!currentUserId) return;
-    const box = deepLinkRef.current;
-    if (!box || box.consumed || !box.addUrl) return;
-
-    const paramsCleanup = () => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete("addUrl");
-      params.delete("fill");
-      const qs = params.toString();
-      router.replace(qs ? `/?${qs}` : "/", { scroll: false });
-    };
-
-    let decoded: string;
-    try {
-      decoded = decodeURIComponent(box.addUrl);
-      if (decoded.length > 2048) throw new Error("too long");
-      new URL(decoded);
-    } catch {
-      toast.error("Некорректная ссылка в параметре addUrl");
-      box.consumed = true;
-      paramsCleanup();
-      return;
-    }
-
-    box.consumed = true;
-    const wantFill = box.fill;
-    paramsCleanup();
-
-    setParsedData({ url: decoded });
-    setAddDialogAutoFill(wantFill);
-    setAddDialogOpen(true);
-  }, [currentUserId, router, searchParams]);
+  useWishlistAddUrlDeepLink(
+    deepLinkRef,
+    currentUserId,
+    router.replace,
+    searchParams,
+    setParsedData,
+    setAddDialogAutoFill,
+    setAddDialogOpen,
+  );
 
   const tagsForFilters = useMemo(
     () => (tags && tags.length > 0 ? tags : tagsFromItems),
@@ -358,50 +237,15 @@ function HomePageContent() {
     return selectedTags.filter((id) => availableTagIds.has(id));
   }, [selectedTags, tagsForFilters]);
 
-  // Filtered + sorted items
-  const filteredItems = useMemo(() => {
-    if (!items) return [];
-
-    let filtered = [...items];
-
-    // Purchased filter
-    if (!showPurchased) {
-      filtered = filtered.filter((item) => !item.purchased);
-    }
-
-    // Tag filter (only by tags that exist in current items)
-    if (effectiveSelectedTags.length > 0) {
-      filtered = filtered.filter((item) =>
-        effectiveSelectedTags.some((tagId) => item.tags.some((t) => t.id === tagId))
-      );
-    }
-
-    // Sort
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "newest":
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-        case "oldest":
-          return (
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
-        case "priority-high":
-          return b.priority - a.priority;
-        case "priority-low":
-          return a.priority - b.priority;
-        case "price-high":
-          return (b.price || 0) - (a.price || 0);
-        case "price-low":
-          return (a.price || 0) - (b.price || 0);
-        default:
-          return 0;
-      }
-    });
-
-    return filtered;
-  }, [items, sortBy, showPurchased, effectiveSelectedTags]);
+  const filteredItems = useMemo(
+    () =>
+      filterAndSortWishlistItems(items, {
+        sortBy,
+        showPurchased,
+        effectiveSelectedTags,
+      }),
+    [items, sortBy, showPurchased, effectiveSelectedTags],
+  );
 
   // Handlers
   const handleCreateItem = useCallback(async (data: CreateItemPayload) => {
@@ -725,7 +569,6 @@ function HomePageContent() {
 
         <WishlistGrid
           items={filteredItems}
-          listNameById={listNameById}
           isLoading={isLoading}
           onEdit={(item) => {
             setEditingItem(item);

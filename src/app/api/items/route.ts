@@ -6,6 +6,7 @@ import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { canUserSeeList, getVisibleListIdsForUser } from "@/lib/list-utils";
 import { canSeeClaimerIdentity } from "@/lib/access-policy";
+import { itemResponseWithoutList } from "@/lib/item-json";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 
@@ -146,8 +147,7 @@ export async function GET(req: NextRequest) {
   const hasMore = items.length > limit;
   const data = (hasMore ? items.slice(0, limit) : items).map((item) => {
     const masked = maskClaimedByUserForActor(item, currentUserId);
-    const { list: _list, ...rest } = masked;
-    return rest;
+    return itemResponseWithoutList(masked);
   });
   const nextCursor =
     hasMore && data.length > 0
@@ -230,8 +230,7 @@ export async function POST(req: NextRequest) {
       },
     });
     const masked = maskClaimedByUserForActor(item, userId);
-    const { list: _list, ...response } = masked;
-    return NextResponse.json(response, { status: 201 });
+    return NextResponse.json(itemResponseWithoutList(masked), { status: 201 });
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(

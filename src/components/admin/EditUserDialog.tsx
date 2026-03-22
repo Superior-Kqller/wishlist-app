@@ -94,8 +94,10 @@ export function EditUserDialog({
       toast.success("Пользователь обновлен");
       onSuccess();
       onOpenChange(false);
-    } catch (err: any) {
-      toast.error(err.message || "Ошибка при обновлении пользователя");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Ошибка при обновлении пользователя",
+      );
     } finally {
       setSaving(false);
     }

@@ -1,4 +1,6 @@
 node_modules/
+# Кэш Vitest / Vite внутри node_modules (на всякий случай явно)
+node_modules/.vite/
 .next/
 .cursor/
 .env
@@ -24,7 +26,6 @@ wishlist-brandbook.pdf
 AGENTS.md
 
 # Playwright
-e2e/
 playwright-report/
 test-results/
 blob-report/

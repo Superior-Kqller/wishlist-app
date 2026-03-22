@@ -17,7 +17,6 @@ import { IconButton } from "./icon-button";
 
 export interface WishCardProps {
   item: WishlistItem;
-  collectionName?: string | null;
   index?: number;
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
@@ -32,7 +31,6 @@ export interface WishCardProps {
 
 export const WishCard = memo(function WishCard({
   item,
-  collectionName: _collectionName,
   index = 0,
   onEdit,
   onDelete,

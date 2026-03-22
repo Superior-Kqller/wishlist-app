@@ -81,7 +81,7 @@ export function ItemDetailDialog({
     if (!open || !item) return;
     setCurrentImageIndex(0);
     setImageError(false);
-  }, [open, item?.id]);
+  }, [open, item]);
 
   if (!item) return null;
 

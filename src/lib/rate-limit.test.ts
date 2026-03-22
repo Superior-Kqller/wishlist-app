@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { NextRequest } from "next/server";
 
 vi.mock("next-auth", () => ({
   getServerSession: vi.fn().mockResolvedValue({ user: { id: "user1", role: "USER" } }),
@@ -18,11 +19,11 @@ describe("rate-limit (in-memory fallback)", () => {
   });
 
   it("разрешает запросы в пределах лимита", async () => {
-    const { rateLimit, rateLimitPresets } = await import("./rate-limit");
+    const { rateLimit } = await import("./rate-limit");
 
-    const mockReq = {
-      headers: new Headers({ "x-forwarded-for": "1.2.3.4" }),
-    } as any;
+    const mockReq = new NextRequest("http://localhost/", {
+      headers: { "x-forwarded-for": "1.2.3.4" },
+    });
 
     const options = { maxRequests: 3, windowMs: 60000, useIP: true };
 
@@ -39,9 +40,9 @@ describe("rate-limit (in-memory fallback)", () => {
   it("блокирует после превышения лимита", async () => {
     const { rateLimit } = await import("./rate-limit");
 
-    const mockReq = {
-      headers: new Headers({ "x-forwarded-for": "10.0.0.1" }),
-    } as any;
+    const mockReq = new NextRequest("http://localhost/", {
+      headers: { "x-forwarded-for": "10.0.0.1" },
+    });
 
     const options = { maxRequests: 2, windowMs: 60000, useIP: true };
 

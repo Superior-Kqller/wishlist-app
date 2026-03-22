@@ -16,6 +16,7 @@ import {
   canTransitionStatus,
   hasConflictingStatusPayload,
 } from "@/lib/item-status";
+import { itemResponseWithoutList } from "@/lib/item-json";
 
 const updateItemSchema = z.object({
   title: z.string().min(1).max(500).optional(),
@@ -87,8 +88,7 @@ export async function GET(
   }
 
   const masked = maskClaimedByUserForActor(item, userId);
-  const { list: _list, ...response } = masked;
-  return NextResponse.json(response);
+  return NextResponse.json(itemResponseWithoutList(masked));
 }
 
 // PATCH /api/items/[id]
@@ -283,8 +283,7 @@ export async function PATCH(
       }
 
       const masked = maskClaimedByUserForActor(updated, userId);
-      const { list: _list, ...response } = masked;
-      return NextResponse.json(response);
+      return NextResponse.json(itemResponseWithoutList(masked));
     }
 
     if (data.listId !== undefined) {
@@ -328,8 +327,7 @@ export async function PATCH(
       },
     });
     const masked = maskClaimedByUserForActor(item, userId);
-    const { list: _list, ...response } = masked;
-    return NextResponse.json(response);
+    return NextResponse.json(itemResponseWithoutList(masked));
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(

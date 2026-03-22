@@ -8,8 +8,6 @@ import { AddItemCard } from "./AddItemCard";
 
 interface WishlistGridProps {
   items: WishlistItem[];
-  /** Имена списков по id (для будущего отображения на карточке) */
-  listNameById?: Record<string, string>;
   isLoading?: boolean;
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
@@ -27,7 +25,6 @@ interface WishlistGridProps {
 
 export function WishlistGrid({
   items,
-  listNameById,
   isLoading,
   onEdit,
   onDelete,
@@ -64,9 +61,6 @@ export function WishlistGrid({
           <WishCard
             key={item.id}
             item={item}
-            collectionName={
-              item.listId && listNameById ? listNameById[item.listId] ?? null : null
-            }
             index={index}
             onEdit={onEdit}
             onDelete={onDelete}

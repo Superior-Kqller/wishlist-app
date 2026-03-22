@@ -10,6 +10,9 @@
 ### Добавлено
 
 - **Удаление своих подборок** — в диалоге редактирования подборки кнопка «Удалить подборку» и подтверждение; `DELETE /api/lists/[id]` (уже был): желания остаются без привязки к подборке; при активном фильтре по удалённой подборке сбрасывается `listId` в URL
+- **Рефакторинг главной** — вынесены хуки `useInfiniteWishlistItems`, `useWishlistUrlSync`, `useWishlistAddUrlDeepLink` (`src/hooks/`); фильтрация и сортировка списка — `filterAndSortWishlistItems` в `src/lib/home/filter-wishlist-items.ts`; юнит-тест `filter-wishlist-items.test.ts`
+- **`itemResponseWithoutList`** — `src/lib/item-json.ts`: единый способ убрать поле `list` из JSON ответов `/api/items` без предупреждений линтера о неиспользуемых переменных
+- **E2E в репозитории** — каталог `e2e/` убран из `.gitignore`, сценарии Playwright можно версионировать; в `.gitignore` явно добавлен `node_modules/.vite/` (кэш Vitest)
 
 ### Изменено
 
@@ -19,6 +22,14 @@
 - **Добавление желаний** — кнопки и «+» на сетке не зависят от фильтра; в форме создания подборка **обязательна**, в списке выбора только **свои** подборки, по умолчанию подставляется **первая своя** (по названию)
 - **GET /api/items** — `listId=all` (legacy) не фильтрует по подборке
 - **Тултипы** (`TooltipContent`) — приглушённый фон `popover`, тонкая рамка, лёгкий blur и тень; убран «прыгающий» zoom; сдвиг появления уменьшен
+- **ESLint** — не линтуются сгенерированные файлы PWA в `public/` (`sw.js`, `workbox-*.js`, `swe-worker-*.js`)
+- **Типизация и линт** — `catch (err: unknown)` в API/формах/диалогах; `Input`/`Textarea` как `type` вместо пустых интерфейсов; `ItemFormDialog` / `ItemDetailDialog` — корректные зависимости `useEffect`; парсер (`parser.ts`) — типы JSON-LD и разбор виджетов Ozon без `any`; тесты `list-utils` / `rate-limit` без `any` (в т.ч. `NextRequest` в rate limit)
+- **`WishlistGrid` / `WishCard`** — убраны неиспользуемые проп `listNameById` и `collectionName` (название подборки на карточке уже не показывалось)
+
+### Проверено
+
+- `npm test` — PASS (115 тестов)
+- `npm run lint` — PASS (без предупреждений)
 
 ## [1.6.9] — 2026-03-21
 

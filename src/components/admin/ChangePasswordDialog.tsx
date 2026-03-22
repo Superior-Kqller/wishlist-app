@@ -85,8 +85,10 @@ export function ChangePasswordDialog({
       setPassword("");
       setConfirmPassword("");
       setPasswordErrors([]);
-    } catch (err: any) {
-      toast.error(err.message || "Ошибка при изменении пароля");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Ошибка при изменении пароля",
+      );
     } finally {
       setSaving(false);
     }

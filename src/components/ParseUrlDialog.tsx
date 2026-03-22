@@ -52,8 +52,10 @@ export function ParseUrlDialog({
       onParsed(data);
       onOpenChange(false);
       setUrl("");
-    } catch (err: any) {
-      toast.error(err.message || "Ошибка при парсинге URL");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Ошибка при парсинге URL",
+      );
     } finally {
       setLoading(false);
     }

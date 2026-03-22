@@ -56,8 +56,10 @@ export function DeleteUserDialog({
       onSuccess();
       onOpenChange(false);
       setConfirmText("");
-    } catch (err: any) {
-      toast.error(err.message || "Ошибка при удалении пользователя");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Ошибка при удалении пользователя",
+      );
     } finally {
       setDeleting(false);
     }

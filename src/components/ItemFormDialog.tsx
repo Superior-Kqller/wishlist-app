@@ -80,6 +80,20 @@ export function ItemFormDialog({
 
   const isEdit = !!item;
 
+  const resetForm = useCallback(() => {
+    setTitle("");
+    setUrl("");
+    setPrice("");
+    setCurrency("RUB");
+    setPriority(3);
+    setListId(listPickerRequired ? defaultListId ?? null : null);
+    setNotes("");
+    setImages([]);
+    setNewImageUrl("");
+    setTagInput("");
+    setTags([]);
+  }, [listPickerRequired, defaultListId]);
+
   useEffect(() => {
     if (item) {
       setTitle(item.title);
@@ -104,27 +118,13 @@ export function ItemFormDialog({
     } else {
       resetForm();
     }
-  }, [item, initialData, open, defaultListId]);
+  }, [item, initialData, open, defaultListId, resetForm]);
 
   useEffect(() => {
     if (!open) {
       autoFillOnceDoneRef.current = false;
     }
   }, [open]);
-
-  function resetForm() {
-    setTitle("");
-    setUrl("");
-    setPrice("");
-    setCurrency("RUB");
-    setPriority(3);
-    setListId(listPickerRequired ? defaultListId ?? null : null);
-    setNotes("");
-    setImages([]);
-    setNewImageUrl("");
-    setTagInput("");
-    setTags([]);
-  }
 
   function addTag() {
     const tag = tagInput.trim().toLowerCase();

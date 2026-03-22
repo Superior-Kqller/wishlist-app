@@ -96,8 +96,10 @@ export function CreateUserDialog({
       onSuccess();
       onOpenChange(false);
       resetForm();
-    } catch (err: any) {
-      toast.error(err.message || "Ошибка при создании пользователя");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Ошибка при создании пользователя",
+      );
     } finally {
       setSaving(false);
     }

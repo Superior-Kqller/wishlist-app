@@ -71,9 +71,13 @@ export async function POST(req: NextRequest) {
     // Используем try-catch для обработки ошибок прав доступа
     try {
       await mkdir(uploadDir, { recursive: true });
-    } catch (mkdirError: any) {
+    } catch (mkdirError: unknown) {
       // Если директория уже существует, это нормально
-      if (mkdirError.code !== "EEXIST") {
+      const code =
+        mkdirError && typeof mkdirError === "object" && "code" in mkdirError
+          ? (mkdirError as { code?: string }).code
+          : undefined;
+      if (code !== "EEXIST") {
         sanitizeError("Failed to create upload directory", mkdirError, { uploadDir });
         return NextResponse.json(
           { error: "Не удалось создать папку для загрузок. Проверьте права на сервере." },

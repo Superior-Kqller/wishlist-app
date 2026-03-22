@@ -58,8 +58,10 @@ export function ProfileForm({
 
       toast.success("Профиль обновлен");
       onSuccess();
-    } catch (err: any) {
-      toast.error(err.message || "Ошибка при обновлении профиля");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Ошибка при обновлении профиля",
+      );
     } finally {
       setSaving(false);
     }

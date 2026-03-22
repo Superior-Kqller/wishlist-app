@@ -131,8 +131,10 @@ export function AvatarUploadDialog({
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-    } catch (err: any) {
-      toast.error(err.message || "Ошибка при загрузке аватара");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Ошибка при загрузке аватара",
+      );
     } finally {
       setUploading(false);
     }
@@ -159,8 +161,10 @@ export function AvatarUploadDialog({
       setFilePreview(null);
       setFileLabel("");
       setUrl("");
-    } catch (err: any) {
-      toast.error(err.message || "Ошибка при удалении аватара");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Ошибка при удалении аватара",
+      );
     } finally {
       setUploading(false);
     }

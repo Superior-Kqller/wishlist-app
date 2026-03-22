@@ -125,20 +125,45 @@ function detectMarketplace(
 
 // --- Shared extractors ---
 
-function extractJsonLd($: cheerio.CheerioAPI): any | null {
+type JsonLdObject = Record<string, unknown>;
+
+function isJsonLdObject(value: unknown): value is JsonLdObject {
+  return typeof value === "object" && value !== null;
+}
+
+function titleFromJsonLdName(jsonLd: JsonLdObject | null): string {
+  if (!jsonLd) return "";
+  const n = jsonLd["name"];
+  if (typeof n === "string") return n;
+  if (Array.isArray(n) && typeof n[0] === "string") return n[0];
+  return "";
+}
+
+function jsonLdTypeMatchesProduct(type: unknown): boolean {
+  if (type === "Product") return true;
+  if (Array.isArray(type)) {
+    return type.some((t) => t === "Product");
+  }
+  if (typeof type === "string" && type.includes("Product")) return true;
+  return false;
+}
+
+function extractJsonLd($: cheerio.CheerioAPI): JsonLdObject | null {
   const scripts = $('script[type="application/ld+json"]');
   for (let i = 0; i < scripts.length; i++) {
     try {
-      const data = JSON.parse($(scripts[i]).html() || "");
-      if (data["@type"] === "Product" || data["@type"]?.includes?.("Product")) {
-        return data;
+      const raw: unknown = JSON.parse($(scripts[i]).html() || "");
+      if (!isJsonLdObject(raw)) continue;
+      if (jsonLdTypeMatchesProduct(raw["@type"])) {
+        return raw;
       }
-      if (data["@graph"]) {
-        const product = data["@graph"].find(
-          (item: any) =>
-            item["@type"] === "Product" || item["@type"]?.includes?.("Product"),
+      const graph = raw["@graph"];
+      if (Array.isArray(graph)) {
+        const product = graph.find(
+          (item: unknown) =>
+            isJsonLdObject(item) && jsonLdTypeMatchesProduct(item["@type"]),
         );
-        if (product) return product;
+        if (isJsonLdObject(product)) return product;
       }
     } catch {
       continue;
@@ -319,18 +344,37 @@ function extractFromEmbeddedJson(html: string): Partial<ParsedProduct> {
   return out;
 }
 
-function extractOffersFromJsonLd(jsonLd: any): { price: number | null; currency: string } {
-  if (!jsonLd?.offers) return { price: null, currency: "RUB" };
-  const offer = Array.isArray(jsonLd.offers) ? jsonLd.offers[0] : jsonLd.offers;
-  const price = parseFloat(offer?.lowPrice || offer?.price) || null;
-  const currency = offer?.priceCurrency || "RUB";
+function extractOffersFromJsonLd(jsonLd: JsonLdObject | null): {
+  price: number | null;
+  currency: string;
+} {
+  if (!jsonLd) return { price: null, currency: "RUB" };
+  const offersRaw = jsonLd["offers"];
+  if (!offersRaw) return { price: null, currency: "RUB" };
+  const offer = Array.isArray(offersRaw) ? offersRaw[0] : offersRaw;
+  if (!isJsonLdObject(offer)) return { price: null, currency: "RUB" };
+  const low = offer["lowPrice"];
+  const p = offer["price"];
+  const rawNum = String(low ?? p ?? "")
+    .replace(/\s/g, "")
+    .replace(",", ".");
+  const parsed = parseFloat(rawNum);
+  const price = Number.isFinite(parsed) ? parsed : null;
+  const cur = offer["priceCurrency"];
+  const currency = typeof cur === "string" ? cur : "RUB";
   return { price, currency };
 }
 
-function extractImagesFromJsonLd(jsonLd: any, existing: string[]): string[] {
-  if (!jsonLd?.image) return existing;
-  const jsonImages = Array.isArray(jsonLd.image) ? jsonLd.image : [jsonLd.image];
-  return [...jsonImages, ...existing];
+function extractImagesFromJsonLd(
+  jsonLd: JsonLdObject | null,
+  existing: string[],
+): string[] {
+  if (!jsonLd) return existing;
+  const imageRaw = jsonLd["image"];
+  if (!imageRaw) return existing;
+  const jsonImages = Array.isArray(imageRaw) ? imageRaw : [imageRaw];
+  const asStrings = jsonImages.filter((x): x is string => typeof x === "string");
+  return [...asStrings, ...existing];
 }
 
 // --- Wildberries (internal API) ---
@@ -428,11 +472,14 @@ function parseOzonPriceString(text: string): number | null {
   return isNaN(num) ? null : num;
 }
 
-function findWidgetState(widgetStates: Record<string, string>, prefix: string): any | null {
+function findWidgetState(
+  widgetStates: Record<string, string>,
+  prefix: string,
+): unknown | null {
   for (const [key, value] of Object.entries(widgetStates)) {
     if (key.startsWith(prefix)) {
       try {
-        return JSON.parse(value);
+        return JSON.parse(value) as unknown;
       } catch {
         continue;
       }
@@ -455,11 +502,14 @@ async function parseOzonViaApi(url: string, productPath: string): Promise<Parsed
   const ws: Record<string, string> | undefined = data?.widgetStates;
   if (!ws || Object.keys(ws).length === 0) return null;
 
-  const heading = findWidgetState(ws, "webProductHeading");
-  const priceWidget = findWidgetState(ws, "webPrice");
-  const gallery = findWidgetState(ws, "webGallery");
+  const headingRaw = findWidgetState(ws, "webProductHeading");
+  const priceRaw = findWidgetState(ws, "webPrice");
+  const galleryRaw = findWidgetState(ws, "webGallery");
+  const heading = isJsonLdObject(headingRaw) ? headingRaw : null;
+  const priceWidget = isJsonLdObject(priceRaw) ? priceRaw : null;
+  const gallery = isJsonLdObject(galleryRaw) ? galleryRaw : null;
 
-  const title = (heading?.title || "")
+  const title = String(heading?.title ?? "")
     .replace(/\s+/g, " ")
     .replace(/ - купить.*$/i, "")
     .replace(/ \| OZON$/i, "")
@@ -468,14 +518,26 @@ async function parseOzonViaApi(url: string, productPath: string): Promise<Parsed
   if (!title) return null;
 
   const price = parseOzonPriceString(
-    priceWidget?.cardPrice || priceWidget?.price || priceWidget?.originalPrice || "",
+    String(
+      priceWidget?.cardPrice ??
+        priceWidget?.price ??
+        priceWidget?.originalPrice ??
+        "",
+    ),
   );
 
   const images: string[] = [];
-  if (gallery?.coverImage) images.push(gallery.coverImage);
-  if (gallery?.images && Array.isArray(gallery.images)) {
-    for (const img of gallery.images) {
-      const src = typeof img === "string" ? img : img?.src || img?.url;
+  const cover = gallery?.coverImage;
+  if (typeof cover === "string") images.push(cover);
+  const galleryImages = gallery?.images;
+  if (Array.isArray(galleryImages)) {
+    for (const img of galleryImages) {
+      const src =
+        typeof img === "string"
+          ? img
+          : isJsonLdObject(img)
+            ? String(img.src ?? img.url ?? "")
+            : "";
       if (src && !images.includes(src)) images.push(src);
     }
   }
@@ -495,7 +557,8 @@ async function parseOzonViaHtml(url: string, html: string): Promise<ParsedProduc
   const og = extractOpenGraph($);
   const embedded = extractFromEmbeddedJson(html);
 
-  let title = jsonLd?.name || og.title || embedded.title || "";
+  let title =
+    titleFromJsonLdName(jsonLd) || og.title || embedded.title || "";
   let price: number | null = null;
   let currency = "RUB";
   let images = og.images || embedded.images || [];
@@ -546,7 +609,8 @@ async function parseAliexpress(
   const og = extractOpenGraph($);
   const embedded = extractFromEmbeddedJson(html);
 
-  let title = jsonLd?.name || og.title || embedded.title || "";
+  let title =
+    titleFromJsonLdName(jsonLd) || og.title || embedded.title || "";
   let price: number | null = null;
   let currency = "RUB";
   let images = og.images || embedded.images || [];
@@ -584,7 +648,11 @@ async function parseGeneric(
   const embedded = extractFromEmbeddedJson(html);
 
   let title =
-    jsonLd?.name || og.title || embedded.title || $("h1").first().text().trim() || "";
+    titleFromJsonLdName(jsonLd) ||
+    og.title ||
+    embedded.title ||
+    $("h1").first().text().trim() ||
+    "";
   let price: number | null = null;
   let currency = "RUB";
   let images = og.images || embedded.images || [];
