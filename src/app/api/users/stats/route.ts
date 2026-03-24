@@ -96,7 +96,10 @@ export async function GET(req: NextRequest) {
         }
       });
 
-      const mainCurrency = Object.keys(pricesByCurrency)[0] || "RUB";
+      const sortedCurrencies = Object.keys(pricesByCurrency).sort((a, b) =>
+        a.localeCompare(b),
+      );
+      const mainCurrency = sortedCurrencies[0] || "RUB";
       const mainStats = pricesByCurrency[mainCurrency] || {
         unpurchased: 0,
         purchased: 0,

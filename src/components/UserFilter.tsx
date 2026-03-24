@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UserAvatar } from "@/components/UserAvatar";
 import { UserWithStats } from "@/types";
-import { formatPrice } from "@/lib/utils";
+import { formatStatsUnpurchasedSummary } from "@/lib/utils";
 import { ChevronDown, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { resolveUserScope } from "@/lib/filter-state";
@@ -130,7 +130,7 @@ export function UserFilter({
                 <div className="font-medium truncate">{user.name}</div>
                 <div className="text-xs text-muted-foreground">
                   {user.stats.unpurchasedItems} товаров •{" "}
-                  {formatPrice(user.stats.totalWishlistValue, user.stats.currency || "RUB")}
+                  {formatStatsUnpurchasedSummary(user.stats)}
                 </div>
               </div>
             </DropdownMenuItem>

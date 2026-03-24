@@ -16,6 +16,70 @@ export function formatPrice(price: number, currency: string = "RUB"): string {
   return `${price.toLocaleString("ru-RU")} ${symbol}`;
 }
 
+/** Суммы по валютам в статистике вишлиста */
+export type CurrencyTotals = { unpurchased: number; purchased: number };
+
+/** Стабильный порядок валют для отображения */
+export function sortCurrencyTotalsEntries(
+  pricesByCurrency: Record<string, CurrencyTotals> | undefined | null,
+): [string, CurrencyTotals][] {
+  if (!pricesByCurrency) return [];
+  return Object.entries(pricesByCurrency).sort(([a], [b]) => a.localeCompare(b));
+}
+
+/** Текст «стоимость не купленного» с учётом нескольких валют (для компактного UI) */
+export function formatStatsUnpurchasedSummary(stats: {
+  totalWishlistValue: number;
+  currency?: string;
+  pricesByCurrency?: Record<string, CurrencyTotals>;
+}): string {
+  const fallbackCur = stats.currency || "RUB";
+  const hasBreakdown =
+    stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
+  if (!hasBreakdown) {
+    return formatPrice(stats.totalWishlistValue, fallbackCur);
+  }
+  const entries = sortCurrencyTotalsEntries(stats.pricesByCurrency).filter(
+    ([, v]) => v.unpurchased > 0,
+  );
+  if (entries.length === 0) {
+    return formatPrice(0, fallbackCur);
+  }
+  return entries.map(([c, v]) => formatPrice(v.unpurchased, c)).join(" · ");
+}
+
+/** Текст суммы купленного по валютам; null если нет купленных позиций с ценой */
+export function formatStatsPurchasedSummary(stats: {
+  totalPurchasedValue: number;
+  currency?: string;
+  pricesByCurrency?: Record<string, CurrencyTotals>;
+}): string | null {
+  const fallbackCur = stats.currency || "RUB";
+  const hasBreakdown =
+    stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
+  if (!hasBreakdown) {
+    if (stats.totalPurchasedValue > 0) {
+      return formatPrice(stats.totalPurchasedValue, fallbackCur);
+    }
+    return null;
+  }
+  const entries = sortCurrencyTotalsEntries(stats.pricesByCurrency).filter(
+    ([, v]) => v.purchased > 0,
+  );
+  if (entries.length === 0) return null;
+  return entries.map(([c, v]) => formatPrice(v.purchased, c)).join(" · ");
+}
+
+export function statsHasPurchasedPrices(stats: {
+  totalPurchasedValue: number;
+  pricesByCurrency?: Record<string, CurrencyTotals>;
+}): boolean {
+  if (stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0) {
+    return Object.values(stats.pricesByCurrency).some((v) => v.purchased > 0);
+  }
+  return stats.totalPurchasedValue > 0;
+}
+
 export function priorityColor(priority: number): string {
   const colors: Record<number, string> = {
     1: "text-slate-400",

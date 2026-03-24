@@ -6,9 +6,82 @@ import useSWR from "swr";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { UserWithStats } from "@/types";
-import { formatPrice } from "@/lib/utils";
+import { UserStats, UserWithStats } from "@/types";
+import {
+  formatPrice,
+  formatStatsPurchasedSummary,
+  sortCurrencyTotalsEntries,
+  statsHasPurchasedPrices,
+} from "@/lib/utils";
 import { fetcher } from "@/lib/fetcher";
+
+function StatsWishlistValueBlock({ stats }: { stats: UserStats }) {
+  const fallbackCur = stats.currency || "RUB";
+  const hasBreakdown =
+    stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
+  if (!hasBreakdown) {
+    return (
+      <p className="text-2xl font-bold">
+        {formatPrice(stats.totalWishlistValue, fallbackCur)}
+      </p>
+    );
+  }
+  const unpurchasedEntries = sortCurrencyTotalsEntries(
+    stats.pricesByCurrency,
+  ).filter(([, v]) => v.unpurchased > 0);
+  if (unpurchasedEntries.length === 0) {
+    return (
+      <p className="text-2xl font-bold">{formatPrice(0, fallbackCur)}</p>
+    );
+  }
+  if (unpurchasedEntries.length === 1) {
+    const [c, v] = unpurchasedEntries[0];
+    return (
+      <p className="text-2xl font-bold">{formatPrice(v.unpurchased, c)}</p>
+    );
+  }
+  return (
+    <div className="space-y-1">
+      {unpurchasedEntries.map(([c, v]) => (
+        <p key={c} className="text-xl font-bold tabular-nums">
+          {formatPrice(v.unpurchased, c)}
+        </p>
+      ))}
+    </div>
+  );
+}
+
+function StatsPurchasedValueBlock({ stats }: { stats: UserStats }) {
+  const hasBreakdown =
+    stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
+  if (!hasBreakdown) {
+    const summary = formatStatsPurchasedSummary(stats);
+    return (
+      <p className="text-lg font-semibold text-muted-foreground">{summary}</p>
+    );
+  }
+  const purchasedEntries = sortCurrencyTotalsEntries(
+    stats.pricesByCurrency,
+  ).filter(([, v]) => v.purchased > 0);
+  if (purchasedEntries.length > 1) {
+    return (
+      <div className="space-y-1">
+        {purchasedEntries.map(([c, v]) => (
+          <p
+            key={c}
+            className="text-lg font-semibold text-muted-foreground tabular-nums"
+          >
+            {formatPrice(v.purchased, c)}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  const summary = formatStatsPurchasedSummary(stats);
+  return (
+    <p className="text-lg font-semibold text-muted-foreground">{summary}</p>
+  );
+}
 
 export default function StatsPage() {
   const { status } = useSession();
@@ -106,25 +179,15 @@ export default function StatsPage() {
                       <p className="text-xs text-muted-foreground mb-1">
                         Стоимость вишлиста
                       </p>
-                      <p className="text-2xl font-bold">
-                        {formatPrice(
-                          user.stats.totalWishlistValue,
-                          user.stats.currency || "RUB"
-                        )}
-                      </p>
+                      <StatsWishlistValueBlock stats={user.stats} />
                     </div>
 
-                    {user.stats.totalPurchasedValue > 0 && (
+                    {statsHasPurchasedPrices(user.stats) && (
                       <div className="pt-2 border-t">
                         <p className="text-xs text-muted-foreground mb-1">
                           Куплено на сумму
                         </p>
-                        <p className="text-lg font-semibold text-muted-foreground">
-                          {formatPrice(
-                            user.stats.totalPurchasedValue,
-                            user.stats.currency || "RUB"
-                          )}
-                        </p>
+                        <StatsPurchasedValueBlock stats={user.stats} />
                       </div>
                     )}
                   </CardContent>
