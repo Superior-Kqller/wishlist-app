@@ -144,7 +144,7 @@ export function Header() {
               </>
             ) : null}
 
-            <div className="hidden items-center gap-1.5 sm:flex">
+            <div className="hidden items-center gap-1.5 sm:flex lg:hidden">
               {isAdmin ? (
                 <Button
                   variant={pathname === "/admin" ? "glassActive" : "ghost"}
@@ -174,6 +174,40 @@ export function Header() {
               >
                 <Settings className="h-5 w-5" />
               </Button>
+              {isMainPage ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10"
+                      title="Экспорт"
+                    >
+                      <Download className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleExport("csv")}>
+                      Экспорт CSV
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport("json")}>
+                      Экспорт JSON
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : null}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSignOut}
+                className="h-10 w-10"
+                title="Выйти"
+              >
+                <LogOut className="h-5 w-5" />
+              </Button>
+            </div>
+
+            <div className="hidden items-center gap-1.5 lg:flex">
               {isMainPage ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
