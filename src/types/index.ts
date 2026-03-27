@@ -90,6 +90,7 @@ export interface ParsedProductResponse {
 }
 
 export type UserRole = "USER" | "ADMIN";
+export type TelegramLinkStatus = "not_configured" | "pending" | "linked";
 
 export interface User {
   id: string;
@@ -97,6 +98,12 @@ export interface User {
   name: string;
   avatarUrl?: string | null;
   role: UserRole;
+  telegramId?: string | null;
+  telegramUsername?: string | null;
+  telegramLinkedAt?: string | null;
+  telegramConfirmedAt?: string | null;
+  telegramNotificationsEnabled?: boolean;
+  telegramLinkStatus?: TelegramLinkStatus;
   createdAt: string;
   updatedAt: string;
   _count?: {

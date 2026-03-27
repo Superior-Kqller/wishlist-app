@@ -72,6 +72,9 @@ export default function SettingsPage() {
               initialName={user.name}
               initialUsername={user.username}
               initialAvatarUrl={user.avatarUrl}
+              initialTelegramId={user.telegramId}
+              initialTelegramLinkStatus={user.telegramLinkStatus}
+              initialTelegramNotificationsEnabled={Boolean(user.telegramNotificationsEnabled)}
               userId={user.id}
               onSuccess={handleSuccess}
             />

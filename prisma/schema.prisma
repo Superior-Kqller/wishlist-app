@@ -23,6 +23,11 @@ model User {
   password      String
   name          String
   avatarUrl     String?
+  telegramId    String?       @unique
+  telegramUsername String?
+  telegramLinkedAt DateTime?
+  telegramConfirmedAt DateTime?
+  telegramNotificationsEnabled Boolean @default(false)
   role          Role          @default(USER)
   items         Item[]
   claimedItems  Item[]         @relation("ItemClaimedByUser")
@@ -34,6 +39,7 @@ model User {
 
   @@index([username])
   @@index([role])
+  @@index([telegramConfirmedAt])
 }
 
 model List {

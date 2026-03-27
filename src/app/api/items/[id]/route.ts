@@ -16,6 +16,7 @@ import {
   canTransitionStatus,
   hasConflictingStatusPayload,
 } from "@/lib/item-status";
+import { notifyStatusTransition } from "@/lib/telegram/notifications";
 import { itemResponseWithoutList } from "@/lib/item-json";
 
 const updateItemSchema = z.object({
@@ -96,7 +97,6 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Rate limiting
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -128,6 +128,7 @@ export async function PATCH(
   try {
     const body = await req.json();
     const data = updateItemSchema.parse(body);
+
     if (
       hasConflictingStatusPayload({
         status: data.status,
@@ -151,8 +152,7 @@ export async function PATCH(
       data.notes !== undefined ||
       data.tags !== undefined ||
       data.listId !== undefined;
-    const hasNonStatusFields =
-      hasOwnerOnlyFields || data.purchased !== undefined;
+    const hasNonStatusFields = hasOwnerOnlyFields || data.purchased !== undefined;
 
     if (data.status !== undefined && hasNonStatusFields) {
       return NextResponse.json(
@@ -172,6 +172,7 @@ export async function PATCH(
     if (data.priority !== undefined) updateData.priority = data.priority;
     if (data.images !== undefined) updateData.images = data.images;
     if (data.notes !== undefined) updateData.notes = data.notes || null;
+
     if (data.purchased !== undefined) {
       if (!isOwner) {
         return NextResponse.json({ error: "Доступ запрещён" }, { status: 403 });
@@ -184,6 +185,7 @@ export async function PATCH(
         updateData.claimedAt = null;
       }
     }
+
     if (data.status !== undefined) {
       const currentStatus = existing.status;
       const nextStatus = data.status;
@@ -238,6 +240,7 @@ export async function PATCH(
       const atomicUpdateData: Prisma.ItemUncheckedUpdateInput = {
         status: nextStatus,
       };
+
       if (nextStatus === "CLAIMED") {
         atomicUpdateData.claimedByUserId = userId;
         atomicUpdateData.claimedAt = now;
@@ -264,6 +267,7 @@ export async function PATCH(
           data: atomicUpdateData,
         });
         if (result.count !== 1) return null;
+
         return tx.item.findUnique({
           where: { id },
           include: {
@@ -282,13 +286,27 @@ export async function PATCH(
         );
       }
 
+      await notifyStatusTransition({
+        itemId: updated.id,
+        itemTitle: updated.title,
+        ownerUserId: updated.userId,
+        actorUserId: userId,
+        previousStatus: existing.status,
+        nextStatus: updated.status,
+        previousClaimerUserId: existing.claimedByUserId,
+        nextClaimerUserId: updated.claimedByUserId,
+      });
+
       const masked = maskClaimedByUserForActor(updated, userId);
       return NextResponse.json(itemResponseWithoutList(masked));
     }
 
     if (data.listId !== undefined) {
       if (data.listId) {
-        const list = await prisma.list.findUnique({ where: { id: data.listId }, select: { userId: true } });
+        const list = await prisma.list.findUnique({
+          where: { id: data.listId },
+          select: { userId: true },
+        });
         if (!list || list.userId !== userId) {
           return NextResponse.json({ error: "Подборка не найдена или доступ запрещён" }, { status: 400 });
         }
@@ -296,7 +314,6 @@ export async function PATCH(
       updateData.listId = data.listId || null;
     }
 
-    // Handle tags
     if (data.tags !== undefined) {
       const tagConnections = await Promise.all(
         data.tags.map(async (tagName) => {
@@ -311,7 +328,7 @@ export async function PATCH(
       );
 
       updateData.tags = {
-        set: [], // disconnect all
+        set: [],
         connect: tagConnections,
       };
     }
@@ -326,6 +343,20 @@ export async function PATCH(
         list: { select: { userId: true } },
       },
     });
+
+    if (existing.status !== item.status) {
+      await notifyStatusTransition({
+        itemId: item.id,
+        itemTitle: item.title,
+        ownerUserId: item.userId,
+        actorUserId: userId,
+        previousStatus: existing.status,
+        nextStatus: item.status,
+        previousClaimerUserId: existing.claimedByUserId,
+        nextClaimerUserId: item.claimedByUserId,
+      });
+    }
+
     const masked = maskClaimedByUserForActor(item, userId);
     return NextResponse.json(itemResponseWithoutList(masked));
   } catch (err) {
@@ -335,6 +366,7 @@ export async function PATCH(
         { status: 400 }
       );
     }
+
     sanitizeError("Update item error", err, { userId, itemId: id });
     return NextResponse.json(
       { error: "Внутренняя ошибка сервера" },
@@ -348,7 +380,6 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Rate limiting
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
