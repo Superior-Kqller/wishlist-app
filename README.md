@@ -4,299 +4,204 @@
   <img src="public/assets/github/readme-banner.png" alt="Вишлист — баннер" width="960">
 </p>
 
-Современное веб-приложение для управления вишлистами: личные и общие подборки, бронирование и покупка подарков, экспорт, парсинг карточек по ссылке и Telegram-бот для быстрых действий.
+Простое и красивое приложение для личных, семейных и дружеских вишлистов. Добавляйте желания, делитесь подборками, бронируйте подарки без неловких дублей и пользуйтесь Telegram-ботом для быстрых действий.
 
-## Ключевые возможности
+## ✨ Что умеет
 
-- Аутентификация с ролями `USER` и `ADMIN`.
-- Управление пользователями (создание, редактирование, удаление) для админов.
-- Подборки (`List`) с доступом владельца и приглашённых зрителей.
-- Карточки подарков с приоритетом, тегами, ценой, ссылкой и изображением.
-- Статусы подарков: `AVAILABLE` / `CLAIMED` / `PURCHASED`.
-- Поиск, фильтры, сортировка, бесконечная прокрутка.
-- Экспорт данных в `CSV` и `JSON`.
-- Парсинг карточки товара по URL (`/api/parse`, best effort).
-- PWA-режим (установка как приложение).
-- Telegram-интеграция: привязка профиля, команды, действия по статусам и уведомления.
+- 🎁 Создавать личные и общие вишлисты
+- 👨‍👩‍👧‍👦 Открывать доступ семье и друзьям
+- ✅ Бронировать и отмечать купленные подарки
+- 🔗 Добавлять товары вручную или по ссылке
+- 🏷️ Использовать теги, приоритеты, цены и заметки
+- 🔎 Искать, фильтровать и сортировать подарки
+- 🤖 Подключать Telegram-бота для быстрых действий и уведомлений
+- 📱 Устанавливать приложение на телефон как PWA
+- 📤 Экспортировать данные в `CSV` и `JSON`
 
-## Скриншоты
+## 🖼 Скриншоты
 
 <p align="center">
   <img src="assets/app-demo.png" alt="Вишлист — главный экран" width="920">
 </p>
 
-<p align="center"><em>Главный экран: карточки, фильтры, поиск</em></p>
+<p align="center"><em>Главный экран: карточки, поиск, фильтры и быстрые действия</em></p>
 
 <p align="center">
-  <img src="assets/add-smth.png" alt="Вишлист — добавление товара" width="920">
+  <img src="assets/add-smth.png" alt="Вишлист — добавление подарка" width="920">
 </p>
 
-<p align="center"><em>Добавление товара (в том числе по ссылке)</em></p>
+<p align="center"><em>Добавление подарка вручную или по ссылке</em></p>
 
-## Технологии
+## 🚀 Запуск за пару минут
 
-- Ядро: `Next.js 16` (App Router), `React 19`, `TypeScript`.
-- UI: `Tailwind CSS`, `shadcn/ui`, `Framer Motion`.
-- Auth: `NextAuth` (credentials flow).
-- БД: `PostgreSQL 17`, `Prisma 7`.
-- Rate limit: `ioredis` + in-memory fallback.
-- E2E: `Playwright`.
-- Unit/integration: `Vitest`.
-- Production: Docker image + `docker-compose.prod.yml`.
+README ориентирован на самый простой сценарий: запуск через Docker Compose.
 
-## Структура проекта
+### 1. Что понадобится
 
-```text
-.
-├── src/
-│   ├── app/                         # страницы и API routes (App Router)
-│   │   └── api/
-│   │       ├── auth/[...nextauth]  # вход/сессия
-│   │       ├── users/               # профиль, админ-операции, статистика
-│   │       ├── items/               # CRUD карточек, статусы, комментарии, экспорт
-│   │       ├── lists/               # CRUD подборок
-│   │       ├── tags/                # агрегированные теги
-│   │       ├── parse/               # парсинг карточки по URL
-│   │       ├── health/              # healthcheck БД
-│   │       ├── version/             # версия приложения
-│   │       └── integrations/telegram/webhook
-│   ├── components/                  # UI-компоненты
-│   ├── lib/                         # доменная и инфраструктурная логика
-│   │   └── telegram/                # Telegram service layer
-│   └── types/
-├── prisma/
-│   ├── schema.prisma
-│   ├── migrations/
-│   ├── seed.js
-│   └── promote-admin.js
-├── e2e/
-├── docker-compose.prod.yml
-├── Dockerfile
-└── docker-entrypoint.sh
-```
+- Docker
+- Docker Compose
+- доступ к терминалу на сервере или локальной машине
 
-## Требования для локальной разработки
-
-- `Node.js 22+`
-- `npm 10+`
-- `PostgreSQL 17+`
-- (опционально) `Valkey/Redis`, если нужен полноценный rate-limit storage
-
-## Быстрый локальный старт
-
-1. Клонировать репозиторий.
-2. Установить зависимости.
-3. Создать `.env`.
-4. Поднять БД и применить схему.
-5. Выполнить сидирование.
-6. Запустить dev-сервер.
+### 2. Склонируйте проект
 
 ```bash
 git clone https://github.com/Superior-Kqller/wishlist-app.git
 cd wishlist-app
-npm install
-cp .env.example .env
-# отредактируйте .env
-npm run db:push
-npm run db:seed
-npm run dev
 ```
 
-Приложение доступно по адресу `http://localhost:4030`.
+### 3. Подготовьте `.env`
 
-## Переменные окружения
+```bash
+cp .env.example .env
+```
 
-Базовый шаблон находится в `.env.example`.
+Минимум, который нужно заполнить:
 
-| Переменная | Обязательна | Описание |
-| --- | --- | --- |
-| `DATABASE_URL` | Да | URL подключения Prisma к PostgreSQL |
-| `DB_PASSWORD` | Да (для docker-compose) | Пароль postgres-пользователя `wishlist` |
-| `NEXTAUTH_SECRET` | Да | Секрет NextAuth (рекомендуется 32+ символа) |
-| `NEXTAUTH_URL` | Да | Базовый URL приложения |
-| `APP_PORT` | Для docker-compose | Локальный порт публикации контейнера |
-| `REDIS_URL` | Нет | Valkey/Redis endpoint или unix socket |
-| `TELEGRAM_BOT_TOKEN` | Нет | Токен Telegram-бота для интеграции |
-| `TELEGRAM_WEBHOOK_SECRET` | Нет | Секрет проверки webhook Telegram |
-| `SEED_USER1_*`, `SEED_USER2_*` | Да для bootstrap | Параметры двух стартовых пользователей |
+- `DB_PASSWORD` — пароль PostgreSQL
+- `NEXTAUTH_SECRET` — секрет приложения
+- `NEXTAUTH_URL` — адрес, по которому будет открываться сайт
+- `SEED_USER1_*` и `SEED_USER2_*` — стартовые пользователи
 
-## Команды разработки
+Пример:
 
-| Команда | Назначение |
-| --- | --- |
-| `npm run dev` | Локальный запуск |
-| `npm run build` | Production-сборка |
-| `npm run start` | Запуск собранного приложения |
-| `npm run lint` | ESLint |
-| `npm run test` | Unit/integration тесты (Vitest) |
-| `npm run test:e2e` | E2E тесты (Playwright) |
-| `npm run db:push` | Применить Prisma schema |
-| `npm run db:check-migrations` | Проверка наличия SQL-миграций |
-| `npm run db:seed` | Сидирование пользователей |
-| `npm run db:studio` | Prisma Studio |
+```env
+DB_PASSWORD=super-strong-password
+NEXTAUTH_SECRET=generate-with-openssl-rand-base64-32
+NEXTAUTH_URL=https://wishlist.example.com
+APP_PORT=4030
 
-## Docker и production-деплой
+SEED_USER1_USERNAME=user1
+SEED_USER1_PASSWORD=strong-password-1
+SEED_USER1_NAME=User One
 
-Проект рассчитан на запуск через образ `ghcr.io/superior-kqller/wishlist-app:latest` и `docker-compose.prod.yml`.
+SEED_USER2_USERNAME=user2
+SEED_USER2_PASSWORD=strong-password-2
+SEED_USER2_NAME=User Two
+```
 
-### Что делает compose
-
-- `wishlist-db`: PostgreSQL 17.
-- `wishlist-valkey`: Valkey 8 c unix socket.
-- `wishlist-app`: приложение (порт `127.0.0.1:${APP_PORT}:4030`).
-
-### Запуск
+### 4. Создайте сеть для reverse proxy
 
 ```bash
 docker network create proxy
-cp .env.example .env
-# отредактируйте .env
+```
+
+Если сеть уже существует, Docker просто сообщит об этом.
+
+### 5. Запустите приложение
+
+```bash
 docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-Проверка:
+По умолчанию приложение публикуется на `127.0.0.1:${APP_PORT}`. Если `APP_PORT=4030`, адрес будет таким:
+
+```text
+http://127.0.0.1:4030
+```
+
+### 6. Проверьте, что всё поднялось
 
 ```bash
 docker compose -f docker-compose.prod.yml ps
 docker compose -f docker-compose.prod.yml logs -f wishlist-app
 ```
 
-### Что делает entrypoint
+## 🧭 Что делать после первого входа
 
-- Создаёт каталоги загрузок.
-- Ждёт доступность БД.
-- Выполняет `prisma migrate deploy`.
-- Пытается выполнить `seed` (без падения, если данные уже есть).
-- Запускает сервер от пользователя `nextjs`.
+1. Войдите под одним из стартовых пользователей из `.env`.
+2. Создайте первую подборку подарков.
+3. Добавьте несколько карточек вручную или по ссылке.
+4. Откройте доступ близким или друзьям.
+5. При желании подключите Telegram-бота.
+6. На телефоне установите сайт как приложение.
 
-## Версии и релизы
+## 🤖 Telegram-бот
 
-- Версия UI/API берётся из `APP_VERSION` или `package.json` (`/api/version`).
-- История изменений: `CHANGELOG.md`.
-- Важно: git-тег и GitHub Release — это разные сущности.
-- После публикации тега release при необходимости создаётся отдельно (`gh release create ...`).
+Telegram в этом проекте нужен для быстрых действий и уведомлений.
 
-## Модель данных (кратко)
+Что уже есть:
 
-- `User`: аккаунт, роль, профиль, Telegram-поля.
-- `List`: подборка владельца.
-- `ListViewer`: доступ пользователя к чужой подборке.
-- `Item`: карточка подарка со статусом и связями.
-- `ItemComment`: комментарии к карточке.
-- `Tag`: справочник тегов.
+- просмотр своих подарков
+- просмотр доступных подарков
+- действия со статусами через бота
+- уведомления о брони и покупке
 
-## Статусы подарков
-
-- `AVAILABLE`: доступен для брони.
-- `CLAIMED`: забронирован.
-- `PURCHASED`: куплен.
-
-Переходы контролируются сервером и правами:
-- `AVAILABLE -> CLAIMED`
-- `CLAIMED -> AVAILABLE`
-- `CLAIMED -> PURCHASED`
-
-## Telegram-интеграция (MVP)
-
-### Возможности
-
-- Привязка Telegram к профилю на странице `/settings` через `Telegram ID`.
-- Подтверждение привязки через `/start` у бота.
-- Команды: `/myitems`, `/available`.
-- Действия по кнопкам: `claim`, `unclaim`, `bought`.
-- Уведомления владельцу/участнику при изменении статусов.
-
-### Настройка
+Как подключить:
 
 1. Создайте бота через BotFather.
 2. Добавьте в `.env`:
 
-```bash
-TELEGRAM_BOT_TOKEN=<token>
-TELEGRAM_WEBHOOK_SECRET=<secret>
+```env
+TELEGRAM_BOT_TOKEN=123456789:AA...
+TELEGRAM_WEBHOOK_SECRET=your-secret
 ```
 
-3. Настройте webhook на endpoint:
-- `POST /api/integrations/telegram/webhook`.
-- Передавайте `secret_token`, равный `TELEGRAM_WEBHOOK_SECRET`.
-
-## Bookmarklet и deep-link добавления
-
-Можно добавить закладку в браузер для быстрого добавления текущего URL:
+3. Запустите приложение.
+4. Укажите свой `Telegram ID` на странице настроек аккаунта.
+5. Откройте бота и отправьте `/start` для подтверждения привязки.
+6. Настройте webhook на:
 
 ```text
-javascript:(function(){var B='https://wishlist.yourdomain.com';var u=encodeURIComponent(location.href);window.open(B.replace(/\/$/,'')+'/?addUrl='+u+'&fill=1','_blank');})();
+POST /api/integrations/telegram/webhook
 ```
 
-- `addUrl` передаёт ссылку.
-- `fill=1` запускает парсинг автоматически.
+Telegram должен передавать `secret_token`, равный `TELEGRAM_WEBHOOK_SECRET`.
 
-## API обзор
+## 📱 Установка на телефон
 
-| Группа | Endpoint |
-| --- | --- |
-| Auth | `GET|POST /api/auth/[...nextauth]` |
-| Сервисные | `GET /api/health`, `GET /api/version` |
-| Профиль | `GET|PATCH /api/users/me`, `POST /api/users/me/avatar` |
-| Пользователи (admin) | `GET|POST /api/users`, `GET|PATCH|DELETE /api/users/[id]`, `PATCH /api/users/[id]/password` |
-| Подборки | `GET|POST /api/lists`, `GET|PATCH|DELETE /api/lists/[id]` |
-| Подарки | `GET|POST /api/items`, `GET|PATCH|DELETE /api/items/[id]`, `GET /api/items/export` |
-| Комментарии | `GET|POST /api/items/[id]/comments`, `DELETE /api/items/[id]/comments/[commentId]` |
-| Теги | `GET /api/tags` |
-| Парсинг | `POST /api/parse` |
-| Telegram | `POST /api/integrations/telegram/webhook` |
+Приложение поддерживает PWA и может работать почти как нативное:
 
-## Безопасность и ограничения
+- на iPhone/iPad: откройте сайт в Safari и выберите `На экран Домой`
+- на Android: откройте сайт в Chrome и выберите `Установить приложение`
 
-- Rate limit для auth/read/write/parse endpoint'ов.
-- Проверка прав доступа к подборкам и карточкам на сервере.
-- Приватность `CLAIMED` статусов (ограниченное раскрытие личности бронирующего).
-- Валидация входных данных через `zod`.
-- Для production seed запрещает небезопасные пароли (`changeme` и пустые значения).
+Это удобно, если хотите быстрый доступ к вишлисту без отдельного стора.
 
-## Диагностика
+## ❓ FAQ
 
-### Проверка здоровья
+### Где хранятся данные?
+
+Основные данные лежат в Docker volume `postgres-data`. Загруженные файлы и картинки хранятся в `uploads-data`.
+
+### Как проверить, что приложение живо?
+
+Откройте:
+
+- `/api/health` — состояние приложения и БД
+- `/api/version` — текущая версия
+
+### Как обновить приложение?
+
+Обычно достаточно:
 
 ```bash
-curl -s http://localhost:4030/api/health
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
 ```
 
-Ожидаемо: `status: ok` и `database: connected`.
+Если в новой версии есть миграции, контейнер применит их при старте.
 
-### Проверка версии
+### Telegram не отвечает. Что проверить?
 
-```bash
-curl -s http://localhost:4030/api/version
-```
+- задан ли `TELEGRAM_BOT_TOKEN`
+- задан ли `TELEGRAM_WEBHOOK_SECRET`
+- установлен ли webhook на правильный URL
+- совпадает ли `secret_token`
+- подтвердил ли пользователь привязку через `/start`
 
-### Частые проблемы
+### Можно ли использовать без Telegram?
 
-- `Unauthorized` на API: проверьте, что выполнен вход и корректно задан `NEXTAUTH_URL`.
-- Не применяются миграции: проверьте `DATABASE_URL` и выполните `npm run db:check-migrations`.
-- Telegram не отвечает: проверьте `TELEGRAM_BOT_TOKEN`, webhook URL и `TELEGRAM_WEBHOOK_SECRET`.
-- Парсинг карточки не извлекает данные: endpoint работает в режиме best effort, часть сайтов защищена от ботов.
+Да. Telegram-интеграция полностью опциональна.
 
-## Тестирование
+## 🛠 Коротко для self-host
 
-Быстрый цикл:
+- Основной сценарий запуска: `docker-compose.prod.yml`
+- База данных: `PostgreSQL 17`
+- Кэш / rate limit: `Valkey` с fallback на in-memory
+- Версия приложения доступна через `/api/version`
+- История изменений: [CHANGELOG.md](CHANGELOG.md)
+- Docker-образ: `ghcr.io/superior-kqller/wishlist-app:latest`
 
-```bash
-npm run lint
-npm run test
-```
+## 📄 Лицензия
 
-E2E:
-
-```bash
-npm run test:e2e
-```
-
-## Лицензия
-
-MIT
-
-## Автор
-
-Superior-Kqller
+Если для проекта будет выбрана отдельная лицензия, добавьте её сюда. Сейчас ориентируйтесь на правила использования репозитория и вашего окружения деплоя.
