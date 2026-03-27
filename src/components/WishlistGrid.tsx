@@ -21,6 +21,8 @@ interface WishlistGridProps {
   selectionMode?: boolean;
   selectedIds?: Set<string>;
   onToggleSelect?: (id: string) => void;
+  currentUserId?: string;
+  currentUserRole?: "ADMIN" | "USER" | null;
 }
 
 export function WishlistGrid({
@@ -38,6 +40,8 @@ export function WishlistGrid({
   selectionMode,
   selectedIds,
   onToggleSelect,
+  currentUserId,
+  currentUserRole,
 }: WishlistGridProps) {
   if (isLoading) {
     return (
@@ -71,6 +75,8 @@ export function WishlistGrid({
             selectionMode={selectionMode}
             isSelected={selectedIds?.has(item.id)}
             onToggleSelect={onToggleSelect}
+            currentUserId={currentUserId}
+            currentUserRole={currentUserRole}
           />
         ))}
         {onEmptyAdd && (

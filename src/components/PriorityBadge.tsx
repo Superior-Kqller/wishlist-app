@@ -11,11 +11,11 @@ interface PriorityBadgeProps {
 
 export function PriorityBadge({ priority, className }: PriorityBadgeProps) {
   const toneByPriority: Record<number, string> = {
-    1: "border-violet-300/45 bg-violet-400/12 text-violet-100",
-    2: "border-violet-400/45 bg-violet-500/14 text-violet-100",
-    3: "border-purple-500/45 bg-purple-500/16 text-purple-100",
-    4: "border-fuchsia-500/45 bg-fuchsia-500/18 text-fuchsia-100",
-    5: "border-pink-500/45 bg-pink-500/20 text-pink-100",
+    1: "border-violet-300/35 bg-violet-500/8 text-violet-100/90",
+    2: "border-violet-400/35 bg-violet-500/10 text-violet-100/90",
+    3: "border-purple-400/35 bg-purple-500/10 text-purple-100/90",
+    4: "border-fuchsia-400/35 bg-fuchsia-500/11 text-fuchsia-100/90",
+    5: "border-pink-400/35 bg-pink-500/12 text-pink-100/90",
   };
 
   return (

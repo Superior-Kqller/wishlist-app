@@ -30,6 +30,7 @@ import {
 import useSWR from "swr";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getItemStatusLabel, getItemStatusTone } from "@/lib/item-status-presentation";
 
 const fetcher = (url: string) =>
   fetch(url).then((r) => {
@@ -206,15 +207,15 @@ export function ItemDetailDialog({
                 <DialogTitle className={cn("text-lg sm:text-xl", item.purchased && "line-through")}>
                   {item.title}
                 </DialogTitle>
-                {item.status === "CLAIMED" && (
-                  <Badge variant="secondary" className="mt-2 text-xs">
-                    <Clock3 className="w-3 h-3 mr-1" />
-                    Забронировано
-                  </Badge>
-                )}
-                {item.status === "PURCHASED" && (
-                  <Badge className="mt-2 text-xs">Куплено</Badge>
-                )}
+                <Badge
+                  variant="outline"
+                  className={cn("mt-2 text-xs", getItemStatusTone(item.status))}
+                >
+                  {item.status === "CLAIMED" ? (
+                    <Clock3 className="mr-1 h-3 w-3" />
+                  ) : null}
+                  {getItemStatusLabel(item.status)}
+                </Badge>
               </div>
               <PriorityBadge priority={item.priority} />
             </div>

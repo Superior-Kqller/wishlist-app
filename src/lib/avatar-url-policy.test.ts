@@ -112,6 +112,7 @@ describe("avatar-url-policy getAvatarAllowedHostsFromEnv", () => {
   it("читает AVATAR_ALLOWED_HOSTS из env-like объекта", () => {
     expect(
       getAvatarAllowedHostsFromEnv({
+        NODE_ENV: "test",
         AVATAR_ALLOWED_HOSTS: "a.example.com, b.example.com",
       } as NodeJS.ProcessEnv)
     ).toEqual(["a.example.com", "b.example.com"]);

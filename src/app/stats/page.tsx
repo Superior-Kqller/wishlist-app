@@ -122,7 +122,7 @@ export default function StatsPage() {
     <div className="min-h-screen page-bg">
       <main className="container mx-auto px-4 py-6 max-w-6xl">
         <div className="space-y-6">
-          <div>
+          <div className="glass-card border-border/70 px-4 py-4 sm:px-5">
             <h1 className="text-2xl font-semibold tracking-tight">
               Статистика
             </h1>
@@ -140,7 +140,7 @@ export default function StatsPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {users.map((user) => (
-                <Card key={user.id} className="hover:shadow-lg transition-shadow">
+                <Card key={user.id} className="border-border/75 bg-card/68 shadow-[0_8px_24px_rgba(0,0,0,0.28)] transition-[box-shadow,border-color] hover:border-cyan-400/35 hover:shadow-[0_0_18px_rgba(6,182,212,0.18),0_12px_28px_rgba(0,0,0,0.35)]">
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <UserAvatar
@@ -175,7 +175,7 @@ export default function StatsPage() {
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t">
+                    <div className="pt-3 border-t border-border/70">
                       <p className="text-xs text-muted-foreground mb-1">
                         Стоимость вишлиста
                       </p>
@@ -183,7 +183,7 @@ export default function StatsPage() {
                     </div>
 
                     {statsHasPurchasedPrices(user.stats) && (
-                      <div className="pt-2 border-t">
+                      <div className="pt-2 border-t border-border/70">
                         <p className="text-xs text-muted-foreground mb-1">
                           Куплено на сумму
                         </p>

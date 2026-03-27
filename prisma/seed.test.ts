@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+// @ts-expect-error Vitest импортирует исходный TS-модуль для unit-тестов seed.
 import { assertSafeSeedConfig, assertSafeSeedUsernames } from "./seed.ts";
 
 describe("assertSafeSeedConfig", () => {
@@ -15,6 +16,7 @@ describe("assertSafeSeedConfig", () => {
   it("throws when NODE_ENV is undefined and seed password uses changeme", () => {
     expect(() =>
       assertSafeSeedConfig({
+        NODE_ENV: "production",
         SEED_USER1_PASSWORD: "changeme",
         SEED_USER2_PASSWORD: "very-strong-password",
       } as NodeJS.ProcessEnv)
@@ -36,6 +38,7 @@ describe("assertSafeSeedUsernames", () => {
   it("throws for duplicate usernames (case-insensitive)", () => {
     expect(() =>
       assertSafeSeedUsernames({
+        NODE_ENV: "test",
         SEED_USER1_USERNAME: "Admin",
         SEED_USER2_USERNAME: "admin",
       } as NodeJS.ProcessEnv)

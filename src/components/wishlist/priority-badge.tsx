@@ -15,11 +15,11 @@ const OVERLAY_BY_PRIORITY: Record<
   1 | 2 | 3 | 4 | 5,
   string
 > = {
-  1: "border-violet-400/55 bg-violet-950/88 text-violet-100 shadow-md shadow-violet-950/40",
-  2: "border-violet-500/55 bg-violet-900/90 text-violet-50 shadow-md shadow-violet-950/35",
-  3: "border-purple-400/60 bg-purple-950/90 text-purple-50 shadow-md shadow-purple-950/40",
-  4: "border-fuchsia-400/65 bg-fuchsia-950/90 text-fuchsia-50 shadow-md shadow-fuchsia-950/35",
-  5: "border-pink-400/70 bg-pink-950/92 text-pink-50 shadow-md shadow-pink-950/45",
+  1: "border-violet-400/45 bg-violet-950/76 text-violet-100/95 shadow-sm shadow-violet-950/25",
+  2: "border-violet-500/45 bg-violet-950/78 text-violet-50/95 shadow-sm shadow-violet-950/25",
+  3: "border-purple-400/48 bg-purple-950/78 text-purple-50/95 shadow-sm shadow-purple-950/25",
+  4: "border-fuchsia-400/50 bg-fuchsia-950/78 text-fuchsia-50/95 shadow-sm shadow-fuchsia-950/25",
+  5: "border-pink-400/52 bg-pink-950/80 text-pink-50/95 shadow-sm shadow-pink-950/28",
 };
 
 export interface PriorityBadgeOverlayProps {

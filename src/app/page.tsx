@@ -28,7 +28,8 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { BulkActionBar } from "@/components/BulkActionBar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, SlidersHorizontal, Loader2, CheckSquare } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Search, SlidersHorizontal, Loader2, CheckSquare, X, Sparkles } from "lucide-react";
 import {
   WishlistItem,
   Tag,
@@ -247,6 +248,91 @@ function HomePageContent() {
     [items, sortBy, showPurchased, effectiveSelectedTags],
   );
 
+  const summary = useMemo(() => {
+    const aggregated = filteredItems.reduce(
+      (acc, item) => {
+        if (item.status === "AVAILABLE") acc.available += 1;
+        if (item.status === "CLAIMED") acc.claimed += 1;
+        if (item.status === "PURCHASED") acc.purchased += 1;
+        if (item.price && item.status !== "PURCHASED") {
+          acc.totalValue += item.price;
+        }
+        return acc;
+      },
+      { available: 0, claimed: 0, purchased: 0, totalValue: 0 },
+    );
+
+    return {
+      total: filteredItems.length,
+      available: aggregated.available,
+      claimed: aggregated.claimed,
+      purchased: aggregated.purchased,
+      totalValue: aggregated.totalValue,
+    };
+  }, [filteredItems]);
+
+  const selectedListName = useMemo(
+    () => lists.find((list) => list.id === selectedListId)?.name ?? null,
+    [lists, selectedListId]
+  );
+
+  const activeFilterChips = useMemo(() => {
+    const chips: Array<{ key: string; label: string; onRemove: () => void }> = [];
+    if (search.trim()) {
+      chips.push({
+        key: "search",
+        label: `Поиск: ${search.trim()}`,
+        onRemove: () => setSearch(""),
+      });
+    }
+    if (selectedListName) {
+      chips.push({
+        key: "list",
+        label: `Подборка: ${selectedListName}`,
+        onRemove: () => syncFiltersToUrl({ listId: null }),
+      });
+    }
+    if (normalizedSelectedUserId && normalizedSelectedUserId !== "all") {
+      const userName =
+        normalizedSelectedUserId === "me"
+          ? "Мои"
+          : usersWithStats.find((u) => u.id === normalizedSelectedUserId)?.name ?? "Пользователь";
+      chips.push({
+        key: "user",
+        label: `Владелец: ${userName}`,
+        onRemove: () => syncFiltersToUrl({ userId: null, listId: null }),
+      });
+    }
+    if (!showPurchased) {
+      chips.push({
+        key: "purchased",
+        label: "Купленные скрыты",
+        onRemove: () => setShowPurchased(true),
+      });
+    }
+    effectiveSelectedTags.forEach((tagId) => {
+      const tag = tagsForFilters.find((t) => t.id === tagId);
+      if (!tag) return;
+      chips.push({
+        key: `tag-${tagId}`,
+        label: `Тег: ${tag.name}`,
+        onRemove: () => {
+          setSelectedTags((prev) => prev.filter((id) => id !== tagId));
+        },
+      });
+    });
+    return chips;
+  }, [
+    search,
+    selectedListName,
+    normalizedSelectedUserId,
+    usersWithStats,
+    showPurchased,
+    effectiveSelectedTags,
+    tagsForFilters,
+    syncFiltersToUrl,
+  ]);
+
   // Handlers
   const handleCreateItem = useCallback(async (data: CreateItemPayload) => {
     const res = await fetch("/api/items", {
@@ -447,6 +533,50 @@ function HomePageContent() {
   return (
     <div className="min-h-screen page-bg">
       <main className="container mx-auto space-y-3 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-3 sm:px-4 sm:py-5 sm:pb-5">
+        <section className="glass-card border-border/70 px-4 py-3 sm:px-5 sm:py-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="space-y-1.5">
+              <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <Sparkles className="h-3.5 w-3.5 text-cyan-300/90" />
+                Обзор подборки
+              </p>
+              <h1 className="text-lg font-semibold text-foreground sm:text-xl">
+                {summary.total} {summary.total === 1 ? "желание" : summary.total < 5 ? "желания" : "желаний"}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Доступно: {summary.available} • Забронировано: {summary.claimed} • Куплено: {summary.purchased}
+              </p>
+            </div>
+            <div className="rounded-lg border border-cyan-400/30 bg-cyan-950/20 px-3 py-2 text-right">
+              <p className="text-[11px] uppercase tracking-wide text-cyan-200/80">Открытая стоимость</p>
+              <p className="text-sm font-semibold text-cyan-100">
+                {summary.totalValue > 0 ? `${Math.round(summary.totalValue).toLocaleString("ru-RU")} ₽` : "—"}
+              </p>
+            </div>
+          </div>
+          {activeFilterChips.length > 0 ? (
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+              {activeFilterChips.map((chip) => (
+                <Badge
+                  key={chip.key}
+                  variant="outline"
+                  className="group inline-flex items-center gap-1 border-border/80 bg-card/70 px-2 py-1 text-[11px] text-foreground"
+                >
+                  {chip.label}
+                  <button
+                    type="button"
+                    onClick={chip.onRemove}
+                    className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:text-cyan-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400/45"
+                    aria-label={`Убрать фильтр: ${chip.label}`}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          ) : null}
+        </section>
+
         <div className="sticky z-30 -mx-3 flex min-w-0 flex-col gap-1.5 border-b border-border bg-card/95 px-3 py-1.5 backdrop-blur-md supports-[backdrop-filter]:bg-card/88 max-sm:top-[calc(4.625rem+env(safe-area-inset-top,0px))] sm:static sm:z-auto sm:-mx-4 sm:border-0 sm:bg-transparent sm:px-4 sm:py-2 sm:backdrop-blur-none">
           {/* Мобильная компактная строка: только поиск + кнопка «Фильтры» */}
           <div className="flex min-w-0 items-center gap-2 sm:hidden">
@@ -591,6 +721,8 @@ function HomePageContent() {
           selectionMode={selectionMode}
           selectedIds={selectedIds}
           onToggleSelect={handleToggleSelect}
+          currentUserId={session?.user?.id}
+          currentUserRole={session?.user?.role ?? null}
         />
 
         {/* Sentinel для Intersection Observer + кнопка "Загрузить ещё" */}

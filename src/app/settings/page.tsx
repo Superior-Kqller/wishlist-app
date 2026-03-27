@@ -57,7 +57,7 @@ export default function SettingsPage() {
     <div className="min-h-screen page-bg">
       <main className="container mx-auto px-4 py-6 max-w-2xl">
         <div className="space-y-6">
-          <div>
+          <div className="glass-card border-border/70 px-4 py-4 sm:px-5">
             <h1 className="text-2xl font-semibold tracking-tight">
               Настройки
             </h1>
@@ -81,7 +81,7 @@ export default function SettingsPage() {
 
             <PasswordForm key={`password-${refreshKey}`} />
 
-            <div className="p-6 border rounded-lg bg-muted/30">
+            <div className="rounded-lg border border-border/75 bg-card/62 p-6 backdrop-blur-[10px]">
               <h3 className="font-medium mb-2">Информация</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">

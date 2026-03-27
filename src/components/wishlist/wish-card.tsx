@@ -2,11 +2,11 @@
 
 import { memo, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Check, Globe2, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { WishlistItem } from "@/types";
@@ -14,6 +14,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import { PriorityBadgeOverlay } from "./priority-badge";
 import { IconButton } from "./icon-button";
+import { getItemStatusLabel, getItemStatusSurface, getItemStatusTone } from "@/lib/item-status-presentation";
 
 export interface WishCardProps {
   item: WishlistItem;
@@ -27,6 +28,8 @@ export interface WishCardProps {
   selectionMode?: boolean;
   isSelected?: boolean;
   onToggleSelect?: (id: string) => void;
+  currentUserId?: string;
+  currentUserRole?: "ADMIN" | "USER" | null;
 }
 
 export const WishCard = memo(function WishCard({
@@ -41,19 +44,17 @@ export const WishCard = memo(function WishCard({
   selectionMode,
   isSelected,
   onToggleSelect,
+  currentUserId,
+  currentUserRole,
 }: WishCardProps) {
-  const { data: session, status: sessionStatus } = useSession();
   const [imageError, setImageError] = useState(false);
   const [ownerImageError, setOwnerImageError] = useState(false);
 
   const imageUrl = item.images?.[0] ?? null;
   const isBought = item.purchased || item.status === "PURCHASED";
 
-  const sessionUserId = session?.user?.id;
-  const isSessionReady = sessionStatus !== "loading";
   const canManage =
-    isSessionReady &&
-    (sessionUserId === item.userId || session?.user?.role === "ADMIN");
+    currentUserId === item.userId || currentUserRole === "ADMIN";
 
   const ownerName = item.user?.name;
   const ownerId = item.user?.id ?? item.userId;
@@ -86,6 +87,8 @@ export const WishCard = memo(function WishCard({
   };
 
   const showImage = Boolean(imageUrl && !imageError);
+  const statusTone = getItemStatusTone(item.status);
+  const statusSurface = getItemStatusSurface(item.status);
 
   return (
     <motion.div
@@ -100,10 +103,12 @@ export const WishCard = memo(function WishCard({
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "overflow-hidden border-purple-500/35 bg-card/50 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-lg",
-          "sm:bg-zinc-950/91 sm:backdrop-blur-2xl sm:shadow-[0_16px_48px_rgba(88,28,135,0.22),0_0_0_1px_rgba(168,85,247,0.14)]",
+          "overflow-hidden border-border/70 bg-card/55 shadow-[0_10px_32px_rgba(0,0,0,0.38)] backdrop-blur-xl",
+          "sm:bg-zinc-950/88 sm:shadow-[0_14px_40px_rgba(0,0,0,0.4)]",
+          statusSurface,
           isBought && "opacity-45 grayscale",
-          isCardInteractive && "cursor-pointer",
+          isCardInteractive &&
+            "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-[0_0_0_1px_rgba(236,72,153,0.16),0_0_26px_rgba(6,182,212,0.18),0_14px_40px_rgba(0,0,0,0.46)] focus-visible:border-primary/45 focus-visible:shadow-[0_0_0_1px_rgba(236,72,153,0.2),0_0_22px_rgba(6,182,212,0.2)]",
           isSelected && "shadow-[0_0_0_2px_rgba(192,38,211,0.45)]"
         )}
         role={isCardInteractive ? "button" : undefined}
@@ -134,6 +139,11 @@ export const WishCard = memo(function WishCard({
         </div>
 
         <CardHeader className="space-y-1.5 p-3 pb-2">
+          <div className="flex items-center justify-between gap-2">
+            <Badge variant="outline" className={cn("text-[11px] font-medium", statusTone)}>
+              {getItemStatusLabel(item.status)}
+            </Badge>
+          </div>
           <CardTitle
             data-testid="wishlist-card-v2-title"
             className={cn(

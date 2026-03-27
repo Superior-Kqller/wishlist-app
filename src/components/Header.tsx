@@ -7,13 +7,23 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Plus, Settings, Shield, BarChart3, Menu, Download } from "lucide-react";
+import {
+  BarChart3,
+  Download,
+  Home,
+  LogOut,
+  Menu,
+  Plus,
+  Settings,
+  Shield,
+} from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
 import { useHeaderActions } from "@/lib/header-actions";
+import { cn } from "@/lib/utils";
 
 export function Header() {
   const {
@@ -24,6 +34,7 @@ export function Header() {
   const pathname = usePathname();
   const isAdmin = session?.user?.role === "ADMIN";
   const isMainPage = pathname === "/";
+  const isLoginPage = pathname === "/login";
 
   const handleExport = async (format: "csv" | "json") => {
     const res = await fetch(`/api/items/export?format=${format}`);
@@ -32,178 +43,227 @@ export function Header() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = res.headers.get("Content-Disposition")?.match(/filename="(.+)"/)?.[1] ||
+    a.download =
+      res.headers.get("Content-Disposition")?.match(/filename="(.+)"/)?.[1] ??
       `wishlist.${format}`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
   const handleSignOut = () => {
-    const currentOrigin = typeof window !== "undefined" ? window.location.origin : "";
+    const currentOrigin =
+      typeof window !== "undefined" ? window.location.origin : "";
     signOut({ callbackUrl: currentOrigin ? `${currentOrigin}/login` : "/login" });
   };
 
+  if (isLoginPage) return null;
+
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/90 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/82 shadow-[0_6px_18px_rgba(0,0,0,0.22)] backdrop-blur-xl supports-[backdrop-filter]:bg-background/72">
       <div className="pt-[env(safe-area-inset-top,0px)]">
-        <div className="container mx-auto flex min-h-[74px] items-center justify-between gap-2 px-4 sm:min-h-[92px]">
-        <button
-          onClick={() => router.push("/")}
-          className="flex items-center transition-opacity hover:opacity-80"
-          title="На главную"
-          aria-label="Вишлист — на главную"
-        >
-          <BrandLockup />
-        </button>
+        <div className="container mx-auto flex min-h-[76px] items-center justify-between gap-3 px-4 sm:min-h-[94px]">
+          <button
+            onClick={() => router.push("/")}
+            className="flex items-center transition-opacity hover:opacity-90"
+            title="На главную"
+            aria-label="Вишлист — на главную"
+          >
+            <BrandLockup />
+          </button>
 
-        <div className="flex items-center gap-1 sm:gap-2">
-          {isMainPage && onAddItem && (
-            <>
+          <div className="hidden items-center gap-1.5 lg:flex">
+            <Button
+              variant="glass"
+              size="sm"
+              className={cn("h-9 gap-2 px-3", pathname === "/" && "glassActive")}
+              onClick={() => router.push("/")}
+            >
+              <Home className="h-4 w-4" />
+              Главная
+            </Button>
+            <Button
+              variant="glass"
+              size="sm"
+              className={cn(
+                "h-9 gap-2 px-3",
+                pathname === "/stats" && "glassActive"
+              )}
+              onClick={() => router.push("/stats")}
+            >
+              <BarChart3 className="h-4 w-4" />
+              Статистика
+            </Button>
+            <Button
+              variant="glass"
+              size="sm"
+              className={cn(
+                "h-9 gap-2 px-3",
+                pathname === "/settings" && "glassActive"
+              )}
+              onClick={() => router.push("/settings")}
+            >
+              <Settings className="h-4 w-4" />
+              Настройки
+            </Button>
+            {isAdmin ? (
               <Button
+                variant="glass"
                 size="sm"
-                onClick={onAddItem}
-                title="Добавить товар"
-                className="hidden sm:flex"
+                className={cn(
+                  "h-9 gap-2 px-3",
+                  pathname === "/admin" && "glassActive"
+                )}
+                onClick={() => router.push("/admin")}
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Добавить товар
+                <Shield className="h-4 w-4" />
+                Админка
+              </Button>
+            ) : null}
+          </div>
+
+          <div className="flex items-center gap-1 sm:gap-2">
+            {isMainPage && onAddItem ? (
+              <>
+                <Button
+                  size="sm"
+                  onClick={onAddItem}
+                  title="Добавить товар"
+                  className="hidden sm:flex"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Добавить товар
+                </Button>
+                <Button
+                  size="icon"
+                  onClick={onAddItem}
+                  title="Добавить товар"
+                  className="size-11 min-h-[44px] min-w-[44px] shrink-0 sm:hidden"
+                >
+                  <Plus className="h-5 w-5" />
+                </Button>
+              </>
+            ) : null}
+
+            <div className="hidden items-center gap-1.5 sm:flex">
+              {isAdmin ? (
+                <Button
+                  variant={pathname === "/admin" ? "glassActive" : "ghost"}
+                  size="icon"
+                  onClick={() => router.push("/admin")}
+                  className="h-10 w-10"
+                  title="Администрирование"
+                >
+                  <Shield className="h-5 w-5" />
+                </Button>
+              ) : null}
+              <Button
+                variant={pathname === "/stats" ? "glassActive" : "ghost"}
+                size="icon"
+                onClick={() => router.push("/stats")}
+                className="h-10 w-10"
+                title="Статистика"
+              >
+                <BarChart3 className="h-5 w-5" />
               </Button>
               <Button
+                variant={pathname === "/settings" ? "glassActive" : "ghost"}
                 size="icon"
-                onClick={onAddItem}
-                title="Добавить товар"
-                className="size-11 min-h-[44px] min-w-[44px] shrink-0 sm:hidden"
+                onClick={() => router.push("/settings")}
+                className="h-10 w-10"
+                title="Настройки"
               >
-                <Plus className="h-5 w-5" />
+                <Settings className="h-5 w-5" />
               </Button>
-            </>
-          )}
-
-          {/* Desktop: показать все кнопки */}
-          <div className="hidden sm:flex items-center gap-1.5">
-            {isAdmin && (
+              {isMainPage ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10"
+                      title="Экспорт"
+                    >
+                      <Download className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleExport("csv")}>
+                      Экспорт CSV
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport("json")}>
+                      Экспорт JSON
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : null}
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => router.push("/admin")}
-                className="h-10 w-10 text-muted-foreground hover:text-foreground"
-                title="Администрирование"
+                onClick={handleSignOut}
+                className="h-10 w-10"
+                title="Выйти"
               >
-                <Shield className="w-5 h-5" />
+                <LogOut className="h-5 w-5" />
               </Button>
-            )}
+            </div>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/stats")}
-                className="h-10 w-10 text-muted-foreground hover:text-foreground"
-              title="Статистика"
-            >
-              <BarChart3 className="w-5 h-5" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/settings")}
-                className="h-10 w-10 text-muted-foreground hover:text-foreground"
-              title="Настройки"
-            >
-              <Settings className="w-5 h-5" />
-            </Button>
-
-            {isMainPage && (
+            <div className="sm:hidden">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-10 w-10 text-muted-foreground hover:text-foreground"
-                    title="Экспорт"
+                    className="size-11 min-h-[44px] min-w-[44px] shrink-0"
                   >
-                    <Download className="w-5 h-5" />
+                    <Menu className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleExport("csv")}>
-                    Экспорт CSV
+                <DropdownMenuContent align="end" className="w-52">
+                  <DropdownMenuItem onClick={() => router.push("/")}>
+                    <Home className="mr-2 h-4 w-4" />
+                    Главная
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleExport("json")}>
-                    Экспорт JSON
+                  <DropdownMenuItem onClick={() => router.push("/stats")}>
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    Статистика
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/settings")}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Настройки
+                  </DropdownMenuItem>
+                  {isAdmin ? (
+                    <DropdownMenuItem onClick={() => router.push("/admin")}>
+                      <Shield className="mr-2 h-4 w-4" />
+                      Администрирование
+                    </DropdownMenuItem>
+                  ) : null}
+                  {isMainPage ? (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>Экспорт</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => handleExport("csv")}>
+                        <Download className="mr-2 h-4 w-4" />
+                        CSV
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleExport("json")}>
+                        <Download className="mr-2 h-4 w-4" />
+                        JSON
+                      </DropdownMenuItem>
+                    </>
+                  ) : null}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleSignOut}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Выйти
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            )}
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSignOut}
-              className="h-10 w-10 text-muted-foreground"
-              title="Выйти"
-            >
-              <LogOut className="w-5 h-5" />
-            </Button>
-          </div>
-
-          {/* Mobile: dropdown menu для дополнительных действий */}
-          <div className="sm:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-11 min-h-[44px] min-w-[44px] shrink-0"
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {isAdmin && (
-                  <>
-                    <DropdownMenuItem onClick={() => router.push("/admin")}>
-                      <Shield className="w-4 h-4 mr-2" />
-                      Администрирование
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
-                <DropdownMenuItem onClick={() => router.push("/stats")}>
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Статистика
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/settings")}>
-                  <Settings className="w-4 h-4 mr-2" />
-                  Настройки
-                </DropdownMenuItem>
-                {isMainPage && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuLabel>Экспорт</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => handleExport("csv")}>
-                      <Download className="w-4 h-4 mr-2" />
-                      CSV
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport("json")}>
-                      <Download className="w-4 h-4 mr-2" />
-                      JSON
-                    </DropdownMenuItem>
-                  </>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={handleSignOut}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Выйти
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            </div>
           </div>
         </div>
-      </div>
       </div>
     </header>
   );
