@@ -10,6 +10,7 @@ import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fetcher } from "@/lib/fetcher";
+import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 
 export default function SettingsPage() {
   const { status } = useSession();
@@ -29,22 +30,22 @@ export default function SettingsPage() {
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen page-bg flex items-center justify-center">
+      <PageShell className="flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-      </div>
+      </PageShell>
     );
   }
 
   if (error || !user) {
     return (
-      <div className="min-h-screen page-bg flex items-center justify-center">
+      <PageShell className="flex items-center justify-center">
         <div className="text-center space-y-2">
           <p className="text-destructive font-medium">Не удалось загрузить профиль</p>
           <Button variant="outline" size="sm" onClick={() => mutate()}>
             Повторить
           </Button>
         </div>
-      </div>
+      </PageShell>
     );
   }
 
@@ -54,17 +55,13 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen page-bg">
-      <main className="container mx-auto px-4 py-6 max-w-2xl">
+    <PageShell>
+      <PageMain className="max-w-2xl">
         <div className="space-y-6">
-          <div className="rounded-xl border border-border bg-[hsl(var(--surface-2))] px-4 py-4 shadow-[0_10px_24px_rgba(0,0,0,0.28)] sm:px-5">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Настройки
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Управление вашим профилем и паролем
-            </p>
-          </div>
+          <PageIntro
+            title="Настройки"
+            description="Управление вашим профилем и паролем"
+          />
 
           <div className="space-y-6">
             <ProfileForm
@@ -106,7 +103,7 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </PageMain>
+    </PageShell>
   );
 }

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
 import { User } from "@/types";
 import { fetcher } from "@/lib/fetcher";
+import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -40,34 +41,28 @@ export default function AdminPage() {
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen page-bg flex items-center justify-center">
+      <PageShell className="flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-      </div>
+      </PageShell>
     );
   }
 
   const currentUserId = session?.user?.id;
 
   return (
-    <div className="min-h-screen page-bg">
-      <main className="container mx-auto px-4 py-6">
+    <PageShell>
+      <PageMain>
         <div className="space-y-6">
-          <div className="rounded-xl border border-border bg-[hsl(var(--surface-2))] px-4 py-4 shadow-[0_10px_24px_rgba(0,0,0,0.28)] sm:px-5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h1 className="text-2xl font-semibold tracking-tight">
-                  Управление пользователями
-                </h1>
-                <p className="text-muted-foreground mt-1">
-                  Создание, редактирование и удаление учетных записей
-                </p>
-              </div>
+          <PageIntro
+            title="Управление пользователями"
+            description="Создание, редактирование и удаление учетных записей"
+            actions={
               <Button onClick={() => setCreateDialogOpen(true)} className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Создать пользователя
               </Button>
-            </div>
-          </div>
+            }
+          />
 
           {error ? (
             <div className="text-center py-12 space-y-2">
@@ -84,13 +79,13 @@ export default function AdminPage() {
             />
           )}
         </div>
-      </main>
+      </PageMain>
 
       <CreateUserDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         onSuccess={() => mutate()}
       />
-    </div>
+    </PageShell>
   );
 }

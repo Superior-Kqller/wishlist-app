@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Trash2, ShoppingCart, X, CheckSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { uiSurface } from "@/lib/ui-contract";
 
 interface BulkActionBarProps {
   selectedCount: number;
@@ -29,7 +30,7 @@ export function BulkActionBar({
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50"
         >
-          <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-background/95 backdrop-blur-md border shadow-lg">
+          <div className={uiSurface.floatingBar}>
             <div className="flex items-center gap-1.5 mr-2">
               <CheckSquare className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium tabular-nums">

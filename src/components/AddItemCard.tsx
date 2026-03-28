@@ -30,8 +30,8 @@ export function AddItemCard({ onAdd, disabled, disabledHint }: AddItemCardProps)
       title={disabled ? disabledHint : undefined}
       className={
         disabled
-          ? "flex min-h-[220px] cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/45 bg-card/25 text-center opacity-60 backdrop-blur-md"
-          : "flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/50 bg-card/30 text-center shadow-[0_8px_28px_rgba(0,0,0,0.22)] backdrop-blur-xl transition-[box-shadow,background-color,border-color] hover:border-primary/35 hover:bg-card/42 hover:shadow-[0_12px_36px_rgba(88,28,135,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          ? "flex min-h-[220px] cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/45 bg-card/35 text-center opacity-60"
+          : "flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/50 bg-card text-center transition-colors hover:border-primary/35 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       }
     >
       <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border bg-background">

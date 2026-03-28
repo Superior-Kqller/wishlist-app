@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Gift, Loader2 } from "lucide-react";
+import { uiSurface } from "@/lib/ui-contract";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -38,9 +39,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center page-bg">
       <div className="w-full max-w-sm mx-4">
-        <div className="rounded-2xl border border-border bg-card p-8 shadow-[0_14px_44px_rgba(0,0,0,0.42)]">
+        <div className={`${uiSurface.panel} p-8`}>
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 border border-border bg-[hsl(var(--surface-2))] rounded-2xl flex items-center justify-center mb-4">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card">
               <Gift className="w-8 h-8 text-primary" />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight">Вишлист</h1>

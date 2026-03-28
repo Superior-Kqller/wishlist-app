@@ -44,11 +44,11 @@ export function UserFilter({
             aria-label="Выбрать пользователя"
             className={cn(
               "flex h-10 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-              "border border-input/90 bg-card/65 backdrop-blur-[10px] hover:bg-accent hover:text-accent-foreground",
+              "border border-input bg-card hover:bg-accent hover:text-accent-foreground",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               "touch-manipulation",
               (selectedUser || isMyMode) &&
-                "border-primary/40 bg-primary/15 text-foreground shadow-[0_0_0_1px_hsl(var(--primary)/0.18)]"
+                "border-primary/40 bg-primary/15 text-foreground"
             )}
             data-testid="mobile-user-trigger"
           >

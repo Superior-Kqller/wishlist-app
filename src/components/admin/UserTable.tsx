@@ -9,6 +9,7 @@ import { Pencil, Key, Trash2, Search } from "lucide-react";
 import { EditUserDialog } from "./EditUserDialog";
 import { ChangePasswordDialog } from "./ChangePasswordDialog";
 import { DeleteUserDialog } from "./DeleteUserDialog";
+import { uiSurface } from "@/lib/ui-contract";
 
 interface UserTableProps {
   users: User[];
@@ -55,10 +56,10 @@ export function UserTable({
         </div>
       </div>
 
-      <div className="border rounded-lg overflow-hidden">
+      <div className={`${uiSurface.panelInset} overflow-hidden`}>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-muted/50">
+            <thead className="border-b border-border bg-muted/50">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium">Логин</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Имя</th>
@@ -68,7 +69,7 @@ export function UserTable({
                 <th className="px-4 py-3 text-right text-sm font-medium">Действия</th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-border">
               {filteredUsers.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
@@ -79,7 +80,7 @@ export function UserTable({
                 filteredUsers.map((user) => (
                   <tr
                     key={user.id}
-                    className="hover:bg-muted/30 transition-colors"
+                    className="transition-colors hover:bg-muted/40"
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">

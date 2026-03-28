@@ -24,6 +24,7 @@ import {
 import { BrandLockup } from "@/components/BrandLockup";
 import { useHeaderActions } from "@/lib/header-actions";
 import { cn } from "@/lib/utils";
+import { uiState } from "@/lib/ui-contract";
 
 export function Header() {
   const {
@@ -59,7 +60,7 @@ export function Header() {
   if (isLoginPage) return null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-[hsl(var(--surface-2))/0.96] shadow-[0_10px_22px_rgba(0,0,0,0.28)] backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border bg-secondary/95 shadow-md backdrop-blur-md">
       <div className="pt-[env(safe-area-inset-top,0px)]">
         <div className="container mx-auto flex min-h-[76px] items-center justify-between gap-3 px-4 sm:min-h-[94px]">
           <button
@@ -77,7 +78,7 @@ export function Header() {
               size="sm"
               className={cn(
                 "h-9 gap-2 px-3 text-muted-foreground hover:text-foreground",
-                pathname === "/" && "border border-primary/45 bg-primary/14 text-foreground"
+                pathname === "/" && uiState.navActive
               )}
               onClick={() => router.push("/")}
             >
@@ -89,7 +90,7 @@ export function Header() {
               size="sm"
               className={cn(
                 "h-9 gap-2 px-3 text-muted-foreground hover:text-foreground",
-                pathname === "/stats" && "border border-primary/45 bg-primary/14 text-foreground"
+                pathname === "/stats" && uiState.navActive
               )}
               onClick={() => router.push("/stats")}
             >
@@ -101,7 +102,7 @@ export function Header() {
               size="sm"
               className={cn(
                 "h-9 gap-2 px-3 text-muted-foreground hover:text-foreground",
-                pathname === "/settings" && "border border-primary/45 bg-primary/14 text-foreground"
+                pathname === "/settings" && uiState.navActive
               )}
               onClick={() => router.push("/settings")}
             >
@@ -114,7 +115,7 @@ export function Header() {
                 size="sm"
                 className={cn(
                   "h-9 gap-2 px-3 text-muted-foreground hover:text-foreground",
-                  pathname === "/admin" && "border border-primary/45 bg-primary/14 text-foreground"
+                  pathname === "/admin" && uiState.navActive
                 )}
                 onClick={() => router.push("/admin")}
               >

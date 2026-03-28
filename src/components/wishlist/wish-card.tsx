@@ -103,11 +103,11 @@ export const WishCard = memo(function WishCard({
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "overflow-hidden border-border bg-card shadow-[0_12px_30px_rgba(0,0,0,0.34)]",
+          "overflow-hidden border-border bg-card",
           isBought && "opacity-45 grayscale",
           isCardInteractive &&
-            "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-[0_0_0_1px_rgba(130,81,238,0.26),0_0_20px_rgba(130,81,238,0.2),0_14px_36px_rgba(0,0,0,0.42)] focus-visible:border-primary/45 focus-visible:shadow-[0_0_0_1px_rgba(130,81,238,0.3),0_0_18px_rgba(130,81,238,0.22)]",
-          isSelected && "shadow-[0_0_0_2px_rgba(130,81,238,0.45)]"
+            "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-md focus-visible:border-primary/45 focus-visible:shadow-md",
+          isSelected && "ring-2 ring-primary/45"
         )}
         role={isCardInteractive ? "button" : undefined}
         tabIndex={isCardInteractive ? 0 : undefined}
@@ -116,7 +116,7 @@ export const WishCard = memo(function WishCard({
       >
         <div
           data-testid="wishlist-card-v2-media"
-          className="group relative aspect-[4/5] overflow-hidden bg-[hsl(var(--surface-2))]"
+          className="group relative aspect-[4/5] overflow-hidden bg-secondary"
         >
           <PriorityBadgeOverlay priority={item.priority} />
           {showImage ? (
