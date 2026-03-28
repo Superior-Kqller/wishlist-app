@@ -8,20 +8,20 @@ export function getItemStatusLabel(status: ItemStatus): string {
 
 export function getItemStatusTone(status: ItemStatus): string {
   if (status === "CLAIMED") {
-    return "border-amber-400/45 bg-amber-500/12 text-amber-100";
+    return "border-warning/45 bg-warning/16 text-foreground";
   }
   if (status === "PURCHASED") {
-    return "border-emerald-400/45 bg-emerald-500/12 text-emerald-100";
+    return "border-success/45 bg-success/16 text-success-foreground";
   }
-  return "border-cyan-400/35 bg-cyan-500/10 text-cyan-100";
+  return "border-info/45 bg-info/14 text-info-foreground";
 }
 
-export function getItemStatusSurface(status: ItemStatus): string {
+export function getItemStatusMarker(status: ItemStatus): string {
   if (status === "CLAIMED") {
-    return "border-amber-500/28 bg-amber-950/26";
+    return "bg-warning";
   }
   if (status === "PURCHASED") {
-    return "border-emerald-500/26 bg-emerald-950/24";
+    return "bg-success";
   }
-  return "border-cyan-500/22 bg-cyan-950/22";
+  return "bg-info";
 }

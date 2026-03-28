@@ -14,7 +14,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import { PriorityBadgeOverlay } from "./priority-badge";
 import { IconButton } from "./icon-button";
-import { getItemStatusLabel, getItemStatusSurface, getItemStatusTone } from "@/lib/item-status-presentation";
+import { getItemStatusLabel, getItemStatusMarker, getItemStatusTone } from "@/lib/item-status-presentation";
 
 export interface WishCardProps {
   item: WishlistItem;
@@ -88,7 +88,7 @@ export const WishCard = memo(function WishCard({
 
   const showImage = Boolean(imageUrl && !imageError);
   const statusTone = getItemStatusTone(item.status);
-  const statusSurface = getItemStatusSurface(item.status);
+  const statusMarker = getItemStatusMarker(item.status);
 
   return (
     <motion.div
@@ -103,13 +103,11 @@ export const WishCard = memo(function WishCard({
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "overflow-hidden border-border/70 bg-card/55 shadow-[0_10px_32px_rgba(0,0,0,0.38)] backdrop-blur-xl",
-          "sm:bg-zinc-950/88 sm:shadow-[0_14px_40px_rgba(0,0,0,0.4)]",
-          statusSurface,
+          "overflow-hidden border-border bg-card shadow-[0_12px_30px_rgba(0,0,0,0.34)]",
           isBought && "opacity-45 grayscale",
           isCardInteractive &&
-            "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-[0_0_0_1px_rgba(236,72,153,0.16),0_0_26px_rgba(6,182,212,0.18),0_14px_40px_rgba(0,0,0,0.46)] focus-visible:border-primary/45 focus-visible:shadow-[0_0_0_1px_rgba(236,72,153,0.2),0_0_22px_rgba(6,182,212,0.2)]",
-          isSelected && "shadow-[0_0_0_2px_rgba(192,38,211,0.45)]"
+            "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-[0_0_0_1px_rgba(130,81,238,0.26),0_0_20px_rgba(130,81,238,0.2),0_14px_36px_rgba(0,0,0,0.42)] focus-visible:border-primary/45 focus-visible:shadow-[0_0_0_1px_rgba(130,81,238,0.3),0_0_18px_rgba(130,81,238,0.22)]",
+          isSelected && "shadow-[0_0_0_2px_rgba(130,81,238,0.45)]"
         )}
         role={isCardInteractive ? "button" : undefined}
         tabIndex={isCardInteractive ? 0 : undefined}
@@ -118,7 +116,7 @@ export const WishCard = memo(function WishCard({
       >
         <div
           data-testid="wishlist-card-v2-media"
-          className="group relative aspect-[4/5] overflow-hidden bg-slate-900/55"
+          className="group relative aspect-[4/5] overflow-hidden bg-[hsl(var(--surface-2))]"
         >
           <PriorityBadgeOverlay priority={item.priority} />
           {showImage ? (
@@ -133,16 +131,19 @@ export const WishCard = memo(function WishCard({
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
-              <Globe2 className="h-14 w-14 text-slate-500/55" aria-hidden />
+              <Globe2 className="h-14 w-14 text-muted-foreground/65" aria-hidden />
             </div>
           )}
         </div>
 
         <CardHeader className="space-y-1.5 p-3 pb-2">
           <div className="flex items-center justify-between gap-2">
-            <Badge variant="outline" className={cn("text-[11px] font-medium", statusTone)}>
-              {getItemStatusLabel(item.status)}
-            </Badge>
+            <div className="inline-flex items-center gap-1.5">
+              <span className={cn("h-2 w-2 rounded-full", statusMarker)} aria-hidden />
+              <Badge variant="outline" className={cn("text-[11px] font-medium", statusTone)}>
+                {getItemStatusLabel(item.status)}
+              </Badge>
+            </div>
           </div>
           <CardTitle
             data-testid="wishlist-card-v2-title"
@@ -182,7 +183,7 @@ export const WishCard = memo(function WishCard({
                       </AvatarFallback>
                     )}
                   </Avatar>
-                  <span className="min-w-0 truncate text-xs text-slate-400">{ownerName}</span>
+                  <span className="min-w-0 truncate text-xs text-muted-foreground">{ownerName}</span>
                 </div>
               ) : (
                 <span className="min-w-0 shrink" aria-hidden />
@@ -190,7 +191,7 @@ export const WishCard = memo(function WishCard({
               {item.price != null ? (
                 <p
                   data-testid="wishlist-card-v2-price"
-                  className="shrink-0 text-right text-sm font-semibold tabular-nums tracking-tight text-muted-foreground sm:text-[15px] sm:text-violet-200/75"
+                  className="shrink-0 text-right text-sm font-semibold tabular-nums tracking-tight text-muted-foreground sm:text-[15px]"
                 >
                   {formatPrice(item.price, item.currency)}
                 </p>
@@ -210,9 +211,9 @@ export const WishCard = memo(function WishCard({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        variant="glass"
+                        variant="outline"
                         asChild
-                        className="h-11 min-h-[44px] w-full justify-center border-primary/28 px-4 text-sm font-semibold shadow-none hover:border-primary/40 sm:h-9 sm:min-h-9 sm:w-auto sm:min-w-[8rem]"
+                        className="h-11 min-h-[44px] w-full justify-center border-primary/35 px-4 text-sm font-semibold shadow-none hover:border-primary/48 sm:h-9 sm:min-h-9 sm:w-auto sm:min-w-[8rem]"
                       >
                         <a
                           href={item.url}

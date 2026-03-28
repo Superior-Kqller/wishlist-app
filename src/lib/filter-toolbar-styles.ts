@@ -1,5 +1,5 @@
 /**
- * Общие классы для поля поиска и Select на главной (единый glass-вид).
+ * Общие классы для controls в фильтр-панели.
  */
 export const filterBarTriggerClass =
-  "interactive-glow h-9 border-border/65 bg-card/40 shadow-none backdrop-blur-xl dark:bg-black/22";
+  "h-9 border-input bg-[hsl(var(--surface-3))] shadow-none hover:bg-[hsl(var(--surface-4))] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";

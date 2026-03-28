@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import { headers } from "next/headers";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "@/components/Header";
@@ -57,32 +56,17 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   /** Мобильный Chrome/Safari: контент подстраивается под панели браузера */
   interactiveWidget: "resizes-content",
-  themeColor: "#0F0B1A",
+  themeColor: "#1A1A1F",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const hdrs = await headers();
-  const nonce = hdrs.get("x-nonce") ?? undefined;
-
   return (
     <html lang="ru" className="dark" suppressHydrationWarning>
-      <head>
-        <script
-          nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                localStorage.setItem('color-theme', 'purple');
-                document.documentElement.setAttribute('data-theme', 'purple');
-              })();
-            `,
-          }}
-        />
-      </head>
+      <head />
       <body className={`${inter.variable} ${jetbrainsMono.variable} ${inter.className}`}>
         <Providers>
           <Header />

@@ -30,14 +30,14 @@ export function PrioritySelect({
   prominentDot = false,
 }: PrioritySelectProps) {
   const dotClassByPriority: Record<number, string> = {
-    1: "bg-violet-300/80",
-    2: "bg-violet-400/90",
-    3: "bg-purple-500",
-    4: "bg-fuchsia-500",
-    5: "bg-pink-500",
+    1: "bg-primary/45",
+    2: "bg-primary/58",
+    3: "bg-primary/70",
+    4: "bg-primary/82",
+    5: "bg-primary",
   };
 
-  const priorityDotClass = dotClassByPriority[priority] ?? "bg-violet-300/80";
+  const priorityDotClass = dotClassByPriority[priority] ?? "bg-primary/45";
   const currentLabel = compact
     ? getPriorityShortLabel(priority)
     : getPriorityLabel(priority);
@@ -50,7 +50,7 @@ export function PrioritySelect({
       <SelectTrigger
         data-testid={triggerTestId}
         className={cn(
-          "h-9 min-w-[92px] rounded-lg border-input/90 bg-card/65 px-2.5 text-xs font-semibold tracking-wide backdrop-blur-[10px]",
+          "h-9 min-w-[92px] rounded-lg border-input bg-card px-2.5 text-xs font-semibold tracking-wide",
           compact && "h-8 min-w-0 text-[11px] w-fit max-w-full",
           compact && prominentDot && "h-9 text-xs",
           triggerClassName
@@ -75,7 +75,7 @@ export function PrioritySelect({
                 aria-hidden="true"
                 className={cn(
                   "h-2 w-2 rounded-full",
-                  dotClassByPriority[value] ?? "bg-violet-300/80"
+                  dotClassByPriority[value] ?? "bg-primary/45"
                 )}
               />
               <span>{compact ? getPriorityShortLabel(value) : getPriorityLabel(value)}</span>

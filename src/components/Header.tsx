@@ -59,7 +59,7 @@ export function Header() {
   if (isLoginPage) return null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/82 shadow-[0_6px_18px_rgba(0,0,0,0.22)] backdrop-blur-xl supports-[backdrop-filter]:bg-background/72">
+    <header className="sticky top-0 z-40 border-b border-border bg-[hsl(var(--surface-2))/0.96] shadow-[0_10px_22px_rgba(0,0,0,0.28)] backdrop-blur-md">
       <div className="pt-[env(safe-area-inset-top,0px)]">
         <div className="container mx-auto flex min-h-[76px] items-center justify-between gap-3 px-4 sm:min-h-[94px]">
           <button
@@ -73,20 +73,23 @@ export function Header() {
 
           <div className="hidden items-center gap-1.5 lg:flex">
             <Button
-              variant="glass"
+              variant="ghost"
               size="sm"
-              className={cn("h-9 gap-2 px-3", pathname === "/" && "glassActive")}
+              className={cn(
+                "h-9 gap-2 px-3 text-muted-foreground hover:text-foreground",
+                pathname === "/" && "border border-primary/45 bg-primary/14 text-foreground"
+              )}
               onClick={() => router.push("/")}
             >
               <Home className="h-4 w-4" />
               Главная
             </Button>
             <Button
-              variant="glass"
+              variant="ghost"
               size="sm"
               className={cn(
-                "h-9 gap-2 px-3",
-                pathname === "/stats" && "glassActive"
+                "h-9 gap-2 px-3 text-muted-foreground hover:text-foreground",
+                pathname === "/stats" && "border border-primary/45 bg-primary/14 text-foreground"
               )}
               onClick={() => router.push("/stats")}
             >
@@ -94,11 +97,11 @@ export function Header() {
               Статистика
             </Button>
             <Button
-              variant="glass"
+              variant="ghost"
               size="sm"
               className={cn(
-                "h-9 gap-2 px-3",
-                pathname === "/settings" && "glassActive"
+                "h-9 gap-2 px-3 text-muted-foreground hover:text-foreground",
+                pathname === "/settings" && "border border-primary/45 bg-primary/14 text-foreground"
               )}
               onClick={() => router.push("/settings")}
             >
@@ -107,11 +110,11 @@ export function Header() {
             </Button>
             {isAdmin ? (
               <Button
-                variant="glass"
+                variant="ghost"
                 size="sm"
                 className={cn(
-                  "h-9 gap-2 px-3",
-                  pathname === "/admin" && "glassActive"
+                  "h-9 gap-2 px-3 text-muted-foreground hover:text-foreground",
+                  pathname === "/admin" && "border border-primary/45 bg-primary/14 text-foreground"
                 )}
                 onClick={() => router.push("/admin")}
               >
@@ -147,7 +150,7 @@ export function Header() {
             <div className="hidden items-center gap-1.5 sm:flex lg:hidden">
               {isAdmin ? (
                 <Button
-                  variant={pathname === "/admin" ? "glassActive" : "ghost"}
+                  variant={pathname === "/admin" ? "secondary" : "ghost"}
                   size="icon"
                   onClick={() => router.push("/admin")}
                   className="h-10 w-10"
@@ -157,7 +160,7 @@ export function Header() {
                 </Button>
               ) : null}
               <Button
-                variant={pathname === "/stats" ? "glassActive" : "ghost"}
+                variant={pathname === "/stats" ? "secondary" : "ghost"}
                 size="icon"
                 onClick={() => router.push("/stats")}
                 className="h-10 w-10"
@@ -166,7 +169,7 @@ export function Header() {
                 <BarChart3 className="h-5 w-5" />
               </Button>
               <Button
-                variant={pathname === "/settings" ? "glassActive" : "ghost"}
+                variant={pathname === "/settings" ? "secondary" : "ghost"}
                 size="icon"
                 onClick={() => router.push("/settings")}
                 className="h-10 w-10"

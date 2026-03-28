@@ -72,7 +72,7 @@ export function CombinedFilter({
         <DropdownMenuTrigger asChild>
           <Button
             type="button"
-            variant="glass"
+            variant="outline"
             className="h-9 gap-2 px-3 touch-manipulation"
             aria-label="Выбрать пользователя"
             data-testid="combined-user-trigger"
@@ -114,7 +114,7 @@ export function CombinedFilter({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="start"
-          className="w-56 rounded-xl border border-border/80 bg-popover/95 p-1.5 backdrop-blur-[14px]"
+          className="w-56 rounded-xl border border-border bg-popover p-1.5"
         >
           <DropdownMenuLabel className="px-2 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
             Пользователь
@@ -125,7 +125,7 @@ export function CombinedFilter({
             className={cn(
               "cursor-pointer rounded-md px-2.5 py-2 text-sm",
               selectedUserId === null
-                ? "border border-primary/45 bg-primary/20 text-foreground"
+                ? "border border-primary/45 bg-primary/14 text-foreground"
                 : "text-muted-foreground hover:text-foreground"
             )}
             data-testid="combined-user-option-all"
@@ -137,7 +137,7 @@ export function CombinedFilter({
             className={cn(
               "cursor-pointer rounded-md px-2.5 py-2 text-sm",
               isMyMode
-                ? "border border-primary/45 bg-primary/20 text-foreground"
+                ? "border border-primary/45 bg-primary/14 text-foreground"
                 : "text-muted-foreground hover:text-foreground"
             )}
             data-testid="combined-user-option-me"
@@ -152,7 +152,7 @@ export function CombinedFilter({
               className={cn(
                 "flex cursor-pointer items-center gap-3 rounded-md p-2",
                 selectedUserId === user.id
-                  ? "border border-primary/45 bg-primary/20 text-foreground"
+                  ? "border border-primary/45 bg-primary/14 text-foreground"
                   : "text-muted-foreground hover:text-foreground"
               )}
               data-testid={`combined-user-option-${user.id}`}
@@ -200,7 +200,7 @@ export function CombinedFilter({
         {onEditList && selectedListId && (
           <Button
             type="button"
-            variant="glass"
+            variant="outline"
             size="iconToolbar"
             onClick={onEditList}
             title="Изменить подборку"
@@ -212,7 +212,7 @@ export function CombinedFilter({
         {isMyMode && (
           <Button
             type="button"
-            variant="glass"
+            variant="outline"
             size="sm"
             onClick={onCreateList}
             className="h-9 gap-1.5"

@@ -10,16 +10,16 @@ function clampWishlistPriority(priority: number): 1 | 2 | 3 | 4 | 5 {
   return n as 1 | 2 | 3 | 4 | 5;
 }
 
-/** Стили согласованы с `PriorityBadge` (фиолетовый → розовый по мере роста срочности). */
+/** Стили приоритета в рамках единого brand-акцента. */
 const OVERLAY_BY_PRIORITY: Record<
   1 | 2 | 3 | 4 | 5,
   string
 > = {
-  1: "border-violet-400/45 bg-violet-950/76 text-violet-100/95 shadow-sm shadow-violet-950/25",
-  2: "border-violet-500/45 bg-violet-950/78 text-violet-50/95 shadow-sm shadow-violet-950/25",
-  3: "border-purple-400/48 bg-purple-950/78 text-purple-50/95 shadow-sm shadow-purple-950/25",
-  4: "border-fuchsia-400/50 bg-fuchsia-950/78 text-fuchsia-50/95 shadow-sm shadow-fuchsia-950/25",
-  5: "border-pink-400/52 bg-pink-950/80 text-pink-50/95 shadow-sm shadow-pink-950/28",
+  1: "border-primary/32 bg-primary/12 text-primary-foreground shadow-sm",
+  2: "border-primary/38 bg-primary/16 text-primary-foreground shadow-sm",
+  3: "border-primary/44 bg-primary/20 text-primary-foreground shadow-sm",
+  4: "border-primary/50 bg-primary/24 text-primary-foreground shadow-sm",
+  5: "border-primary/56 bg-primary/28 text-primary-foreground shadow-sm",
 };
 
 export interface PriorityBadgeOverlayProps {

@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Умный вишлист для совместных желаний",
     start_url: "/",
     display: "standalone",
-    background_color: "#FAFAF9",
-    theme_color: "#7C3AED",
+    background_color: "#1A1A1F",
+    theme_color: "#1A1A1F",
     orientation: "portrait-primary",
     lang: "ru",
     icons: [

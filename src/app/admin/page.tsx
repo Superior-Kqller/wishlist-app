@@ -52,19 +52,21 @@ export default function AdminPage() {
     <div className="min-h-screen page-bg">
       <main className="container mx-auto px-4 py-6">
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">
-                Управление пользователями
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Создание, редактирование и удаление учетных записей
-              </p>
+          <div className="rounded-xl border border-border bg-[hsl(var(--surface-2))] px-4 py-4 shadow-[0_10px_24px_rgba(0,0,0,0.28)] sm:px-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h1 className="text-2xl font-semibold tracking-tight">
+                  Управление пользователями
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  Создание, редактирование и удаление учетных записей
+                </p>
+              </div>
+              <Button onClick={() => setCreateDialogOpen(true)} className="w-full sm:w-auto">
+                <Plus className="w-4 h-4 mr-2" />
+                Создать пользователя
+              </Button>
             </div>
-            <Button onClick={() => setCreateDialogOpen(true)} className="w-full sm:w-auto">
-              <Plus className="w-4 h-4 mr-2" />
-              Создать пользователя
-            </Button>
           </div>
 
           {error ? (

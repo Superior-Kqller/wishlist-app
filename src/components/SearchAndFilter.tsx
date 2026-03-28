@@ -28,13 +28,13 @@ export function WishlistSearchInput({
 }: WishlistSearchInputProps) {
   return (
     <div className={cn("relative min-w-0 w-full", className)}>
-      <Search className="absolute left-2.5 top-1/2 h-4 w-4 shrink-0 -translate-y-1/2 text-muted-foreground/80" />
+      <Search className="absolute left-2.5 top-1/2 h-4 w-4 shrink-0 -translate-y-1/2 text-muted-foreground" />
       <Input
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
         placeholder="Поиск..."
         className={cn(
-          "h-9 pl-8 text-sm placeholder:text-muted-foreground/85",
+          "h-9 pl-8 text-sm",
           filterBarTriggerClass,
         )}
       />
@@ -91,21 +91,21 @@ export function WishlistToolbarControls({
       </Select>
       <Button
         type="button"
-        variant="glass"
+        variant="secondary"
         size="iconToolbar"
         onClick={onTogglePurchased}
         title={showPurchased ? "Скрыть купленные" : "Показать купленные"}
       >
         {showPurchased ? (
-          <Eye className="h-4 w-4 text-muted-foreground/85" />
+          <Eye className="h-4 w-4 text-muted-foreground" />
         ) : (
-          <EyeOff className="h-4 w-4 text-muted-foreground/85" />
+          <EyeOff className="h-4 w-4 text-muted-foreground" />
         )}
       </Button>
       {showSelectionButton ? (
         <Button
           type="button"
-          variant={selectionMode ? "glassActive" : "glass"}
+          variant={selectionMode ? "secondary" : "outline"}
           size="sm"
           className="h-9 gap-1.5 px-3"
           title={selectionMode ? "Отменить выбор" : "Режим выбора"}

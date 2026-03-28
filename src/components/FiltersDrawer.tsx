@@ -78,7 +78,7 @@ export function FiltersDrawer({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="dialog-modal-surface min-h-0 w-[min(95vw,calc(100vw-1rem))] max-w-md gap-0 border border-border/80 bg-card/90 backdrop-blur-[20px]">
+      <DialogContent className="dialog-modal-surface min-h-0 w-[min(95vw,calc(100vw-1rem))] max-w-md gap-0 border border-border bg-popover/88 backdrop-blur-[18px]">
         <DialogHeader>
           <DialogTitle className="text-lg">Фильтры</DialogTitle>
         </DialogHeader>
@@ -126,14 +126,14 @@ export function FiltersDrawer({
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Купленные</Label>
             <Button
-              variant="glass"
+              variant="secondary"
               className="h-10 w-full justify-start"
               onClick={onTogglePurchased}
             >
               {showPurchased ? (
-                <Eye className="mr-2 h-4 w-4 text-muted-foreground/85" />
+                <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
               ) : (
-                <EyeOff className="mr-2 h-4 w-4 text-muted-foreground/85" />
+                <EyeOff className="mr-2 h-4 w-4 text-muted-foreground" />
               )}
               {showPurchased ? "Показаны купленные" : "Скрыты купленные"}
             </Button>

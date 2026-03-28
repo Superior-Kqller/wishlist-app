@@ -533,11 +533,11 @@ function HomePageContent() {
   return (
     <div className="min-h-screen page-bg">
       <main className="container mx-auto space-y-3 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-3 sm:px-4 sm:py-5 sm:pb-5">
-        <section className="glass-card border-border/70 px-4 py-3 sm:px-5 sm:py-4">
+        <section className="rounded-xl border border-border bg-[hsl(var(--surface-2))] px-4 py-3 shadow-[0_10px_24px_rgba(0,0,0,0.28)] sm:px-5 sm:py-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="space-y-1.5">
               <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                <Sparkles className="h-3.5 w-3.5 text-cyan-300/90" />
+                <Sparkles className="h-3.5 w-3.5 text-primary/90" />
                 Обзор подборки
               </p>
               <h1 className="text-lg font-semibold text-foreground sm:text-xl">
@@ -547,9 +547,9 @@ function HomePageContent() {
                 Доступно: {summary.available} • Забронировано: {summary.claimed} • Куплено: {summary.purchased}
               </p>
             </div>
-            <div className="rounded-lg border border-cyan-400/30 bg-cyan-950/20 px-3 py-2 text-right">
-              <p className="text-[11px] uppercase tracking-wide text-cyan-200/80">Открытая стоимость</p>
-              <p className="text-sm font-semibold text-cyan-100">
+            <div className="rounded-lg border border-primary/35 bg-primary/12 px-3 py-2 text-right">
+              <p className="text-[11px] uppercase tracking-wide text-primary-foreground/80">Открытая стоимость</p>
+              <p className="text-sm font-semibold text-primary-foreground">
                 {summary.totalValue > 0 ? `${Math.round(summary.totalValue).toLocaleString("ru-RU")} ₽` : "—"}
               </p>
             </div>
@@ -560,13 +560,13 @@ function HomePageContent() {
                 <Badge
                   key={chip.key}
                   variant="outline"
-                  className="group inline-flex items-center gap-1 border-border/80 bg-card/70 px-2 py-1 text-[11px] text-foreground"
+                  className="group inline-flex items-center gap-1 border-border bg-[hsl(var(--surface-3))] px-2 py-1 text-[11px] text-foreground"
                 >
                   {chip.label}
                   <button
                     type="button"
                     onClick={chip.onRemove}
-                    className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:text-cyan-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-cyan-400/45"
+                    className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/45"
                     aria-label={`Убрать фильтр: ${chip.label}`}
                   >
                     <X className="h-3 w-3" />
@@ -577,7 +577,7 @@ function HomePageContent() {
           ) : null}
         </section>
 
-        <div className="sticky z-30 -mx-3 flex min-w-0 flex-col gap-1.5 border-b border-border bg-card/95 px-3 py-1.5 backdrop-blur-md supports-[backdrop-filter]:bg-card/88 max-sm:top-[calc(4.625rem+env(safe-area-inset-top,0px))] sm:static sm:z-auto sm:-mx-4 sm:border-0 sm:bg-transparent sm:px-4 sm:py-2 sm:backdrop-blur-none">
+        <div className="sticky z-30 -mx-3 flex min-w-0 flex-col gap-1.5 border-b border-border bg-[hsl(var(--surface-2))/0.96] px-3 py-1.5 backdrop-blur-md max-sm:top-[calc(4.625rem+env(safe-area-inset-top,0px))] sm:static sm:z-auto sm:-mx-4 sm:border-0 sm:bg-transparent sm:px-4 sm:py-2 sm:backdrop-blur-none">
           {/* Мобильная компактная строка: только поиск + кнопка «Фильтры» */}
           <div className="flex min-w-0 items-center gap-2 sm:hidden">
             <div className="relative flex-1 min-w-0">
@@ -586,11 +586,11 @@ function HomePageContent() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Поиск..."
-                className="h-11 min-h-[44px] rounded-lg bg-card pl-9 text-sm"
+                className="h-11 min-h-[44px] rounded-lg bg-[hsl(var(--surface-3))] pl-9 text-sm"
               />
             </div>
             <Button
-              variant={selectionMode ? "glassActive" : "glass"}
+              variant={selectionMode ? "secondary" : "outline"}
               size="icon"
               className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
               onClick={() => {
@@ -602,7 +602,7 @@ function HomePageContent() {
               <CheckSquare className="h-5 w-5" />
             </Button>
             <Button
-              variant="glass"
+              variant="outline"
               size="icon"
               className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
               onClick={() => setMobileFiltersOpen(true)}
