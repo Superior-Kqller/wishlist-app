@@ -30,16 +30,18 @@ export function AddItemCard({ onAdd, disabled, disabledHint }: AddItemCardProps)
       title={disabled ? disabledHint : undefined}
       className={
         disabled
-          ? "flex min-h-[220px] cursor-not-allowed flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/45 bg-card/35 text-center opacity-60"
-          : "flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border/50 bg-card text-center transition-colors hover:border-primary/35 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          ? "flex min-h-[240px] cursor-not-allowed flex-col items-start justify-between gap-6 rounded-xl border border-dashed border-border/45 bg-card p-4 opacity-60"
+          : "flex min-h-[240px] cursor-pointer flex-col items-start justify-between gap-6 rounded-xl border border-dashed border-border/50 bg-card p-4 transition-colors hover:border-primary/35 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       }
     >
-      <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border bg-background">
+      <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-primary/35 bg-primary/12 text-primary">
         <Plus className="h-5 w-5" />
       </span>
-      <div className="space-y-1">
-        <p className="text-sm font-medium">Добавить товар</p>
-        <p className="text-xs text-muted-foreground">По ссылке или вручную</p>
+      <div className="space-y-2 text-left">
+        <p className="text-base font-semibold">Новый лот в коллекции</p>
+        <p className="text-sm text-muted-foreground">
+          Добавьте товар по ссылке или заполните карточку вручную.
+        </p>
       </div>
     </Card>
   );

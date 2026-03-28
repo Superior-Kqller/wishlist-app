@@ -3,12 +3,18 @@
 import { memo, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Check, Globe2, Pencil, Trash2 } from "lucide-react";
+import { Check, Globe2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { WishlistItem } from "@/types";
 import { cn, formatPrice } from "@/lib/utils";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
@@ -119,6 +125,18 @@ export const WishCard = memo(function WishCard({
           className="group relative aspect-[4/5] overflow-hidden bg-secondary"
         >
           <PriorityBadgeOverlay priority={item.priority} />
+          {selectionMode ? (
+            <div
+              className={cn(
+                "absolute right-2 top-2 z-20 rounded-full border px-2 py-1 text-[11px] font-semibold backdrop-blur-sm",
+                isSelected
+                  ? "border-primary/60 bg-primary/22 text-foreground"
+                  : "border-border bg-card/90 text-muted-foreground"
+              )}
+            >
+              {isSelected ? "Выбрано" : "Выбрать"}
+            </div>
+          ) : null}
           {showImage ? (
             <Image
               src={imageUrl!}
@@ -204,6 +222,11 @@ export const WishCard = memo(function WishCard({
           data-testid="wishlist-card-v2-footer"
           className="flex flex-col gap-2 p-3 pt-0 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-2"
         >
+          {selectionMode ? (
+            <p className="text-xs text-muted-foreground">
+              Нажмите на карточку, чтобы {isSelected ? "снять выбор" : "выбрать"}.
+            </p>
+          ) : null}
           {item.url || canManage ? (
             <TooltipProvider delayDuration={450} skipDelayDuration={200}>
               <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
@@ -230,71 +253,55 @@ export const WishCard = memo(function WishCard({
                   </Tooltip>
                 ) : null}
 
-                {canManage ? (
-                  <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:shrink-0 sm:justify-end">
-                    {!isBought ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <IconButton
-                            type="button"
-                            data-testid="wishlist-card-toggle-purchased"
-                            intent="success"
-                            disabled={statusPending}
-                            aria-label="Отметить купленным"
-                            className="w-full min-w-0 sm:w-11"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleMarkPurchased();
-                            }}
-                          >
-                            <Check className="h-5 w-5" />
-                          </IconButton>
-                        </TooltipTrigger>
-                        <TooltipContent>Отметить купленным</TooltipContent>
-                      </Tooltip>
-                    ) : null}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <IconButton
-                          type="button"
-                          data-testid="wishlist-card-edit"
-                          intent="default"
+                {canManage && !selectionMode ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <IconButton
+                        type="button"
+                        data-testid="wishlist-card-actions"
+                        intent="default"
+                        aria-label="Действия с карточкой"
+                        className="w-full min-w-0 sm:w-11"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MoreHorizontal className="h-5 w-5" />
+                      </IconButton>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {!isBought ? (
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMarkPurchased();
+                          }}
                           disabled={statusPending}
-                          aria-label="Редактировать"
-                          className="w-full min-w-0 sm:w-11"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit(item);
-                          }}
                         >
-                          <Pencil className="h-5 w-5" />
-                        </IconButton>
-                      </TooltipTrigger>
-                      <TooltipContent>Редактировать</TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <IconButton
-                          type="button"
-                          data-testid="wishlist-card-delete"
-                          intent="danger"
-                          aria-label="Удалить"
-                          className={cn(
-                            "w-full min-w-0 sm:w-11",
-                            // второй ряд на мобильном, если три действия
-                            !isBought && "col-span-2 sm:col-span-1",
-                          )}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(item.id);
-                          }}
-                        >
-                          <Trash2 className="h-5 w-5" />
-                        </IconButton>
-                      </TooltipTrigger>
-                      <TooltipContent>Удалить</TooltipContent>
-                    </Tooltip>
-                  </div>
+                          <Check className="mr-2 h-4 w-4" />
+                          Отметить купленным
+                        </DropdownMenuItem>
+                      ) : null}
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(item);
+                        }}
+                        disabled={statusPending}
+                      >
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Редактировать
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(item.id);
+                        }}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Удалить
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 ) : null}
               </div>
             </TooltipProvider>

@@ -12,6 +12,7 @@ import {
 import { Search, SlidersHorizontal, Eye, EyeOff, CheckSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
+import { uiState } from "@/lib/ui-contract";
 
 export { filterBarTriggerClass };
 
@@ -107,7 +108,7 @@ export function WishlistToolbarControls({
           type="button"
           variant={selectionMode ? "secondary" : "outline"}
           size="sm"
-          className="h-9 gap-1.5 px-3"
+          className={selectionMode ? uiState.selectionActive : uiState.selectionIdle}
           title={selectionMode ? "Отменить выбор" : "Режим выбора"}
           onClick={onToggleSelection}
         >

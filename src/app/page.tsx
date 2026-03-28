@@ -50,7 +50,7 @@ import { filterAndSortWishlistItems } from "@/lib/home/filter-wishlist-items";
 import { useInfiniteWishlistItems } from "@/hooks/use-infinite-wishlist-items";
 import { useWishlistUrlSync } from "@/hooks/use-wishlist-url-sync";
 import { useWishlistAddUrlDeepLink } from "@/hooks/use-wishlist-add-url-deeplink";
-import { uiSurface } from "@/lib/ui-contract";
+import { uiSurface, uiState } from "@/lib/ui-contract";
 
 function HomePageContent() {
   const { data: session } = useSession();
@@ -534,25 +534,43 @@ function HomePageContent() {
   return (
     <div className="min-h-screen page-bg">
       <main className="container mx-auto space-y-3 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-3 sm:px-4 sm:py-5 sm:pb-5">
-        <section className={`${uiSurface.panel} px-4 py-3 sm:px-5 sm:py-4`}>
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="space-y-1.5">
-              <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        <section className={`${uiSurface.homeSummary} px-4 py-4 sm:px-5 sm:py-5`}>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="space-y-2">
+              <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                 <Sparkles className="h-3.5 w-3.5 text-primary/90" />
-                Обзор подборки
+                Collector catalog
               </p>
-              <h1 className="text-lg font-semibold text-foreground sm:text-xl">
-                {summary.total} {summary.total === 1 ? "желание" : summary.total < 5 ? "желания" : "желаний"}
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                Каталог желаний
               </h1>
-              <p className="text-sm text-muted-foreground">
-                Доступно: {summary.available} • Забронировано: {summary.claimed} • Куплено: {summary.purchased}
+              <p className="max-w-2xl text-sm text-muted-foreground">
+                {summary.total} позиций в коллекции. Выберите подборку, отметьте приоритеты и работайте со статусами без перегруза интерфейса.
               </p>
             </div>
-            <div className="rounded-lg border border-primary/35 bg-primary/12 px-3 py-2 text-right">
+            <div className="rounded-xl border border-primary/35 bg-primary/12 px-4 py-3 text-right">
               <p className="text-[11px] uppercase tracking-wide text-primary-foreground/80">Открытая стоимость</p>
-              <p className="text-sm font-semibold text-primary-foreground">
+              <p className="text-lg font-semibold text-primary-foreground">
                 {summary.totalValue > 0 ? `${Math.round(summary.totalValue).toLocaleString("ru-RU")} ₽` : "—"}
               </p>
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="rounded-lg border border-border bg-card px-3 py-2">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Всего</p>
+              <p className="text-lg font-semibold">{summary.total}</p>
+            </div>
+            <div className="rounded-lg border border-border bg-card px-3 py-2">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Доступно</p>
+              <p className="text-lg font-semibold">{summary.available}</p>
+            </div>
+            <div className="rounded-lg border border-border bg-card px-3 py-2">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Забронировано</p>
+              <p className="text-lg font-semibold">{summary.claimed}</p>
+            </div>
+            <div className="rounded-lg border border-border bg-card px-3 py-2">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Куплено</p>
+              <p className="text-lg font-semibold">{summary.purchased}</p>
             </div>
           </div>
           {activeFilterChips.length > 0 ? (
@@ -578,7 +596,7 @@ function HomePageContent() {
           ) : null}
         </section>
 
-        <div className={uiSurface.stickyPanel}>
+        <div className={uiSurface.homeToolbar}>
           {/* Мобильная компактная строка: только поиск + кнопка «Фильтры» */}
           <div className="flex min-w-0 items-center gap-2 sm:hidden">
             <div className="relative flex-1 min-w-0">
@@ -612,8 +630,13 @@ function HomePageContent() {
               <SlidersHorizontal className="h-5 w-5" />
             </Button>
           </div>
-          {/* Десктоп: фильтры и панель слева, поиск справа от них (ml-auto) */}
-          <div className="hidden min-w-0 w-full flex-wrap items-center gap-2 sm:flex">
+          {/* Десктоп row 1: поиск -> владелец/подборка */}
+          <div className="hidden min-w-0 w-full items-center gap-2 sm:flex">
+            <WishlistSearchInput
+              search={search}
+              onSearchChange={setSearch}
+              className="min-w-0 flex-1 basis-[22rem]"
+            />
             {currentUserId && usersWithStats.length > 0 && (
               <CombinedFilter
                 currentUserId={currentUserId}
@@ -640,30 +663,44 @@ function HomePageContent() {
                 }
               />
             )}
-            <WishlistToolbarControls
-              sortBy={sortBy}
-              onSortChange={setSortBy}
-              showPurchased={showPurchased}
-              onTogglePurchased={() => setShowPurchased(!showPurchased)}
-              selectionMode={selectionMode}
-              onToggleSelection={() => {
-                setSelectionMode(!selectionMode);
-                if (selectionMode) setSelectedIds(new Set());
-              }}
-            />
-            <WishlistSearchInput
-              search={search}
-              onSearchChange={setSearch}
-              className="min-w-0 max-w-md flex-1 basis-[12rem] sm:ml-auto"
-            />
           </div>
-          <div className="hidden sm:block">
-            <TagFilter
-              tags={tagsForFilters}
-              selectedTags={effectiveSelectedTags}
-              onToggleTag={handleToggleTag}
-              onClearTags={() => setSelectedTags([])}
-            />
+          {/* Десктоп row 2: теги -> сортировка/видимость -> режим выбора */}
+          <div className="hidden min-w-0 w-full items-center justify-between gap-2 sm:flex">
+            <div className="min-w-0 flex-1">
+              <TagFilter
+                tags={tagsForFilters}
+                selectedTags={effectiveSelectedTags}
+                onToggleTag={handleToggleTag}
+                onClearTags={() => setSelectedTags([])}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <WishlistToolbarControls
+                sortBy={sortBy}
+                onSortChange={setSortBy}
+                showPurchased={showPurchased}
+                onTogglePurchased={() => setShowPurchased(!showPurchased)}
+                selectionMode={selectionMode}
+                onToggleSelection={() => {
+                  setSelectionMode(!selectionMode);
+                  if (selectionMode) setSelectedIds(new Set());
+                }}
+                showSelectionButton={false}
+              />
+              <Button
+                type="button"
+                variant={selectionMode ? "secondary" : "outline"}
+                size="sm"
+                className={selectionMode ? uiState.selectionActive : uiState.selectionIdle}
+                onClick={() => {
+                  setSelectionMode(!selectionMode);
+                  if (selectionMode) setSelectedIds(new Set());
+                }}
+              >
+                <CheckSquare className="h-4 w-4 shrink-0" />
+                {selectionMode ? "Режим выбора" : "Выбрать"}
+              </Button>
+            </div>
           </div>
           <FiltersDrawer
             open={mobileFiltersOpen}
@@ -700,6 +737,28 @@ function HomePageContent() {
             onClearTags={() => setSelectedTags([])}
           />
         </div>
+
+        {selectionMode ? (
+          <div className={uiSurface.homeSelectionState}>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p>
+                Режим выбора активен: отмечено <span className="font-semibold">{selectedIds.size}</span>{" "}
+                {selectedIds.size === 1 ? "карточка" : selectedIds.size < 5 ? "карточки" : "карточек"}.
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectionMode(false);
+                  setSelectedIds(new Set());
+                }}
+              >
+                Завершить выбор
+              </Button>
+            </div>
+          </div>
+        ) : null}
 
         <WishlistGrid
           items={filteredItems}

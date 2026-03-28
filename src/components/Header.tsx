@@ -60,9 +60,9 @@ export function Header() {
   if (isLoginPage) return null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-secondary/95 shadow-md backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border bg-secondary/95 shadow-sm backdrop-blur-md">
       <div className="pt-[env(safe-area-inset-top,0px)]">
-        <div className="container mx-auto flex min-h-[76px] items-center justify-between gap-3 px-4 sm:min-h-[94px]">
+        <div className="container mx-auto flex min-h-[64px] items-center justify-between gap-3 px-4 sm:min-h-[72px]">
           <button
             onClick={() => router.push("/")}
             className="flex items-center transition-opacity hover:opacity-90"
@@ -132,7 +132,7 @@ export function Header() {
                   size="sm"
                   onClick={onAddItem}
                   title="Добавить товар"
-                  className="hidden sm:flex"
+                  className="hidden sm:inline-flex"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Добавить товар
