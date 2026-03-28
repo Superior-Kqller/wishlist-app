@@ -12,24 +12,27 @@ export default withAuth(
       return NextResponse.redirect(new URL("/", req.url));
     }
 
-    const nonce = crypto.randomUUID().replace(/-/g, "");
+    const isDev = process.env.NODE_ENV !== "production";
+    const scriptSrc = isDev
+      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+      : "script-src 'self' 'unsafe-inline'";
+    const connectSrc = isDev ? "connect-src 'self' ws: wss:" : "connect-src 'self'";
 
     const csp = [
       "default-src 'self'",
-      `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+      // Next injects inline bootstrap/runtime scripts for App Router pages.
+      // A nonce-only policy here leaves protected routes rendered but unhydrated.
+      scriptSrc,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self' data:",
-      "connect-src 'self'",
+      connectSrc,
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
     ].join("; ");
 
-    const requestHeaders = new Headers(req.headers);
-    requestHeaders.set("x-nonce", nonce);
-
-    const response = NextResponse.next({ request: { headers: requestHeaders } });
+    const response = NextResponse.next();
     response.headers.set("Content-Security-Policy", csp);
 
     return response;
