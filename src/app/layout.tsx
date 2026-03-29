@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
@@ -55,7 +56,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   /** Мобильный Chrome/Safari: контент подстраивается под панели браузера */
   interactiveWidget: "resizes-content",
-  themeColor: "#1A1A1F",
+  themeColor: "#0F0B18",
 };
 
 export default function RootLayout({
@@ -68,8 +69,11 @@ export default function RootLayout({
       <head />
       <body className={`${inter.variable} ${jetbrainsMono.variable} ${inter.className}`}>
         <Providers>
-          <Header />
-          {children}
+          <div className="flex min-h-svh flex-col">
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
         </Providers>
       </body>
     </html>

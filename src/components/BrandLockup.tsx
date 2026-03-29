@@ -11,7 +11,7 @@ export function BrandLockup({ className }: BrandLockupProps) {
   return (
     <div className={cn("flex min-w-0 items-center gap-2.5 sm:gap-3", className)}>
       <Image
-        src="/assets/logo/logo-on-dark-512.png"
+        src="/assets/logo/logo-glass-512.png"
         alt="Логотип Вишлист"
         width={72}
         height={72}

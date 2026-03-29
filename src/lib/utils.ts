@@ -116,9 +116,9 @@ export function priorityBorderClass(priority: number): string {
 
 /** Палитра цветов для тегов (хорошо читаются в светлой и тёмной теме) */
 const TAG_PALETTE = [
-  "#6366f1", "#ec4899", "#14b8a6", "#f59e0b", "#ef4444",
-  "#8b5cf6", "#06b6d4", "#84cc16", "#f97316", "#0ea5e9",
-  "#a855f7", "#22c55e", "#e11d48", "#64748b",
+  "#7c5cbf", "#a85cad", "#5c6ebf", "#bf5c8a", "#5ca0bf",
+  "#8a5cbf", "#5cbf9a", "#bf8a5c", "#5c8abf", "#bf5c5c",
+  "#6b5cbf", "#5cbfbf", "#bf6b5c", "#8a8abf",
 ];
 
 /** Цвет тега по имени (детерминированно, один тег — один цвет) */

@@ -60,7 +60,7 @@ export function Header() {
   if (isLoginPage) return null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-secondary/95 shadow-sm backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border bg-[hsl(var(--surface-2)/0.92)] shadow-[0_1px_8px_rgba(15,11,24,0.5)] backdrop-blur-lg">
       <div className="pt-[env(safe-area-inset-top,0px)]">
         <div className="container mx-auto flex min-h-[64px] items-center px-4 sm:min-h-[72px]">
           <button

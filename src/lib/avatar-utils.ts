@@ -14,16 +14,16 @@ export function getInitials(name: string): string {
  */
 export function getAvatarColor(userId: string): string {
   const colors = [
-    "bg-blue-500",
-    "bg-green-500",
-    "bg-purple-500",
-    "bg-pink-500",
-    "bg-indigo-500",
-    "bg-yellow-500",
-    "bg-red-500",
-    "bg-teal-500",
-    "bg-orange-500",
-    "bg-cyan-500",
+    "bg-[hsl(263_60%_48%)]",
+    "bg-[hsl(280_50%_45%)]",
+    "bg-[hsl(245_45%_50%)]",
+    "bg-[hsl(300_40%_42%)]",
+    "bg-[hsl(220_50%_48%)]",
+    "bg-[hsl(340_45%_45%)]",
+    "bg-[hsl(190_45%_42%)]",
+    "bg-[hsl(160_40%_40%)]",
+    "bg-[hsl(25_50%_45%)]",
+    "bg-[hsl(50_45%_42%)]",
   ];
 
   // Простой hash для детерминированного выбора цвета

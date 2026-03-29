@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Gift, Loader2 } from "lucide-react";
-import { uiSurface } from "@/lib/ui-contract";
+import { Loader2 } from "lucide-react";
+import { BrandLockup } from "@/components/BrandLockup";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -39,12 +39,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center page-bg">
       <div className="w-full max-w-sm mx-4">
-        <div className={`${uiSurface.panel} p-8`}>
+        <div className="glass rounded-2xl p-8">
           <div className="flex flex-col items-center mb-8">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card">
-              <Gift className="w-8 h-8 text-primary" />
-            </div>
-            <h1 className="text-2xl font-semibold tracking-tight">Вишлист</h1>
+            <BrandLockup className="mb-3 justify-center" />
             <p className="text-muted-foreground text-sm mt-1 text-center">
               Войдите в свой аккаунт
             </p>
@@ -83,7 +80,7 @@ export default function LoginPage() {
             </p>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" variant="gradient" className="w-full" disabled={loading}>
             {loading ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : null}

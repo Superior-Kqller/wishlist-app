@@ -10,13 +10,14 @@ const buttonVariants = cva(
       variant: {
         default:
           "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+        gradient:
+          "text-white shadow-md [background:linear-gradient(135deg,hsl(263_70%_55%),hsl(275_60%_62%))] hover:brightness-110 hover:shadow-[0_0_20px_hsl(263_70%_55%/0.35)] active:brightness-95",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
           "border border-border bg-card text-foreground shadow-none hover:border-border/90 hover:bg-accent",
         secondary:
           "border border-border bg-secondary text-secondary-foreground shadow-none hover:bg-muted",
-        /** Панель фильтров: единый «стеклянный» контур без кислотного primary */
         glass:
           "border border-border/90 bg-popover/70 text-popover-foreground shadow-none backdrop-blur-md transition-colors hover:bg-popover/85",
         glassActive:

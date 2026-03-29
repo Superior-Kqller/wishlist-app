@@ -112,7 +112,7 @@ export const WishCard = memo(function WishCard({
           "overflow-hidden border-border bg-card",
           isBought && "opacity-45 grayscale",
           isCardInteractive &&
-            "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-md focus-visible:border-primary/45 focus-visible:shadow-md",
+            "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-[0_8px_24px_rgba(0,0,0,0.3),0_0_20px_hsl(263_70%_55%/0.12)] focus-visible:border-primary/45 focus-visible:shadow-[0_8px_24px_rgba(0,0,0,0.3),0_0_20px_hsl(263_70%_55%/0.12)]",
           isSelected && "ring-2 ring-primary/45"
         )}
         role={isCardInteractive ? "button" : undefined}
