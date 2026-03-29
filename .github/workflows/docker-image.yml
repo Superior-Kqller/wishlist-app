@@ -91,8 +91,11 @@ jobs:
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             VERSION="${{ github.ref_name }}"
           else
-            SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-            VERSION="dev-${SHORT_SHA}"
+            VERSION=$(node -p "require('./package.json').version" 2>/dev/null || echo "")
+            if [ -z "$VERSION" ]; then
+              SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+              VERSION="dev-${SHORT_SHA}"
+            fi
           fi
           echo "version=${VERSION#v}" >> $GITHUB_OUTPUT
 
