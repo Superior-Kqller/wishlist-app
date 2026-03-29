@@ -5,7 +5,7 @@ import type { TelegramUpdate } from "@/lib/telegram/types";
 
 function isWebhookAuthorized(req: NextRequest): boolean {
   const config = getTelegramConfig();
-  if (!config.webhookSecret) return true;
+  if (!config.webhookSecret) return false;
 
   const header = req.headers.get("x-telegram-bot-api-secret-token");
   if (!header) return false;

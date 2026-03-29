@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUserId } from "@/lib/auth-utils";
+import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const userId = await getCurrentUserId();
+  const userId = await getSessionUserIdVerified();
   if (!userId) {
     return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
   }

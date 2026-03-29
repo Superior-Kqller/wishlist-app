@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUserId } from "@/lib/auth-utils";
+import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { ensureUserIdsExist } from "@/lib/list-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.read);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const currentUserId = await getCurrentUserId();
+  const currentUserId = await getSessionUserIdVerified();
   if (!currentUserId) {
     return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
   }
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const currentUserId = await getCurrentUserId();
+  const currentUserId = await getSessionUserIdVerified();
   if (!currentUserId) {
     return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
   }

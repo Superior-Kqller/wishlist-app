@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUserId } from "@/lib/auth-utils";
+import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { canUserSeeItem } from "@/lib/list-utils";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
@@ -15,7 +15,7 @@ export async function DELETE(
   const rateLimitResponse = await rateLimit(_req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
-  const currentUserId = await getCurrentUserId();
+  const currentUserId = await getSessionUserIdVerified();
   if (!currentUserId) {
     return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
   }
