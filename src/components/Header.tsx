@@ -62,22 +62,22 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-secondary/95 shadow-sm backdrop-blur-md">
       <div className="pt-[env(safe-area-inset-top,0px)]">
-        <div className="container mx-auto flex min-h-[64px] items-center justify-between gap-3 px-4 sm:min-h-[72px]">
+        <div className="container mx-auto flex min-h-[64px] items-center px-4 sm:min-h-[72px]">
           <button
             onClick={() => router.push("/")}
-            className="flex items-center transition-opacity hover:opacity-90"
+            className="shrink-0 transition-opacity hover:opacity-90"
             title="На главную"
             aria-label="Вишлист — на главную"
           >
             <BrandLockup />
           </button>
 
-          <div className="hidden items-center gap-1.5 lg:flex">
+          <nav className="hidden flex-1 items-center justify-center gap-1.5 px-4 lg:flex">
             <Button
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 gap-2 px-3 text-muted-foreground hover:text-foreground",
+                uiState.navBase,
                 pathname === "/" && uiState.navActive
               )}
               onClick={() => router.push("/")}
@@ -89,7 +89,7 @@ export function Header() {
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 gap-2 px-3 text-muted-foreground hover:text-foreground",
+                uiState.navBase,
                 pathname === "/stats" && uiState.navActive
               )}
               onClick={() => router.push("/stats")}
@@ -101,7 +101,7 @@ export function Header() {
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 gap-2 px-3 text-muted-foreground hover:text-foreground",
+                uiState.navBase,
                 pathname === "/settings" && uiState.navActive
               )}
               onClick={() => router.push("/settings")}
@@ -114,7 +114,7 @@ export function Header() {
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  "h-9 gap-2 px-3 text-muted-foreground hover:text-foreground",
+                  uiState.navBase,
                   pathname === "/admin" && uiState.navActive
                 )}
                 onClick={() => router.push("/admin")}
@@ -123,29 +123,27 @@ export function Header() {
                 Админка
               </Button>
             ) : null}
-          </div>
+          </nav>
 
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="ml-auto flex min-w-[88px] items-center justify-end gap-1 sm:min-w-[220px] sm:gap-2 lg:min-w-[340px]">
             {isMainPage && onAddItem ? (
               <>
                 <Button
                   size="sm"
                   onClick={onAddItem}
                   title="Добавить товар"
-                  className="hidden sm:inline-flex"
+                  className="hidden sm:inline-flex sm:min-w-[156px]"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Добавить товар
                 </Button>
-                <Button
-                  size="icon"
-                  onClick={onAddItem}
-                  title="Добавить товар"
-                  className="size-11 min-h-[44px] min-w-[44px] shrink-0 sm:hidden"
-                >
-                  <Plus className="h-5 w-5" />
-                </Button>
               </>
+            ) : null}
+            {!isMainPage ? (
+              <span
+                aria-hidden
+                className="hidden sm:inline-flex sm:min-w-[156px]"
+              />
             ) : null}
 
             <div className="hidden items-center gap-1.5 sm:flex lg:hidden">

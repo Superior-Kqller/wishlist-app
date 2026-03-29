@@ -24,7 +24,7 @@ export function BrandLockup({ className }: BrandLockupProps) {
           Вишлист
         </span>
         <span className="line-clamp-1 max-w-[65vw] text-[11px] uppercase tracking-[0.08em] text-muted-foreground sm:max-w-none">
-          Collector catalog
+          Каталог желаний
         </span>
       </div>
     </div>

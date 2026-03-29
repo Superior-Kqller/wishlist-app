@@ -29,7 +29,9 @@ export const uiSurface = {
 } as const;
 
 export const uiState = {
-  navActive: "border border-primary/45 bg-primary/14 text-foreground",
+  navBase:
+    "h-9 gap-2 border border-transparent px-3 text-muted-foreground hover:text-foreground",
+  navActive: "border-primary/45 bg-primary/14 text-foreground",
   selectionIdle:
     "h-9 gap-1.5 px-3 border border-border bg-card text-muted-foreground hover:text-foreground",
   selectionActive:

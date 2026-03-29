@@ -29,7 +29,7 @@ import { BulkActionBar } from "@/components/BulkActionBar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, SlidersHorizontal, Loader2, CheckSquare, X, Sparkles } from "lucide-react";
+import { Search, SlidersHorizontal, Loader2, CheckSquare, X, Sparkles, Plus } from "lucide-react";
 import {
   WishlistItem,
   Tag,
@@ -539,7 +539,7 @@ function HomePageContent() {
             <div className="space-y-2">
               <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                 <Sparkles className="h-3.5 w-3.5 text-primary/90" />
-                Collector catalog
+                Каталог желаний
               </p>
               <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
                 Каталог желаний
@@ -597,7 +597,7 @@ function HomePageContent() {
         </section>
 
         <div className={uiSurface.homeToolbar}>
-          {/* Мобильная компактная строка: только поиск + кнопка «Фильтры» */}
+          {/* Мобильная action-bar: поиск + главный action + secondary controls */}
           <div className="flex min-w-0 items-center gap-2 sm:hidden">
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 h-4 w-4 shrink-0 -translate-y-1/2 text-muted-foreground" />
@@ -609,6 +609,28 @@ function HomePageContent() {
               />
             </div>
             <Button
+              variant="default"
+              size="icon"
+              className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
+              onClick={() => {
+                setParsedData(null);
+                setAddDialogAutoFill(false);
+                setAddDialogOpen(true);
+              }}
+              title="Добавить товар"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
+              onClick={() => setMobileFiltersOpen(true)}
+              title="Фильтры"
+            >
+              <SlidersHorizontal className="h-5 w-5" />
+            </Button>
+            <Button
               variant={selectionMode ? "secondary" : "outline"}
               size="icon"
               className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
@@ -619,15 +641,6 @@ function HomePageContent() {
               title={selectionMode ? "Отменить выбор" : "Выбрать"}
             >
               <CheckSquare className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
-              onClick={() => setMobileFiltersOpen(true)}
-              title="Фильтры"
-            >
-              <SlidersHorizontal className="h-5 w-5" />
             </Button>
           </div>
           {/* Десктоп row 1: поиск -> владелец/подборка */}
