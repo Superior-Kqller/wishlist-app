@@ -20,7 +20,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import { PriorityBadgeOverlay } from "./priority-badge";
 import { IconButton } from "./icon-button";
-import { getItemStatusLabel, getItemStatusMarker, getItemStatusTone } from "@/lib/item-status-presentation";
+import { getItemStatusLabel, getItemStatusTone } from "@/lib/item-status-presentation";
 
 export interface WishCardProps {
   item: WishlistItem;
@@ -94,7 +94,6 @@ export const WishCard = memo(function WishCard({
 
   const showImage = Boolean(imageUrl && !imageError);
   const statusTone = getItemStatusTone(item.status);
-  const statusMarker = getItemStatusMarker(item.status);
 
   return (
     <motion.div
@@ -136,7 +135,17 @@ export const WishCard = memo(function WishCard({
             >
               {isSelected ? "Выбрано" : "Выбрать"}
             </div>
-          ) : null}
+          ) : (
+            <Badge
+              variant="outline"
+              className={cn(
+                "pointer-events-none absolute right-2 top-2 z-10 max-w-[38%] truncate border px-2 py-1 text-[11px] font-medium backdrop-blur-sm sm:right-2.5 sm:top-2.5",
+                statusTone,
+              )}
+            >
+              {getItemStatusLabel(item.status)}
+            </Badge>
+          )}
           {showImage ? (
             <Image
               src={imageUrl!}
@@ -154,15 +163,7 @@ export const WishCard = memo(function WishCard({
           )}
         </div>
 
-        <CardHeader className="space-y-1.5 p-3 pb-2">
-          <div className="flex items-center justify-between gap-2">
-            <div className="inline-flex items-center gap-1.5">
-              <span className={cn("h-2 w-2 rounded-full", statusMarker)} aria-hidden />
-              <Badge variant="outline" className={cn("text-[11px] font-medium", statusTone)}>
-                {getItemStatusLabel(item.status)}
-              </Badge>
-            </div>
-          </div>
+        <CardHeader className="p-3 pb-2">
           <CardTitle
             data-testid="wishlist-card-v2-title"
             className={cn(
