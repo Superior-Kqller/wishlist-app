@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { getPriorityLabel, getPriorityShortLabel } from "@/lib/priority-labels";
+import { clampWishlistPriority, priorityDotClassByPriority } from "@/lib/priority-styles";
 
 interface PrioritySelectProps {
   priority: number;
@@ -29,18 +30,11 @@ export function PrioritySelect({
   triggerClassName,
   prominentDot = false,
 }: PrioritySelectProps) {
-  const dotClassByPriority: Record<number, string> = {
-    1: "bg-primary/45",
-    2: "bg-primary/58",
-    3: "bg-primary/70",
-    4: "bg-primary/82",
-    5: "bg-primary",
-  };
-
-  const priorityDotClass = dotClassByPriority[priority] ?? "bg-primary/45";
+  const normalizedPriority = clampWishlistPriority(priority);
+  const priorityDotClass = priorityDotClassByPriority[normalizedPriority];
   const currentLabel = compact
-    ? getPriorityShortLabel(priority)
-    : getPriorityLabel(priority);
+    ? getPriorityShortLabel(normalizedPriority)
+    : getPriorityLabel(normalizedPriority);
 
   return (
     <Select
@@ -75,7 +69,7 @@ export function PrioritySelect({
                 aria-hidden="true"
                 className={cn(
                   "h-2 w-2 rounded-full",
-                  dotClassByPriority[value] ?? "bg-primary/45"
+                  priorityDotClassByPriority[clampWishlistPriority(value)]
                 )}
               />
               <span>{compact ? getPriorityShortLabel(value) : getPriorityLabel(value)}</span>

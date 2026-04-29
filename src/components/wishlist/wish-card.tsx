@@ -143,7 +143,7 @@ export const WishCard = memo(function WishCard({
             <Badge
               variant="outline"
               className={cn(
-                "pointer-events-none absolute right-2 top-2 z-10 max-w-[38%] truncate border px-2 py-1 text-[11px] font-medium backdrop-blur-sm sm:right-2.5 sm:top-2.5",
+                "pointer-events-none absolute bottom-2 right-2 z-10 max-w-[72%] truncate border px-2 py-1 text-[11px] font-medium backdrop-blur-sm sm:bottom-2.5 sm:right-2.5",
                 "bg-card/85",
                 statusTone,
               )}
@@ -166,6 +166,10 @@ export const WishCard = memo(function WishCard({
               <Globe2 className="h-14 w-14 text-muted-foreground/65" aria-hidden />
             </div>
           )}
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-24 bg-gradient-to-t from-black/55 to-transparent"
+            aria-hidden
+          />
         </div>
 
         <CardHeader className="p-3 pb-2">

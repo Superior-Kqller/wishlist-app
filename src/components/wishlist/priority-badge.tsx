@@ -2,21 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { getPriorityLabel, getPriorityEmoji } from "@/lib/priority-labels";
-
-function clampWishlistPriority(priority: number): 1 | 2 | 3 | 4 | 5 {
-  const n = Math.round(priority);
-  if (n <= 1) return 1;
-  if (n >= 5) return 5;
-  return n as 1 | 2 | 3 | 4 | 5;
-}
-
-const OVERLAY_BY_PRIORITY: Record<1 | 2 | 3 | 4 | 5, string> = {
-  1: "border-primary/25 bg-primary/15 text-primary-foreground shadow-sm",
-  2: "border-primary/32 bg-primary/22 text-primary-foreground shadow-sm",
-  3: "border-primary/42 bg-primary/32 text-primary-foreground shadow-sm",
-  4: "border-primary/55 bg-primary/44 text-primary-foreground shadow-sm",
-  5: "border-primary/68 bg-primary/56 text-primary-foreground shadow-sm",
-};
+import { clampWishlistPriority, priorityOverlayToneByPriority } from "@/lib/priority-styles";
 
 export interface PriorityBadgeOverlayProps {
   priority: number;
@@ -27,7 +13,7 @@ export function PriorityBadgeOverlay({ priority, className }: PriorityBadgeOverl
   const p = clampWishlistPriority(priority);
   const emoji = getPriorityEmoji(p);
   const label = getPriorityLabel(p);
-  const styles = OVERLAY_BY_PRIORITY[p];
+  const styles = priorityOverlayToneByPriority[p];
 
   return (
     <div
