@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Trash2, ShoppingCart, X, CheckSquare } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { uiSurface } from "@/lib/ui-contract";
 
 interface BulkActionBarProps {
@@ -20,20 +20,26 @@ export function BulkActionBar({
   onClearSelection,
   isProcessing,
 }: BulkActionBarProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <AnimatePresence>
       {selectedCount > 0 && (
         <motion.div
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50"
+          initial={reduceMotion ? { opacity: 0 } : { y: 100, opacity: 0 }}
+          animate={reduceMotion ? { opacity: 1 } : { y: 0, opacity: 1 }}
+          exit={reduceMotion ? { opacity: 0 } : { y: 100, opacity: 0 }}
+          transition={
+            reduceMotion
+              ? { duration: 0.12 }
+              : { type: "spring", stiffness: 300, damping: 30 }
+          }
+          className="fixed inset-x-3 bottom-[calc(4.9rem+env(safe-area-inset-bottom,0px))] z-50 sm:bottom-4 sm:left-1/2 sm:right-auto sm:w-auto sm:-translate-x-1/2"
         >
-          <div className={uiSurface.floatingBar}>
-            <div className="flex items-center gap-1.5 mr-2">
-              <CheckSquare className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium tabular-nums">
+          <div className={`${uiSurface.floatingBar} mx-auto w-full max-w-md justify-between sm:w-auto sm:max-w-none`}>
+            <div className="mr-1 flex min-w-0 items-center gap-1.5 sm:mr-2">
+              <CheckSquare className="h-4 w-4 shrink-0 text-primary" />
+              <span className="text-sm font-medium tabular-nums" aria-live="polite">
                 {selectedCount}
               </span>
             </div>
@@ -43,8 +49,9 @@ export function BulkActionBar({
               size="sm"
               onClick={onMarkPurchased}
               disabled={isProcessing}
+              className="h-10 flex-1 px-3 sm:flex-none"
             >
-              <ShoppingCart className="w-4 h-4 mr-1.5" />
+              <ShoppingCart className="mr-1.5 h-4 w-4" />
               Куплено
             </Button>
 
@@ -53,19 +60,21 @@ export function BulkActionBar({
               size="sm"
               onClick={onDelete}
               disabled={isProcessing}
+              className="h-10 flex-1 px-3 sm:flex-none"
             >
-              <Trash2 className="w-4 h-4 mr-1.5" />
+              <Trash2 className="mr-1.5 h-4 w-4" />
               Удалить
             </Button>
 
             <Button
               variant="ghost"
               size="icon"
-              className="ml-1 h-8 w-8"
+              className="ml-1 h-10 w-10 shrink-0"
               onClick={onClearSelection}
               disabled={isProcessing}
+              aria-label="Снять выбор"
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
         </motion.div>

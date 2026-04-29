@@ -154,6 +154,7 @@ export function Header() {
                   onClick={() => router.push("/admin")}
                   className="h-10 w-10"
                   title="Администрирование"
+                  aria-label="Администрирование"
                 >
                   <Shield className="h-5 w-5" />
                 </Button>
@@ -164,6 +165,7 @@ export function Header() {
                 onClick={() => router.push("/stats")}
                 className="h-10 w-10"
                 title="Статистика"
+                aria-label="Статистика"
               >
                 <BarChart3 className="h-5 w-5" />
               </Button>
@@ -173,6 +175,7 @@ export function Header() {
                 onClick={() => router.push("/settings")}
                 className="h-10 w-10"
                 title="Настройки"
+                aria-label="Настройки"
               >
                 <Settings className="h-5 w-5" />
               </Button>
@@ -184,6 +187,7 @@ export function Header() {
                       size="icon"
                       className="h-10 w-10"
                       title="Экспорт"
+                      aria-label="Экспорт"
                     >
                       <Download className="h-5 w-5" />
                     </Button>
@@ -204,6 +208,7 @@ export function Header() {
                 onClick={handleSignOut}
                 className="h-10 w-10"
                 title="Выйти"
+                aria-label="Выйти"
               >
                 <LogOut className="h-5 w-5" />
               </Button>
@@ -218,6 +223,7 @@ export function Header() {
                       size="icon"
                       className="h-10 w-10"
                       title="Экспорт"
+                      aria-label="Экспорт"
                     >
                       <Download className="h-5 w-5" />
                     </Button>
@@ -238,6 +244,7 @@ export function Header() {
                 onClick={handleSignOut}
                 className="h-10 w-10"
                 title="Выйти"
+                aria-label="Выйти"
               >
                 <LogOut className="h-5 w-5" />
               </Button>
@@ -250,6 +257,7 @@ export function Header() {
                     variant="ghost"
                     size="icon"
                     className="size-11 min-h-[44px] min-w-[44px] shrink-0"
+                    aria-label="Открыть меню"
                   >
                     <Menu className="h-5 w-5" />
                   </Button>

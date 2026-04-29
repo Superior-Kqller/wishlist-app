@@ -4,7 +4,11 @@ import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 
 if (!process.env.NEXTAUTH_SECRET || process.env.NEXTAUTH_SECRET.length < 32) {
-  console.warn("⚠️ NEXTAUTH_SECRET should be at least 32 characters for security");
+  const message = "NEXTAUTH_SECRET should be at least 32 characters for security";
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(message);
+  }
+  console.warn(`⚠️ ${message}`);
 }
 
 export const authOptions: NextAuthOptions = {

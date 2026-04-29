@@ -67,7 +67,14 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const data = createListSchema.parse(body);
 
-    const viewerCandidates = data.viewerIds.filter((uid) => uid !== currentUserId);
+    const normalizedViewerIds = Array.from(
+      new Set(
+        data.viewerIds
+          .map((uid) => uid.trim())
+          .filter((uid) => uid.length > 0 && uid !== currentUserId)
+      )
+    );
+    const viewerCandidates = normalizedViewerIds;
     const viewerCheck = await ensureUserIdsExist(viewerCandidates);
     if (!viewerCheck.ok) {
       return NextResponse.json(
@@ -84,7 +91,7 @@ export async function POST(req: NextRequest) {
         name: data.name,
         userId: currentUserId,
         viewers: {
-          create: data.viewerIds.filter((id) => id !== currentUserId).map((userId) => ({ userId })),
+          create: normalizedViewerIds.map((userId) => ({ userId })),
         },
       },
       include: {

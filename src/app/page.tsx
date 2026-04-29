@@ -29,7 +29,7 @@ import { BulkActionBar } from "@/components/BulkActionBar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, SlidersHorizontal, Loader2, CheckSquare, X, Sparkles, Plus } from "lucide-react";
+import { Search, SlidersHorizontal, Loader2, CheckSquare, X, Sparkles, Plus, RotateCcw } from "lucide-react";
 import {
   WishlistItem,
   Tag,
@@ -230,6 +230,18 @@ function HomePageContent() {
     setAddDialogOpen,
   );
 
+  useEffect(() => {
+    if (searchParams.get("add") !== "1") return;
+    setParsedData(null);
+    setAddDialogAutoFill(false);
+    setAddDialogOpen(true);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("add");
+    router.replace(params.toString() ? `/?${params.toString()}` : "/", {
+      scroll: false,
+    });
+  }, [router, searchParams]);
+
   const tagsForFilters = useMemo(
     () => (tags && tags.length > 0 ? tags : tagsFromItems),
     [tags, tagsFromItems]
@@ -276,6 +288,12 @@ function HomePageContent() {
     () => lists.find((list) => list.id === selectedListId)?.name ?? null,
     [lists, selectedListId]
   );
+
+  const selectedUserName = useMemo(() => {
+    if (!normalizedSelectedUserId || normalizedSelectedUserId === "all") return null;
+    if (normalizedSelectedUserId === "me") return "Мои желания";
+    return usersWithStats.find((u) => u.id === normalizedSelectedUserId)?.name ?? null;
+  }, [normalizedSelectedUserId, usersWithStats]);
 
   const activeFilterChips = useMemo(() => {
     const chips: Array<{ key: string; label: string; onRemove: () => void }> = [];
@@ -333,6 +351,14 @@ function HomePageContent() {
     tagsForFilters,
     syncFiltersToUrl,
   ]);
+
+  const hasActiveFilters = activeFilterChips.length > 0;
+  const summaryEyebrow = selectedListName
+    ? "Подборка"
+    : selectedUserName
+      ? "Владелец"
+      : "Общий обзор";
+  const summaryTitle = selectedListName ?? selectedUserName ?? "Каталог желаний";
 
   // Handlers
   const handleCreateItem = useCallback(async (data: CreateItemPayload) => {
@@ -509,6 +535,14 @@ function HomePageContent() {
     setSelectionMode(false);
   }, []);
 
+  const handleClearAllFilters = useCallback(() => {
+    setSearch("");
+    setSortBy("newest");
+    setShowPurchased(true);
+    setSelectedTags([]);
+    router.replace("/", { scroll: false });
+  }, [router]);
+
   const handleToggleTag = useCallback((tagId: string) => {
     setSelectedTags((prev) =>
       prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
@@ -539,10 +573,10 @@ function HomePageContent() {
             <div className="space-y-2">
               <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                 <Sparkles className="h-3.5 w-3.5 text-primary/90" />
-                Каталог желаний
+                {summaryEyebrow}
               </p>
               <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                Каталог желаний
+                {summaryTitle}
               </h1>
               <p className="max-w-2xl text-sm text-muted-foreground">
                 {summary.total} позиций в коллекции. Выберите подборку, отметьте приоритеты и работайте со статусами без перегруза интерфейса.
@@ -592,6 +626,16 @@ function HomePageContent() {
                   </button>
                 </Badge>
               ))}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
+                onClick={handleClearAllFilters}
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Сбросить всё
+              </Button>
             </div>
           ) : null}
         </section>
@@ -624,11 +668,21 @@ function HomePageContent() {
             <Button
               variant="outline"
               size="icon"
-              className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
+              className="relative size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
               onClick={() => setMobileFiltersOpen(true)}
               title="Фильтры"
+              aria-label={
+                hasActiveFilters
+                  ? `Фильтры, активно: ${activeFilterChips.length}`
+                  : "Фильтры"
+              }
             >
               <SlidersHorizontal className="h-5 w-5" />
+              {hasActiveFilters ? (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-background bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                  {activeFilterChips.length}
+                </span>
+              ) : null}
             </Button>
             <Button
               variant={selectionMode ? "secondary" : "outline"}
@@ -639,6 +693,7 @@ function HomePageContent() {
                 if (selectionMode) setSelectedIds(new Set());
               }}
               title={selectionMode ? "Отменить выбор" : "Выбрать"}
+              aria-label={selectionMode ? "Отменить выбор" : "Выбрать карточки"}
             >
               <CheckSquare className="h-5 w-5" />
             </Button>
@@ -796,6 +851,41 @@ function HomePageContent() {
           onToggleSelect={handleToggleSelect}
           currentUserId={session?.user?.id}
           currentUserRole={session?.user?.role ?? null}
+          emptyTitle={
+            items.length === 0
+              ? "В списке пока пусто"
+              : "По этим фильтрам ничего нет"
+          }
+          emptyDescription={
+            items.length === 0
+              ? ownedListsForCreate.length === 0
+                ? "Сначала создайте подборку, затем добавьте первый товар."
+                : "Добавьте первый товар вручную или вставьте ссылку на страницу товара."
+              : "Попробуйте сбросить часть фильтров или изменить поиск."
+          }
+          emptyActionLabel={
+            items.length === 0
+              ? ownedListsForCreate.length === 0
+                ? "Создать подборку"
+                : "Добавить товар"
+              : undefined
+          }
+          onEmptyAction={
+            items.length === 0
+              ? ownedListsForCreate.length === 0
+                ? () => {
+                    setEditingList(null);
+                    setListDialogOpen(true);
+                  }
+                : () => {
+                    setParsedData(null);
+                    setAddDialogAutoFill(false);
+                    setAddDialogOpen(true);
+                  }
+              : undefined
+          }
+          emptySecondaryLabel={items.length > 0 && hasActiveFilters ? "Сбросить фильтры" : undefined}
+          onEmptySecondaryAction={items.length > 0 && hasActiveFilters ? handleClearAllFilters : undefined}
         />
 
         {/* Sentinel для Intersection Observer + кнопка "Загрузить ещё" */}

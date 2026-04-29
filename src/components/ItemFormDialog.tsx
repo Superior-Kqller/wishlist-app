@@ -396,10 +396,11 @@ export function ItemFormDialog({
                 <button
                   type="button"
                   onClick={() => setImageUrl("")}
-                  className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+                  aria-label="Убрать изображение"
+                  className="absolute right-1.5 top-1.5 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/20 bg-black/70 text-white opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
                   title="Убрать изображение"
                 >
-                  <X className="h-4 w-4 text-white" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             ) : null}
@@ -425,11 +426,13 @@ export function ItemFormDialog({
                       key={t.id}
                       type="button"
                       onClick={() => (selected ? removeTag(t.name) : setTags([...tags, t.name]))}
-                      className="transition-transform active:scale-95"
+                      aria-pressed={selected}
+                      aria-label={`${selected ? "Убрать тег" : "Добавить тег"}: ${t.name}`}
+                      className="min-h-[44px] rounded-full transition-transform active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
                       <Badge
                         variant={selected ? "default" : "outline"}
-                        className="cursor-pointer"
+                        className="min-h-[36px] cursor-pointer px-3"
                         style={selected ? { backgroundColor: color, borderColor: color } : { borderColor: color, color }}
                       >
                         {t.name}
@@ -448,7 +451,8 @@ export function ItemFormDialog({
                     <button
                       type="button"
                       onClick={() => removeTag(tag)}
-                      className="hover:text-destructive rounded-full p-0.5 min-w-[20px] min-h-[20px]"
+                      aria-label={`Убрать тег: ${tag}`}
+                      className="-mr-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
                       <X className="w-3 h-3" />
                     </button>

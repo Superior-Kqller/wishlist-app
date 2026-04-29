@@ -30,16 +30,19 @@ export function TagFilter({
           return (
             <button
               key={tag.id}
+              type="button"
               onClick={() => onToggleTag(tag.id)}
+              aria-pressed={isSelected}
+              aria-label={`${isSelected ? "Убрать тег" : "Добавить тег"}: ${tag.name}`}
               className={cn(
-                "shrink-0 transition-transform duration-150 rounded-full focus-ring",
+                "min-h-[44px] shrink-0 rounded-full transition-transform duration-150 focus-ring",
                 isSelected ? "scale-[0.98]" : "hover:scale-[1.02] active:scale-95"
               )}
             >
               <Badge
                 variant={isSelected ? "default" : "outline"}
                 className={cn(
-                  "cursor-pointer transition-all hover:opacity-80 text-xs px-2 py-0.5",
+                  "min-h-[34px] cursor-pointer px-3 py-1 text-xs transition-all hover:opacity-80",
                   isSelected && "shadow-sm"
                 )}
                 style={
@@ -55,8 +58,10 @@ export function TagFilter({
         })}
         {selectedTags.length > 0 && (
           <button
+            type="button"
             onClick={onClearTags}
-            className="shrink-0 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors py-1 rounded-sm focus-ring"
+            className="flex min-h-[44px] shrink-0 items-center gap-1 rounded-sm py-1 text-xs text-muted-foreground transition-colors hover:text-foreground focus-ring"
+            aria-label="Сбросить выбранные теги"
           >
             <X className="w-3 h-3" />
             <span className="sm:inline">Сбросить</span>

@@ -2,8 +2,8 @@
 
 import { memo, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { Check, Globe2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Check, Globe2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +55,7 @@ export const WishCard = memo(function WishCard({
 }: WishCardProps) {
   const [imageError, setImageError] = useState(false);
   const [ownerImageError, setOwnerImageError] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   const imageUrl = item.images?.[0] ?? null;
   const isBought = item.purchased || item.status === "PURCHASED";
@@ -66,7 +67,7 @@ export const WishCard = memo(function WishCard({
   const ownerId = item.user?.id ?? item.userId;
   const ownerImage = item.user?.avatarUrl ?? null;
 
-  const isCardInteractive = Boolean((onOpenDetail || selectionMode) && !isBought);
+  const isCardInteractive = Boolean(onOpenDetail || selectionMode);
 
   const handleCardClick = () => {
     if (selectionMode) {
@@ -98,12 +99,15 @@ export const WishCard = memo(function WishCard({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96 }}
-      transition={{ type: "spring", stiffness: 260, damping: 20, delay: index * 0.04 }}
-      whileHover={!isBought ? { y: -4, scale: 1.01 } : undefined}
-      className={cn(isBought && "pointer-events-none")}
+      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
+      animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
+      transition={
+        reduceMotion
+          ? { duration: 0.12 }
+          : { type: "spring", stiffness: 260, damping: 20, delay: index * 0.04 }
+      }
+      whileHover={!reduceMotion && !isBought ? { y: -3 } : undefined}
     >
       <Card
         data-testid="wishlist-card-v2"
@@ -140,6 +144,7 @@ export const WishCard = memo(function WishCard({
               variant="outline"
               className={cn(
                 "pointer-events-none absolute right-2 top-2 z-10 max-w-[38%] truncate border px-2 py-1 text-[11px] font-medium backdrop-blur-sm sm:right-2.5 sm:top-2.5",
+                "bg-card/85",
                 statusTone,
               )}
             >
@@ -167,7 +172,7 @@ export const WishCard = memo(function WishCard({
           <CardTitle
             data-testid="wishlist-card-v2-title"
             className={cn(
-              "line-clamp-2 text-sm font-semibold leading-snug text-white sm:text-[15px]",
+              "line-clamp-2 text-sm font-semibold leading-snug text-foreground sm:text-[15px]",
               isBought && "line-through"
             )}
           >
@@ -210,7 +215,7 @@ export const WishCard = memo(function WishCard({
               {item.price != null ? (
                 <p
                   data-testid="wishlist-card-v2-price"
-                  className="shrink-0 text-right text-sm font-semibold tabular-nums tracking-tight text-muted-foreground sm:text-[15px]"
+                  className="shrink-0 text-right text-[15px] font-semibold tabular-nums tracking-tight text-foreground"
                 >
                   {formatPrice(item.price, item.currency)}
                 </p>
@@ -269,18 +274,20 @@ export const WishCard = memo(function WishCard({
                       </IconButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      {!isBought ? (
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleMarkPurchased();
-                          }}
-                          disabled={statusPending}
-                        >
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMarkPurchased();
+                        }}
+                        disabled={statusPending}
+                      >
+                        {isBought ? (
+                          <Undo2 className="mr-2 h-4 w-4" />
+                        ) : (
                           <Check className="mr-2 h-4 w-4" />
-                          Отметить купленным
-                        </DropdownMenuItem>
-                      ) : null}
+                        )}
+                        {isBought ? "Вернуть в доступные" : "Отметить купленным"}
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();

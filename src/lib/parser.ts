@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 import { promises as dns } from "node:dns";
 import net from "node:net";
+import { Agent, type Dispatcher } from "undici";
 
 export interface ParsedProduct {
   title: string;
@@ -70,7 +71,12 @@ function isPrivateIP(ip: string): boolean {
   return false;
 }
 
-export async function validateAndResolveUrl(url: string): Promise<void> {
+interface PublicUrlResolution {
+  hostname: string;
+  addresses: string[];
+}
+
+async function resolvePublicUrl(url: string): Promise<PublicUrlResolution> {
   const parsed = new URL(url);
 
   if (!["http:", "https:"].includes(parsed.protocol)) {
@@ -83,7 +89,7 @@ export async function validateAndResolveUrl(url: string): Promise<void> {
     if (isPrivateIP(hostname)) {
       throw new Error("Internal URLs are not allowed");
     }
-    return;
+    return { hostname, addresses: [hostname] };
   }
 
   const blocked = ["localhost", "metadata.google.internal"];
@@ -109,6 +115,55 @@ export async function validateAndResolveUrl(url: string): Promise<void> {
       throw new Error("Internal URLs are not allowed");
     }
   }
+
+  return { hostname, addresses };
+}
+
+export async function validateAndResolveUrl(url: string): Promise<void> {
+  await resolvePublicUrl(url);
+}
+
+function createPinnedDispatcher(resolution: PublicUrlResolution): Dispatcher {
+  let nextAddressIndex = 0;
+
+  return new Agent({
+    connect: {
+      lookup(hostname, _options, callback) {
+        if (hostname !== resolution.hostname) {
+          callback(new Error("Unexpected hostname during connection"), "", 0);
+          return;
+        }
+
+        const address =
+          resolution.addresses[nextAddressIndex % resolution.addresses.length];
+        nextAddressIndex += 1;
+        callback(null, address, net.isIPv6(address) ? 6 : 4);
+      },
+    },
+  });
+}
+
+async function fetchPublicUrl(
+  url: string,
+  init: RequestInit,
+): Promise<{ response: Response; close: () => Promise<void> }> {
+  const resolution = await resolvePublicUrl(url);
+  const dispatcher = createPinnedDispatcher(resolution);
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      ...init,
+      dispatcher,
+    } as RequestInit & { dispatcher: Dispatcher });
+  } catch (err) {
+    await dispatcher.close().catch(() => undefined);
+    throw err;
+  }
+
+  return {
+    response,
+    close: () => dispatcher.close(),
+  };
 }
 
 // --- Marketplace detection ---
@@ -724,8 +779,6 @@ async function discardResponseBody(response: Response): Promise<void> {
 async function expandRedirectChainHeadFirst(startUrl: string): Promise<string> {
   let currentUrl = startUrl;
   for (let step = 0; step <= MAX_REDIRECT_CHAIN; step++) {
-    await validateAndResolveUrl(currentUrl);
-
     const baseInit: RequestInit = {
       redirect: "manual",
       headers: {
@@ -736,11 +789,13 @@ async function expandRedirectChainHeadFirst(startUrl: string): Promise<string> {
       signal: AbortSignal.timeout(12000),
     };
 
-    let response = await fetch(currentUrl, { ...baseInit, method: "HEAD" });
+    let request = await fetchPublicUrl(currentUrl, { ...baseInit, method: "HEAD" });
+    let response = request.response;
 
     if (response.status === 405 || response.status === 501) {
       await discardResponseBody(response);
-      response = await fetch(currentUrl, {
+      await request.close();
+      request = await fetchPublicUrl(currentUrl, {
         ...baseInit,
         method: "GET",
         headers: {
@@ -748,20 +803,24 @@ async function expandRedirectChainHeadFirst(startUrl: string): Promise<string> {
           Referer: `${new URL(currentUrl).origin}/`,
         },
       });
+      response = request.response;
     }
 
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get("location");
       if (!location) {
         await discardResponseBody(response);
+        await request.close();
         throw new Error("Redirect response without location header");
       }
       await discardResponseBody(response);
+      await request.close();
       currentUrl = new URL(location, currentUrl).toString();
       continue;
     }
 
     await discardResponseBody(response);
+    await request.close();
     return currentUrl;
   }
   throw new Error("Too many redirects");
@@ -779,30 +838,33 @@ async function fetchWithSafeRedirects(
   url: string,
   init: RequestInit,
   maxRedirects: number
-): Promise<{ response: Response; finalUrl: string }> {
+): Promise<{ response: Response; finalUrl: string; close: () => Promise<void> }> {
   let currentUrl = url;
   for (let i = 0; i <= maxRedirects; i++) {
-    await validateAndResolveUrl(currentUrl);
-    const response = await fetch(currentUrl, {
+    const request = await fetchPublicUrl(currentUrl, {
       ...init,
       redirect: "manual",
     });
+    const response = request.response;
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get("location");
       if (!location) {
+        await request.close();
         throw new Error("Redirect response without location header");
       }
+      await discardResponseBody(response);
+      await request.close();
       currentUrl = new URL(location, currentUrl).toString();
       continue;
     }
-    return { response, finalUrl: currentUrl };
+    return { response, finalUrl: currentUrl, close: request.close };
   }
   throw new Error("Too many redirects");
 }
 
 async function fetchHtml(url: string): Promise<string> {
   const urlObj = new URL(url);
-  const { response } = await fetchWithSafeRedirects(
+  const { response, close } = await fetchWithSafeRedirects(
     url,
     {
       headers: { ...HEADERS, Referer: `${urlObj.protocol}//${urlObj.host}/` },
@@ -812,21 +874,28 @@ async function fetchHtml(url: string): Promise<string> {
   );
 
   if (!response.ok) {
+    await close();
     throw new Error(`Failed to fetch URL: ${response.status}`);
   }
 
   const contentLength = response.headers.get("content-length");
   const size = contentLength ? Number(contentLength) : NaN;
   if (Number.isFinite(size) && size > 5 * 1024 * 1024) {
+    await discardResponseBody(response);
+    await close();
     throw new Error("Page too large to parse");
   }
 
-  const html = await response.text();
-  if (html.length > 5 * 1024 * 1024) {
-    throw new Error("Page too large to parse");
-  }
+  try {
+    const html = await response.text();
+    if (html.length > 5 * 1024 * 1024) {
+      throw new Error("Page too large to parse");
+    }
 
-  return html;
+    return html;
+  } finally {
+    await close();
+  }
 }
 
 // --- Main entry point ---
