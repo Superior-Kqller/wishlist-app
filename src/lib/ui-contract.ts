@@ -32,7 +32,7 @@ export const uiState = {
   navBase:
     "h-9 gap-2 border border-transparent px-3 text-muted-foreground hover:text-foreground",
   navActive:
-    "border-primary/45 bg-primary/14 text-foreground shadow-[0_0_12px_hsl(263_70%_55%/0.15)]",
+    "border-primary/45 bg-primary/14 text-foreground shadow-[0_0_12px_hsl(var(--primary)/0.16)]",
   selectionIdle:
     "h-9 gap-1.5 px-3 border border-border bg-card text-muted-foreground hover:text-foreground",
   selectionActive:

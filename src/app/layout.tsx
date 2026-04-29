@@ -57,7 +57,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   /** Мобильный Chrome/Safari: контент подстраивается под панели браузера */
   interactiveWidget: "resizes-content",
-  themeColor: "#0F0B18",
+  themeColor: "#0E1119",
 };
 
 export default function RootLayout({

@@ -18,14 +18,14 @@ export default function GlobalError({
           fontFamily: "system-ui",
           padding: "2rem",
           maxWidth: "32rem",
-          background: "#0F0B18",
-          color: "#ddd5eb",
+          background: "#0E1119",
+          color: "#e4e8f1",
         }}
       >
         <h1 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>
           Что-то пошло не так
         </h1>
-        <p style={{ color: "#8a7fa0", marginBottom: "1rem" }}>
+        <p style={{ color: "#9ca6b8", marginBottom: "1rem" }}>
           {error.message || "Неожиданная ошибка приложения"}
         </p>
         <button
@@ -34,9 +34,9 @@ export default function GlobalError({
           style={{
             padding: "0.5rem 1rem",
             borderRadius: "0.5rem",
-            border: "1px solid #2e2540",
-            background: "#1c1528",
-            color: "#ddd5eb",
+            border: "1px solid #343b4b",
+            background: "#171b25",
+            color: "#e4e8f1",
             cursor: "pointer",
           }}
         >
