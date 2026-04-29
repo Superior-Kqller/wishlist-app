@@ -328,7 +328,7 @@ export function ItemFormDialog({
                 </SelectContent>
               </Select>
               {!listPickerRequired && !listId && (
-                <p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                <p className="flex items-start gap-1.5 text-xs text-warning">
                   <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                   Товар без подборки будет скрыт. Привяжите его к подборке, чтобы он стал виден.
                 </p>
@@ -397,7 +397,7 @@ export function ItemFormDialog({
                   type="button"
                   onClick={() => setImageUrl("")}
                   aria-label="Убрать изображение"
-                  className="absolute right-1.5 top-1.5 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/20 bg-black/70 text-white opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+                  className="absolute right-1.5 top-1.5 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border/70 bg-[hsl(var(--surface-1)/0.78)] text-foreground opacity-100 transition-opacity backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
                   title="Убрать изображение"
                 >
                   <X className="h-4 w-4" />

@@ -35,6 +35,11 @@
   --color-error-foreground: hsl(var(--error-foreground));
   --color-info: hsl(var(--info));
   --color-info-foreground: hsl(var(--info-foreground));
+  --color-priority-1: hsl(var(--priority-1));
+  --color-priority-2: hsl(var(--priority-2));
+  --color-priority-3: hsl(var(--priority-3));
+  --color-priority-4: hsl(var(--priority-4));
+  --color-priority-5: hsl(var(--priority-5));
 
   --animate-fade-in: fade-in 0.3s ease-out;
 }
@@ -86,12 +91,42 @@
     --info: 203 83% 58%;
     --info-foreground: 0 0% 100%;
 
+    --priority-1: 220 12% 64%;
+    --priority-2: 203 83% 58%;
+    --priority-3: 38 88% 56%;
+    --priority-4: 24 85% 58%;
+    --priority-5: 348 76% 62%;
+
+    --avatar-1: 263 52% 50%;
+    --avatar-2: 203 58% 46%;
+    --avatar-3: 158 52% 38%;
+    --avatar-4: 38 72% 45%;
+    --avatar-5: 348 58% 48%;
+    --avatar-6: 224 48% 52%;
+    --avatar-7: 188 52% 42%;
+    --avatar-8: 24 62% 48%;
+    --avatar-9: 286 45% 48%;
+    --avatar-10: 220 12% 52%;
+
+    --tag-1: 263 52% 58%;
+    --tag-2: 203 72% 56%;
+    --tag-3: 158 58% 45%;
+    --tag-4: 38 82% 54%;
+    --tag-5: 348 68% 58%;
+    --tag-6: 188 64% 48%;
+    --tag-7: 24 78% 56%;
+    --tag-8: 286 50% 58%;
+    --tag-9: 224 56% 60%;
+    --tag-10: 220 12% 64%;
+
     --radius: 0.625rem;
 
     --glass-bg: 224 18% 10% / 0.78;
     --glass-border: 224 13% 30% / 0.32;
     --glass-blur: 20px;
     --interactive-glow-primary: 263 76% 64% / 0.24;
+    --overlay-backdrop: 224 28% 4% / 0.68;
+    --overlay-image-scrim: 224 28% 4% / 0.58;
   }
 
   * {
@@ -145,9 +180,9 @@
 
 .page-bg {
   background:
-    linear-gradient(180deg, hsl(224 24% 9%) 0%, hsl(var(--background)) 38%),
-    linear-gradient(135deg, hsl(263 76% 64% / 0.09) 0%, transparent 32%),
-    linear-gradient(315deg, hsl(188 72% 42% / 0.06) 0%, transparent 30%),
+    linear-gradient(180deg, hsl(var(--surface-2)) 0%, hsl(var(--background)) 38%),
+    linear-gradient(135deg, hsl(var(--primary) / 0.09) 0%, transparent 32%),
+    linear-gradient(315deg, hsl(var(--info) / 0.06) 0%, transparent 30%),
     hsl(var(--background));
 }
 

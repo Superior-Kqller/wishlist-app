@@ -62,7 +62,7 @@ export function ItemDetailDialog({
   statusPending = false,
 }: ItemDetailDialogProps) {
   const actionButtonClass =
-    "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-primary/55 bg-card/85 px-3 text-foreground backdrop-blur-[8px] hover:border-primary/70 hover:bg-card sm:h-9 sm:min-h-9 sm:w-auto";
+    "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-border bg-card/85 px-3 text-foreground backdrop-blur-[8px] hover:border-border/90 hover:bg-accent sm:h-9 sm:min-h-9 sm:w-auto";
 
   const [imageError, setImageError] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -83,6 +83,9 @@ export function ItemDetailDialog({
   if (!item) return null;
 
   const mainImage = item.images?.[0] ?? null;
+  const canManage = currentUserId === item.userId;
+  const canClaim = Boolean(onSetStatus && item.status !== "PURCHASED");
+  const claimButtonVariant = !item.url && !canManage ? "default" : "outline";
 
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,24 +203,29 @@ export function ItemDetailDialog({
 
         </div>
 
-        <div className="space-y-3 sm:space-y-4 px-3 pt-3 sm:px-6 sm:pt-6 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
-          <DialogHeader className="space-y-0">
-            <div className="flex items-start justify-between gap-3 sm:gap-4">
-              <div>
-                <DialogTitle className={cn("text-lg sm:text-xl", item.purchased && "line-through")}>
+        <div className="space-y-3 px-3 pt-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:space-y-4 sm:px-6 sm:pt-6">
+          <DialogHeader className="space-y-3 pr-10">
+            <div className="min-w-0">
+              <DialogTitle
+                className={cn(
+                  "break-words text-left text-lg leading-snug sm:text-xl",
+                  item.purchased && "line-through",
+                )}
+              >
                   {item.title}
-                </DialogTitle>
+              </DialogTitle>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
                 <Badge
                   variant="outline"
-                  className={cn("mt-2 text-xs", getItemStatusTone(item.status))}
+                  className={cn("text-xs", getItemStatusTone(item.status))}
                 >
                   {item.status === "CLAIMED" ? (
                     <Clock3 className="mr-1 h-3 w-3" />
                   ) : null}
                   {getItemStatusLabel(item.status)}
                 </Badge>
+                <PriorityBadge priority={item.priority} />
               </div>
-              <PriorityBadge priority={item.priority} />
             </div>
           </DialogHeader>
 
@@ -267,20 +275,21 @@ export function ItemDetailDialog({
           )}
 
           {/* Действия: на мобильных — столбец на всю ширину без горизонтального скролла */}
-          {(item.url || currentUserId === item.userId) && (
+          {(item.url || canManage || canClaim) && (
             <div className="flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2 sm:pt-2">
               {item.url && (
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-11 min-h-[44px] w-full shrink-0 items-center justify-center gap-2 rounded-md bg-muted px-3 text-sm font-medium hover:bg-muted/80 sm:h-9 sm:min-h-9 sm:w-auto sm:justify-start"
-                >
-                  <ExternalLink className="h-4 w-4 shrink-0" />
-                  Открыть ссылку
-                </a>
+                <Button asChild className="h-11 min-h-[44px] w-full shrink-0 justify-center gap-2 px-3 sm:h-9 sm:min-h-9 sm:w-auto">
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink className="h-4 w-4 shrink-0" />
+                    Открыть ссылку
+                  </a>
+                </Button>
               )}
-              {currentUserId === item.userId && (
+              {canManage && (
                 <>
                   <Button
                     variant="outline"
@@ -332,12 +341,12 @@ export function ItemDetailDialog({
                   </Button>
                 </>
               )}
-              {currentUserId !== item.userId && onSetStatus && item.status !== "PURCHASED" && (
+              {!canManage && canClaim && (
                 <Button
-                  variant="outline"
+                  variant={claimButtonVariant}
                   size="sm"
                   onClick={handleClaimAction}
-                  className={actionButtonClass}
+                  className={cn(claimButtonVariant === "outline" && actionButtonClass)}
                   disabled={statusPending}
                 >
                   {item.status === "CLAIMED" ? "Снять бронь" : "Забронировать"}

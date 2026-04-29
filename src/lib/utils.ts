@@ -82,22 +82,22 @@ export function statsHasPurchasedPrices(stats: {
 
 export function priorityColor(priority: number): string {
   const colors: Record<number, string> = {
-    1: "text-slate-400",
-    2: "text-blue-500",
-    3: "text-amber-500",
-    4: "text-orange-500",
-    5: "text-red-500",
+    1: "text-[hsl(var(--priority-1))]",
+    2: "text-[hsl(var(--priority-2))]",
+    3: "text-[hsl(var(--priority-3))]",
+    4: "text-[hsl(var(--priority-4))]",
+    5: "text-[hsl(var(--priority-5))]",
   };
   return colors[priority] || colors[3];
 }
 
 export function priorityBgColor(priority: number): string {
   const colors: Record<number, string> = {
-    1: "bg-slate-100 dark:bg-slate-800",
-    2: "bg-blue-50 dark:bg-blue-950",
-    3: "bg-amber-50 dark:bg-amber-950",
-    4: "bg-orange-50 dark:bg-orange-950",
-    5: "bg-red-50 dark:bg-red-950",
+    1: "bg-[hsl(var(--priority-1)/0.12)]",
+    2: "bg-[hsl(var(--priority-2)/0.12)]",
+    3: "bg-[hsl(var(--priority-3)/0.14)]",
+    4: "bg-[hsl(var(--priority-4)/0.15)]",
+    5: "bg-[hsl(var(--priority-5)/0.16)]",
   };
   return colors[priority] || colors[3];
 }
@@ -105,20 +105,27 @@ export function priorityBgColor(priority: number): string {
 /** Класс для левой полоски приоритета на карточке (светлая и тёмная тема) */
 export function priorityBorderClass(priority: number): string {
   const borders: Record<number, string> = {
-    1: "border-l-slate-400 dark:border-l-slate-500",
-    2: "border-l-blue-500 dark:border-l-blue-400",
-    3: "border-l-amber-500 dark:border-l-amber-400",
-    4: "border-l-orange-500 dark:border-l-orange-400",
-    5: "border-l-red-500 dark:border-l-red-400",
+    1: "border-l-[hsl(var(--priority-1))]",
+    2: "border-l-[hsl(var(--priority-2))]",
+    3: "border-l-[hsl(var(--priority-3))]",
+    4: "border-l-[hsl(var(--priority-4))]",
+    5: "border-l-[hsl(var(--priority-5))]",
   };
   return "border-l-4 " + (borders[priority] || borders[3]);
 }
 
 /** Палитра цветов для тегов (хорошо читаются в светлой и тёмной теме) */
 const TAG_PALETTE = [
-  "#7c5cbf", "#a85cad", "#5c6ebf", "#bf5c8a", "#5ca0bf",
-  "#8a5cbf", "#5cbf9a", "#bf8a5c", "#5c8abf", "#bf5c5c",
-  "#6b5cbf", "#5cbfbf", "#bf6b5c", "#8a8abf",
+  "hsl(var(--tag-1))",
+  "hsl(var(--tag-2))",
+  "hsl(var(--tag-3))",
+  "hsl(var(--tag-4))",
+  "hsl(var(--tag-5))",
+  "hsl(var(--tag-6))",
+  "hsl(var(--tag-7))",
+  "hsl(var(--tag-8))",
+  "hsl(var(--tag-9))",
+  "hsl(var(--tag-10))",
 ];
 
 /** Цвет тега по имени (детерминированно, один тег — один цвет) */

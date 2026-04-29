@@ -50,7 +50,7 @@ export function PriorityStars({
               starSize,
               "transition-colors duration-100",
               star <= displayValue
-                ? "fill-amber-400 text-amber-400"
+                ? "fill-[hsl(var(--priority-3))] text-[hsl(var(--priority-3))]"
                 : "fill-transparent text-muted-foreground/30",
             )}
           />

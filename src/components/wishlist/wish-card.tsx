@@ -167,7 +167,7 @@ export const WishCard = memo(function WishCard({
             </div>
           )}
           <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-24 bg-gradient-to-t from-black/55 to-transparent"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-24 bg-gradient-to-t from-[hsl(var(--overlay-image-scrim))] to-transparent"
             aria-hidden
           />
         </div>
@@ -203,7 +203,7 @@ export const WishCard = memo(function WishCard({
                     ) : (
                       <AvatarFallback
                         className={cn(
-                          "text-[10px] font-semibold text-white",
+                          "text-[10px] font-semibold text-primary-foreground",
                           getAvatarColor(ownerId)
                         )}
                       >

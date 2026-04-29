@@ -14,16 +14,16 @@ export function getInitials(name: string): string {
  */
 export function getAvatarColor(userId: string): string {
   const colors = [
-    "bg-[hsl(263_60%_48%)]",
-    "bg-[hsl(280_50%_45%)]",
-    "bg-[hsl(245_45%_50%)]",
-    "bg-[hsl(300_40%_42%)]",
-    "bg-[hsl(220_50%_48%)]",
-    "bg-[hsl(340_45%_45%)]",
-    "bg-[hsl(190_45%_42%)]",
-    "bg-[hsl(160_40%_40%)]",
-    "bg-[hsl(25_50%_45%)]",
-    "bg-[hsl(50_45%_42%)]",
+    "bg-[hsl(var(--avatar-1))]",
+    "bg-[hsl(var(--avatar-2))]",
+    "bg-[hsl(var(--avatar-3))]",
+    "bg-[hsl(var(--avatar-4))]",
+    "bg-[hsl(var(--avatar-5))]",
+    "bg-[hsl(var(--avatar-6))]",
+    "bg-[hsl(var(--avatar-7))]",
+    "bg-[hsl(var(--avatar-8))]",
+    "bg-[hsl(var(--avatar-9))]",
+    "bg-[hsl(var(--avatar-10))]",
   ];
 
   // Простой hash для детерминированного выбора цвета

@@ -30,7 +30,7 @@ export function UserAvatar({
   const [imageError, setImageError] = useState(false);
   const sizeClass = sizeClasses[size];
   const initials = getInitials(name);
-  const colorClass = userId ? getAvatarColor(userId) : "bg-gray-500";
+  const colorClass = userId ? getAvatarColor(userId) : "bg-[hsl(var(--avatar-10))]";
 
   // Показываем изображение только если есть avatarUrl и не было ошибки загрузки
   if (avatarUrl && !imageError) {
@@ -53,7 +53,7 @@ export function UserAvatar({
   return (
     <div
       className={cn(
-        "rounded-full flex items-center justify-center text-white font-medium",
+        "rounded-full flex items-center justify-center text-primary-foreground font-medium",
         colorClass,
         sizeClass,
         className
