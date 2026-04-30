@@ -3,10 +3,8 @@ import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
-import { passwordSchema } from "@/lib/password-validation";
 import { normalizeAvatarUrl } from "@/lib/avatar-url-policy";
 import { inferTelegramLinkStatus } from "@/lib/telegram/link-status";
-import bcrypt from "bcryptjs";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
@@ -14,11 +12,18 @@ const telegramIdSchema = z.string().trim().regex(/^\d{5,20}$/);
 
 const updateProfileSchema = z.object({
   name: z.string().trim().min(1).max(100).optional(),
-  password: passwordSchema.optional(),
   avatarUrl: z.string().max(2048).optional(),
   telegramId: z.union([telegramIdSchema, z.literal(""), z.null()]).optional(),
   telegramNotificationsEnabled: z.boolean().optional(),
 });
+
+function hasOwnPasswordField(value: unknown): boolean {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    Object.prototype.hasOwnProperty.call(value, "password")
+  );
+}
 
 // GET /api/users/me — данные текущего пользователя
 export async function GET(req: NextRequest) {
@@ -74,11 +79,17 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
+    if (hasOwnPasswordField(body)) {
+      return NextResponse.json(
+        { error: "Для смены пароля используйте отдельную форму" },
+        { status: 400 }
+      );
+    }
+
     const data = updateProfileSchema.parse(body);
 
     const updateData: {
       name?: string;
-      password?: string;
       avatarUrl?: string | null;
       telegramId?: string | null;
       telegramUsername?: string | null;
@@ -89,11 +100,6 @@ export async function PATCH(req: NextRequest) {
 
     if (data.name !== undefined) {
       updateData.name = data.name;
-    }
-
-    if (data.password !== undefined) {
-      const hashedPassword = await bcrypt.hash(data.password, 12);
-      updateData.password = hashedPassword;
     }
 
     if (data.avatarUrl !== undefined) {
@@ -190,4 +196,3 @@ export async function PATCH(req: NextRequest) {
     );
   }
 }
-

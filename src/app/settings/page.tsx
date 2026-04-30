@@ -76,7 +76,7 @@ export default function SettingsPage() {
               onSuccess={handleSuccess}
             />
 
-            <PasswordForm key={`password-${refreshKey}`} />
+            <PasswordForm key={`password-${refreshKey}`} userId={user.id} />
 
             <div className="rounded-lg border border-border bg-card p-6">
               <h3 className="font-medium mb-2">Информация</h3>

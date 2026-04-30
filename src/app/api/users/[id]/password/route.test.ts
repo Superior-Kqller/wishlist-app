@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockRateLimit = vi.fn();
-const mockGetCurrentUserId = vi.fn();
+const mockGetSessionUserIdVerified = vi.fn();
 const mockGetCurrentUserWithDbCheck = vi.fn();
 const mockFindUnique = vi.fn();
 const mockUpdate = vi.fn();
@@ -17,7 +17,7 @@ vi.mock("@/lib/rate-limit", () => ({
 }));
 
 vi.mock("@/lib/auth-utils", () => ({
-  getCurrentUserId: mockGetCurrentUserId,
+  getSessionUserIdVerified: mockGetSessionUserIdVerified,
   getCurrentUserWithDbCheck: mockGetCurrentUserWithDbCheck,
 }));
 
@@ -45,7 +45,7 @@ describe("PATCH /api/users/[id]/password", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockRateLimit.mockResolvedValue(null);
-    mockGetCurrentUserId.mockResolvedValue("user-1");
+    mockGetSessionUserIdVerified.mockResolvedValue("user-1");
     mockGetCurrentUserWithDbCheck.mockResolvedValue({ id: "user-1", role: "USER" });
     mockFindUnique.mockResolvedValue({ id: "user-1", password: "stored-hash" });
     mockUpdate.mockResolvedValue({ id: "user-1" });
@@ -75,7 +75,7 @@ describe("PATCH /api/users/[id]/password", () => {
   });
 
   it("возвращает 401 без авторизации", async () => {
-    mockGetCurrentUserId.mockResolvedValue(null);
+    mockGetSessionUserIdVerified.mockResolvedValue(null);
     const { PATCH } = await import("./route");
     const req = new Request("http://localhost/api/users/user-1/password", {
       method: "PATCH",
@@ -127,7 +127,7 @@ describe("PATCH /api/users/[id]/password", () => {
     });
 
     expect(response.status).toBe(429);
-    expect(mockGetCurrentUserId).not.toHaveBeenCalled();
+    expect(mockGetSessionUserIdVerified).not.toHaveBeenCalled();
     expect(mockFindUnique).not.toHaveBeenCalled();
     expect(mockUpdate).not.toHaveBeenCalled();
   });
@@ -202,7 +202,7 @@ describe("PATCH /api/users/[id]/password", () => {
   });
 
   it("не требует currentPassword для admin reset-flow чужого пароля", async () => {
-    mockGetCurrentUserId.mockResolvedValue("admin-1");
+    mockGetSessionUserIdVerified.mockResolvedValue("admin-1");
     mockGetCurrentUserWithDbCheck.mockResolvedValue({ id: "admin-1", role: "ADMIN" });
     mockFindUnique.mockResolvedValue({ id: "user-2", password: "stored-hash-user-2" });
 
@@ -228,7 +228,7 @@ describe("PATCH /api/users/[id]/password", () => {
   });
 
   it("требует currentPassword для admin self-change", async () => {
-    mockGetCurrentUserId.mockResolvedValue("admin-1");
+    mockGetSessionUserIdVerified.mockResolvedValue("admin-1");
     mockGetCurrentUserWithDbCheck.mockResolvedValue({ id: "admin-1", role: "ADMIN" });
 
     const { PATCH } = await import("./route");

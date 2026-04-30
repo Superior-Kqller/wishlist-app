@@ -9,7 +9,12 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { validatePasswordComplexity } from "@/lib/password-validation";
 
-export function PasswordForm() {
+interface PasswordFormProps {
+  userId: string;
+}
+
+export function PasswordForm({ userId }: PasswordFormProps) {
+  const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
@@ -46,10 +51,10 @@ export function PasswordForm() {
 
     setSaving(true);
     try {
-      const res = await fetch("/api/users/me", {
+      const res = await fetch(`/api/users/${userId}/password`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ currentPassword, password }),
       });
 
       if (!res.ok) {
@@ -58,6 +63,7 @@ export function PasswordForm() {
       }
 
       toast.success("Пароль изменен");
+      setCurrentPassword("");
       setPassword("");
       setConfirmPassword("");
       setPasswordErrors([]);
@@ -74,6 +80,18 @@ export function PasswordForm() {
     <Card className="p-6">
       <h2 className="text-lg font-semibold mb-4">Изменить пароль</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="currentPassword">Текущий пароль *</Label>
+          <Input
+            id="currentPassword"
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder="Текущий пароль"
+            required
+          />
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="password">Новый пароль *</Label>
           <Input
@@ -115,6 +133,7 @@ export function PasswordForm() {
           type="submit"
           disabled={
             saving ||
+            !currentPassword ||
             passwordErrors.length > 0 ||
             password !== confirmPassword ||
             !password
