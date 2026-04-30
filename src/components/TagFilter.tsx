@@ -42,8 +42,8 @@ export function TagFilter({
               <Badge
                 variant={isSelected ? "default" : "outline"}
                 className={cn(
-                  "min-h-[34px] cursor-pointer px-3 py-1 text-xs transition-all hover:opacity-80",
-                  isSelected && "shadow-sm"
+                  "min-h-[34px] cursor-pointer rounded-full px-3 py-1 text-xs transition-all hover:opacity-90",
+                  isSelected && "shadow-[0_0_18px_rgba(0,0,0,0.22)]"
                 )}
                 style={
                   isSelected

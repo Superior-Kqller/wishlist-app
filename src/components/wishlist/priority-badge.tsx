@@ -20,7 +20,7 @@ export function PriorityBadgeOverlay({ priority, className }: PriorityBadgeOverl
       data-testid="wishlist-card-priority"
       className={cn(
         "pointer-events-none absolute left-2 top-2 z-10 max-w-[60%] rounded-lg border px-3 py-1.5 text-left text-[11px] font-semibold leading-snug backdrop-blur-sm sm:left-2.5 sm:top-2.5 sm:px-3.5 sm:py-2 sm:text-xs sm:leading-snug",
-        "line-clamp-2 break-words [overflow-wrap:anywhere]",
+        "line-clamp-2 break-words shadow-[0_10px_24px_rgba(0,0,0,0.34)] [overflow-wrap:anywhere]",
         styles,
         className,
       )}

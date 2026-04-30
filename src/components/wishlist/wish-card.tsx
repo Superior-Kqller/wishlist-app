@@ -112,10 +112,10 @@ export const WishCard = memo(function WishCard({
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "overflow-hidden border-border bg-card",
+          "group/card overflow-hidden border-border/80 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] shadow-[0_14px_34px_rgba(0,0,0,0.28),inset_0_1px_0_hsl(var(--foreground)/0.035)]",
           isBought && "opacity-45 grayscale",
           isCardInteractive &&
-            "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-[0_8px_24px_rgba(0,0,0,0.3),0_0_20px_hsl(var(--primary)/0.13)] focus-visible:border-primary/45 focus-visible:shadow-[0_8px_24px_rgba(0,0,0,0.3),0_0_20px_hsl(var(--primary)/0.13)]",
+            "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_28px_hsl(var(--primary)/0.16),inset_0_1px_0_hsl(var(--foreground)/0.05)] focus-visible:border-primary/45 focus-visible:shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_28px_hsl(var(--primary)/0.16),inset_0_1px_0_hsl(var(--foreground)/0.05)]",
           isSelected && "ring-2 ring-primary/45"
         )}
         role={isCardInteractive ? "button" : undefined}
@@ -125,7 +125,7 @@ export const WishCard = memo(function WishCard({
       >
         <div
           data-testid="wishlist-card-v2-media"
-          className="group relative aspect-[4/3] overflow-hidden bg-secondary sm:aspect-[4/5]"
+          className="group relative aspect-[4/3] overflow-hidden bg-[hsl(var(--surface-1))] sm:aspect-[4/5]"
         >
           <PriorityBadgeOverlay priority={item.priority} />
           {selectionMode ? (
@@ -144,7 +144,7 @@ export const WishCard = memo(function WishCard({
               variant="outline"
               className={cn(
                 "pointer-events-none absolute bottom-2 right-2 z-10 max-w-[72%] truncate border px-2 py-1 text-[11px] font-medium backdrop-blur-sm sm:bottom-2.5 sm:right-2.5",
-                "bg-card/85",
+                "bg-[hsl(var(--surface-2))/0.82] shadow-[0_8px_18px_rgba(0,0,0,0.28)]",
                 statusTone,
               )}
             >
@@ -156,7 +156,7 @@ export const WishCard = memo(function WishCard({
               src={imageUrl!}
               alt={item.title}
               fill
-              className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04]"
+              className="object-cover transition-transform duration-500 ease-out group-hover/card:scale-[1.045]"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               unoptimized
               onError={() => setImageError(true)}
@@ -167,12 +167,12 @@ export const WishCard = memo(function WishCard({
             </div>
           )}
           <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-24 bg-gradient-to-t from-[hsl(var(--overlay-image-scrim))] to-transparent"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-28 bg-gradient-to-t from-[hsl(var(--overlay-image-scrim))] via-[hsl(var(--background)/0.34)] to-transparent"
             aria-hidden
           />
         </div>
 
-        <CardHeader className="p-3 pb-2">
+        <CardHeader className="border-t border-border/45 p-3 pb-2">
           <CardTitle
             data-testid="wishlist-card-v2-title"
             className={cn(
@@ -246,7 +246,7 @@ export const WishCard = memo(function WishCard({
                       <Button
                         variant="outline"
                         asChild
-                        className="h-11 min-h-[44px] w-full justify-center border-primary/35 px-4 text-sm font-semibold shadow-none hover:border-primary/48 sm:h-9 sm:min-h-9 sm:w-auto sm:min-w-[8rem]"
+                        className="h-11 min-h-[44px] w-full justify-center rounded-lg border-primary/35 bg-primary/10 px-4 text-sm font-semibold shadow-none hover:border-primary/55 hover:bg-primary/16 sm:h-9 sm:min-h-9 sm:w-auto sm:min-w-[8rem]"
                       >
                         <a
                           href={item.url}

@@ -29,7 +29,7 @@ import { BulkActionBar } from "@/components/BulkActionBar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, SlidersHorizontal, Loader2, CheckSquare, X, Sparkles, Plus, RotateCcw } from "lucide-react";
+import { Search, SlidersHorizontal, Loader2, CheckSquare, X, Sparkles, RotateCcw } from "lucide-react";
 import {
   WishlistItem,
   Tag,
@@ -568,9 +568,28 @@ function HomePageContent() {
   return (
     <div className="min-h-screen page-bg">
       <main className="container mx-auto space-y-3 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-3 sm:px-4 sm:py-5 sm:pb-5">
-        <section className={`${uiSurface.homeSummary} px-3 py-3 sm:px-5 sm:py-5`}>
-          <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4">
-            <div className="min-w-0 flex-1 space-y-1.5 sm:space-y-2">
+        <section className={`${uiSurface.homeSummary} px-3 py-2.5 sm:px-5 sm:py-5`}>
+          <div className="sm:hidden">
+            <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+              <Sparkles className="h-3.5 w-3.5 text-primary/90" />
+              {summaryEyebrow}
+            </p>
+            <div className="mt-1 flex items-start justify-between gap-3">
+              <h1 className="min-w-0 flex-1 truncate text-lg font-semibold tracking-tight text-foreground">
+                {summaryTitle}
+              </h1>
+              <p className="shrink-0 text-sm font-semibold tabular-nums text-primary-foreground">
+                {summary.totalValue > 0 ? `${Math.round(summary.totalValue).toLocaleString("ru-RU")} ₽` : "—"}
+              </p>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {summary.total} всего · {summary.available} доступно
+              {summary.claimed > 0 ? ` · ${summary.claimed} в брони` : ""}
+              {summary.purchased > 0 ? ` · ${summary.purchased} куплено` : ""}
+            </p>
+          </div>
+          <div className="hidden flex-wrap items-start justify-between gap-5 sm:flex">
+            <div className="min-w-0 flex-1 space-y-2">
               <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground sm:text-xs">
                 <Sparkles className="h-3.5 w-3.5 text-primary/90" />
                 {summaryEyebrow}
@@ -581,48 +600,28 @@ function HomePageContent() {
               <p className="hidden max-w-2xl text-sm text-muted-foreground sm:block">
                 {summary.total} позиций в коллекции. Выберите подборку, отметьте приоритеты и работайте со статусами без перегруза интерфейса.
               </p>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {[
+                  ["Всего", summary.total],
+                  ["Доступно", summary.available],
+                  ["Бронь", summary.claimed],
+                  ["Куплено", summary.purchased],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-[hsl(var(--surface-2))/0.7] px-3 py-1.5 text-xs text-muted-foreground"
+                  >
+                    <span>{label}</span>
+                    <span className="font-semibold tabular-nums text-foreground">{value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="rounded-lg border border-primary/35 bg-primary/12 px-3 py-2 text-left sm:rounded-xl sm:px-4 sm:py-3 sm:text-right">
+            <div className="rounded-2xl border border-primary/35 bg-primary/12 px-5 py-4 text-right shadow-[0_0_24px_hsl(var(--primary)/0.12)]">
               <p className="text-[11px] uppercase tracking-wide text-primary-foreground/80">Открытая стоимость</p>
-              <p className="text-lg font-semibold text-primary-foreground">
+              <p className="text-xl font-semibold text-primary-foreground">
                 {summary.totalValue > 0 ? `${Math.round(summary.totalValue).toLocaleString("ru-RU")} ₽` : "—"}
               </p>
-            </div>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2 sm:hidden">
-            <Badge variant="outline" className={`${uiSurface.chip} px-2.5 py-1.5 text-xs`}>
-              Всего: <span className="ml-1 font-semibold text-foreground">{summary.total}</span>
-            </Badge>
-            <Badge variant="outline" className={`${uiSurface.chip} px-2.5 py-1.5 text-xs`}>
-              Доступно: <span className="ml-1 font-semibold text-foreground">{summary.available}</span>
-            </Badge>
-            {summary.claimed > 0 ? (
-              <Badge variant="outline" className={`${uiSurface.chip} px-2.5 py-1.5 text-xs`}>
-                Бронь: <span className="ml-1 font-semibold text-foreground">{summary.claimed}</span>
-              </Badge>
-            ) : null}
-            {summary.purchased > 0 ? (
-              <Badge variant="outline" className={`${uiSurface.chip} px-2.5 py-1.5 text-xs`}>
-                Куплено: <span className="ml-1 font-semibold text-foreground">{summary.purchased}</span>
-              </Badge>
-            ) : null}
-          </div>
-          <div className="mt-4 hidden grid-cols-2 gap-2 sm:grid sm:grid-cols-4">
-            <div className="rounded-lg border border-border bg-card px-3 py-2">
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Всего</p>
-              <p className="text-lg font-semibold">{summary.total}</p>
-            </div>
-            <div className="rounded-lg border border-border bg-card px-3 py-2">
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Доступно</p>
-              <p className="text-lg font-semibold">{summary.available}</p>
-            </div>
-            <div className="rounded-lg border border-border bg-card px-3 py-2">
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Забронировано</p>
-              <p className="text-lg font-semibold">{summary.claimed}</p>
-            </div>
-            <div className="rounded-lg border border-border bg-card px-3 py-2">
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Куплено</p>
-              <p className="text-lg font-semibold">{summary.purchased}</p>
             </div>
           </div>
           {activeFilterChips.length > 0 ? (
@@ -670,19 +669,6 @@ function HomePageContent() {
                 className={`h-11 min-h-[44px] rounded-lg ${uiSurface.inputAlt} pl-9 text-sm`}
               />
             </div>
-            <Button
-              variant="default"
-              size="icon"
-              className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
-              onClick={() => {
-                setParsedData(null);
-                setAddDialogAutoFill(false);
-                setAddDialogOpen(true);
-              }}
-              title="Добавить товар"
-            >
-              <Plus className="h-5 w-5" />
-            </Button>
             <Button
               variant="outline"
               size="icon"

@@ -12,6 +12,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { PriorityBadge } from "./PriorityBadge";
 import { UserAvatar } from "./UserAvatar";
 import { WishlistItem } from "@/types";
@@ -26,6 +32,7 @@ import {
   Undo2,
   ImageIcon,
   Loader2,
+  MoreHorizontal,
 } from "lucide-react";
 import useSWR from "swr";
 import { toast } from "sonner";
@@ -165,7 +172,7 @@ export function ItemDetailDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         className={cn(
-          "max-w-3xl gap-0",
+          "max-w-3xl gap-0 border-primary/18 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] shadow-[0_24px_70px_rgba(0,0,0,0.5)]",
           /* Мобильные: почти на всю ширину и высоту экрана */
           "max-sm:max-h-[min(94dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.75rem))]",
           "max-sm:w-[calc(100vw-0.75rem)] max-sm:max-w-[min(42rem,calc(100vw-0.75rem))]",
@@ -179,14 +186,14 @@ export function ItemDetailDialog({
             : ""}
         </DialogDescription>
         {/* Галерея: на мобильных ограничиваем высоту — больше места под текст и кнопки */}
-        <div className="relative h-[min(34vh,240px)] w-full shrink-0 bg-muted sm:h-[280px]">
+        <div className="relative h-[min(34vh,240px)] w-full shrink-0 overflow-hidden bg-[radial-gradient(circle_at_50%_10%,hsl(var(--primary)/0.12),transparent_22rem),hsl(var(--surface-1))] sm:h-[280px]">
           {mainImage && !imageError ? (
             <Image
               src={mainImage}
               alt={item.title}
               fill
               className={cn(
-                "object-contain",
+                "object-contain drop-shadow-[0_18px_36px_rgba(0,0,0,0.36)]",
                 item.purchased && "grayscale"
               )}
               sizes="(max-width: 640px) 100vw, 768px"
@@ -200,6 +207,10 @@ export function ItemDetailDialog({
               <ImageIcon className="w-16 h-16 text-muted-foreground/30" />
             </div>
           )}
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[hsl(var(--surface-3))] to-transparent"
+            aria-hidden
+          />
 
         </div>
 
@@ -290,56 +301,53 @@ export function ItemDetailDialog({
                 </Button>
               )}
               {canManage && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleEdit}
-                    className={actionButtonClass}
-                  >
-                    <Pencil className="mr-2 h-4 w-4 shrink-0" />
-                    Редактировать
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleTogglePurchased}
-                    className={actionButtonClass}
-                    disabled={statusPending}
-                  >
-                    {item.status === "PURCHASED" ? (
-                      <>
-                        <Undo2 className="mr-2 h-4 w-4 shrink-0" />
-                        Снять отметку
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingCart className="mr-2 h-4 w-4 shrink-0" />
-                        Отметить купленным
-                      </>
-                    )}
-                  </Button>
-                  {onSetStatus && item.status !== "PURCHASED" && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={handleClaimAction}
-                      className={actionButtonClass}
+                      className={cn(actionButtonClass, "gap-2 sm:ml-auto")}
+                    >
+                      <MoreHorizontal className="h-4 w-4 shrink-0" />
+                      Действия
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={handleEdit}>
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Редактировать
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleTogglePurchased}
                       disabled={statusPending}
                     >
-                      {item.status === "CLAIMED" ? "Снять бронь" : "Забронировать"}
-                    </Button>
-                  )}
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleDelete}
-                    className="h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap px-3 sm:ml-auto sm:h-9 sm:min-h-9 sm:w-auto"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4 shrink-0" />
-                    Удалить
-                  </Button>
-                </>
+                      {item.status === "PURCHASED" ? (
+                        <Undo2 className="mr-2 h-4 w-4" />
+                      ) : (
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                      )}
+                      {item.status === "PURCHASED"
+                        ? "Снять отметку"
+                        : "Отметить купленным"}
+                    </DropdownMenuItem>
+                    {onSetStatus && item.status !== "PURCHASED" ? (
+                      <DropdownMenuItem
+                        onClick={handleClaimAction}
+                        disabled={statusPending}
+                      >
+                        <Clock3 className="mr-2 h-4 w-4" />
+                        {item.status === "CLAIMED" ? "Снять бронь" : "Забронировать"}
+                      </DropdownMenuItem>
+                    ) : null}
+                    <DropdownMenuItem
+                      onClick={handleDelete}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Удалить
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
               {!canManage && canClaim && (
                 <Button

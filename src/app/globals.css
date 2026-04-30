@@ -180,9 +180,9 @@
 
 .page-bg {
   background:
-    linear-gradient(180deg, hsl(var(--surface-2)) 0%, hsl(var(--background)) 38%),
-    linear-gradient(135deg, hsl(var(--primary) / 0.09) 0%, transparent 32%),
-    linear-gradient(315deg, hsl(var(--info) / 0.06) 0%, transparent 30%),
+    radial-gradient(circle at 50% -14%, hsl(var(--primary) / 0.18) 0%, transparent 34rem),
+    radial-gradient(circle at 78% 10%, hsl(var(--info) / 0.08) 0%, transparent 24rem),
+    linear-gradient(180deg, hsl(var(--surface-2)) 0%, hsl(var(--background)) 42%),
     hsl(var(--background));
 }
 
