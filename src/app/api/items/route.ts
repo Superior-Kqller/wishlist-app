@@ -121,12 +121,14 @@ export async function GET(req: NextRequest) {
   } else {
     const visibleListIds = await getVisibleListIdsForUser(currentUserId);
     if (visibleListIds.length > 0) {
-      conditions.push({ listId: { in: visibleListIds } });
+      conditions.push({
+        OR: [
+          { listId: { in: visibleListIds } },
+          { listId: null, userId: currentUserId },
+        ],
+      });
     } else {
-      return NextResponse.json(
-        { items: [], pagination: { hasMore: false, nextCursor: null, limit } },
-        { headers: { "Cache-Control": "private, s-maxage=30, stale-while-revalidate=60" } }
-      );
+      conditions.push({ listId: null, userId: currentUserId });
     }
   }
 
@@ -212,7 +214,7 @@ export async function POST(req: NextRequest) {
       data: {
         title: data.title,
         url: data.url || null,
-        price: data.price || null,
+        price: data.price ?? null,
         currency: data.currency,
         priority: data.priority,
         images: data.images,

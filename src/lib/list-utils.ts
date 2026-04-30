@@ -35,7 +35,7 @@ export async function getVisibleListIdsForUser(userId: string): Promise<string[]
 
 /**
  * Проверяет, может ли пользователь видеть товар.
- * Товар без подборки (listId == null) скрыт от всех до привязки к подборке.
+ * Товар без подборки (listId == null) виден только владельцу.
  */
 export async function canUserSeeItem(
   itemId: string,
@@ -43,10 +43,10 @@ export async function canUserSeeItem(
 ): Promise<boolean> {
   const item = await prisma.item.findUnique({
     where: { id: itemId },
-    select: { listId: true },
+    select: { listId: true, userId: true },
   });
   if (!item) return false;
-  if (!item.listId) return false;
+  if (!item.listId) return item.userId === userId;
   return canUserSeeList(item.listId, userId);
 }
 

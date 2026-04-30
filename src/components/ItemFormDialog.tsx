@@ -388,10 +388,7 @@ export function ItemFormDialog({
                   fill
                   className="object-cover"
                   sizes="96px"
-                  unoptimized={
-                    imageUrl.trim().startsWith("data:") ||
-                    imageUrl.trim().startsWith("blob:")
-                  }
+                  unoptimized
                 />
                 <button
                   type="button"

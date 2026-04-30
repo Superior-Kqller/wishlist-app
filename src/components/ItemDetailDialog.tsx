@@ -197,9 +197,7 @@ export function ItemDetailDialog({
                 item.purchased && "grayscale"
               )}
               sizes="(max-width: 640px) 100vw, 768px"
-              unoptimized={
-                mainImage.startsWith("data:") || mainImage.startsWith("blob:")
-              }
+              unoptimized
               onError={() => setImageError(true)}
             />
           ) : (

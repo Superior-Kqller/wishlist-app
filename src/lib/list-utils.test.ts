@@ -53,9 +53,14 @@ describe("canUserSeeList", () => {
 });
 
 describe("canUserSeeItem", () => {
-  it("возвращает false для товара без подборки (listId=null)", async () => {
-    mockFindUnique.mockResolvedValueOnce({ listId: null });
-    expect(await canUserSeeItem("item-1", "user-1")).toBe(false);
+  it("возвращает true владельцу товара без подборки (listId=null)", async () => {
+    mockFindUnique.mockResolvedValueOnce({ listId: null, userId: "user-1" });
+    expect(await canUserSeeItem("item-1", "user-1")).toBe(true);
+  });
+
+  it("возвращает false постороннему для товара без подборки (listId=null)", async () => {
+    mockFindUnique.mockResolvedValueOnce({ listId: null, userId: "user-1" });
+    expect(await canUserSeeItem("item-1", "user-2")).toBe(false);
   });
 
   it("возвращает false для несуществующего товара", async () => {
