@@ -204,9 +204,15 @@ describe("parseProductUrl — Wildberries", () => {
     mockResolve4.mockResolvedValue(["212.193.158.1"]);
     mockResolve6.mockRejectedValue(new Error("no"));
 
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(null, { status: 200 }),
+    );
+
     await expect(
       parseProductUrl("https://www.wildberries.ru/some-page"),
     ).rejects.toThrow("Не удалось извлечь артикул");
+
+    fetchSpy.mockRestore();
   });
 });
 

@@ -48,19 +48,24 @@ chmod -R 775 /app/public/uploads/avatars
 chown -R nextjs:nodejs /app/public/uploads || true
 echo "   ✓ Upload directories ready"
 
-echo ""
-echo "⏳ Waiting for database..."
-sleep 3
-echo "   ✓ Database connection established"
+if [ "${RUN_MIGRATIONS_ON_START:-1}" = "1" ]; then
+  echo ""
+  echo "⏳ Waiting for database..."
+  sleep 3
+  echo "   ✓ Database connection established"
 
-echo ""
-echo "🔄 Applying database migrations..."
-npx prisma migrate deploy --schema=./prisma/schema.prisma
-echo "   ✓ Migrations applied"
+  echo ""
+  echo "🔄 Applying database migrations..."
+  npx prisma migrate deploy --schema=./prisma/schema.prisma
+  echo "   ✓ Migrations applied"
 
-echo ""
-echo "🌱 Seeding users (if needed)..."
-node ./prisma/seed.js 2>/dev/null && echo "   ✓ Seed complete" || echo "   ⊘ Seed skipped (already exists)"
+  echo ""
+  echo "🌱 Seeding users (if needed)..."
+  node ./prisma/seed.js 2>/dev/null && echo "   ✓ Seed complete" || echo "   ⊘ Seed skipped (already exists)"
+else
+  echo ""
+  echo "⊘ Database migrations skipped for this container"
+fi
 
 echo ""
 printf '%s\n' \

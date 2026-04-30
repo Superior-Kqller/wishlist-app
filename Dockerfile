@@ -84,6 +84,8 @@ COPY --from=builder /app/node_modules/standard-as-callback ./node_modules/standa
 COPY --from=builder /app/node_modules/debug ./node_modules/debug
 COPY --from=builder /app/node_modules/ms ./node_modules/ms
 
+RUN node -e "require('@prisma/client'); require('@prisma/adapter-pg'); require('pg'); require('bcryptjs'); require('ioredis'); require('dotenv');"
+
 # Copy prisma.config.ts for prisma migrate deploy at runtime
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
@@ -96,6 +98,9 @@ RUN chown -R nextjs:nodejs /app
 EXPOSE 4030
 ENV PORT=4030
 ENV HOSTNAME="0.0.0.0"
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD node -e "const port = process.env.PORT || 4030; fetch('http://127.0.0.1:' + port + '/api/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1));"
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "server.js"]

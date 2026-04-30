@@ -149,7 +149,7 @@ describe("getTagColor", () => {
     expect(colors.size).toBeGreaterThan(1);
   });
 
-  it("возвращает цвет из палитры (hex формат)", () => {
-    expect(getTagColor("anything")).toMatch(/^#[0-9a-f]{6}$/i);
+  it("возвращает цвет из CSS-палитры тегов", () => {
+    expect(getTagColor("anything")).toMatch(/^hsl\(var\(--tag-\d+\)\)$/);
   });
 });
