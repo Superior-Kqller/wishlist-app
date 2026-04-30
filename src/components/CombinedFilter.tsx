@@ -73,7 +73,7 @@ export function CombinedFilter({
           <Button
             type="button"
             variant="outline"
-            className="h-9 gap-2 px-3 touch-manipulation"
+            className={cn("h-9 gap-2 px-3 touch-manipulation", filterBarTriggerClass)}
             aria-label="Выбрать пользователя"
             data-testid="combined-user-trigger"
           >

@@ -165,7 +165,7 @@ export function ItemDetailDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         className={cn(
-          "max-w-2xl gap-0",
+          "max-w-4xl gap-0",
           /* Мобильные: почти на всю ширину и высоту экрана */
           "max-sm:max-h-[min(94dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.75rem))]",
           "max-sm:w-[calc(100vw-0.75rem)] max-sm:max-w-[min(42rem,calc(100vw-0.75rem))]",
@@ -179,7 +179,7 @@ export function ItemDetailDialog({
             : ""}
         </DialogDescription>
         {/* Галерея: на мобильных ограничиваем высоту — больше места под текст и кнопки */}
-        <div className="relative h-[min(42vh,280px)] w-full shrink-0 bg-muted sm:aspect-[2/1] sm:h-auto sm:min-h-0">
+        <div className="relative h-[min(38vh,260px)] w-full shrink-0 bg-muted sm:h-[300px]">
           {mainImage && !imageError ? (
             <Image
               src={mainImage}
@@ -189,7 +189,7 @@ export function ItemDetailDialog({
                 "object-cover",
                 item.purchased && "grayscale"
               )}
-              sizes="(max-width: 640px) 100vw, 672px"
+              sizes="(max-width: 640px) 100vw, 896px"
               unoptimized={
                 mainImage.startsWith("data:") || mainImage.startsWith("blob:")
               }
@@ -203,8 +203,8 @@ export function ItemDetailDialog({
 
         </div>
 
-        <div className="space-y-3 px-3 pt-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:space-y-4 sm:px-6 sm:pt-6">
-          <DialogHeader className="space-y-3 pr-10">
+        <div className="space-y-3 px-3 pt-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:space-y-4 sm:px-6 sm:pt-5">
+          <DialogHeader className="space-y-3 pr-10 sm:pr-12">
             <div className="min-w-0">
               <DialogTitle
                 className={cn(
@@ -276,7 +276,7 @@ export function ItemDetailDialog({
 
           {/* Действия: на мобильных — столбец на всю ширину без горизонтального скролла */}
           {(item.url || canManage || canClaim) && (
-            <div className="flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2 sm:pt-2">
+            <div className="grid gap-2 border-t border-border pt-3 sm:flex sm:flex-wrap sm:items-center sm:gap-2 sm:pt-3">
               {item.url && (
                 <Button asChild className="h-11 min-h-[44px] w-full shrink-0 justify-center gap-2 px-3 sm:h-9 sm:min-h-9 sm:w-auto">
                   <a
@@ -334,7 +334,7 @@ export function ItemDetailDialog({
                     variant="destructive"
                     size="sm"
                     onClick={handleDelete}
-                    className="h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap px-3 sm:h-9 sm:min-h-9 sm:w-auto"
+                    className="h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap px-3 sm:ml-auto sm:h-9 sm:min-h-9 sm:w-auto"
                   >
                     <Trash2 className="mr-2 h-4 w-4 shrink-0" />
                     Удалить

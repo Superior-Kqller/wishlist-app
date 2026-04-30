@@ -125,7 +125,7 @@ export const WishCard = memo(function WishCard({
       >
         <div
           data-testid="wishlist-card-v2-media"
-          className="group relative aspect-[4/5] overflow-hidden bg-secondary"
+          className="group relative aspect-[4/3] overflow-hidden bg-secondary sm:aspect-[4/5]"
         >
           <PriorityBadgeOverlay priority={item.priority} />
           {selectionMode ? (

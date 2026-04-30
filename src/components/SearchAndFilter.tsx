@@ -70,7 +70,7 @@ export function WishlistToolbarControls({
       <Select value={sortBy} onValueChange={onSortChange}>
         <SelectTrigger
           className={cn(
-            "w-9 shrink-0 px-0 sm:w-[168px] sm:px-3",
+            "w-9 shrink-0 px-0 sm:w-[184px] sm:px-3",
             filterBarTriggerClass,
           )}
           title="Сортировка"
