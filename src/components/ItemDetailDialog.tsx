@@ -165,7 +165,7 @@ export function ItemDetailDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         className={cn(
-          "max-w-4xl gap-0",
+          "max-w-3xl gap-0",
           /* Мобильные: почти на всю ширину и высоту экрана */
           "max-sm:max-h-[min(94dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.75rem))]",
           "max-sm:w-[calc(100vw-0.75rem)] max-sm:max-w-[min(42rem,calc(100vw-0.75rem))]",
@@ -179,17 +179,17 @@ export function ItemDetailDialog({
             : ""}
         </DialogDescription>
         {/* Галерея: на мобильных ограничиваем высоту — больше места под текст и кнопки */}
-        <div className="relative h-[min(38vh,260px)] w-full shrink-0 bg-muted sm:h-[300px]">
+        <div className="relative h-[min(34vh,240px)] w-full shrink-0 bg-muted sm:h-[280px]">
           {mainImage && !imageError ? (
             <Image
               src={mainImage}
               alt={item.title}
               fill
               className={cn(
-                "object-cover",
+                "object-contain",
                 item.purchased && "grayscale"
               )}
-              sizes="(max-width: 640px) 100vw, 896px"
+              sizes="(max-width: 640px) 100vw, 768px"
               unoptimized={
                 mainImage.startsWith("data:") || mainImage.startsWith("blob:")
               }

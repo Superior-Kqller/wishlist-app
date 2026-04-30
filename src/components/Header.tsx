@@ -263,18 +263,6 @@ export function Header() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
-                  <DropdownMenuItem onClick={() => router.push("/")}>
-                    <Home className="mr-2 h-4 w-4" />
-                    Главная
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/stats")}>
-                    <BarChart3 className="mr-2 h-4 w-4" />
-                    Статистика
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/settings")}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Настройки
-                  </DropdownMenuItem>
                   {isAdmin ? (
                     <DropdownMenuItem onClick={() => router.push("/admin")}>
                       <Shield className="mr-2 h-4 w-4" />
@@ -283,7 +271,7 @@ export function Header() {
                   ) : null}
                   {isMainPage ? (
                     <>
-                      <DropdownMenuSeparator />
+                      {isAdmin ? <DropdownMenuSeparator /> : null}
                       <DropdownMenuLabel>Экспорт</DropdownMenuLabel>
                       <DropdownMenuItem onClick={() => handleExport("csv")}>
                         <Download className="mr-2 h-4 w-4" />

@@ -568,28 +568,46 @@ function HomePageContent() {
   return (
     <div className="min-h-screen page-bg">
       <main className="container mx-auto space-y-3 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-3 sm:px-4 sm:py-5 sm:pb-5">
-        <section className={`${uiSurface.homeSummary} px-4 py-4 sm:px-5 sm:py-5`}>
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="space-y-2">
-              <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+        <section className={`${uiSurface.homeSummary} px-3 py-3 sm:px-5 sm:py-5`}>
+          <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4">
+            <div className="min-w-0 flex-1 space-y-1.5 sm:space-y-2">
+              <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground sm:text-xs">
                 <Sparkles className="h-3.5 w-3.5 text-primary/90" />
                 {summaryEyebrow}
               </p>
-              <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-3xl">
                 {summaryTitle}
               </h1>
-              <p className="max-w-2xl text-sm text-muted-foreground">
+              <p className="hidden max-w-2xl text-sm text-muted-foreground sm:block">
                 {summary.total} позиций в коллекции. Выберите подборку, отметьте приоритеты и работайте со статусами без перегруза интерфейса.
               </p>
             </div>
-            <div className="rounded-xl border border-primary/35 bg-primary/12 px-4 py-3 text-right">
+            <div className="rounded-lg border border-primary/35 bg-primary/12 px-3 py-2 text-left sm:rounded-xl sm:px-4 sm:py-3 sm:text-right">
               <p className="text-[11px] uppercase tracking-wide text-primary-foreground/80">Открытая стоимость</p>
               <p className="text-lg font-semibold text-primary-foreground">
                 {summary.totalValue > 0 ? `${Math.round(summary.totalValue).toLocaleString("ru-RU")} ₽` : "—"}
               </p>
             </div>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="mt-3 flex flex-wrap gap-2 sm:hidden">
+            <Badge variant="outline" className={`${uiSurface.chip} px-2.5 py-1.5 text-xs`}>
+              Всего: <span className="ml-1 font-semibold text-foreground">{summary.total}</span>
+            </Badge>
+            <Badge variant="outline" className={`${uiSurface.chip} px-2.5 py-1.5 text-xs`}>
+              Доступно: <span className="ml-1 font-semibold text-foreground">{summary.available}</span>
+            </Badge>
+            {summary.claimed > 0 ? (
+              <Badge variant="outline" className={`${uiSurface.chip} px-2.5 py-1.5 text-xs`}>
+                Бронь: <span className="ml-1 font-semibold text-foreground">{summary.claimed}</span>
+              </Badge>
+            ) : null}
+            {summary.purchased > 0 ? (
+              <Badge variant="outline" className={`${uiSurface.chip} px-2.5 py-1.5 text-xs`}>
+                Куплено: <span className="ml-1 font-semibold text-foreground">{summary.purchased}</span>
+              </Badge>
+            ) : null}
+          </div>
+          <div className="mt-4 hidden grid-cols-2 gap-2 sm:grid sm:grid-cols-4">
             <div className="rounded-lg border border-border bg-card px-3 py-2">
               <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Всего</p>
               <p className="text-lg font-semibold">{summary.total}</p>
