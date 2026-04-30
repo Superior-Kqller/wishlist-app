@@ -40,27 +40,6 @@ services:
     networks:
       - proxy
 
-  wishlist-migrate:
-    image: ${WISHLIST_APP_IMAGE:-ghcr.io/superior-kqller/wishlist-app:latest}
-    container_name: wishlist-migrate
-    restart: "no"
-    init: true
-    security_opt:
-      - no-new-privileges:true
-    env_file:
-      - .env
-    depends_on:
-      wishlist-db:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://wishlist:${DB_PASSWORD}@wishlist-db:5432/wishlist
-      RUN_MIGRATIONS_ON_START: "1"
-    volumes:
-      - uploads-data:/app/public/uploads
-    networks:
-      - proxy
-    command: ["true"]
-
   wishlist-app:
     image: ${WISHLIST_APP_IMAGE:-ghcr.io/superior-kqller/wishlist-app:latest}
     container_name: wishlist-app
@@ -73,8 +52,6 @@ services:
     ports:
       - "127.0.0.1:${APP_PORT:-4030}:4030"
     depends_on:
-      wishlist-migrate:
-        condition: service_completed_successfully
       wishlist-db:
         condition: service_healthy
       wishlist-valkey:
@@ -82,7 +59,6 @@ services:
     environment:
       DATABASE_URL: postgresql://wishlist:${DB_PASSWORD}@wishlist-db:5432/wishlist
       REDIS_URL: /run/valkey/valkey.sock
-      RUN_MIGRATIONS_ON_START: "0"
     healthcheck:
       test:
         [
