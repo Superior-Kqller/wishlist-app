@@ -23,7 +23,7 @@ export const uiSurface = {
   homeSummary:
     "relative overflow-hidden rounded-2xl border border-primary/18 bg-[radial-gradient(circle_at_82%_16%,hsl(var(--primary)/0.18),transparent_28rem),linear-gradient(135deg,hsl(var(--surface-3)/0.98),hsl(var(--surface-2)/0.94))] shadow-[0_18px_48px_rgba(0,0,0,0.34),inset_0_1px_0_hsl(var(--foreground)/0.04)]",
   homeToolbar:
-    "relative z-20 flex min-w-0 flex-col gap-2 rounded-xl border border-primary/14 bg-[hsl(var(--surface-2))/0.92] px-2.5 py-2 shadow-[0_14px_34px_rgba(0,0,0,0.3),inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-md sm:z-auto sm:-mx-4 sm:rounded-2xl sm:bg-[hsl(var(--surface-2))/0.82] sm:px-4 sm:py-3",
+    "relative z-20 flex min-w-0 flex-col gap-2 overflow-hidden rounded-xl border border-primary/14 bg-[hsl(var(--surface-2))/0.92] px-2.5 py-2 shadow-[0_14px_34px_rgba(0,0,0,0.3),inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-md sm:z-auto sm:rounded-2xl sm:bg-[hsl(var(--surface-2))/0.82] sm:px-4 sm:py-3",
   homeSelectionState:
     "rounded-lg border border-primary/45 bg-primary/12 px-3 py-2 text-sm text-foreground",
 } as const;
