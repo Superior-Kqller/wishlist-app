@@ -3,7 +3,6 @@
 import { WishlistItem } from "@/types";
 import { WishCard } from "@/components/wishlist/wish-card";
 import { WishlistCardSkeleton } from "./WishlistCardSkeleton";
-import { AnimatePresence } from "framer-motion";
 import { AddItemCard } from "./AddItemCard";
 import { Button } from "@/components/ui/button";
 import { Inbox, RotateCcw } from "lucide-react";
@@ -109,34 +108,31 @@ export function WishlistGrid({
       aria-label={`Список желаний: ${items.length} ${items.length === 1 ? "товар" : items.length < 5 ? "товара" : "товаров"}`}
       className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4"
     >
-      <AnimatePresence mode="popLayout">
-        {items.map((item, index) => (
-          <WishCard
-            key={item.id}
-            item={item}
-            index={index}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            onTogglePurchased={onTogglePurchased}
-            onSetStatus={onSetStatus}
-            statusPending={!!pendingStatusByItemId?.[item.id]}
-            onOpenDetail={onOpenDetail}
-            selectionMode={selectionMode}
-            isSelected={selectedIds?.has(item.id)}
-            onToggleSelect={onToggleSelect}
-            currentUserId={currentUserId}
-            currentUserRole={currentUserRole}
-          />
-        ))}
-        {onEmptyAdd && (
-          <AddItemCard
-            key="add-item-card"
-            onAdd={onEmptyAdd}
-            disabled={emptyAddDisabled}
-            disabledHint={emptyAddDisabledHint}
-          />
-        )}
-      </AnimatePresence>
+      {items.map((item) => (
+        <WishCard
+          key={item.id}
+          item={item}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onTogglePurchased={onTogglePurchased}
+          onSetStatus={onSetStatus}
+          statusPending={!!pendingStatusByItemId?.[item.id]}
+          onOpenDetail={onOpenDetail}
+          selectionMode={selectionMode}
+          isSelected={selectedIds?.has(item.id)}
+          onToggleSelect={onToggleSelect}
+          currentUserId={currentUserId}
+          currentUserRole={currentUserRole}
+        />
+      ))}
+      {onEmptyAdd && (
+        <AddItemCard
+          key="add-item-card"
+          onAdd={onEmptyAdd}
+          disabled={emptyAddDisabled}
+          disabledHint={emptyAddDisabledHint}
+        />
+      )}
     </div>
   );
 }

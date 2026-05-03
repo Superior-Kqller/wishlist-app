@@ -2,7 +2,6 @@
 
 import { memo, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
 import { Check, Globe2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +23,6 @@ import { getItemStatusLabel, getItemStatusTone } from "@/lib/item-status-present
 
 export interface WishCardProps {
   item: WishlistItem;
-  index?: number;
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
@@ -40,7 +38,6 @@ export interface WishCardProps {
 
 export const WishCard = memo(function WishCard({
   item,
-  index = 0,
   onEdit,
   onDelete,
   onTogglePurchased,
@@ -55,7 +52,6 @@ export const WishCard = memo(function WishCard({
 }: WishCardProps) {
   const [imageError, setImageError] = useState(false);
   const [ownerImageError, setOwnerImageError] = useState(false);
-  const reduceMotion = useReducedMotion();
 
   const imageUrl = item.images?.[0] ?? null;
   const isBought = item.purchased || item.status === "PURCHASED";
@@ -97,18 +93,7 @@ export const WishCard = memo(function WishCard({
   const statusTone = getItemStatusTone(item.status);
 
   return (
-    <motion.div
-      layout
-      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
-      animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
-      transition={
-        reduceMotion
-          ? { duration: 0.12 }
-          : { type: "spring", stiffness: 260, damping: 20, delay: index * 0.04 }
-      }
-      whileHover={!reduceMotion && !isBought ? { y: -3 } : undefined}
-    >
+    <div>
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
@@ -321,6 +306,6 @@ export const WishCard = memo(function WishCard({
         </CardFooter>
 
       </Card>
-    </motion.div>
+    </div>
   );
 });

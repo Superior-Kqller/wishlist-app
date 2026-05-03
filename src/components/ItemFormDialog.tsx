@@ -384,7 +384,7 @@ export function ItemFormDialog({
               role="group"
               aria-label="Приоритет"
               data-testid="priority-select-dialog"
-              className="grid grid-cols-2 gap-2 sm:grid-cols-5"
+              className="grid grid-cols-5 overflow-hidden rounded-lg border border-input bg-card"
             >
               {PRIORITY_OPTIONS.map((value) => {
                 const isSelected = selectedPriority === value;
@@ -394,12 +394,13 @@ export function ItemFormDialog({
                     key={value}
                     type="button"
                     aria-pressed={isSelected}
+                    aria-label={`Приоритет ${value}: ${getPriorityShortLabel(value)}`}
                     onClick={() => setPriority(value)}
                     className={cn(
-                      "flex min-h-[48px] items-center gap-2 rounded-lg border px-3 text-left text-xs font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:flex-col sm:items-start sm:justify-center sm:gap-1.5",
+                      "flex min-h-[44px] flex-col items-center justify-center gap-1 border-r border-input px-1.5 text-xs font-semibold transition-colors duration-150 last:border-r-0 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                       isSelected
                         ? priorityBadgeToneByPriority[value]
-                        : "border-input bg-card text-muted-foreground hover:border-border/90 hover:bg-accent hover:text-foreground",
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground",
                     )}
                   >
                     <span
@@ -409,11 +410,21 @@ export function ItemFormDialog({
                         priorityDotClassByPriority[value],
                       )}
                     />
-                    <span className="truncate">{getPriorityShortLabel(value)}</span>
+                    <span>{value}</span>
                   </button>
                 );
               })}
             </div>
+            <p className="flex items-center gap-2 text-xs font-semibold text-foreground">
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "h-2 w-2 rounded-full",
+                  priorityDotClassByPriority[selectedPriority],
+                )}
+              />
+              {getPriorityShortLabel(selectedPriority)}
+            </p>
           </div>
 
           {/* Одно изображение по URL */}

@@ -1,16 +1,16 @@
 export const PRIORITY_LABELS: Record<number, string> = {
-  1: "Было бы классно",
-  2: "Хочу при случае",
-  3: "Очень хочу",
-  4: "Сильно нужно",
+  1: "Хочу при случае",
+  2: "Было бы классно",
+  3: "Сильно нужно",
+  4: "Очень хочу",
   5: "Нужно вчера",
 };
 
 export const PRIORITY_EMOJIS: Record<number, string> = {
-  1: "✨",
-  2: "👀",
-  3: "🔥",
-  4: "⚡",
+  1: "👀",
+  2: "✨",
+  3: "⚡",
+  4: "🔥",
   5: "🚀",
 };
 
@@ -19,10 +19,10 @@ export function getPriorityLabel(priority: number): string {
 }
 
 export const PRIORITY_SHORT_LABELS: Record<number, string> = {
-  1: "Классно",
-  2: "При случае",
-  3: "Очень хочу",
-  4: "Нужно",
+  1: "При случае",
+  2: "Классно",
+  3: "Нужно",
+  4: "Очень хочу",
   5: "Срочно",
 };
 
