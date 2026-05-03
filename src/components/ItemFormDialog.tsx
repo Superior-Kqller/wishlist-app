@@ -21,9 +21,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PrioritySelect } from "./PrioritySelect";
 import { WishlistItem, CreateItemPayload, Tag, ListWithMeta } from "@/types";
-import { getTagColor } from "@/lib/utils";
+import { getPriorityShortLabel } from "@/lib/priority-labels";
+import {
+  clampWishlistPriority,
+  priorityBadgeToneByPriority,
+  priorityDotClassByPriority,
+  type WishlistPriority,
+} from "@/lib/priority-styles";
+import { cn, getTagColor } from "@/lib/utils";
 import { AlertTriangle, Loader2, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -50,6 +56,8 @@ const CURRENCIES = [
   { value: "EUR", label: "€ EUR" },
   { value: "CNY", label: "¥ CNY" },
 ];
+
+const PRIORITY_OPTIONS: WishlistPriority[] = [1, 2, 3, 4, 5];
 
 export function ItemFormDialog({
   open,
@@ -234,9 +242,11 @@ export function ItemFormDialog({
     }
   }
 
+  const selectedPriority = clampWishlistPriority(priority);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Редактировать" : "Добавить товар"}
@@ -370,11 +380,40 @@ export function ItemFormDialog({
           {/* Priority */}
           <div className="space-y-2">
             <Label>Приоритет</Label>
-            <PrioritySelect
-              priority={priority}
-              onChange={setPriority}
-              triggerTestId="priority-select-dialog"
-            />
+            <div
+              role="group"
+              aria-label="Приоритет"
+              data-testid="priority-select-dialog"
+              className="grid grid-cols-2 gap-2 sm:grid-cols-5"
+            >
+              {PRIORITY_OPTIONS.map((value) => {
+                const isSelected = selectedPriority === value;
+
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => setPriority(value)}
+                    className={cn(
+                      "flex min-h-[48px] items-center gap-2 rounded-lg border px-3 text-left text-xs font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:flex-col sm:items-start sm:justify-center sm:gap-1.5",
+                      isSelected
+                        ? priorityBadgeToneByPriority[value]
+                        : "border-input bg-card text-muted-foreground hover:border-border/90 hover:bg-accent hover:text-foreground",
+                    )}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "h-2.5 w-2.5 rounded-full",
+                        priorityDotClassByPriority[value],
+                      )}
+                    />
+                    <span className="truncate">{getPriorityShortLabel(value)}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Одно изображение по URL */}
