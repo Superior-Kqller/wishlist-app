@@ -1,3 +1,5 @@
+import { Buffer } from "node:buffer";
+import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getTelegramConfig } from "@/lib/telegram/config";
 import { handleTelegramUpdate } from "@/lib/telegram/actions";
@@ -10,7 +12,13 @@ function isWebhookAuthorized(req: NextRequest): boolean {
   const header = req.headers.get("x-telegram-bot-api-secret-token");
   if (!header) return false;
 
-  return header === config.webhookSecret;
+  const headerBuffer = Buffer.from(header);
+  const secretBuffer = Buffer.from(config.webhookSecret);
+
+  return (
+    headerBuffer.length === secretBuffer.length &&
+    timingSafeEqual(headerBuffer, secretBuffer)
+  );
 }
 
 export async function POST(req: NextRequest) {

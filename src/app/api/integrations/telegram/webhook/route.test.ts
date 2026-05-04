@@ -53,6 +53,29 @@ describe("telegram webhook route", () => {
     expect(mockHandleTelegramUpdate).not.toHaveBeenCalled();
   });
 
+  it("returns 401 when telegram is enabled without webhook secret", async () => {
+    mockGetTelegramConfig.mockReturnValue({
+      enabled: true,
+      botToken: "token",
+      webhookSecret: undefined,
+    });
+
+    const { POST } = await import("./route");
+    const req = new Request("http://localhost/api/integrations/telegram/webhook", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-telegram-bot-api-secret-token": "any-secret",
+      },
+      body: JSON.stringify({ update_id: 1 }),
+    });
+
+    const response = await POST(req as never);
+
+    expect(response.status).toBe(401);
+    expect(mockHandleTelegramUpdate).not.toHaveBeenCalled();
+  });
+
   it("returns 400 for invalid payload", async () => {
     mockGetTelegramConfig.mockReturnValue({
       enabled: true,
