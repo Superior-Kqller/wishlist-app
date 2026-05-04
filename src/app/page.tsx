@@ -92,6 +92,8 @@ function HomePageContent() {
   const [viewMode, setViewMode] = useState<WishlistViewMode>(() =>
     searchParams.get("view") === "table" ? "table" : "grid",
   );
+  const viewParamValue: WishlistViewMode =
+    searchParams.get("view") === "table" ? "table" : "grid";
   const [showPurchased, setShowPurchased] = useState(() => searchParams.get("purchased") !== "hide");
   const [selectedTags, setSelectedTags] = useState<string[]>(() => {
     const tagsParam = searchParams.get("tags");
@@ -101,6 +103,10 @@ function HomePageContent() {
   useEffect(() => {
     setSearch(searchParamValue);
   }, [searchParamValue]);
+
+  useEffect(() => {
+    setViewMode(viewParamValue);
+  }, [viewParamValue]);
 
   const { data: usersStatsData } = useSWR<{ users: UserWithStats[] }>(
     "/api/users/stats",
@@ -226,6 +232,7 @@ function HomePageContent() {
     selectedUserId,
     search,
     sortBy,
+    viewMode,
     showPurchased,
     selectedTags,
     listIdParam,
