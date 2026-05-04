@@ -2,9 +2,18 @@
 
 import { WishlistItem } from "@/types";
 import { WishCard } from "@/components/wishlist/wish-card";
+import { ProductRow } from "@/components/wishlist/product-row";
+import type { WishlistViewMode } from "@/components/wishlist/wishlist-view-toggle";
 import { WishlistCardSkeleton } from "./WishlistCardSkeleton";
 import { AddItemCard } from "./AddItemCard";
 import { EmptyState } from "@/components/ui/empty-state";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { RotateCcw } from "lucide-react";
 
 interface WishlistGridProps {
@@ -24,6 +33,7 @@ interface WishlistGridProps {
   onToggleSelect?: (id: string) => void;
   currentUserId?: string;
   currentUserRole?: "ADMIN" | "USER" | null;
+  viewMode?: WishlistViewMode;
   emptyTitle?: string;
   emptyDescription?: string;
   emptyActionLabel?: string;
@@ -49,6 +59,7 @@ export function WishlistGrid({
   onToggleSelect,
   currentUserId,
   currentUserRole,
+  viewMode = "grid",
   emptyTitle,
   emptyDescription,
   emptyActionLabel,
@@ -77,6 +88,49 @@ export function WishlistGrid({
         onSecondaryAction={onEmptySecondaryAction}
         secondaryIcon={<RotateCcw className="h-4 w-4" />}
       />
+    );
+  }
+
+  if (viewMode === "table") {
+    return (
+      <div
+        role="region"
+        aria-live="polite"
+        aria-label={`Таблица желаний: ${items.length} ${items.length === 1 ? "товар" : items.length < 5 ? "товара" : "товаров"}`}
+        className="overflow-hidden rounded-xl border border-border bg-[hsl(var(--surface-2))/0.82] shadow-[0_14px_34px_rgba(0,0,0,0.3)]"
+      >
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Товар</TableHead>
+              <TableHead>Владелец</TableHead>
+              <TableHead>Статус</TableHead>
+              <TableHead className="text-right">Стоимость</TableHead>
+              <TableHead>Теги</TableHead>
+              <TableHead className="text-right">Действия</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((item) => (
+              <ProductRow
+                key={item.id}
+                item={item}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onTogglePurchased={onTogglePurchased}
+                onSetStatus={onSetStatus}
+                statusPending={!!pendingStatusByItemId?.[item.id]}
+                onOpenDetail={onOpenDetail}
+                selectionMode={selectionMode}
+                isSelected={selectedIds?.has(item.id)}
+                onToggleSelect={onToggleSelect}
+                currentUserId={currentUserId}
+                currentUserRole={currentUserRole}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     );
   }
 
