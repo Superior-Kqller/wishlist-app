@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { ListWithMeta } from "@/types";
 import { UserWithStats } from "@/types";
 import { cn } from "@/lib/utils";
+import { MemberList } from "@/components/wishlist/member-list";
 
 interface ListFormDialogProps {
   open: boolean;
@@ -128,6 +129,16 @@ export function ListFormDialog({
           {otherUsers.length > 0 && (
             <div className="space-y-2">
               <Label>Кто увидит подборку</Label>
+              {isEdit ? (
+                <div className="rounded-lg border border-border bg-[hsl(var(--surface-2))/0.55] p-2">
+                  <MemberList
+                    users={users}
+                    ownerId={list.userId}
+                    viewerIds={viewerIds}
+                    emptyLabel="Подборка видна только владельцу"
+                  />
+                </div>
+              ) : null}
               <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-2 border rounded-md bg-muted/30">
                 {otherUsers.map((user) => (
                   <button

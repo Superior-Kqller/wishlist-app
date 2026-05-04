@@ -1,43 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { PriorityBadge } from "./PriorityBadge";
-import { UserAvatar } from "./UserAvatar";
 import { WishlistItem } from "@/types";
 import { ItemComment } from "@/types";
-import { formatPrice, getTagColor } from "@/lib/utils";
-import {
-  Clock3,
-  ExternalLink,
-  Pencil,
-  Trash2,
-  ShoppingCart,
-  Undo2,
-  ImageIcon,
-  Loader2,
-  MoreHorizontal,
-} from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { getItemStatusLabel, getItemStatusTone } from "@/lib/item-status-presentation";
+import { ItemDetailBody } from "@/components/wishlist/item-detail/item-detail-layout";
+import { ItemMediaSection } from "@/components/wishlist/item-detail/item-media-section";
+import { ItemMetaSection } from "@/components/wishlist/item-detail/item-meta-section";
+import { ItemActivitySection } from "@/components/wishlist/item-detail/item-activity-section";
 
 const fetcher = (url: string) =>
   fetch(url).then((r) => {
@@ -68,10 +46,6 @@ export function ItemDetailDialog({
   onSetStatus,
   statusPending = false,
 }: ItemDetailDialogProps) {
-  const actionButtonClass =
-    "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-border bg-card/85 px-3 text-foreground backdrop-blur-[8px] hover:border-border/90 hover:bg-accent sm:h-9 sm:min-h-9 sm:w-auto";
-
-  const [imageError, setImageError] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
@@ -84,15 +58,13 @@ export function ItemDetailDialog({
 
   useEffect(() => {
     if (!open || !item) return;
-    setImageError(false);
+    setCommentText("");
   }, [open, item]);
 
   if (!item) return null;
 
-  const mainImage = item.images?.[0] ?? null;
   const canManage = currentUserId === item.userId;
   const canClaim = Boolean(onSetStatus && item.status !== "PURCHASED");
-  const claimButtonVariant = !item.url && !canManage ? "default" : "outline";
 
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,268 +157,29 @@ export function ItemDetailDialog({
             ? `, цена ${formatPrice(item.price, item.currency)}`
             : ""}
         </DialogDescription>
-        {/* Галерея: на мобильных ограничиваем высоту — больше места под текст и кнопки */}
-        <div className="relative h-[min(34vh,240px)] w-full shrink-0 overflow-hidden bg-[radial-gradient(circle_at_50%_10%,hsl(var(--primary)/0.12),transparent_22rem),hsl(var(--surface-1))] sm:h-[280px]">
-          {mainImage && !imageError ? (
-            <Image
-              src={mainImage}
-              alt={item.title}
-              fill
-              className={cn(
-                "object-contain drop-shadow-[0_18px_36px_rgba(0,0,0,0.36)]",
-                item.purchased && "grayscale"
-              )}
-              sizes="(max-width: 640px) 100vw, 768px"
-              unoptimized
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <ImageIcon className="w-16 h-16 text-muted-foreground/30" />
-            </div>
-          )}
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[hsl(var(--surface-3))] to-transparent"
-            aria-hidden
+        <ItemMediaSection item={item} />
+        <ItemDetailBody>
+          <ItemMetaSection
+            item={item}
+            canManage={canManage}
+            canClaim={canClaim}
+            statusPending={statusPending}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onTogglePurchased={handleTogglePurchased}
+            onClaimAction={handleClaimAction}
           />
-
-        </div>
-
-        <div className="space-y-3 px-3 pt-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:space-y-4 sm:px-6 sm:pt-5">
-          <DialogHeader className="space-y-3 pr-10 sm:pr-12">
-            <div className="min-w-0">
-              <DialogTitle
-                className={cn(
-                  "break-words text-left text-lg leading-snug sm:text-xl",
-                  item.purchased && "line-through",
-                )}
-              >
-                  {item.title}
-              </DialogTitle>
-              <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                <Badge
-                  variant="outline"
-                  className={cn("text-xs", getItemStatusTone(item.status))}
-                >
-                  {item.status === "CLAIMED" ? (
-                    <Clock3 className="mr-1 h-3 w-3" />
-                  ) : null}
-                  {getItemStatusLabel(item.status)}
-                </Badge>
-                <PriorityBadge priority={item.priority} />
-              </div>
-            </div>
-          </DialogHeader>
-
-          {(item.user || (item.price != null && item.price > 0)) && (
-            <div className="flex items-center justify-between gap-3">
-              {item.user ? (
-                <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
-                  <UserAvatar
-                    avatarUrl={item.user.avatarUrl || undefined}
-                    name={item.user.name}
-                    userId={item.user.id}
-                    size="sm"
-                  />
-                  <span className="truncate">{item.user.name}</span>
-                </div>
-              ) : (
-                <span className="min-w-0 shrink" aria-hidden />
-              )}
-              {item.price != null && item.price > 0 ? (
-                <p className="shrink-0 text-lg font-semibold tabular-nums">
-                  {formatPrice(item.price, item.currency)}
-                </p>
-              ) : null}
-            </div>
-          )}
-
-          {item.notes && (
-            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.notes}</p>
-          )}
-
-          {item.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {item.tags.map((tag) => {
-                const color = tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
-                return (
-                  <Badge
-                    key={tag.id}
-                    variant="outline"
-                    className="text-xs"
-                    style={{ borderColor: color, color }}
-                  >
-                    {tag.name}
-                  </Badge>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Действия: на мобильных — столбец на всю ширину без горизонтального скролла */}
-          {(item.url || canManage || canClaim) && (
-            <div className="grid gap-2 border-t border-border pt-3 sm:flex sm:flex-wrap sm:items-center sm:gap-2 sm:pt-3">
-              {item.url && (
-                <Button asChild className="h-11 min-h-[44px] w-full shrink-0 justify-center gap-2 px-3 sm:h-9 sm:min-h-9 sm:w-auto">
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ExternalLink className="h-4 w-4 shrink-0" />
-                    Открыть ссылку
-                  </a>
-                </Button>
-              )}
-              {canManage && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={cn(actionButtonClass, "gap-2 sm:ml-auto")}
-                    >
-                      <MoreHorizontal className="h-4 w-4 shrink-0" />
-                      Действия
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuItem onClick={handleEdit}>
-                      <Pencil className="mr-2 h-4 w-4" />
-                      Редактировать
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={handleTogglePurchased}
-                      disabled={statusPending}
-                    >
-                      {item.status === "PURCHASED" ? (
-                        <Undo2 className="mr-2 h-4 w-4" />
-                      ) : (
-                        <ShoppingCart className="mr-2 h-4 w-4" />
-                      )}
-                      {item.status === "PURCHASED"
-                        ? "Снять отметку"
-                        : "Отметить купленным"}
-                    </DropdownMenuItem>
-                    {onSetStatus && item.status !== "PURCHASED" ? (
-                      <DropdownMenuItem
-                        onClick={handleClaimAction}
-                        disabled={statusPending}
-                      >
-                        <Clock3 className="mr-2 h-4 w-4" />
-                        {item.status === "CLAIMED" ? "Снять бронь" : "Забронировать"}
-                      </DropdownMenuItem>
-                    ) : null}
-                    <DropdownMenuItem
-                      onClick={handleDelete}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Удалить
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-              {!canManage && canClaim && (
-                <Button
-                  variant={claimButtonVariant}
-                  size="sm"
-                  onClick={handleClaimAction}
-                  className={cn(claimButtonVariant === "outline" && actionButtonClass)}
-                  disabled={statusPending}
-                >
-                  {item.status === "CLAIMED" ? "Снять бронь" : "Забронировать"}
-                </Button>
-              )}
-            </div>
-          )}
-
-          {/* Comments */}
-          <div className="space-y-2.5 border-t pt-3 sm:space-y-3 sm:pt-4">
-            <h3 className="text-sm font-semibold">Комментарии</h3>
-
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {comments.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Пока нет комментариев.</p>
-              ) : (
-                comments.map((c) => (
-                  <div
-                    key={c.id}
-                    className="flex gap-2 p-2 rounded-lg bg-muted/50 text-sm"
-                  >
-                    <UserAvatar
-                      avatarUrl={c.user.avatarUrl || undefined}
-                      name={c.user.name}
-                      userId={c.user.id}
-                      size="sm"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium">{c.user.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(c.createdAt).toLocaleString("ru-RU", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      </div>
-                      <p className="mt-0.5 break-words whitespace-pre-wrap">
-                        {c.text}
-                      </p>
-                    </div>
-                    {currentUserId === c.userId && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
-                        title="Удалить комментарий"
-                        aria-label="Удалить комментарий"
-                        disabled={deletingCommentId === c.id}
-                        onClick={() => handleDeleteComment(c.id)}
-                      >
-                        {deletingCommentId === c.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
-                      </Button>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-
-            <form
-              onSubmit={handleAddComment}
-              className="flex flex-col gap-2 sm:flex-row sm:items-end"
-            >
-              <Textarea
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Добавить комментарий..."
-                className="min-h-[72px] resize-none sm:min-h-[80px] sm:flex-1"
-                maxLength={2000}
-                disabled={submittingComment}
-              />
-              <Button
-                type="submit"
-                size="sm"
-                className="w-full shrink-0 sm:w-auto"
-                disabled={!commentText.trim() || submittingComment}
-              >
-                {submittingComment ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Отправить"
-                )}
-              </Button>
-            </form>
-          </div>
-        </div>
+          <ItemActivitySection
+            comments={comments}
+            currentUserId={currentUserId}
+            commentText={commentText}
+            submittingComment={submittingComment}
+            deletingCommentId={deletingCommentId}
+            onCommentTextChange={setCommentText}
+            onSubmitComment={handleAddComment}
+            onDeleteComment={handleDeleteComment}
+          />
+        </ItemDetailBody>
       </DialogContent>
     </Dialog>
   );

@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
-import { getItemStatusLabel, getItemStatusTone } from "@/lib/item-status-presentation";
+import { StatusBadge } from "@/components/wishlist/status-badge";
 import { cn, formatPrice } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
 
@@ -63,7 +63,6 @@ export const ProductRow = memo(function ProductRow({
   const ownerName = item.user?.name;
   const ownerId = item.user?.id ?? item.userId;
   const ownerImage = item.user?.avatarUrl ?? null;
-  const statusTone = getItemStatusTone(item.status);
   const showImage = Boolean(imageUrl && !imageError);
   const isInteractive = Boolean(onOpenDetail || selectionMode);
 
@@ -183,9 +182,7 @@ export const ProductRow = memo(function ProductRow({
       </TableCell>
 
       <TableCell>
-        <Badge variant="outline" className={cn("text-xs", statusTone)}>
-          {getItemStatusLabel(item.status)}
-        </Badge>
+        <StatusBadge status={item.status} />
       </TableCell>
 
       <TableCell className="text-right font-semibold tabular-nums">
