@@ -19,6 +19,7 @@ import {
   WishlistSearchInput,
   WishlistToolbarControls,
 } from "@/components/SearchAndFilter";
+import { SearchField } from "@/components/ui/search-field";
 import { TagFilter } from "@/components/TagFilter";
 import { CombinedFilter } from "@/components/CombinedFilter";
 import { ListFormDialog } from "@/components/ListFormDialog";
@@ -26,10 +27,9 @@ import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { FiltersDrawer } from "@/components/FiltersDrawer";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { BulkActionBar } from "@/components/BulkActionBar";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, SlidersHorizontal, Loader2, CheckSquare, X, Sparkles, RotateCcw } from "lucide-react";
+import { SlidersHorizontal, Loader2, CheckSquare, X, Sparkles, RotateCcw } from "lucide-react";
 import {
   WishlistItem,
   Tag,
@@ -81,6 +81,7 @@ function HomePageContent() {
 
   // Filter states — инициализация из URL
   const [search, setSearch] = useState(() => searchParams.get("search") || "");
+  const searchParamValue = searchParams.get("search") || "";
   const debouncedSearch = useDebounce(search, 300);
   const [sortBy, setSortBy] = useState(() => searchParams.get("sort") || "newest");
   const [showPurchased, setShowPurchased] = useState(() => searchParams.get("purchased") !== "hide");
@@ -88,6 +89,10 @@ function HomePageContent() {
     const tagsParam = searchParams.get("tags");
     return tagsParam ? tagsParam.split(",").filter(Boolean) : [];
   });
+
+  useEffect(() => {
+    setSearch(searchParamValue);
+  }, [searchParamValue]);
 
   const { data: usersStatsData } = useSWR<{ users: UserWithStats[] }>(
     "/api/users/stats",
@@ -618,7 +623,7 @@ function HomePageContent() {
               </div>
             </div>
             <div className="rounded-2xl border border-primary/35 bg-primary/12 px-5 py-4 text-right shadow-[0_0_24px_hsl(var(--primary)/0.12)]">
-              <p className="text-[11px] uppercase tracking-wide text-primary-foreground/80">Открытая стоимость</p>
+              <p className="text-[11px] uppercase tracking-wide text-primary-foreground/80">Ориентировочная стоимость</p>
               <p className="text-xl font-semibold text-primary-foreground">
                 {summary.totalValue > 0 ? `${Math.round(summary.totalValue).toLocaleString("ru-RU")} ₽` : "—"}
               </p>
@@ -660,15 +665,13 @@ function HomePageContent() {
         <div className={uiSurface.homeToolbar}>
           {/* Мобильная action-bar: поиск + главный action + secondary controls */}
           <div className="flex min-w-0 items-center gap-2 sm:hidden">
-            <div className="relative flex-1 min-w-0">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 shrink-0 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Поиск..."
-                className={`h-11 min-h-[44px] rounded-lg ${uiSurface.inputAlt} pl-9 text-sm`}
-              />
-            </div>
+            <SearchField
+              value={search}
+              onValueChange={setSearch}
+              placeholder="Поиск..."
+              wrapperClassName="min-w-0 flex-1"
+              inputClassName={`h-11 min-h-[44px] rounded-lg ${uiSurface.inputAlt} pl-9 text-sm`}
+            />
             <Button
               variant="outline"
               size="icon"

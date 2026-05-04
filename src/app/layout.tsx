@@ -2,9 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { AppShell } from "@/components/app/app-shell";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
@@ -70,12 +68,7 @@ export default function RootLayout({
       <head />
       <body className={`${inter.variable} ${jetbrainsMono.variable} ${inter.className}`}>
         <Providers>
-          <div className="flex min-h-svh flex-col">
-            <Header />
-            <main className="flex-1 pb-[calc(4.75rem+env(safe-area-inset-bottom,0px))] sm:pb-0">{children}</main>
-            <Footer />
-            <MobileBottomNav />
-          </div>
+          <AppShell>{children}</AppShell>
         </Providers>
       </body>
     </html>

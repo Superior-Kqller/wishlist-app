@@ -18,7 +18,7 @@ import { WishlistItem } from "@/types";
 import { cn, formatPrice } from "@/lib/utils";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import { PriorityBadgeOverlay } from "./priority-badge";
-import { IconButton } from "./icon-button";
+import { IconButton } from "@/components/ui/icon-button";
 import { getItemStatusLabel, getItemStatusTone } from "@/lib/item-status-presentation";
 
 export interface WishCardProps {

@@ -1,7 +1,7 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { SearchField } from "@/components/ui/search-field";
 import {
   Select,
   SelectContent,
@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, SlidersHorizontal, Eye, EyeOff, CheckSquare } from "lucide-react";
+import { SlidersHorizontal, Eye, EyeOff, CheckSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
 import { uiState } from "@/lib/ui-contract";
@@ -28,18 +28,13 @@ export function WishlistSearchInput({
   className,
 }: WishlistSearchInputProps) {
   return (
-    <div className={cn("relative min-w-0 w-full", className)}>
-      <Search className="absolute left-2.5 top-1/2 h-4 w-4 shrink-0 -translate-y-1/2 text-muted-foreground" />
-      <Input
-        value={search}
-        onChange={(e) => onSearchChange(e.target.value)}
-        placeholder="Поиск..."
-        className={cn(
-          "h-9 pl-8 text-sm",
-          filterBarTriggerClass,
-        )}
-      />
-    </div>
+    <SearchField
+      value={search}
+      onValueChange={onSearchChange}
+      placeholder="Поиск..."
+      wrapperClassName={className}
+      inputClassName={cn("h-9 text-sm", filterBarTriggerClass)}
+    />
   );
 }
 
