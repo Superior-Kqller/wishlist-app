@@ -3,13 +3,23 @@
 import { useState, useMemo } from "react";
 import { User } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Key, Trash2, Search } from "lucide-react";
+import { Pencil, Key, Trash2, Users } from "lucide-react";
 import { EditUserDialog } from "./EditUserDialog";
 import { ChangePasswordDialog } from "./ChangePasswordDialog";
 import { DeleteUserDialog } from "./DeleteUserDialog";
 import { uiSurface } from "@/lib/ui-contract";
+import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
+import { SearchField } from "@/components/ui/search-field";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface UserTableProps {
   users: User[];
@@ -45,108 +55,105 @@ export function UserTable({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Поиск по логину, имени или роли..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
-        </div>
+        <SearchField
+          value={search}
+          onValueChange={setSearch}
+          placeholder="Поиск по логину, имени или роли..."
+          wrapperClassName="sm:max-w-md"
+        />
       </div>
 
-      <div className={`${uiSurface.panelInset} overflow-hidden`}>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b border-border bg-muted/50">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium">Логин</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Имя</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Роль</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Желаний</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Создан</th>
-                <th className="px-4 py-3 text-right text-sm font-medium">Действия</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {filteredUsers.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
-                    Пользователи не найдены
-                  </td>
-                </tr>
-              ) : (
-                filteredUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="transition-colors hover:bg-muted/40"
-                  >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{user.username}</span>
-                        {user.id === currentUserId && (
-                          <Badge variant="secondary" className="text-xs">
-                            Вы
-                          </Badge>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">{user.name}</td>
-                    <td className="px-4 py-3">
-                      <Badge
-                        variant={user.role === "ADMIN" ? "default" : "outline"}
+      <div className={cn(uiSurface.contentPanel, "overflow-hidden")}>
+        <Table>
+          <TableHeader className="bg-muted/35">
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Логин</TableHead>
+              <TableHead>Имя</TableHead>
+              <TableHead>Роль</TableHead>
+              <TableHead>Желаний</TableHead>
+              <TableHead>Создан</TableHead>
+              <TableHead className="text-right">Действия</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredUsers.length === 0 ? (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={6} className="p-0">
+                  <EmptyState
+                    icon={<Users className="h-5 w-5" aria-hidden />}
+                    title="Пользователи не найдены"
+                    description="Измените поисковый запрос или создайте нового пользователя."
+                    className="min-h-[240px] rounded-none border-0 bg-transparent"
+                  />
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredUsers.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{user.username}</span>
+                      {user.id === currentUserId && (
+                        <Badge variant="secondary" className="text-xs">
+                          Вы
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={user.role === "ADMIN" ? "default" : "outline"}
+                    >
+                      {user.role === "ADMIN" ? "Администратор" : "Пользователь"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{user._count?.items || 0}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {new Date(user.createdAt).toLocaleDateString("ru-RU", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditingUser(user)}
+                        title="Редактировать"
                       >
-                        {user.role === "ADMIN" ? "Администратор" : "Пользователь"}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3">{user._count?.items || 0}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">
-                      {new Date(user.createdAt).toLocaleDateString("ru-RU", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setEditingUser(user)}
-                          title="Редактировать"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setPasswordUser(user)}
-                          title="Изменить пароль"
-                        >
-                          <Key className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeletingUser(user)}
-                          disabled={isLastAdmin(user)}
-                          title={
-                            isLastAdmin(user)
-                              ? "Нельзя удалить последнего администратора"
-                              : "Удалить"
-                          }
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setPasswordUser(user)}
+                        title="Изменить пароль"
+                      >
+                        <Key className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeletingUser(user)}
+                        disabled={isLastAdmin(user)}
+                        title={
+                          isLastAdmin(user)
+                            ? "Нельзя удалить последнего администратора"
+                            : "Удалить"
+                        }
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       <EditUserDialog
