@@ -7,6 +7,37 @@
 
 ## [Unreleased]
 
+## [1.8.0] — 2026-05-06
+
+### Добавлено
+
+- **Новая дизайн-система** — добавлены dark Glass+Depth foundations, дизайн-токены и shared UI primitives для кнопок, icon buttons, поиска, empty states, таблиц и layout surfaces.
+- **App shell** — добавлены desktop sidebar, top header, глобальный поиск и единый page pattern для основных экранов.
+- **Dashboard overview** — главная получила summary-блок, список подборок, recent activity и быстрые действия.
+- **Wishlist table view** — основной экран поддерживает переключение между карточками и табличным/list-режимом с сохранением `view=table` в URL.
+- **Product detail sections** — карточка товара разделена на media, meta/actions и activity/comments секции.
+- **Collaboration UI** — добавлены shared компоненты участников и статус-бейджей для ролей, бронирования и совместных списков.
+- **No-funding guard** — добавлен тест, который блокирует появление misleading funding/payment терминологии в пользовательском UI.
+
+### Изменено
+
+- **Брендинг** — заменены logo, favicon, PWA/app icons и lockup на новый фиолетовый glass-знак.
+- **Копирайт цены** — цена во всех пользовательских местах оформлена как информационное поле: “Ориентировочная цена/стоимость”.
+- **Настройки, админка и статистика** — вторичные экраны приведены к новой системе поверхностей, empty states и table/search primitives.
+- **E2E helpers** — login helper теперь корректно использует fallback credentials, если env-переменные заданы пустыми.
+
+### Исправлено
+
+- **No-funding UX** — удалены/переименованы формулировки, которые могли создать ожидание сбора средств или оплаты внутри продукта.
+- **UI consistency** — локальные ad hoc surfaces заменены на shared UI contract в ключевых wishlist/dashboard/settings/admin/statistics местах.
+
+### Проверено
+
+- `npm run lint` — PASS
+- `npm run test` — PASS
+- `npm run build` — PASS
+- `npx playwright test e2e/auth.spec.ts --grep "перенаправляет|страница логина" --project=chromium` — PASS
+
 ## [1.7.7] — 2026-05-01
 
 ### Изменено
