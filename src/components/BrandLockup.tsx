@@ -17,7 +17,7 @@ export function BrandLockup({ className }: BrandLockupProps) {
         height={72}
         priority
         unoptimized
-        className="h-9 w-9 shrink-0 object-contain sm:h-10 sm:w-10"
+        className="h-9 w-9 shrink-0 rounded-xl object-contain sm:h-10 sm:w-10"
       />
       <div className="flex min-w-0 flex-col items-start text-left leading-tight">
         <span className="truncate text-base font-bold tracking-[-0.01em] text-foreground sm:text-lg">
