@@ -5,7 +5,6 @@ import Image from "next/image";
 import { Check, Globe2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -18,8 +17,8 @@ import { WishlistItem } from "@/types";
 import { cn, formatPrice } from "@/lib/utils";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import { PriorityBadgeOverlay } from "./priority-badge";
-import { IconButton } from "./icon-button";
-import { getItemStatusLabel, getItemStatusTone } from "@/lib/item-status-presentation";
+import { IconButton } from "@/components/ui/icon-button";
+import { StatusBadge } from "@/components/wishlist/status-badge";
 
 export interface WishCardProps {
   item: WishlistItem;
@@ -90,7 +89,6 @@ export const WishCard = memo(function WishCard({
   };
 
   const showImage = Boolean(imageUrl && !imageError);
-  const statusTone = getItemStatusTone(item.status);
 
   return (
     <div>
@@ -125,16 +123,13 @@ export const WishCard = memo(function WishCard({
               {isSelected ? "Выбрано" : "Выбрать"}
             </div>
           ) : (
-            <Badge
-              variant="outline"
+            <StatusBadge
+              status={item.status}
               className={cn(
                 "pointer-events-none absolute bottom-2 right-2 z-10 max-w-[72%] truncate border px-2 py-1 text-[11px] font-medium backdrop-blur-sm sm:bottom-2.5 sm:right-2.5",
                 "bg-[hsl(var(--surface-2))/0.82] shadow-[0_8px_18px_rgba(0,0,0,0.28)]",
-                statusTone,
               )}
-            >
-              {getItemStatusLabel(item.status)}
-            </Badge>
+            />
           )}
           {showImage ? (
             <Image

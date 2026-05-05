@@ -12,24 +12,18 @@ import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import useSWR, { mutate } from "swr";
 import { useHeaderActions } from "@/lib/header-actions";
-import { WishlistGrid } from "@/components/WishlistGrid";
+import {
+  type WishlistViewMode,
+} from "@/components/wishlist/wishlist-view-toggle";
+import { WishlistWorkspace } from "@/components/wishlist/wishlist-workspace";
+import { DashboardSummary } from "@/components/dashboard/dashboard-summary";
+import { RecentActivityPanel } from "@/components/dashboard/recent-activity-panel";
 import { ItemFormDialog } from "@/components/ItemFormDialog";
 import { ParseUrlDialog } from "@/components/ParseUrlDialog";
-import {
-  WishlistSearchInput,
-  WishlistToolbarControls,
-} from "@/components/SearchAndFilter";
-import { TagFilter } from "@/components/TagFilter";
-import { CombinedFilter } from "@/components/CombinedFilter";
 import { ListFormDialog } from "@/components/ListFormDialog";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
-import { FiltersDrawer } from "@/components/FiltersDrawer";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { BulkActionBar } from "@/components/BulkActionBar";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Search, SlidersHorizontal, Loader2, CheckSquare, X, Sparkles, RotateCcw } from "lucide-react";
 import {
   WishlistItem,
   Tag,
@@ -50,7 +44,6 @@ import { filterAndSortWishlistItems } from "@/lib/home/filter-wishlist-items";
 import { useInfiniteWishlistItems } from "@/hooks/use-infinite-wishlist-items";
 import { useWishlistUrlSync } from "@/hooks/use-wishlist-url-sync";
 import { useWishlistAddUrlDeepLink } from "@/hooks/use-wishlist-add-url-deeplink";
-import { uiSurface, uiState } from "@/lib/ui-contract";
 
 function HomePageContent() {
   const { data: session } = useSession();
@@ -81,13 +74,27 @@ function HomePageContent() {
 
   // Filter states — инициализация из URL
   const [search, setSearch] = useState(() => searchParams.get("search") || "");
+  const searchParamValue = searchParams.get("search") || "";
   const debouncedSearch = useDebounce(search, 300);
   const [sortBy, setSortBy] = useState(() => searchParams.get("sort") || "newest");
+  const [viewMode, setViewMode] = useState<WishlistViewMode>(() =>
+    searchParams.get("view") === "table" ? "table" : "grid",
+  );
+  const viewParamValue: WishlistViewMode =
+    searchParams.get("view") === "table" ? "table" : "grid";
   const [showPurchased, setShowPurchased] = useState(() => searchParams.get("purchased") !== "hide");
   const [selectedTags, setSelectedTags] = useState<string[]>(() => {
     const tagsParam = searchParams.get("tags");
     return tagsParam ? tagsParam.split(",").filter(Boolean) : [];
   });
+
+  useEffect(() => {
+    setSearch(searchParamValue);
+  }, [searchParamValue]);
+
+  useEffect(() => {
+    setViewMode(viewParamValue);
+  }, [viewParamValue]);
 
   const { data: usersStatsData } = useSWR<{ users: UserWithStats[] }>(
     "/api/users/stats",
@@ -213,6 +220,7 @@ function HomePageContent() {
     selectedUserId,
     search,
     sortBy,
+    viewMode,
     showPurchased,
     selectedTags,
     listIdParam,
@@ -538,6 +546,7 @@ function HomePageContent() {
   const handleClearAllFilters = useCallback(() => {
     setSearch("");
     setSortBy("newest");
+    setViewMode("grid");
     setShowPurchased(true);
     setSelectedTags([]);
     router.replace("/", { scroll: false });
@@ -568,279 +577,76 @@ function HomePageContent() {
   return (
     <div className="min-h-screen page-bg">
       <main className="container mx-auto space-y-3 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-3 sm:px-4 sm:py-5 sm:pb-5">
-        <section className={`${uiSurface.homeSummary} px-3 py-2.5 sm:px-5 sm:py-5`}>
-          <div className="sm:hidden">
-            <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-              <Sparkles className="h-3.5 w-3.5 text-primary/90" />
-              {summaryEyebrow}
-            </p>
-            <div className="mt-1 flex items-start justify-between gap-3">
-              <h1 className="min-w-0 flex-1 truncate text-lg font-semibold tracking-tight text-foreground">
-                {summaryTitle}
-              </h1>
-              <p className="shrink-0 text-sm font-semibold tabular-nums text-primary-foreground">
-                {summary.totalValue > 0 ? `${Math.round(summary.totalValue).toLocaleString("ru-RU")} ₽` : "—"}
-              </p>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {summary.total} всего · {summary.available} доступно
-              {summary.claimed > 0 ? ` · ${summary.claimed} в брони` : ""}
-              {summary.purchased > 0 ? ` · ${summary.purchased} куплено` : ""}
-            </p>
-          </div>
-          <div className="hidden flex-wrap items-start justify-between gap-5 sm:flex">
-            <div className="min-w-0 flex-1 space-y-2">
-              <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground sm:text-xs">
-                <Sparkles className="h-3.5 w-3.5 text-primary/90" />
-                {summaryEyebrow}
-              </p>
-              <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                {summaryTitle}
-              </h1>
-              <p className="hidden max-w-2xl text-sm text-muted-foreground sm:block">
-                {summary.total} позиций в коллекции. Выберите подборку, отметьте приоритеты и работайте со статусами без перегруза интерфейса.
-              </p>
-              <div className="flex flex-wrap gap-2 pt-1">
-                {[
-                  ["Всего", summary.total],
-                  ["Доступно", summary.available],
-                  ["Бронь", summary.claimed],
-                  ["Куплено", summary.purchased],
-                ].map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-[hsl(var(--surface-2))/0.7] px-3 py-1.5 text-xs text-muted-foreground"
-                  >
-                    <span>{label}</span>
-                    <span className="font-semibold tabular-nums text-foreground">{value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="rounded-2xl border border-primary/35 bg-primary/12 px-5 py-4 text-right shadow-[0_0_24px_hsl(var(--primary)/0.12)]">
-              <p className="text-[11px] uppercase tracking-wide text-primary-foreground/80">Открытая стоимость</p>
-              <p className="text-xl font-semibold text-primary-foreground">
-                {summary.totalValue > 0 ? `${Math.round(summary.totalValue).toLocaleString("ru-RU")} ₽` : "—"}
-              </p>
-            </div>
-          </div>
-          {activeFilterChips.length > 0 ? (
-            <div className="mt-3 flex flex-wrap items-center gap-1.5">
-              {activeFilterChips.map((chip) => (
-                <Badge
-                  key={chip.key}
-                  variant="outline"
-                  className={`group inline-flex items-center gap-1 ${uiSurface.chip} px-2 py-1 text-[11px] text-foreground`}
-                >
-                  {chip.label}
-                  <button
-                    type="button"
-                    onClick={chip.onRemove}
-                    className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/45"
-                    aria-label={`Убрать фильтр: ${chip.label}`}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-7 gap-1.5 px-2 text-xs text-muted-foreground hover:text-foreground"
-                onClick={handleClearAllFilters}
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                Сбросить всё
-              </Button>
-            </div>
-          ) : null}
-        </section>
-
-        <div className={uiSurface.homeToolbar}>
-          {/* Мобильная action-bar: поиск + главный action + secondary controls */}
-          <div className="flex min-w-0 items-center gap-2 sm:hidden">
-            <div className="relative flex-1 min-w-0">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 shrink-0 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Поиск..."
-                className={`h-11 min-h-[44px] rounded-lg ${uiSurface.inputAlt} pl-9 text-sm`}
-              />
-            </div>
-            <Button
-              variant="outline"
-              size="icon"
-              className="relative size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
-              onClick={() => setMobileFiltersOpen(true)}
-              title="Фильтры"
-              aria-label={
-                hasActiveFilters
-                  ? `Фильтры, активно: ${activeFilterChips.length}`
-                  : "Фильтры"
-              }
-            >
-              <SlidersHorizontal className="h-5 w-5" />
-              {hasActiveFilters ? (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-background bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
-                  {activeFilterChips.length}
-                </span>
-              ) : null}
-            </Button>
-            <Button
-              variant={selectionMode ? "secondary" : "outline"}
-              size="icon"
-              className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
-              onClick={() => {
-                setSelectionMode(!selectionMode);
-                if (selectionMode) setSelectedIds(new Set());
-              }}
-              title={selectionMode ? "Отменить выбор" : "Выбрать"}
-              aria-label={selectionMode ? "Отменить выбор" : "Выбрать карточки"}
-            >
-              <CheckSquare className="h-5 w-5" />
-            </Button>
-          </div>
-          {/* Десктоп row 1: поиск -> владелец/подборка */}
-          <div className="hidden min-w-0 w-full items-center gap-2 sm:flex">
-            <WishlistSearchInput
-              search={search}
-              onSearchChange={setSearch}
-              className="min-w-0 flex-1 basis-[22rem]"
-            />
-            {currentUserId && usersWithStats.length > 0 && (
-              <CombinedFilter
-                currentUserId={currentUserId}
-                users={usersWithStats}
-                lists={lists}
-                selectedUserId={normalizedSelectedUserId}
-                selectedListId={selectedListId}
-                onUserChange={handleUserChange}
-                onListChange={handleListChange}
-                onCreateList={() => {
-                  setEditingList(null);
-                  setListDialogOpen(true);
-                }}
-                onEditList={
-                  selectedListId
-                    ? () => {
-                        const list = lists.find((l) => l.id === selectedListId);
-                        if (list) {
-                          setEditingList(list);
-                          setListDialogOpen(true);
-                        }
-                      }
-                    : undefined
-                }
-              />
-            )}
-          </div>
-          {/* Десктоп row 2: теги -> сортировка/видимость -> режим выбора */}
-          <div className="hidden min-w-0 w-full items-center justify-between gap-2 sm:flex">
-            <div className="min-w-0 flex-1">
-              <TagFilter
-                tags={tagsForFilters}
-                selectedTags={effectiveSelectedTags}
-                onToggleTag={handleToggleTag}
-                onClearTags={() => setSelectedTags([])}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <WishlistToolbarControls
-                sortBy={sortBy}
-                onSortChange={setSortBy}
-                showPurchased={showPurchased}
-                onTogglePurchased={() => setShowPurchased(!showPurchased)}
-                selectionMode={selectionMode}
-                onToggleSelection={() => {
-                  setSelectionMode(!selectionMode);
-                  if (selectionMode) setSelectedIds(new Set());
-                }}
-                showSelectionButton={false}
-              />
-              <Button
-                type="button"
-                variant={selectionMode ? "secondary" : "outline"}
-                size="sm"
-                className={selectionMode ? uiState.selectionActive : uiState.selectionIdle}
-                onClick={() => {
-                  setSelectionMode(!selectionMode);
-                  if (selectionMode) setSelectedIds(new Set());
-                }}
-              >
-                <CheckSquare className="h-4 w-4 shrink-0" />
-                {selectionMode ? "Режим выбора" : "Выбрать"}
-              </Button>
-            </div>
-          </div>
-          <FiltersDrawer
-            open={mobileFiltersOpen}
-            onOpenChange={setMobileFiltersOpen}
-            currentUserId={currentUserId}
-            usersWithStats={usersWithStats}
-            selectedUserId={normalizedSelectedUserId}
-            onUserChange={handleUserChange}
-            lists={lists}
-            selectedListId={selectedListId}
-            onListChange={handleListChange}
-            onCreateList={() => {
-              setEditingList(null);
-              setListDialogOpen(true);
-            }}
-            onEditList={
-              selectedListId
-                ? () => {
-                    const list = lists.find((l) => l.id === selectedListId);
-                    if (list) {
-                      setEditingList(list);
-                      setListDialogOpen(true);
-                    }
-                  }
-                : undefined
-            }
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            showPurchased={showPurchased}
-            onTogglePurchased={() => setShowPurchased(!showPurchased)}
-            tags={tagsForFilters}
-            selectedTags={effectiveSelectedTags}
-            onToggleTag={handleToggleTag}
-            onClearTags={() => setSelectedTags([])}
+        <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_22rem]">
+          <DashboardSummary
+            summary={summary}
+            eyebrow={summaryEyebrow}
+            title={summaryTitle}
+            filterChips={activeFilterChips}
+            onClearFilters={handleClearAllFilters}
           />
+          <RecentActivityPanel items={filteredItems} />
         </div>
 
-        {selectionMode ? (
-          <div className={uiSurface.homeSelectionState}>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p>
-                Режим выбора активен: отмечено <span className="font-semibold">{selectedIds.size}</span>{" "}
-                {selectedIds.size === 1 ? "карточка" : selectedIds.size < 5 ? "карточки" : "карточек"}.
-              </p>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectionMode(false);
-                  setSelectedIds(new Set());
-                }}
-              >
-                Завершить выбор
-              </Button>
-            </div>
-          </div>
-        ) : null}
-
-        <WishlistGrid
-          items={filteredItems}
+        <WishlistWorkspace
+          search={search}
+          onSearchChange={setSearch}
+          hasActiveFilters={hasActiveFilters}
+          activeFilterCount={activeFilterChips.length}
+          mobileFiltersOpen={mobileFiltersOpen}
+          onMobileFiltersOpenChange={setMobileFiltersOpen}
+          currentUserId={currentUserId}
+          currentUserRole={session?.user?.role ?? null}
+          usersWithStats={usersWithStats}
+          lists={lists}
+          normalizedSelectedUserId={normalizedSelectedUserId}
+          selectedListId={selectedListId}
+          onUserChange={handleUserChange}
+          onListChange={handleListChange}
+          onCreateList={() => {
+            setEditingList(null);
+            setListDialogOpen(true);
+          }}
+          onEditSelectedList={
+            selectedListId
+              ? () => {
+                  const list = lists.find((l) => l.id === selectedListId);
+                  if (list) {
+                    setEditingList(list);
+                    setListDialogOpen(true);
+                  }
+                }
+              : undefined
+          }
+          tagsForFilters={tagsForFilters}
+          effectiveSelectedTags={effectiveSelectedTags}
+          onToggleTag={handleToggleTag}
+          onClearTags={() => setSelectedTags([])}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          showPurchased={showPurchased}
+          onTogglePurchasedVisibility={() => setShowPurchased(!showPurchased)}
+          selectionMode={selectionMode}
+          selectedIds={selectedIds}
+          onToggleSelectionMode={() => {
+            setSelectionMode(!selectionMode);
+            if (selectionMode) setSelectedIds(new Set());
+          }}
+          onClearSelectionMode={() => {
+            setSelectionMode(false);
+            setSelectedIds(new Set());
+          }}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          items={items}
+          filteredItems={filteredItems}
           isLoading={isLoading}
-          onEdit={(item) => {
+          onEditItem={(item) => {
             setEditingItem(item);
             setParsedData(null);
             setDetailItem(null);
           }}
-          onDelete={handleDeleteItem}
+          onDeleteItem={handleDeleteItem}
           onTogglePurchased={handleTogglePurchased}
           onSetStatus={handleSetItemStatus}
           pendingStatusByItemId={pendingStatusByItemId}
@@ -850,63 +656,17 @@ function HomePageContent() {
             setAddDialogOpen(true);
           }}
           onOpenDetail={setDetailItem}
-          selectionMode={selectionMode}
-          selectedIds={selectedIds}
           onToggleSelect={handleToggleSelect}
-          currentUserId={session?.user?.id}
-          currentUserRole={session?.user?.role ?? null}
-          emptyTitle={
-            items.length === 0
-              ? "В списке пока пусто"
-              : "По этим фильтрам ничего нет"
-          }
-          emptyDescription={
-            items.length === 0
-              ? ownedListsForCreate.length === 0
-                ? "Сначала создайте подборку, затем добавьте первый товар."
-                : "Добавьте первый товар вручную или вставьте ссылку на страницу товара."
-              : "Попробуйте сбросить часть фильтров или изменить поиск."
-          }
-          emptyActionLabel={
-            items.length === 0
-              ? ownedListsForCreate.length === 0
-                ? "Создать подборку"
-                : "Добавить товар"
-              : undefined
-          }
-          onEmptyAction={
-            items.length === 0
-              ? ownedListsForCreate.length === 0
-                ? () => {
-                    setEditingList(null);
-                    setListDialogOpen(true);
-                  }
-                : () => {
-                    setParsedData(null);
-                    setAddDialogAutoFill(false);
-                    setAddDialogOpen(true);
-                  }
-              : undefined
-          }
-          emptySecondaryLabel={items.length > 0 && hasActiveFilters ? "Сбросить фильтры" : undefined}
-          onEmptySecondaryAction={items.length > 0 && hasActiveFilters ? handleClearAllFilters : undefined}
+          ownedListsForCreate={ownedListsForCreate}
+          onClearAllFilters={handleClearAllFilters}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          sentinelRef={sentinelRef}
+          size={size}
+          setSize={(nextSize) => {
+            void setSize(nextSize);
+          }}
         />
-
-        {/* Sentinel для Intersection Observer + кнопка "Загрузить ещё" */}
-        <div ref={sentinelRef} className="flex justify-center py-4 sm:py-6">
-          {isLoadingMore && (
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          )}
-          {!isLoadingMore && hasMore && (
-            <Button
-              variant="outline"
-              onClick={() => setSize(size + 1)}
-            >
-              Загрузить ещё
-            </Button>
-          )}
-        </div>
-
       </main>
 
       {/* Add item dialog */}

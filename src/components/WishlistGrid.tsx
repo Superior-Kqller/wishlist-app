@@ -2,10 +2,21 @@
 
 import { WishlistItem } from "@/types";
 import { WishCard } from "@/components/wishlist/wish-card";
+import { ProductRow } from "@/components/wishlist/product-row";
+import type { WishlistViewMode } from "@/components/wishlist/wishlist-view-toggle";
 import { WishlistCardSkeleton } from "./WishlistCardSkeleton";
 import { AddItemCard } from "./AddItemCard";
-import { Button } from "@/components/ui/button";
-import { Inbox, RotateCcw } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
+import { cn } from "@/lib/utils";
+import { uiSurface } from "@/lib/ui-contract";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { RotateCcw } from "lucide-react";
 
 interface WishlistGridProps {
   items: WishlistItem[];
@@ -24,6 +35,7 @@ interface WishlistGridProps {
   onToggleSelect?: (id: string) => void;
   currentUserId?: string;
   currentUserRole?: "ADMIN" | "USER" | null;
+  viewMode?: WishlistViewMode;
   emptyTitle?: string;
   emptyDescription?: string;
   emptyActionLabel?: string;
@@ -49,6 +61,7 @@ export function WishlistGrid({
   onToggleSelect,
   currentUserId,
   currentUserRole,
+  viewMode = "grid",
   emptyTitle,
   emptyDescription,
   emptyActionLabel,
@@ -68,36 +81,58 @@ export function WishlistGrid({
 
   if (items.length === 0) {
     return (
-      <section
-        role="status"
+      <EmptyState
+        title={emptyTitle ?? "Список пуст"}
+        description={emptyDescription}
+        actionLabel={emptyActionLabel}
+        onAction={onEmptyAction}
+        secondaryLabel={emptySecondaryLabel}
+        onSecondaryAction={onEmptySecondaryAction}
+        secondaryIcon={<RotateCcw className="h-4 w-4" />}
+      />
+    );
+  }
+
+  if (viewMode === "table") {
+    return (
+      <div
+        role="region"
         aria-live="polite"
-        className="flex min-h-[320px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-[hsl(var(--surface-2))] px-4 py-10 text-center"
+        aria-label={`Таблица желаний: ${items.length} ${items.length === 1 ? "товар" : items.length < 5 ? "товара" : "товаров"}`}
+        className={cn(uiSurface.contentPanel, "overflow-hidden")}
       >
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-card text-muted-foreground">
-          <Inbox className="h-5 w-5" aria-hidden />
-        </div>
-        <h2 className="text-lg font-semibold tracking-tight">
-          {emptyTitle ?? "Список пуст"}
-        </h2>
-        {emptyDescription ? (
-          <p className="mt-2 max-w-md text-sm text-muted-foreground">
-            {emptyDescription}
-          </p>
-        ) : null}
-        <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-          {emptyActionLabel && onEmptyAction ? (
-            <Button type="button" onClick={onEmptyAction}>
-              {emptyActionLabel}
-            </Button>
-          ) : null}
-          {emptySecondaryLabel && onEmptySecondaryAction ? (
-            <Button type="button" variant="outline" onClick={onEmptySecondaryAction}>
-              <RotateCcw className="mr-2 h-4 w-4" />
-              {emptySecondaryLabel}
-            </Button>
-          ) : null}
-        </div>
-      </section>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Товар</TableHead>
+              <TableHead>Владелец</TableHead>
+              <TableHead>Статус</TableHead>
+              <TableHead className="text-right">Ориентировочная стоимость</TableHead>
+              <TableHead>Теги</TableHead>
+              <TableHead className="text-right">Действия</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((item) => (
+              <ProductRow
+                key={item.id}
+                item={item}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onTogglePurchased={onTogglePurchased}
+                onSetStatus={onSetStatus}
+                statusPending={!!pendingStatusByItemId?.[item.id]}
+                onOpenDetail={onOpenDetail}
+                selectionMode={selectionMode}
+                isSelected={selectedIds?.has(item.id)}
+                onToggleSelect={onToggleSelect}
+                currentUserId={currentUserId}
+                currentUserRole={currentUserRole}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     );
   }
 

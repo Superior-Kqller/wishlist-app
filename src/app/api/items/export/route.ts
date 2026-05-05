@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
 
   // CSV
   const BOM = "\uFEFF";
-  const header = "Название,URL,Цена,Валюта,Приоритет,Теги,Заметки,Куплено,Дата создания";
+  const header = "Название,URL,Ориентировочная цена,Валюта,Приоритет,Теги,Заметки,Куплено,Дата создания";
 
   const escapeCSV = (val: string) => {
     if (val.includes(",") || val.includes('"') || val.includes("\n")) {

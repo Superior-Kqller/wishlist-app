@@ -4,10 +4,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { validatePasswordComplexity } from "@/lib/password-validation";
+import { cn } from "@/lib/utils";
+import { uiSurface } from "@/lib/ui-contract";
 
 interface PasswordFormProps {
   userId: string;
@@ -77,7 +78,7 @@ export function PasswordForm({ userId }: PasswordFormProps) {
   };
 
   return (
-    <Card className="p-6">
+    <div className={cn(uiSurface.contentPanel, "p-5 sm:p-6")}>
       <h2 className="text-lg font-semibold mb-4">Изменить пароль</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
@@ -143,6 +144,6 @@ export function PasswordForm({ userId }: PasswordFormProps) {
           Изменить пароль
         </Button>
       </form>
-    </Card>
+    </div>
   );
 }

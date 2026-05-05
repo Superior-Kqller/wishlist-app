@@ -346,10 +346,10 @@ export function ItemFormDialog({
             </div>
           )}
 
-          {/* Price + Currency */}
+          {/* Информационная цена + валюта */}
           <div className="grid grid-cols-[1fr_120px] gap-2">
             <div className="space-y-2">
-              <Label htmlFor="price">Цена</Label>
+              <Label htmlFor="price">Ориентировочная цена</Label>
               <Input
                 id="price"
                 type="number"

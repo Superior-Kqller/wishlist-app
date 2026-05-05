@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fetcher } from "@/lib/fetcher";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
+import { cn } from "@/lib/utils";
+import { uiSurface } from "@/lib/ui-contract";
 
 export default function SettingsPage() {
   const { status } = useSession();
@@ -78,7 +80,7 @@ export default function SettingsPage() {
 
             <PasswordForm key={`password-${refreshKey}`} userId={user.id} />
 
-            <div className="rounded-lg border border-border bg-card p-6">
+            <div className={cn(uiSurface.contentPanel, "p-5 sm:p-6")}>
               <h3 className="font-medium mb-2">Информация</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">

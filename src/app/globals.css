@@ -121,6 +121,12 @@
 
     --radius: 0.625rem;
 
+    /*
+     * Glass + Depth contract:
+     * - surface tokens define static elevation levels.
+     * - glass tokens are reserved for overlays, shell chrome, and floating bars.
+     * - primary glow is an interaction/focus affordance, not page decoration.
+     */
     --glass-bg: 224 18% 10% / 0.78;
     --glass-border: 224 13% 30% / 0.32;
     --glass-blur: 20px;

@@ -5,16 +5,19 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { BarChart3, Loader2 } from "lucide-react";
 import { UserStats, UserWithStats } from "@/types";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
+  cn,
   formatPrice,
   formatStatsPurchasedSummary,
   sortCurrencyTotalsEntries,
   statsHasPurchasedPrices,
 } from "@/lib/utils";
 import { fetcher } from "@/lib/fetcher";
+import { uiSurface } from "@/lib/ui-contract";
 
 function StatsWishlistValueBlock({ stats }: { stats: UserStats }) {
   const fallbackCur = stats.currency || "RUB";
@@ -125,19 +128,19 @@ export default function StatsPage() {
         <div className="space-y-6">
           <PageIntro
             title="Статистика"
-            description="Товары в общих подборках: стоимость по участникам"
+            description="Товары в общих подборках и ориентировочная стоимость по участникам"
           />
 
           {users.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
-                Нет данных для отображения
-              </CardContent>
-            </Card>
+            <EmptyState
+              icon={<BarChart3 className="h-5 w-5" aria-hidden />}
+              title="Нет данных для отображения"
+              description="Статистика появится, когда в общих списках будут товары."
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {users.map((user) => (
-                <Card key={user.id} className="border-border bg-card transition-colors hover:border-primary/35">
+                <Card key={user.id} className={cn(uiSurface.interactiveCard, "h-full")}>
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <UserAvatar
@@ -174,7 +177,7 @@ export default function StatsPage() {
 
                     <div className="pt-3 border-t border-border/70">
                       <p className="text-xs text-muted-foreground mb-1">
-                        Стоимость вишлиста
+                        Ориентировочная стоимость
                       </p>
                       <StatsWishlistValueBlock stats={user.stats} />
                     </div>
@@ -182,7 +185,7 @@ export default function StatsPage() {
                     {statsHasPurchasedPrices(user.stats) && (
                       <div className="pt-2 border-t border-border/70">
                         <p className="text-xs text-muted-foreground mb-1">
-                          Куплено на сумму
+                          Отмечено купленным
                         </p>
                         <StatsPurchasedValueBlock stats={user.stats} />
                       </div>

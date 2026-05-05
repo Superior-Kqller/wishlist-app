@@ -1,6 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect x="20" y="30" width="60" height="50" rx="4" fill="#8b5cf6" stroke="#6d28d9" stroke-width="2"/>
-  <rect x="30" y="20" width="40" height="15" rx="2" fill="#a78bfa"/>
-  <circle cx="50" cy="45" r="8" fill="#fbbf24"/>
-  <circle cx="50" cy="65" r="8" fill="#fbbf24"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Вишлист">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="72%">
+      <stop offset="0%" stop-color="#171036"/>
+      <stop offset="62%" stop-color="#0d0a20"/>
+      <stop offset="100%" stop-color="#080812"/>
+    </radialGradient>
+    <radialGradient id="mark" cx="58%" cy="42%" r="72%">
+      <stop offset="0%" stop-color="#7f48ff"/>
+      <stop offset="48%" stop-color="#4a20b4"/>
+      <stop offset="100%" stop-color="#1b0a4f"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="18%" y1="10%" x2="82%" y2="88%">
+      <stop offset="0%" stop-color="#b78aff"/>
+      <stop offset="45%" stop-color="#7b3dff"/>
+      <stop offset="100%" stop-color="#d4c3ff"/>
+    </linearGradient>
+    <filter id="glow" x="-24%" y="-24%" width="148%" height="148%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.50 0 0 0 0 0.20 0 0 0 0 1 0 0 0 .65 0"/>
+      <feBlend in="SourceGraphic" mode="screen"/>
+    </filter>
+  </defs>
+  <rect width="100" height="100" rx="20" fill="url(#bg)"/>
+  <path
+    d="M50 14c8 0 13 5 20 4 16-2 22 8 19 24-1 6 3 11 2 17-2 15-11 22-26 19-6-1-10 5-17 5s-11-6-17-5C16 81 8 74 6 59c-1-6 3-11 2-17C5 26 11 16 27 18c7 1 12-4 23-4Z"
+    fill="url(#mark)"
+    stroke="url(#rim)"
+    stroke-width="3"
+    filter="url(#glow)"
+  />
+  <path
+    d="M50 30c4 13 8 16 21 20-13 4-17 8-21 20-4-12-8-16-21-20 13-4 17-7 21-20Z"
+    fill="#fff"
+  />
 </svg>
