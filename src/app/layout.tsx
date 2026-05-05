@@ -29,11 +29,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/assets/favicon/app-icon-64.png", sizes: "64x64", type: "image/png" },
-      { url: "/assets/favicon/app-icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/assets/favicon/app-icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/assets/favicon/app-icon-1.8.0-64.png", sizes: "64x64", type: "image/png" },
+      { url: "/assets/favicon/app-icon-1.8.0-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/assets/favicon/app-icon-1.8.0-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: "/assets/favicon/app-icon-192.png",
+    apple: "/assets/favicon/app-icon-1.8.0-192.png",
   },
   openGraph: {
     title: "Вишлист",

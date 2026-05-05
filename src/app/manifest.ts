@@ -13,19 +13,19 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "ru",
     icons: [
       {
-        src: "/assets/favicon/app-icon-192.png",
+        src: "/assets/favicon/app-icon-1.8.0-192.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/assets/favicon/app-icon-512.png",
+        src: "/assets/favicon/app-icon-1.8.0-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/assets/favicon/app-icon-512.png",
+        src: "/assets/favicon/app-icon-1.8.0-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
