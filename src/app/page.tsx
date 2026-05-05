@@ -12,29 +12,18 @@ import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import useSWR, { mutate } from "swr";
 import { useHeaderActions } from "@/lib/header-actions";
-import { WishlistGrid } from "@/components/WishlistGrid";
 import {
-  WishlistViewToggle,
   type WishlistViewMode,
 } from "@/components/wishlist/wishlist-view-toggle";
+import { WishlistWorkspace } from "@/components/wishlist/wishlist-workspace";
 import { DashboardSummary } from "@/components/dashboard/dashboard-summary";
 import { RecentActivityPanel } from "@/components/dashboard/recent-activity-panel";
 import { ItemFormDialog } from "@/components/ItemFormDialog";
 import { ParseUrlDialog } from "@/components/ParseUrlDialog";
-import {
-  WishlistSearchInput,
-  WishlistToolbarControls,
-} from "@/components/SearchAndFilter";
-import { SearchField } from "@/components/ui/search-field";
-import { TagFilter } from "@/components/TagFilter";
-import { CombinedFilter } from "@/components/CombinedFilter";
 import { ListFormDialog } from "@/components/ListFormDialog";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
-import { FiltersDrawer } from "@/components/FiltersDrawer";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { BulkActionBar } from "@/components/BulkActionBar";
-import { Button } from "@/components/ui/button";
-import { SlidersHorizontal, Loader2, CheckSquare } from "lucide-react";
 import {
   WishlistItem,
   Tag,
@@ -55,7 +44,6 @@ import { filterAndSortWishlistItems } from "@/lib/home/filter-wishlist-items";
 import { useInfiniteWishlistItems } from "@/hooks/use-infinite-wishlist-items";
 import { useWishlistUrlSync } from "@/hooks/use-wishlist-url-sync";
 import { useWishlistAddUrlDeepLink } from "@/hooks/use-wishlist-add-url-deeplink";
-import { uiSurface, uiState } from "@/lib/ui-contract";
 
 function HomePageContent() {
   const { data: session } = useSession();
@@ -600,260 +588,85 @@ function HomePageContent() {
           <RecentActivityPanel items={filteredItems} />
         </div>
 
-        <div className={uiSurface.homeToolbar}>
-          {/* Мобильная action-bar: поиск + главный action + secondary controls */}
-          <div className="flex min-w-0 items-center gap-2 sm:hidden">
-            <SearchField
-              value={search}
-              onValueChange={setSearch}
-              placeholder="Поиск..."
-              wrapperClassName="min-w-0 flex-1"
-              inputClassName={`h-11 min-h-[44px] rounded-lg ${uiSurface.inputAlt} pl-9 text-sm`}
-            />
-            <Button
-              variant="outline"
-              size="icon"
-              className="relative size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
-              onClick={() => setMobileFiltersOpen(true)}
-              title="Фильтры"
-              aria-label={
-                hasActiveFilters
-                  ? `Фильтры, активно: ${activeFilterChips.length}`
-                  : "Фильтры"
-              }
-            >
-              <SlidersHorizontal className="h-5 w-5" />
-              {hasActiveFilters ? (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-background bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
-                  {activeFilterChips.length}
-                </span>
-              ) : null}
-            </Button>
-            <Button
-              variant={selectionMode ? "secondary" : "outline"}
-              size="icon"
-              className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
-              onClick={() => {
-                setSelectionMode(!selectionMode);
-                if (selectionMode) setSelectedIds(new Set());
-              }}
-              title={selectionMode ? "Отменить выбор" : "Выбрать"}
-              aria-label={selectionMode ? "Отменить выбор" : "Выбрать карточки"}
-            >
-              <CheckSquare className="h-5 w-5" />
-            </Button>
-          </div>
-          {/* Десктоп row 1: поиск -> владелец/подборка */}
-          <div className="hidden min-w-0 w-full items-center gap-2 sm:flex">
-            <WishlistSearchInput
-              search={search}
-              onSearchChange={setSearch}
-              className="min-w-0 flex-1 basis-[22rem]"
-            />
-            {currentUserId && usersWithStats.length > 0 && (
-              <CombinedFilter
-                currentUserId={currentUserId}
-                users={usersWithStats}
-                lists={lists}
-                selectedUserId={normalizedSelectedUserId}
-                selectedListId={selectedListId}
-                onUserChange={handleUserChange}
-                onListChange={handleListChange}
-                onCreateList={() => {
-                  setEditingList(null);
-                  setListDialogOpen(true);
-                }}
-                onEditList={
-                  selectedListId
-                    ? () => {
-                        const list = lists.find((l) => l.id === selectedListId);
-                        if (list) {
-                          setEditingList(list);
-                          setListDialogOpen(true);
-                        }
-                      }
-                    : undefined
-                }
-              />
-            )}
-          </div>
-          {/* Десктоп row 2: теги -> сортировка/видимость -> режим выбора */}
-          <div className="hidden min-w-0 w-full items-center justify-between gap-2 sm:flex">
-            <div className="min-w-0 flex-1">
-              <TagFilter
-                tags={tagsForFilters}
-                selectedTags={effectiveSelectedTags}
-                onToggleTag={handleToggleTag}
-                onClearTags={() => setSelectedTags([])}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <WishlistViewToggle
-                value={viewMode}
-                onValueChange={setViewMode}
-                className="hidden lg:inline-flex"
-              />
-              <WishlistToolbarControls
-                sortBy={sortBy}
-                onSortChange={setSortBy}
-                showPurchased={showPurchased}
-                onTogglePurchased={() => setShowPurchased(!showPurchased)}
-                selectionMode={selectionMode}
-                onToggleSelection={() => {
-                  setSelectionMode(!selectionMode);
-                  if (selectionMode) setSelectedIds(new Set());
-                }}
-                showSelectionButton={false}
-              />
-              <Button
-                type="button"
-                variant={selectionMode ? "secondary" : "outline"}
-                size="sm"
-                className={selectionMode ? uiState.selectionActive : uiState.selectionIdle}
-                onClick={() => {
-                  setSelectionMode(!selectionMode);
-                  if (selectionMode) setSelectedIds(new Set());
-                }}
-              >
-                <CheckSquare className="h-4 w-4 shrink-0" />
-                {selectionMode ? "Режим выбора" : "Выбрать"}
-              </Button>
-            </div>
-          </div>
-          <FiltersDrawer
-            open={mobileFiltersOpen}
-            onOpenChange={setMobileFiltersOpen}
-            currentUserId={currentUserId}
-            usersWithStats={usersWithStats}
-            selectedUserId={normalizedSelectedUserId}
-            onUserChange={handleUserChange}
-            lists={lists}
-            selectedListId={selectedListId}
-            onListChange={handleListChange}
-            onCreateList={() => {
-              setEditingList(null);
-              setListDialogOpen(true);
-            }}
-            onEditList={
-              selectedListId
-                ? () => {
-                    const list = lists.find((l) => l.id === selectedListId);
-                    if (list) {
-                      setEditingList(list);
-                      setListDialogOpen(true);
-                    }
+        <WishlistWorkspace
+          search={search}
+          onSearchChange={setSearch}
+          hasActiveFilters={hasActiveFilters}
+          activeFilterCount={activeFilterChips.length}
+          mobileFiltersOpen={mobileFiltersOpen}
+          onMobileFiltersOpenChange={setMobileFiltersOpen}
+          currentUserId={currentUserId}
+          currentUserRole={session?.user?.role ?? null}
+          usersWithStats={usersWithStats}
+          lists={lists}
+          normalizedSelectedUserId={normalizedSelectedUserId}
+          selectedListId={selectedListId}
+          onUserChange={handleUserChange}
+          onListChange={handleListChange}
+          onCreateList={() => {
+            setEditingList(null);
+            setListDialogOpen(true);
+          }}
+          onEditSelectedList={
+            selectedListId
+              ? () => {
+                  const list = lists.find((l) => l.id === selectedListId);
+                  if (list) {
+                    setEditingList(list);
+                    setListDialogOpen(true);
                   }
-                : undefined
-            }
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            showPurchased={showPurchased}
-            onTogglePurchased={() => setShowPurchased(!showPurchased)}
-            tags={tagsForFilters}
-            selectedTags={effectiveSelectedTags}
-            onToggleTag={handleToggleTag}
-            onClearTags={() => setSelectedTags([])}
-          />
-        </div>
-
-        {selectionMode ? (
-          <div className={uiSurface.homeSelectionState}>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p>
-                Режим выбора активен: отмечено <span className="font-semibold">{selectedIds.size}</span>{" "}
-                {selectedIds.size === 1 ? "карточка" : selectedIds.size < 5 ? "карточки" : "карточек"}.
-              </p>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectionMode(false);
-                  setSelectedIds(new Set());
-                }}
-              >
-                Завершить выбор
-              </Button>
-            </div>
-          </div>
-        ) : null}
-
-        <WishlistGrid
-          items={filteredItems}
+                }
+              : undefined
+          }
+          tagsForFilters={tagsForFilters}
+          effectiveSelectedTags={effectiveSelectedTags}
+          onToggleTag={handleToggleTag}
+          onClearTags={() => setSelectedTags([])}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          showPurchased={showPurchased}
+          onTogglePurchasedVisibility={() => setShowPurchased(!showPurchased)}
+          selectionMode={selectionMode}
+          selectedIds={selectedIds}
+          onToggleSelectionMode={() => {
+            setSelectionMode(!selectionMode);
+            if (selectionMode) setSelectedIds(new Set());
+          }}
+          onClearSelectionMode={() => {
+            setSelectionMode(false);
+            setSelectedIds(new Set());
+          }}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          items={items}
+          filteredItems={filteredItems}
           isLoading={isLoading}
-          onEdit={(item) => {
+          onEditItem={(item) => {
             setEditingItem(item);
             setParsedData(null);
             setDetailItem(null);
           }}
-          onDelete={handleDeleteItem}
+          onDeleteItem={handleDeleteItem}
           onTogglePurchased={handleTogglePurchased}
           onSetStatus={handleSetItemStatus}
           pendingStatusByItemId={pendingStatusByItemId}
-          viewMode={viewMode}
           onEmptyAdd={() => {
             setParsedData(null);
             setAddDialogAutoFill(false);
             setAddDialogOpen(true);
           }}
           onOpenDetail={setDetailItem}
-          selectionMode={selectionMode}
-          selectedIds={selectedIds}
           onToggleSelect={handleToggleSelect}
-          currentUserId={session?.user?.id}
-          currentUserRole={session?.user?.role ?? null}
-          emptyTitle={
-            items.length === 0
-              ? "В списке пока пусто"
-              : "По этим фильтрам ничего нет"
-          }
-          emptyDescription={
-            items.length === 0
-              ? ownedListsForCreate.length === 0
-                ? "Сначала создайте подборку, затем добавьте первый товар."
-                : "Добавьте первый товар вручную или вставьте ссылку на страницу товара."
-              : "Попробуйте сбросить часть фильтров или изменить поиск."
-          }
-          emptyActionLabel={
-            items.length === 0
-              ? ownedListsForCreate.length === 0
-                ? "Создать подборку"
-                : "Добавить товар"
-              : undefined
-          }
-          onEmptyAction={
-            items.length === 0
-              ? ownedListsForCreate.length === 0
-                ? () => {
-                    setEditingList(null);
-                    setListDialogOpen(true);
-                  }
-                : () => {
-                    setParsedData(null);
-                    setAddDialogAutoFill(false);
-                    setAddDialogOpen(true);
-                  }
-              : undefined
-          }
-          emptySecondaryLabel={items.length > 0 && hasActiveFilters ? "Сбросить фильтры" : undefined}
-          onEmptySecondaryAction={items.length > 0 && hasActiveFilters ? handleClearAllFilters : undefined}
+          ownedListsForCreate={ownedListsForCreate}
+          onClearAllFilters={handleClearAllFilters}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          sentinelRef={sentinelRef}
+          size={size}
+          setSize={(nextSize) => {
+            void setSize(nextSize);
+          }}
         />
-
-        {/* Sentinel для Intersection Observer + кнопка "Загрузить ещё" */}
-        <div ref={sentinelRef} className="flex justify-center py-4 sm:py-6">
-          {isLoadingMore && (
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          )}
-          {!isLoadingMore && hasMore && (
-            <Button
-              variant="outline"
-              onClick={() => setSize(size + 1)}
-            >
-              Загрузить ещё
-            </Button>
-          )}
-        </div>
-
       </main>
 
       {/* Add item dialog */}
