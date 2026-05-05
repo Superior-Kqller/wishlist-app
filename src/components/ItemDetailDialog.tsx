@@ -154,7 +154,7 @@ export function ItemDetailDialog({
         <DialogDescription className="sr-only">
           Детали желания: {item.title}
           {item.price != null && item.price > 0
-            ? `, цена ${formatPrice(item.price, item.currency)}`
+            ? `, ориентировочная цена ${formatPrice(item.price, item.currency)}`
             : ""}
         </DialogDescription>
         <ItemMediaSection item={item} />

@@ -81,8 +81,8 @@ export function WishlistToolbarControls({
           <SelectItem value="oldest">Старые сначала</SelectItem>
           <SelectItem value="priority-high">Приоритет ↓</SelectItem>
           <SelectItem value="priority-low">Приоритет ↑</SelectItem>
-          <SelectItem value="price-high">Цена ↓</SelectItem>
-          <SelectItem value="price-low">Цена ↑</SelectItem>
+          <SelectItem value="price-high">Ориент. цена ↓</SelectItem>
+          <SelectItem value="price-low">Ориент. цена ↑</SelectItem>
         </SelectContent>
       </Select>
       <Button
