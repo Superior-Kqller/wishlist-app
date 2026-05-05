@@ -40,7 +40,7 @@ export function DashboardSummary({
       : "—";
 
   return (
-    <section className={`${uiSurface.homeSummary} px-3 py-2.5 sm:px-5 sm:py-5`}>
+    <section className={`${uiSurface.homeSummary} px-3 py-3 sm:px-6 sm:py-6`}>
       <div className="sm:hidden">
         <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
           <Sparkles className="h-3.5 w-3.5 text-primary/90" />
@@ -61,38 +61,41 @@ export function DashboardSummary({
         </p>
       </div>
 
-      <div className="hidden flex-wrap items-start justify-between gap-5 sm:flex">
-        <div className="min-w-0 flex-1 space-y-2">
-          <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-            <Sparkles className="h-3.5 w-3.5 text-primary/90" />
-            {eyebrow}
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            {title}
-          </h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            {summary.total} позиций в коллекции. Выберите подборку, отметьте приоритеты и работайте со статусами без перегруза интерфейса.
-          </p>
-          <div className="flex flex-wrap gap-2 pt-1">
+      <div className="hidden gap-6 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+        <div className="min-w-0 space-y-5">
+          <div className="space-y-2">
+            <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+              <Sparkles className="h-3.5 w-3.5 text-primary/90" />
+              {eyebrow}
+            </p>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              {title}
+            </h1>
+            <p className="max-w-3xl text-sm text-muted-foreground">
+              Ваши желания в одном месте. Выбирайте, бронируйте и отмечайте покупки.
+            </p>
+          </div>
+
+          <div className="grid max-w-3xl grid-cols-2 gap-4 lg:grid-cols-4">
             {[
               ["Всего", summary.total],
               ["Доступно", summary.available],
-              ["Бронь", summary.claimed],
+              ["Забронировано", summary.claimed],
               ["Куплено", summary.purchased],
             ].map(([label, value]) => (
               <div
                 key={label}
-                className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-[hsl(var(--surface-2))/0.7] px-3 py-1.5 text-xs text-muted-foreground"
+                className="rounded-xl border border-border/70 bg-[hsl(var(--surface-2))/0.62] p-4"
               >
-                <span>{label}</span>
-                <span className="font-semibold tabular-nums text-foreground">
+                <p className="text-sm text-muted-foreground">{label}</p>
+                <p className="mt-2 text-xl font-semibold tabular-nums text-foreground">
                   {value}
-                </span>
+                </p>
               </div>
             ))}
           </div>
         </div>
-        <div className="rounded-2xl border border-primary/35 bg-primary/12 px-5 py-4 text-right shadow-[0_0_24px_hsl(var(--primary)/0.12)]">
+        <div className="rounded-2xl border border-primary/25 bg-primary/10 px-6 py-4 text-right shadow-[0_0_24px_hsl(var(--primary)/0.1)]">
           <p className="text-[11px] uppercase tracking-wide text-primary-foreground/80">
             Ориентировочная стоимость
           </p>
@@ -103,7 +106,7 @@ export function DashboardSummary({
       </div>
 
       {filterChips.length > 0 ? (
-        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           {filterChips.map((chip) => (
             <Badge
               key={chip.key}

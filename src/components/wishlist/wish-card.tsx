@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WishlistItem } from "@/types";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatPrice, getTagColor } from "@/lib/utils";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import { PriorityBadgeOverlay } from "./priority-badge";
 import { IconButton } from "@/components/ui/icon-button";
@@ -90,16 +90,19 @@ export const WishCard = memo(function WishCard({
 
   const showImage = Boolean(imageUrl && !imageError);
 
+  const visibleTags = item.tags.slice(0, 2);
+  const hiddenTagCount = Math.max(0, item.tags.length - visibleTags.length);
+
   return (
-    <div>
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "group/card overflow-hidden border-border/80 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] shadow-[0_14px_34px_rgba(0,0,0,0.28),inset_0_1px_0_hsl(var(--foreground)/0.035)]",
+          "group/card flex h-full min-h-[27rem] flex-col overflow-hidden border-border/80 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] shadow-[0_14px_34px_rgba(0,0,0,0.28),inset_0_1px_0_hsl(var(--foreground)/0.035)]",
           isBought && "opacity-45 grayscale",
           isCardInteractive &&
             "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_28px_hsl(var(--primary)/0.16),inset_0_1px_0_hsl(var(--foreground)/0.05)] focus-visible:border-primary/45 focus-visible:shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_28px_hsl(var(--primary)/0.16),inset_0_1px_0_hsl(var(--foreground)/0.05)]",
-          isSelected && "ring-2 ring-primary/45"
+          selectionMode && "ring-1 ring-border/80",
+          isSelected && "border-primary/65 ring-2 ring-primary/45 shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_30px_hsl(var(--primary)/0.2)]"
         )}
         role={isCardInteractive ? "button" : undefined}
         tabIndex={isCardInteractive ? 0 : undefined}
@@ -108,7 +111,7 @@ export const WishCard = memo(function WishCard({
       >
         <div
           data-testid="wishlist-card-v2-media"
-          className="group relative aspect-[4/3] overflow-hidden bg-[hsl(var(--surface-1))] sm:aspect-[4/5]"
+          className="group relative aspect-[4/3] shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] sm:aspect-[4/5]"
         >
           <PriorityBadgeOverlay priority={item.priority} />
           {selectionMode ? (
@@ -152,11 +155,11 @@ export const WishCard = memo(function WishCard({
           />
         </div>
 
-        <CardHeader className="border-t border-border/45 p-3 pb-2">
+        <CardHeader className="border-t border-border/45 p-3 pb-0">
           <CardTitle
             data-testid="wishlist-card-v2-title"
             className={cn(
-              "line-clamp-2 text-sm font-semibold leading-snug text-foreground sm:text-[15px]",
+              "line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-foreground sm:text-[15px]",
               isBought && "line-through"
             )}
           >
@@ -164,9 +167,35 @@ export const WishCard = memo(function WishCard({
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="space-y-2 p-3 pt-0">
+        <CardContent className="flex min-h-[6.5rem] flex-col gap-3 p-3">
+          <div className="flex min-h-6 flex-wrap items-center gap-1.5">
+            {visibleTags.length > 0 ? (
+              <>
+                {visibleTags.map((tag) => {
+                  const color =
+                    tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
+                  return (
+                    <span
+                      key={tag.id}
+                      className="max-w-[8rem] truncate rounded-full border px-2 py-0.5 text-[11px] font-medium"
+                      style={{ borderColor: color, color }}
+                    >
+                      {tag.name}
+                    </span>
+                  );
+                })}
+                {hiddenTagCount > 0 ? (
+                  <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                    +{hiddenTagCount}
+                  </span>
+                ) : null}
+              </>
+            ) : (
+              <span className="sr-only">Без тегов</span>
+            )}
+          </div>
           {(ownerName || item.price != null) && (
-            <div className="flex items-center justify-between gap-2">
+            <div className="mt-auto flex items-center justify-between gap-3 border-t border-border/55 pt-3">
               {ownerName ? (
                 <div className="flex min-w-0 flex-1 items-center gap-2">
                   <Avatar className="h-7 w-7 shrink-0">
@@ -210,7 +239,7 @@ export const WishCard = memo(function WishCard({
 
         <CardFooter
           data-testid="wishlist-card-v2-footer"
-          className="flex flex-col gap-2 p-3 pt-0 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-2"
+          className="mt-auto flex min-h-[3.75rem] flex-col gap-2 border-t border-border/45 p-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-2"
         >
           {selectionMode ? (
             <p className="text-xs text-muted-foreground">
@@ -299,8 +328,6 @@ export const WishCard = memo(function WishCard({
             </TooltipProvider>
           ) : null}
         </CardFooter>
-
       </Card>
-    </div>
   );
 });

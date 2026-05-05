@@ -1,19 +1,29 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
+  Download,
   Heart,
   Home,
   ListChecks,
+  LogOut,
+  Plus,
   Settings,
   Shield,
   Users,
 } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useHeaderActions } from "@/lib/header-actions";
 import { uiState, uiSurface } from "@/lib/ui-contract";
 
 type NavItem = {
@@ -27,6 +37,9 @@ export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
+  const {
+    actions: { onAddItem },
+  } = useHeaderActions();
 
   if (!session?.user || pathname === "/login") return null;
 
@@ -42,6 +55,36 @@ export function AppSidebar() {
   if (session.user.role === "ADMIN") {
     navItems.push({ label: "Админка", href: "/admin", icon: Shield });
   }
+
+  const isMainPage = pathname === "/";
+
+  const handleExport = async (format: "csv" | "json") => {
+    const res = await fetch(`/api/items/export?format=${format}`);
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download =
+      res.headers.get("Content-Disposition")?.match(/filename="(.+)"/)?.[1] ??
+      `wishlist.${format}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleAddItem = () => {
+    if (!isMainPage) {
+      router.push("/?add=1");
+      return;
+    }
+    onAddItem?.();
+  };
+
+  const handleSignOut = () => {
+    const currentOrigin =
+      typeof window !== "undefined" ? window.location.origin : "";
+    signOut({ callbackUrl: currentOrigin ? `${currentOrigin}/login` : "/login" });
+  };
 
   return (
     <aside
@@ -59,6 +102,31 @@ export function AppSidebar() {
       >
         <BrandLockup />
       </button>
+
+      <div className="mb-5 flex flex-col gap-2">
+        <Button type="button" className="h-10 justify-start gap-2" onClick={handleAddItem}>
+          <Plus className="h-4 w-4" />
+          Добавить товар
+        </Button>
+        {isMainPage ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button type="button" variant="outline" className="h-10 justify-start gap-2">
+                <Download className="h-4 w-4" />
+                Экспорт
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-48">
+              <DropdownMenuItem onClick={() => handleExport("csv")}>
+                Экспорт CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("json")}>
+                Экспорт JSON
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : null}
+      </div>
 
       <nav className="flex flex-1 flex-col gap-1.5">
         {navItems.map((item) => {
@@ -97,6 +165,16 @@ export function AppSidebar() {
         <p className="mt-0.5 truncate text-xs text-muted-foreground">
           {session.user.email ?? session.user.username ?? "Аккаунт"}
         </p>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="mt-3 h-8 w-full justify-start gap-2 px-2 text-muted-foreground hover:text-foreground"
+          onClick={handleSignOut}
+        >
+          <LogOut className="h-4 w-4" />
+          Выйти
+        </Button>
       </div>
     </aside>
   );
