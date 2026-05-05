@@ -11,6 +11,7 @@ import { UserWithStats } from "@/types";
 import { formatStatsUnpurchasedSummary } from "@/lib/utils";
 import { ChevronDown, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { uiSurface } from "@/lib/ui-contract";
 import { resolveUserScope } from "@/lib/filter-state";
 
 interface UserFilterProps {
@@ -44,7 +45,8 @@ export function UserFilter({
             aria-label="Выбрать пользователя"
             className={cn(
               "flex h-10 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-              "border border-input bg-card hover:bg-accent hover:text-accent-foreground",
+              "border border-input hover:bg-accent hover:text-accent-foreground",
+              uiSurface.inputAlt,
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               "touch-manipulation",
               (selectedUser || isMyMode) &&

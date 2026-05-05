@@ -3,6 +3,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
 import { getItemStatusLabel, getItemStatusTone } from "@/lib/item-status-presentation";
 import { cn } from "@/lib/utils";
+import { uiSurface } from "@/lib/ui-contract";
 import type { WishlistItem } from "@/types";
 
 type RecentActivityPanelProps = {
@@ -37,7 +38,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
     .slice(0, 5);
 
   return (
-    <aside className="rounded-2xl border border-border/80 bg-[hsl(var(--surface-2))/0.82] p-4 shadow-[0_14px_34px_rgba(0,0,0,0.3),inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-md">
+    <aside className={cn(uiSurface.contentPanel, "p-4")}>
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold text-foreground">Активность</h2>
@@ -69,7 +70,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
                     size="sm"
                   />
                 ) : (
-                  <div className="h-8 w-8 rounded-full border border-border bg-card" />
+                  <div className="h-8 w-8 rounded-full border border-border bg-[hsl(var(--surface-3))]" />
                 )}
                 <div className="min-w-0">
                   <div className="flex min-w-0 items-start justify-between gap-2">
@@ -98,7 +99,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
           })}
         </div>
       ) : (
-        <div className="mt-4 rounded-xl border border-dashed border-border bg-card/55 px-3 py-6 text-center">
+        <div className={cn(uiSurface.emptyState, "mt-4 min-h-0 px-3 py-6")}>
           <p className="text-sm font-medium text-foreground">Пока нет активности</p>
           <p className="mt-1 text-xs text-muted-foreground">
             Добавленные и обновленные товары появятся здесь.

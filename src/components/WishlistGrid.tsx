@@ -7,6 +7,8 @@ import type { WishlistViewMode } from "@/components/wishlist/wishlist-view-toggl
 import { WishlistCardSkeleton } from "./WishlistCardSkeleton";
 import { AddItemCard } from "./AddItemCard";
 import { EmptyState } from "@/components/ui/empty-state";
+import { cn } from "@/lib/utils";
+import { uiSurface } from "@/lib/ui-contract";
 import {
   Table,
   TableBody,
@@ -97,7 +99,7 @@ export function WishlistGrid({
         role="region"
         aria-live="polite"
         aria-label={`Таблица желаний: ${items.length} ${items.length === 1 ? "товар" : items.length < 5 ? "товара" : "товаров"}`}
-        className="overflow-hidden rounded-xl border border-border bg-[hsl(var(--surface-2))/0.82] shadow-[0_14px_34px_rgba(0,0,0,0.3)]"
+        className={cn(uiSurface.contentPanel, "overflow-hidden")}
       >
         <Table>
           <TableHeader>
@@ -105,7 +107,7 @@ export function WishlistGrid({
               <TableHead>Товар</TableHead>
               <TableHead>Владелец</TableHead>
               <TableHead>Статус</TableHead>
-              <TableHead className="text-right">Стоимость</TableHead>
+              <TableHead className="text-right">Ориентировочная стоимость</TableHead>
               <TableHead>Теги</TableHead>
               <TableHead className="text-right">Действия</TableHead>
             </TableRow>

@@ -7,6 +7,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { uiSurface } from "@/lib/ui-contract";
 import { getPriorityLabel, getPriorityShortLabel } from "@/lib/priority-labels";
 import { clampWishlistPriority, priorityDotClassByPriority } from "@/lib/priority-styles";
 
@@ -44,7 +45,8 @@ export function PrioritySelect({
       <SelectTrigger
         data-testid={triggerTestId}
         className={cn(
-          "h-9 min-w-[92px] rounded-lg border-input bg-card px-2.5 text-xs font-semibold tracking-wide",
+          "h-9 min-w-[92px] rounded-lg border-input px-2.5 text-xs font-semibold tracking-wide",
+          uiSurface.inputAlt,
           compact && "h-8 min-w-0 text-[11px] w-fit max-w-full",
           compact && prominentDot && "h-9 text-xs",
           triggerClassName

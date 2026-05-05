@@ -89,7 +89,7 @@ export function ItemMetaSection({
           {item.price != null && item.price > 0 ? (
             <div className="shrink-0 text-right">
               <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                Стоимость
+                Ориентировочная стоимость
               </p>
               <p className="text-lg font-semibold tabular-nums">
                 {formatPrice(item.price, item.currency)}

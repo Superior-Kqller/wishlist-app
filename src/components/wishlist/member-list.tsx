@@ -1,5 +1,6 @@
 import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
+import { uiSurface } from "@/lib/ui-contract";
 import type { UserWithStats } from "@/types";
 
 type MemberListProps = {
@@ -32,7 +33,7 @@ export function MemberList({
       {members.map((user) => (
         <div
           key={user.id}
-          className="inline-flex min-w-0 items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-1.5"
+          className={`inline-flex min-w-0 items-center gap-2 rounded-lg px-2.5 py-1.5 ${uiSurface.chip}`}
         >
           <UserAvatar
             avatarUrl={user.avatarUrl}

@@ -1,6 +1,7 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { uiState, uiSurface } from "@/lib/ui-contract";
 import { Plus } from "lucide-react";
 import { type KeyboardEvent } from "react";
 
@@ -19,7 +20,7 @@ export function AddItemCard({ onAdd, disabled, disabledHint }: AddItemCardProps)
   };
 
   return (
-    <Card
+    <div
       role={disabled ? undefined : "button"}
       tabIndex={disabled ? -1 : 0}
       data-testid="add-item-card"
@@ -28,11 +29,14 @@ export function AddItemCard({ onAdd, disabled, disabledHint }: AddItemCardProps)
       onClick={disabled ? undefined : onAdd}
       onKeyDown={disabled ? undefined : onKeyDown}
       title={disabled ? disabledHint : undefined}
-      className={
+      className={cn(
+        "flex min-h-[220px] flex-col items-center justify-center gap-4 border-dashed p-4 text-center sm:min-h-[240px]",
+        uiSurface.contentPanel,
         disabled
-          ? "flex min-h-[220px] cursor-not-allowed flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border/45 bg-card p-4 text-center opacity-60 sm:min-h-[240px]"
-          : "flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-border/50 bg-card p-4 text-center transition-colors hover:border-primary/35 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:min-h-[240px]"
-      }
+          ? "cursor-not-allowed border-border/45 opacity-60"
+          : "cursor-pointer border-border/50 transition-colors hover:border-primary/35 hover:bg-muted",
+        !disabled && uiState.focusVisible,
+      )}
     >
       <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-primary/45 bg-primary/16 text-primary shadow-[0_8px_20px_rgba(0,0,0,0.25)]">
         <Plus className="h-5 w-5" />
@@ -43,6 +47,6 @@ export function AddItemCard({ onAdd, disabled, disabledHint }: AddItemCardProps)
           Добавьте товар по ссылке или заполните карточку вручную.
         </p>
       </div>
-    </Card>
+    </div>
   );
 }
