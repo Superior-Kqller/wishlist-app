@@ -4,23 +4,14 @@ import { signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
-  Download,
   Home,
   LogOut,
-  Plus,
   Settings,
   Shield,
 } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { useHeaderActions } from "@/lib/header-actions";
 import { uiState, uiSurface } from "@/lib/ui-contract";
 
 type NavItem = {
@@ -33,9 +24,6 @@ export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
-  const {
-    actions: { onAddItem },
-  } = useHeaderActions();
 
   if (!session?.user || pathname === "/login") return null;
 
@@ -48,30 +36,6 @@ export function AppSidebar() {
   if (session.user.role === "ADMIN") {
     navItems.push({ label: "Админка", href: "/admin", icon: Shield });
   }
-
-  const isMainPage = pathname === "/";
-
-  const handleExport = async (format: "csv" | "json") => {
-    const res = await fetch(`/api/items/export?format=${format}`);
-    if (!res.ok) return;
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download =
-      res.headers.get("Content-Disposition")?.match(/filename="(.+)"/)?.[1] ??
-      `wishlist.${format}`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleAddItem = () => {
-    if (!isMainPage) {
-      router.push("/?add=1");
-      return;
-    }
-    onAddItem?.();
-  };
 
   const handleSignOut = () => {
     const currentOrigin =
@@ -90,38 +54,16 @@ export function AppSidebar() {
       <button
         type="button"
         onClick={() => router.push("/")}
-        className="mb-7 rounded-xl text-left transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="mb-6 rounded-xl text-left transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         aria-label="Вишлист — на главную"
       >
         <BrandLockup />
       </button>
 
-      <div className="mb-5 flex flex-col gap-2">
-        <Button type="button" className="h-10 justify-start gap-2" onClick={handleAddItem}>
-          <Plus className="h-4 w-4" />
-          Добавить товар
-        </Button>
-        {isMainPage ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button type="button" variant="outline" className="h-10 justify-start gap-2">
-                <Download className="h-4 w-4" />
-                Экспорт
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
-              <DropdownMenuItem onClick={() => handleExport("csv")}>
-                Экспорт CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport("json")}>
-                Экспорт JSON
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : null}
-      </div>
-
-      <nav className="flex flex-1 flex-col gap-1.5">
+      <nav className="flex flex-1 flex-col gap-2" aria-label="Разделы">
+        <p className="px-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/70">
+          Навигация
+        </p>
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = item.href ? pathname === item.href : false;
@@ -132,7 +74,7 @@ export function AppSidebar() {
               type="button"
               variant="ghost"
               className={cn(
-                "h-11 justify-start gap-3 rounded-lg px-3",
+                "justify-start rounded-lg",
                 uiState.navBase,
                 active && uiState.navActive,
               )}

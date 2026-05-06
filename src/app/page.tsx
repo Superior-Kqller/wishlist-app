@@ -188,18 +188,37 @@ function HomePageContent() {
   const [bulkProcessing, setBulkProcessing] = useState(false);
   const [pendingStatusByItemId, setPendingStatusByItemId] = useState<Record<string, boolean>>({});
 
+  const handleOpenAddItem = useCallback(() => {
+    setParsedData(null);
+    setAddDialogAutoFill(false);
+    setAddDialogOpen(true);
+  }, []);
+
+  const handleExport = useCallback(async (format: "csv" | "json") => {
+    const res = await fetch(`/api/items/export?format=${format}`);
+    if (!res.ok) {
+      toast.error("Не удалось экспортировать каталог");
+      return;
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download =
+      res.headers.get("Content-Disposition")?.match(/filename="(.+)"/)?.[1] ??
+      `wishlist.${format}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
+
   const { setActions } = useHeaderActions();
   useEffect(() => {
     setActions({
-      onAddItem: () => {
-        setParsedData(null);
-        setAddDialogAutoFill(false);
-        setAddDialogOpen(true);
-      },
+      onAddItem: handleOpenAddItem,
       onParseUrl: () => setParseDialogOpen(true),
     });
     return () => setActions({});
-  }, [setActions]);
+  }, [handleOpenAddItem, setActions]);
 
   const allowedListIdsForFilters = useMemo(() => {
     if (!currentUserId) return new Set(lists.map((l) => l.id));
@@ -577,7 +596,7 @@ function HomePageContent() {
   return (
     <div className="min-h-screen page-bg">
       <main className="container mx-auto space-y-4 px-3 py-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-4 sm:px-6 sm:py-6 sm:pb-6">
-        <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(20rem,1fr)]">
           <DashboardSummary
             summary={summary}
             eyebrow={summaryEyebrow}
@@ -622,6 +641,8 @@ function HomePageContent() {
           effectiveSelectedTags={effectiveSelectedTags}
           onToggleTag={handleToggleTag}
           onClearTags={() => setSelectedTags([])}
+          onAddItem={handleOpenAddItem}
+          onExport={handleExport}
           sortBy={sortBy}
           onSortChange={setSortBy}
           showPurchased={showPurchased}

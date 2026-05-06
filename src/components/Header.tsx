@@ -7,49 +7,27 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   BarChart3,
-  Download,
   Home,
   LogOut,
   Menu,
-  Plus,
   Settings,
   Shield,
 } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
-import { useHeaderActions } from "@/lib/header-actions";
 import { cn } from "@/lib/utils";
 import { uiState } from "@/lib/ui-contract";
 
 export function Header() {
-  const {
-    actions: { onAddItem },
-  } = useHeaderActions();
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const isAdmin = session?.user?.role === "ADMIN";
-  const isMainPage = pathname === "/";
   const isLoginPage = pathname === "/login";
-
-  const handleExport = async (format: "csv" | "json") => {
-    const res = await fetch(`/api/items/export?format=${format}`);
-    if (!res.ok) return;
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download =
-      res.headers.get("Content-Disposition")?.match(/filename="(.+)"/)?.[1] ??
-      `wishlist.${format}`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   const handleSignOut = () => {
     const currentOrigin =
@@ -126,26 +104,6 @@ export function Header() {
           </nav>
 
           <div className="ml-auto flex min-w-[88px] items-center justify-end gap-1 sm:min-w-[220px] sm:gap-2 lg:min-w-[340px]">
-            {isMainPage && onAddItem ? (
-              <>
-                <Button
-                  size="sm"
-                  onClick={onAddItem}
-                  title="Добавить товар"
-                  className="hidden sm:inline-flex sm:min-w-[156px]"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Добавить товар
-                </Button>
-              </>
-            ) : null}
-            {!isMainPage ? (
-              <span
-                aria-hidden
-                className="hidden sm:inline-flex sm:min-w-[156px]"
-              />
-            ) : null}
-
             <div className="hidden items-center gap-1.5 sm:flex lg:hidden">
               {isAdmin ? (
                 <Button
@@ -179,29 +137,6 @@ export function Header() {
               >
                 <Settings className="h-5 w-5" />
               </Button>
-              {isMainPage ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-10 w-10"
-                      title="Экспорт"
-                      aria-label="Экспорт"
-                    >
-                      <Download className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleExport("csv")}>
-                      Экспорт CSV
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport("json")}>
-                      Экспорт JSON
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : null}
               <Button
                 variant="ghost"
                 size="icon"
@@ -215,29 +150,6 @@ export function Header() {
             </div>
 
             <div className="hidden items-center gap-1.5 lg:flex">
-              {isMainPage ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-10 w-10"
-                      title="Экспорт"
-                      aria-label="Экспорт"
-                    >
-                      <Download className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleExport("csv")}>
-                      Экспорт CSV
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport("json")}>
-                      Экспорт JSON
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : null}
               <Button
                 variant="ghost"
                 size="icon"
@@ -269,21 +181,7 @@ export function Header() {
                       Администрирование
                     </DropdownMenuItem>
                   ) : null}
-                  {isMainPage ? (
-                    <>
-                      {isAdmin ? <DropdownMenuSeparator /> : null}
-                      <DropdownMenuLabel>Экспорт</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => handleExport("csv")}>
-                        <Download className="mr-2 h-4 w-4" />
-                        CSV
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleExport("json")}>
-                        <Download className="mr-2 h-4 w-4" />
-                        JSON
-                      </DropdownMenuItem>
-                    </>
-                  ) : null}
-                  <DropdownMenuSeparator />
+                  {isAdmin ? <DropdownMenuSeparator /> : null}
                   <DropdownMenuItem
                     onClick={handleSignOut}
                     className="text-destructive focus:text-destructive"

@@ -38,7 +38,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
     .slice(0, 3);
 
   return (
-    <aside className={cn(uiSurface.contentPanel, "p-3 sm:p-4")}>
+    <aside className={cn(uiSurface.contentPanel, "flex h-full flex-col p-3 sm:p-5")}>
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold text-foreground">Активность</h2>
@@ -97,7 +97,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
           })}
         </div>
       ) : (
-        <div className={cn(uiSurface.emptyState, "mt-4 min-h-0 px-3 py-6")}>
+        <div className={cn(uiSurface.emptyState, "mt-4 min-h-0 flex-1 px-3 py-6")}>
           <p className="text-sm font-medium text-foreground">Пока нет активности</p>
           <p className="mt-1 text-xs text-muted-foreground">
             Добавленные и обновленные товары появятся здесь.

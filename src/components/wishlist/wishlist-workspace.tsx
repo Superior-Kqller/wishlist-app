@@ -1,9 +1,15 @@
 "use client";
 
 import type { RefObject } from "react";
-import { CheckSquare, Loader2, SlidersHorizontal } from "lucide-react";
+import { CheckSquare, Download, Loader2, Plus, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SearchField } from "@/components/ui/search-field";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { WishlistGrid } from "@/components/WishlistGrid";
 import {
   WishlistSearchInput,
@@ -45,6 +51,8 @@ type WishlistWorkspaceProps = {
   effectiveSelectedTags: string[];
   onToggleTag: (tagId: string) => void;
   onClearTags: () => void;
+  onAddItem: () => void;
+  onExport: (format: "csv" | "json") => void;
   sortBy: string;
   onSortChange: (value: string) => void;
   showPurchased: boolean;
@@ -96,6 +104,8 @@ export function WishlistWorkspace({
   effectiveSelectedTags,
   onToggleTag,
   onClearTags,
+  onAddItem,
+  onExport,
   sortBy,
   onSortChange,
   showPurchased,
@@ -167,25 +177,72 @@ export function WishlistWorkspace({
           </Button>
         </div>
 
-        <div className="hidden min-w-0 w-full items-center gap-2 sm:flex">
-          <WishlistSearchInput
-            search={search}
-            onSearchChange={onSearchChange}
-            className="min-w-0 flex-1 basis-[22rem]"
-          />
-          {currentUserId && usersWithStats.length > 0 ? (
-            <CombinedFilter
-              currentUserId={currentUserId}
-              users={usersWithStats}
-              lists={lists}
-              selectedUserId={normalizedSelectedUserId}
-              selectedListId={selectedListId}
-              onUserChange={onUserChange}
-              onListChange={onListChange}
-              onCreateList={onCreateList}
-              onEditList={onEditSelectedList}
+        <div className="flex min-w-0 items-center gap-2 sm:hidden">
+          <Button type="button" className="h-10 flex-1 gap-2" onClick={onAddItem}>
+            <Plus className="h-4 w-4" />
+            Добавить
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button type="button" variant="outline" className="h-10 flex-1 gap-2">
+                <Download className="h-4 w-4" />
+                Экспорт
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuItem onClick={() => onExport("csv")}>
+                Экспорт CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onExport("json")}>
+                Экспорт JSON
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <div className="hidden min-w-0 w-full flex-wrap items-center justify-between gap-3 sm:flex">
+          <div className="flex min-w-[min(100%,28rem)] flex-1 flex-wrap items-center gap-2">
+            <WishlistSearchInput
+              search={search}
+              onSearchChange={onSearchChange}
+              className="min-w-[18rem] flex-1"
             />
-          ) : null}
+            {currentUserId && usersWithStats.length > 0 ? (
+              <CombinedFilter
+                currentUserId={currentUserId}
+                users={usersWithStats}
+                lists={lists}
+                selectedUserId={normalizedSelectedUserId}
+                selectedListId={selectedListId}
+                onUserChange={onUserChange}
+                onListChange={onListChange}
+                onCreateList={onCreateList}
+                onEditList={onEditSelectedList}
+              />
+            ) : null}
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" variant="outline" size="sm" className="h-9 gap-2">
+                  <Download className="h-4 w-4" />
+                  Экспорт
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem onClick={() => onExport("csv")}>
+                  Экспорт CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onExport("json")}>
+                  Экспорт JSON
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button type="button" size="sm" className="h-9 gap-2" onClick={onAddItem}>
+              <Plus className="h-4 w-4" />
+              Добавить товар
+            </Button>
+          </div>
         </div>
 
         <div className="hidden min-w-0 w-full items-center justify-between gap-2 sm:flex">

@@ -38,9 +38,16 @@ export function DashboardSummary({
     summary.totalValue > 0
       ? `${Math.round(summary.totalValue).toLocaleString("ru-RU")} ₽`
       : "—";
+  const metrics = [
+    ["Всего", summary.total],
+    ["Доступно", summary.available],
+    ["Забронировано", summary.claimed],
+    ["Куплено", summary.purchased],
+    ["Общая стоимость", formattedValue],
+  ];
 
   return (
-    <section className={`${uiSurface.homeSummary} px-3 py-3 sm:px-6 sm:py-6`}>
+    <section className={`${uiSurface.homeSummary} h-full px-3 py-3 sm:px-5 sm:py-5`}>
       <div className="sm:hidden">
         <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
           <Sparkles className="h-3.5 w-3.5 text-primary/90" />
@@ -61,47 +68,32 @@ export function DashboardSummary({
         </p>
       </div>
 
-      <div className="hidden gap-6 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
-        <div className="min-w-0 space-y-5">
-          <div className="space-y-2">
-            <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-              <Sparkles className="h-3.5 w-3.5 text-primary/90" />
-              {eyebrow}
-            </p>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              {title}
-            </h1>
-            <p className="max-w-3xl text-sm text-muted-foreground">
-              Ваши желания в одном месте. Выбирайте, бронируйте и отмечайте покупки.
-            </p>
-          </div>
-
-          <div className="grid max-w-3xl grid-cols-2 gap-4 lg:grid-cols-4">
-            {[
-              ["Всего", summary.total],
-              ["Доступно", summary.available],
-              ["Забронировано", summary.claimed],
-              ["Куплено", summary.purchased],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                className="rounded-xl border border-border/70 bg-[hsl(var(--surface-2))/0.62] p-4"
-              >
-                <p className="text-sm text-muted-foreground">{label}</p>
-                <p className="mt-2 text-xl font-semibold tabular-nums text-foreground">
-                  {value}
-                </p>
-              </div>
-            ))}
-          </div>
+      <div className="hidden h-full min-w-0 flex-col sm:flex">
+        <div className="min-w-0 space-y-2">
+          <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+            <Sparkles className="h-3.5 w-3.5 text-primary/90" />
+            {eyebrow}
+          </p>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            {title}
+          </h1>
+          <p className="max-w-3xl text-sm text-muted-foreground">
+            Ваши желания в одном месте. Выбирайте, бронируйте и отмечайте покупки.
+          </p>
         </div>
-        <div className="rounded-2xl border border-primary/25 bg-primary/10 px-6 py-4 text-right shadow-[0_0_24px_hsl(var(--primary)/0.1)]">
-          <p className="text-[11px] uppercase tracking-wide text-primary-foreground/80">
-            Ориентировочная стоимость
-          </p>
-          <p className="text-xl font-semibold text-primary-foreground">
-            {formattedValue}
-          </p>
+
+        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-5">
+          {metrics.map(([label, value]) => (
+            <div
+              key={label}
+              className="min-h-[4.5rem] rounded-xl border border-border/70 bg-[hsl(var(--surface-3))/0.58] p-3"
+            >
+              <p className="text-xs text-muted-foreground">{label}</p>
+              <p className="mt-2 text-lg font-semibold tabular-nums text-foreground">
+                {value}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
 
