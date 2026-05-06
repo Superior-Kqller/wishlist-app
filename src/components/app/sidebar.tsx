@@ -3,16 +3,13 @@
 import { signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Bell,
+  BarChart3,
   Download,
-  Heart,
   Home,
-  ListChecks,
   LogOut,
   Plus,
   Settings,
   Shield,
-  Users,
 } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
 import { Button } from "@/components/ui/button";
@@ -28,9 +25,8 @@ import { uiState, uiSurface } from "@/lib/ui-contract";
 
 type NavItem = {
   label: string;
-  href?: string;
+  href: string;
   icon: React.ComponentType<{ className?: string }>;
-  disabled?: boolean;
 };
 
 export function AppSidebar() {
@@ -45,10 +41,7 @@ export function AppSidebar() {
 
   const navItems: NavItem[] = [
     { label: "Главная", href: "/", icon: Home },
-    { label: "Все списки", icon: ListChecks, disabled: true },
-    { label: "Совместные", icon: Users, disabled: true },
-    { label: "Избранное", icon: Heart, disabled: true },
-    { label: "Уведомления", icon: Bell, disabled: true },
+    { label: "Статистика", href: "/stats", icon: BarChart3 },
     { label: "Настройки", href: "/settings", icon: Settings },
   ];
 
@@ -142,13 +135,11 @@ export function AppSidebar() {
                 "h-11 justify-start gap-3 rounded-lg px-3",
                 uiState.navBase,
                 active && uiState.navActive,
-                item.disabled && "cursor-not-allowed opacity-45 hover:bg-transparent hover:text-muted-foreground",
               )}
-              disabled={item.disabled}
               aria-current={active ? "page" : undefined}
-              title={item.disabled ? "Будет подключено в следующих этапах" : item.label}
+              title={item.label}
               onClick={() => {
-                if (item.href) router.push(item.href);
+                router.push(item.href);
               }}
             >
               <Icon className="h-4 w-4" />

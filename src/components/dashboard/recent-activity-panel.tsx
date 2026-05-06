@@ -35,22 +35,20 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
       (a, b) =>
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
     )
-    .slice(0, 5);
+    .slice(0, 3);
 
   return (
-    <aside className={cn(uiSurface.contentPanel, "p-4")}>
+    <aside className={cn(uiSurface.contentPanel, "p-3 sm:p-4")}>
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold text-foreground">Активность</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Последние изменения в видимых товарах
-          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">Последние изменения</p>
         </div>
         <Clock3 className="h-4 w-4 text-muted-foreground" aria-hidden />
       </div>
 
       {recentItems.length > 0 ? (
-        <div className="mt-4 space-y-3">
+        <div className="mt-3 space-y-2.5">
           {recentItems.map((item) => {
             const actor =
               item.status === "CLAIMED" && item.claimedByUser
@@ -60,7 +58,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
             return (
               <div
                 key={item.id}
-                className="grid grid-cols-[auto_minmax(0,1fr)] gap-3 border-t border-border/60 pt-3 first:border-t-0 first:pt-0"
+                className="grid grid-cols-[auto_minmax(0,1fr)] gap-2.5 border-t border-border/60 pt-2.5 first:border-t-0 first:pt-0"
               >
                 {actor ? (
                   <UserAvatar
