@@ -1,7 +1,7 @@
 "use client";
 
 import type { RefObject } from "react";
-import { CheckSquare, Download, Loader2, Plus, SlidersHorizontal } from "lucide-react";
+import { ArrowUpDown, CheckSquare, Download, Loader2, MoreHorizontal, Plus, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SearchField } from "@/components/ui/search-field";
 import {
@@ -146,10 +146,12 @@ export function WishlistWorkspace({
             wrapperClassName="min-w-0 flex-1"
             inputClassName={`h-11 min-h-[44px] rounded-lg ${uiSurface.inputAlt} pl-9 text-sm`}
           />
+        </div>
+
+        <div className="grid min-w-0 grid-cols-4 items-center gap-1.5 sm:hidden">
           <Button
             variant="outline"
-            size="icon"
-            className="relative size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
+            className="relative h-11 min-w-0 gap-1 rounded-lg px-2 text-[11px]"
             onClick={() => onMobileFiltersOpenChange(true)}
             title="Фильтры"
             aria-label={
@@ -158,7 +160,8 @@ export function WishlistWorkspace({
                 : "Фильтры"
             }
           >
-            <SlidersHorizontal className="h-5 w-5" />
+            <SlidersHorizontal className="h-4 w-4 shrink-0" />
+            <span className="truncate">Фильтры</span>
             {hasActiveFilters ? (
               <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-background bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
                 {activeFilterCount}
@@ -166,34 +169,48 @@ export function WishlistWorkspace({
             ) : null}
           </Button>
           <Button
+            variant="outline"
+            className="h-11 min-w-0 gap-1 rounded-lg px-2 text-[11px]"
+            onClick={() => onMobileFiltersOpenChange(true)}
+            title="Сортировка"
+          >
+            <ArrowUpDown className="h-4 w-4 shrink-0" />
+            <span className="truncate">Сортировка</span>
+          </Button>
+          <Button
             variant={selectionMode ? "secondary" : "outline"}
-            size="icon"
-            className="size-11 min-h-[44px] min-w-[44px] shrink-0 rounded-lg"
+            className="h-11 min-w-0 gap-1 rounded-lg px-2 text-[11px]"
             onClick={onToggleSelectionMode}
             title={selectionMode ? "Отменить выбор" : "Выбрать"}
             aria-label={selectionMode ? "Отменить выбор" : "Выбрать карточки"}
           >
-            <CheckSquare className="h-5 w-5" />
+            <CheckSquare className="h-4 w-4 shrink-0" />
+            <span className="truncate">{selectionMode ? "Готово" : "Выбрать"}</span>
           </Button>
-        </div>
 
-        <div className="flex min-w-0 items-center gap-2 sm:hidden">
-          <Button type="button" className="h-10 flex-1 gap-2" onClick={onAddItem}>
-            <Plus className="h-4 w-4" />
-            Добавить
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button type="button" variant="outline" className="h-10 flex-1 gap-2">
-                <Download className="h-4 w-4" />
-                Экспорт
+              <Button
+                type="button"
+                variant="outline"
+                className="h-11 min-w-0 gap-1 rounded-lg px-2 text-[11px]"
+                aria-label="Ещё действия"
+              >
+                <MoreHorizontal className="h-4 w-4 shrink-0" />
+                <span className="truncate">Ещё</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuItem onClick={onAddItem}>
+                <Plus className="mr-2 h-4 w-4" />
+                Добавить товар
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onExport("csv")}>
+                <Download className="mr-2 h-4 w-4" />
                 Экспорт CSV
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onExport("json")}>
+                <Download className="mr-2 h-4 w-4" />
                 Экспорт JSON
               </DropdownMenuItem>
             </DropdownMenuContent>

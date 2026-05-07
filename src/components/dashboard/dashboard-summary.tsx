@@ -47,13 +47,13 @@ export function DashboardSummary({
   ];
 
   return (
-    <section className={`${uiSurface.homeSummary} h-full px-3 py-3 sm:px-5 sm:py-5`}>
+    <section className={`${uiSurface.homeSummary} h-full rounded-xl px-2.5 py-2.5 sm:rounded-2xl sm:px-5 sm:py-5`}>
       <div className="sm:hidden">
         <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
           <Sparkles className="h-3.5 w-3.5 text-primary/90" />
           {eyebrow}
         </p>
-        <div className="mt-1 flex items-start justify-between gap-3">
+        <div className="mt-0.5 flex items-start justify-between gap-3">
           <h1 className="min-w-0 flex-1 truncate text-lg font-semibold tracking-tight text-foreground">
             {title}
           </h1>
@@ -61,7 +61,7 @@ export function DashboardSummary({
             {formattedValue}
           </p>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-0.5 text-xs text-muted-foreground">
           {summary.total} всего · {summary.available} доступно
           {summary.claimed > 0 ? ` · ${summary.claimed} в брони` : ""}
           {summary.purchased > 0 ? ` · ${summary.purchased} куплено` : ""}
@@ -98,12 +98,12 @@ export function DashboardSummary({
       </div>
 
       {filterChips.length > 0 ? (
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mt-2 flex flex-wrap items-center gap-1.5 sm:mt-4 sm:gap-2">
           {filterChips.map((chip) => (
             <Badge
               key={chip.key}
               variant="outline"
-              className={`group inline-flex items-center gap-1 ${uiSurface.chip} px-2 py-1 text-[11px] text-foreground`}
+              className={`group inline-flex items-center gap-1 ${uiSurface.chip} px-2 py-0.5 text-[11px] text-foreground sm:py-1`}
             >
               {chip.label}
               <button

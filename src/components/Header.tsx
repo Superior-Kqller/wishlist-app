@@ -38,9 +38,9 @@ export function Header() {
   if (isLoginPage) return null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-[hsl(var(--surface-2)/0.92)] shadow-[0_1px_8px_rgba(0,0,0,0.45)] backdrop-blur-lg lg:hidden">
+    <header className="sticky top-0 z-40 border-b border-border bg-[hsl(var(--surface-2)/0.92)] shadow-[0_1px_8px_rgba(0,0,0,0.34)] backdrop-blur-lg lg:hidden">
       <div className="pt-[env(safe-area-inset-top,0px)]">
-        <div className="container mx-auto flex min-h-[64px] items-center px-4 sm:min-h-[72px]">
+        <div className="container mx-auto flex min-h-[54px] items-center px-3 sm:min-h-[64px] sm:px-4">
           <button
             onClick={() => router.push("/")}
             className="shrink-0 transition-opacity hover:opacity-90"
@@ -103,7 +103,7 @@ export function Header() {
             ) : null}
           </nav>
 
-          <div className="ml-auto flex min-w-[88px] items-center justify-end gap-1 sm:min-w-[220px] sm:gap-2 lg:min-w-[340px]">
+          <div className="ml-auto flex min-w-[56px] items-center justify-end gap-1 sm:min-w-[220px] sm:gap-2 lg:min-w-[340px]">
             <div className="hidden items-center gap-1.5 sm:flex lg:hidden">
               {isAdmin ? (
                 <Button
@@ -168,7 +168,7 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-11 min-h-[44px] min-w-[44px] shrink-0"
+                    className="size-10 min-h-[44px] min-w-[44px] shrink-0"
                     aria-label="Открыть меню"
                   >
                     <Menu className="h-5 w-5" />

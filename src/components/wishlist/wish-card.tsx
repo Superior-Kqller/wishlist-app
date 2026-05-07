@@ -90,14 +90,14 @@ export const WishCard = memo(function WishCard({
 
   const showImage = Boolean(imageUrl && !imageError);
 
-  const visibleTags = item.tags.slice(0, 2);
+  const visibleTags = item.tags.slice(0, 1);
   const hiddenTagCount = Math.max(0, item.tags.length - visibleTags.length);
 
   return (
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "group/card flex h-full min-h-[27rem] flex-col overflow-hidden border-border/80 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] shadow-[0_14px_34px_rgba(0,0,0,0.28),inset_0_1px_0_hsl(var(--foreground)/0.035)]",
+          "group/card flex h-full min-h-[27rem] flex-col overflow-hidden border-border/80 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] shadow-[0_14px_34px_rgba(0,0,0,0.28),inset_0_1px_0_hsl(var(--foreground)/0.035)] max-sm:min-h-0 max-sm:rounded-xl max-sm:shadow-[0_8px_22px_rgba(0,0,0,0.24),inset_0_1px_0_hsl(var(--foreground)/0.035)]",
           isBought && "opacity-45 grayscale",
           isCardInteractive &&
             "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_28px_hsl(var(--primary)/0.16),inset_0_1px_0_hsl(var(--foreground)/0.05)] focus-visible:border-primary/45 focus-visible:shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_28px_hsl(var(--primary)/0.16),inset_0_1px_0_hsl(var(--foreground)/0.05)]",
@@ -111,7 +111,7 @@ export const WishCard = memo(function WishCard({
       >
         <div
           data-testid="wishlist-card-v2-media"
-          className="group relative aspect-[4/3] shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] sm:aspect-[4/5]"
+          className="group relative aspect-[16/10] shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] sm:aspect-[4/5]"
         >
           <PriorityBadgeOverlay priority={item.priority} />
           {selectionMode ? (
@@ -129,7 +129,7 @@ export const WishCard = memo(function WishCard({
             <StatusBadge
               status={item.status}
               className={cn(
-                "pointer-events-none absolute bottom-2 right-2 z-10 max-w-[72%] truncate border px-2 py-1 text-[11px] font-medium backdrop-blur-sm sm:bottom-2.5 sm:right-2.5",
+                "pointer-events-none absolute bottom-2 right-2 z-10 max-w-[72%] truncate border px-1.5 py-0.5 text-[10px] font-medium backdrop-blur-sm sm:bottom-2.5 sm:right-2.5 sm:px-2 sm:py-1 sm:text-[11px]",
                 "bg-[hsl(var(--surface-2))/0.82] shadow-[0_8px_18px_rgba(0,0,0,0.28)]",
               )}
             />
@@ -155,11 +155,11 @@ export const WishCard = memo(function WishCard({
           />
         </div>
 
-        <CardHeader className="border-t border-border/45 p-3 pb-0">
+        <CardHeader className="border-t border-border/45 p-2.5 pb-0 sm:p-3 sm:pb-0">
           <CardTitle
             data-testid="wishlist-card-v2-title"
             className={cn(
-              "line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-foreground sm:text-[15px]",
+              "line-clamp-2 min-h-[2.25rem] text-sm font-semibold leading-snug text-foreground sm:min-h-[2.5rem] sm:text-[15px]",
               isBought && "line-through"
             )}
           >
@@ -167,8 +167,8 @@ export const WishCard = memo(function WishCard({
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="flex min-h-[6.5rem] flex-col gap-3 p-3">
-          <div className="flex min-h-6 flex-wrap items-center gap-1.5">
+        <CardContent className="flex min-h-[5.25rem] flex-col gap-2 p-2.5 sm:min-h-[6.5rem] sm:gap-3 sm:p-3">
+          <div className="flex min-h-5 flex-wrap items-center gap-1.5 sm:min-h-6">
             {visibleTags.length > 0 ? (
               <>
                 {visibleTags.map((tag) => {
@@ -177,7 +177,7 @@ export const WishCard = memo(function WishCard({
                   return (
                     <span
                       key={tag.id}
-                      className="max-w-[8rem] truncate rounded-full border px-2 py-0.5 text-[11px] font-medium"
+                      className="max-w-[8rem] truncate rounded-full border px-1.5 py-0.5 text-[10px] font-medium sm:px-2 sm:text-[11px]"
                       style={{ borderColor: color, color }}
                     >
                       {tag.name}
@@ -185,7 +185,7 @@ export const WishCard = memo(function WishCard({
                   );
                 })}
                 {hiddenTagCount > 0 ? (
-                  <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                  <span className="rounded-full border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground sm:px-2 sm:text-[11px]">
                     +{hiddenTagCount}
                   </span>
                 ) : null}
@@ -195,10 +195,10 @@ export const WishCard = memo(function WishCard({
             )}
           </div>
           {(ownerName || item.price != null) && (
-            <div className="mt-auto flex items-center justify-between gap-3 border-t border-border/55 pt-3">
+            <div className="mt-auto flex items-center justify-between gap-2 border-t border-border/55 pt-2 sm:gap-3 sm:pt-3">
               {ownerName ? (
-                <div className="flex min-w-0 flex-1 items-center gap-2">
-                  <Avatar className="h-7 w-7 shrink-0">
+                <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
+                  <Avatar className="h-6 w-6 shrink-0 sm:h-7 sm:w-7">
                     {ownerImage && !ownerImageError ? (
                       <Image
                         src={ownerImage}
@@ -220,7 +220,7 @@ export const WishCard = memo(function WishCard({
                       </AvatarFallback>
                     )}
                   </Avatar>
-                  <span className="min-w-0 truncate text-xs text-muted-foreground">{ownerName}</span>
+                  <span className="min-w-0 truncate text-[11px] text-muted-foreground sm:text-xs">{ownerName}</span>
                 </div>
               ) : (
                 <span className="min-w-0 shrink" aria-hidden />
@@ -228,7 +228,7 @@ export const WishCard = memo(function WishCard({
               {item.price != null ? (
                 <p
                   data-testid="wishlist-card-v2-price"
-                  className="shrink-0 text-right text-[15px] font-semibold tabular-nums tracking-tight text-foreground"
+                  className="shrink-0 text-right text-sm font-semibold tabular-nums tracking-tight text-foreground sm:text-[15px]"
                 >
                   {formatPrice(item.price, item.currency)}
                 </p>
@@ -239,7 +239,7 @@ export const WishCard = memo(function WishCard({
 
         <CardFooter
           data-testid="wishlist-card-v2-footer"
-          className="mt-auto flex min-h-[3.75rem] flex-col gap-2 border-t border-border/45 p-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-2"
+          className="mt-auto flex min-h-[3.25rem] flex-row items-center gap-2 border-t border-border/45 p-2.5 sm:min-h-[3.75rem] sm:flex-wrap sm:justify-between sm:p-3"
         >
           {selectionMode ? (
             <p className="text-xs text-muted-foreground">
@@ -248,14 +248,14 @@ export const WishCard = memo(function WishCard({
           ) : null}
           {item.url || canManage ? (
             <TooltipProvider delayDuration={450} skipDelayDuration={200}>
-              <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+              <div className="flex w-full flex-row items-center gap-2 sm:justify-between sm:gap-3">
                 {item.url ? (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="outline"
                         asChild
-                        className="h-11 min-h-[44px] w-full justify-center rounded-lg border-primary/35 bg-primary/10 px-4 text-sm font-semibold shadow-none hover:border-primary/55 hover:bg-primary/16 sm:h-9 sm:min-h-9 sm:w-auto sm:min-w-[8rem]"
+                        className="h-11 min-h-[44px] min-w-0 flex-1 justify-center rounded-lg border-primary/35 bg-primary/10 px-3 text-sm font-semibold shadow-none hover:border-primary/55 hover:bg-primary/16 sm:h-9 sm:min-h-9 sm:w-auto sm:min-w-[8rem] sm:flex-none sm:px-4"
                       >
                         <a
                           href={item.url}
@@ -280,7 +280,7 @@ export const WishCard = memo(function WishCard({
                         data-testid="wishlist-card-actions"
                         intent="default"
                         aria-label="Действия с карточкой"
-                        className="w-full min-w-0 sm:w-11"
+                        className="size-11 min-w-[44px] shrink-0 sm:w-11"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <MoreHorizontal className="h-5 w-5" />

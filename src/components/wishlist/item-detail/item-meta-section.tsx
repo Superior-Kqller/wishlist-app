@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Clock3,
   ExternalLink,
@@ -48,13 +49,19 @@ export function ItemMetaSection({
   onTogglePurchased,
   onClaimAction,
 }: ItemMetaSectionProps) {
+  const [showFullNotes, setShowFullNotes] = useState(false);
   const actionButtonClass =
     "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-border bg-card/85 px-3 text-foreground backdrop-blur-[8px] hover:border-border/90 hover:bg-accent sm:h-9 sm:min-h-9 sm:w-auto";
   const claimButtonVariant = !item.url && !canManage ? "default" : "outline";
+  const hasLongNotes = Boolean(item.notes && item.notes.length > 180);
+
+  useEffect(() => {
+    setShowFullNotes(false);
+  }, [item.id]);
 
   return (
     <>
-      <DialogHeader className="space-y-3 pr-10 sm:pr-12">
+      <DialogHeader className="space-y-2 pr-10 sm:space-y-3 sm:pr-12">
         <div className="min-w-0">
           <DialogTitle
             className={cn(
@@ -64,45 +71,50 @@ export function ItemMetaSection({
           >
             {item.title}
           </DialogTitle>
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+            {item.price != null && item.price > 0 ? (
+              <p className="mr-1 text-xl font-semibold tabular-nums tracking-tight text-foreground">
+                {formatPrice(item.price, item.currency)}
+              </p>
+            ) : null}
             <StatusBadge status={item.status} />
             <PriorityBadge priority={item.priority} />
           </div>
         </div>
       </DialogHeader>
 
-      {(item.user || (item.price != null && item.price > 0)) && (
-        <div className="flex items-center justify-between gap-3">
-          {item.user ? (
-            <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
-              <UserAvatar
-                avatarUrl={item.user.avatarUrl || undefined}
-                name={item.user.name}
-                userId={item.user.id}
-                size="sm"
-              />
-              <span className="truncate">{item.user.name}</span>
-            </div>
-          ) : (
-            <span className="min-w-0 shrink" aria-hidden />
-          )}
-          {item.price != null && item.price > 0 ? (
-            <div className="shrink-0 text-right">
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                Ориентировочная стоимость
-              </p>
-              <p className="text-lg font-semibold tabular-nums">
-                {formatPrice(item.price, item.currency)}
-              </p>
-            </div>
-          ) : null}
+      {item.user ? (
+        <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
+          <UserAvatar
+            avatarUrl={item.user.avatarUrl || undefined}
+            name={item.user.name}
+            userId={item.user.id}
+            size="sm"
+          />
+          <span className="truncate">{item.user.name}</span>
         </div>
-      )}
+      ) : null}
 
       {item.notes ? (
-        <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-          {item.notes}
-        </p>
+        <div className="space-y-1">
+          <p
+            className={cn(
+              "whitespace-pre-wrap text-sm text-muted-foreground",
+              hasLongNotes && !showFullNotes && "line-clamp-4",
+            )}
+          >
+            {item.notes}
+          </p>
+          {hasLongNotes ? (
+            <button
+              type="button"
+              className="text-xs font-medium text-primary hover:text-primary/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+              onClick={() => setShowFullNotes((value) => !value)}
+            >
+              {showFullNotes ? "Свернуть" : "Показать полностью"}
+            </button>
+          ) : null}
+        </div>
       ) : null}
 
       {item.tags.length > 0 ? (
@@ -114,7 +126,7 @@ export function ItemMetaSection({
               <Badge
                 key={tag.id}
                 variant="outline"
-                className="text-xs"
+                className="px-1.5 py-0.5 text-[11px] sm:text-xs"
                 style={{ borderColor: color, color }}
               >
                 {tag.name}

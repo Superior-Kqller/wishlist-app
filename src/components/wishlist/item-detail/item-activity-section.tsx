@@ -31,9 +31,9 @@ export function ItemActivitySection({
     <div className="space-y-2.5 border-t pt-3 sm:space-y-3 sm:pt-4">
       <h3 className="text-sm font-semibold">Комментарии</h3>
 
-      <div className="max-h-48 space-y-2 overflow-y-auto">
+      <div className="max-h-40 space-y-2 overflow-y-auto sm:max-h-48">
         {comments.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Пока нет комментариев.</p>
+          <p className="text-sm text-muted-foreground">Комментариев пока нет</p>
         ) : (
           comments.map((comment) => (
             <div
@@ -94,7 +94,7 @@ export function ItemActivitySection({
           value={commentText}
           onChange={(event) => onCommentTextChange(event.target.value)}
           placeholder="Добавить комментарий..."
-          className="min-h-[72px] resize-none sm:min-h-[80px] sm:flex-1"
+          className="min-h-[56px] resize-none sm:min-h-[80px] sm:flex-1"
           maxLength={2000}
           disabled={submittingComment}
         />

@@ -9,7 +9,7 @@ interface BrandLockupProps {
 
 export function BrandLockup({ className }: BrandLockupProps) {
   return (
-    <div className={cn("flex min-w-0 items-center gap-2.5 sm:gap-3", className)}>
+    <div className={cn("flex min-w-0 items-center gap-2 sm:gap-3", className)}>
       <Image
         src="/assets/logo/logo-mark-1.8.0-512.png"
         alt="Логотип Вишлист"
@@ -17,13 +17,13 @@ export function BrandLockup({ className }: BrandLockupProps) {
         height={72}
         priority
         unoptimized
-        className="h-9 w-9 shrink-0 rounded-xl object-contain sm:h-10 sm:w-10"
+        className="h-8 w-8 shrink-0 rounded-lg object-contain sm:h-10 sm:w-10 sm:rounded-xl"
       />
       <div className="flex min-w-0 flex-col items-start text-left leading-tight">
-        <span className="truncate text-base font-bold tracking-[-0.01em] text-foreground sm:text-lg">
+        <span className="truncate text-[15px] font-bold text-foreground sm:text-lg">
           Вишлист
         </span>
-        <span className="line-clamp-1 max-w-[65vw] text-[11px] uppercase tracking-[0.08em] text-muted-foreground sm:max-w-none">
+        <span className="line-clamp-1 max-w-[65vw] text-[10px] uppercase tracking-[0.06em] text-muted-foreground sm:max-w-none sm:text-[11px]">
           Каталог желаний
         </span>
       </div>

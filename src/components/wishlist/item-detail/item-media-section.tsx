@@ -15,7 +15,7 @@ export function ItemMediaSection({ item }: { item: WishlistItem }) {
   }, [item.id]);
 
   return (
-    <div className="relative h-[min(34vh,240px)] w-full shrink-0 overflow-hidden bg-[radial-gradient(circle_at_50%_10%,hsl(var(--primary)/0.12),transparent_22rem),hsl(var(--surface-1))] sm:h-[280px]">
+    <div className="relative h-[min(30vh,200px)] w-full shrink-0 overflow-hidden bg-[radial-gradient(circle_at_50%_10%,hsl(var(--primary)/0.12),transparent_22rem),hsl(var(--surface-1))] sm:h-[280px]">
       {mainImage && !imageError ? (
         <Image
           src={mainImage}
