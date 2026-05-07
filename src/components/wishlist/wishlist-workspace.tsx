@@ -151,7 +151,7 @@ export function WishlistWorkspace({
         <div className="grid min-w-0 grid-cols-4 items-center gap-1.5 sm:hidden">
           <Button
             variant="outline"
-            className="relative h-11 min-w-0 gap-1 rounded-lg px-2 text-[11px]"
+            className="relative h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px]"
             onClick={() => onMobileFiltersOpenChange(true)}
             title="Фильтры"
             aria-label={
@@ -161,7 +161,7 @@ export function WishlistWorkspace({
             }
           >
             <SlidersHorizontal className="h-4 w-4 shrink-0" />
-            <span className="truncate">Фильтры</span>
+            <span className="min-w-0 truncate">Фильтр</span>
             {hasActiveFilters ? (
               <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-background bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
                 {activeFilterCount}
@@ -170,22 +170,22 @@ export function WishlistWorkspace({
           </Button>
           <Button
             variant="outline"
-            className="h-11 min-w-0 gap-1 rounded-lg px-2 text-[11px]"
+            className="h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px]"
             onClick={() => onMobileFiltersOpenChange(true)}
             title="Сортировка"
           >
             <ArrowUpDown className="h-4 w-4 shrink-0" />
-            <span className="truncate">Сортировка</span>
+            <span className="min-w-0 truncate">Сорт</span>
           </Button>
           <Button
             variant={selectionMode ? "secondary" : "outline"}
-            className="h-11 min-w-0 gap-1 rounded-lg px-2 text-[11px]"
+            className="h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px]"
             onClick={onToggleSelectionMode}
             title={selectionMode ? "Отменить выбор" : "Выбрать"}
             aria-label={selectionMode ? "Отменить выбор" : "Выбрать карточки"}
           >
             <CheckSquare className="h-4 w-4 shrink-0" />
-            <span className="truncate">{selectionMode ? "Готово" : "Выбрать"}</span>
+            <span className="min-w-0 truncate">{selectionMode ? "Готово" : "Выбор"}</span>
           </Button>
 
           <DropdownMenu>
@@ -193,11 +193,11 @@ export function WishlistWorkspace({
               <Button
                 type="button"
                 variant="outline"
-                className="h-11 min-w-0 gap-1 rounded-lg px-2 text-[11px]"
+                className="h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px]"
                 aria-label="Ещё действия"
               >
                 <MoreHorizontal className="h-4 w-4 shrink-0" />
-                <span className="truncate">Ещё</span>
+                <span className="min-w-0 truncate">Ещё</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">

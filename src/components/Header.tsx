@@ -168,7 +168,7 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-9 min-h-[44px] min-w-[44px] shrink-0 text-muted-foreground"
+                    className="size-10 min-h-[44px] min-w-[44px] shrink-0 rounded-xl border border-border/35 bg-transparent text-muted-foreground shadow-none hover:bg-accent/60 focus-visible:ring-1 focus-visible:ring-primary/40 focus-visible:ring-offset-0 data-[state=open]:border-border/70 data-[state=open]:bg-accent/70"
                     aria-label="Открыть меню"
                   >
                     <Menu className="h-[18px] w-[18px]" />
