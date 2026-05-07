@@ -595,8 +595,8 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen page-bg">
-      <main className="container mx-auto space-y-3 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-4 sm:px-6 sm:py-6 sm:pb-6">
-        <div className="grid items-stretch gap-2.5 sm:gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(20rem,1fr)]">
+      <main className="container mx-auto space-y-2.5 px-3 py-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-4 sm:px-6 sm:py-6 sm:pb-6">
+        <div className="grid items-stretch gap-2 sm:gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(20rem,1fr)]">
           <DashboardSummary
             summary={summary}
             eyebrow={summaryEyebrow}

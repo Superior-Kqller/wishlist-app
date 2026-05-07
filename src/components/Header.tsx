@@ -38,9 +38,9 @@ export function Header() {
   if (isLoginPage) return null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-[hsl(var(--surface-2)/0.92)] shadow-[0_1px_8px_rgba(0,0,0,0.34)] backdrop-blur-lg lg:hidden">
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-[hsl(var(--surface-2)/0.9)] shadow-[0_1px_6px_rgba(0,0,0,0.28)] backdrop-blur-lg lg:hidden">
       <div className="pt-[env(safe-area-inset-top,0px)]">
-        <div className="container mx-auto flex min-h-[54px] items-center px-3 sm:min-h-[64px] sm:px-4">
+        <div className="container mx-auto flex min-h-[50px] items-center px-3 sm:min-h-[64px] sm:px-4">
           <button
             onClick={() => router.push("/")}
             className="shrink-0 transition-opacity hover:opacity-90"
@@ -168,10 +168,10 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-10 min-h-[44px] min-w-[44px] shrink-0"
+                    className="size-9 min-h-[44px] min-w-[44px] shrink-0 text-muted-foreground"
                     aria-label="Открыть меню"
                   >
-                    <Menu className="h-5 w-5" />
+                    <Menu className="h-[18px] w-[18px]" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
