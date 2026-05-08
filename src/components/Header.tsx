@@ -15,12 +15,14 @@ import {
   Home,
   LogOut,
   Menu,
+  Plus,
   Settings,
   Shield,
 } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
 import { cn } from "@/lib/utils";
 import { uiState } from "@/lib/ui-contract";
+import { useHeaderActions } from "@/lib/header-actions";
 
 export function Header() {
   const { data: session } = useSession();
@@ -28,11 +30,22 @@ export function Header() {
   const pathname = usePathname();
   const isAdmin = session?.user?.role === "ADMIN";
   const isLoginPage = pathname === "/login";
+  const {
+    actions: { onAddItem },
+  } = useHeaderActions();
 
   const handleSignOut = () => {
     const currentOrigin =
       typeof window !== "undefined" ? window.location.origin : "";
     signOut({ callbackUrl: currentOrigin ? `${currentOrigin}/login` : "/login" });
+  };
+
+  const handleAddItem = () => {
+    if (pathname === "/" && onAddItem) {
+      onAddItem();
+      return;
+    }
+    router.push("/?add=1");
   };
 
   if (isLoginPage) return null;
@@ -162,7 +175,17 @@ export function Header() {
               </Button>
             </div>
 
-            <div className="sm:hidden">
+            <div className="flex items-center gap-1 sm:hidden">
+              <Button
+                variant="default"
+                size="icon"
+                onClick={handleAddItem}
+                className="size-10 min-h-[44px] min-w-[44px] shrink-0 rounded-xl border border-primary/35 shadow-[0_7px_18px_rgba(0,0,0,0.26),0_0_12px_hsl(var(--primary)/0.16)]"
+                title="Добавить товар"
+                aria-label="Добавить товар"
+              >
+                <Plus className="h-[18px] w-[18px]" />
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -175,6 +198,19 @@ export function Header() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
+                  <DropdownMenuItem onClick={() => router.push("/")}>
+                    <Home className="mr-2 h-4 w-4" />
+                    Главная
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/stats")}>
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    Статистика
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/settings")}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Настройки
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   {isAdmin ? (
                     <DropdownMenuItem onClick={() => router.push("/admin")}>
                       <Shield className="mr-2 h-4 w-4" />
