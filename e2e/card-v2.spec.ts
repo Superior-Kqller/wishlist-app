@@ -32,7 +32,7 @@ test("card-priority-select-visible-and-changeable", async ({ page }) => {
   await expect(prioritySelect).toContainText("P5");
 });
 
-test("card-v2-layout-price-in-footer", async ({ page }) => {
+test("card-v2-layout-price-near-title", async ({ page }) => {
   await loginAsUser(page);
 
   const firstCard = page.getByTestId("wishlist-card-v2").first();
@@ -47,6 +47,7 @@ test("card-v2-layout-price-in-footer", async ({ page }) => {
   await expect(footer).toBeVisible();
   await expect(price).toBeVisible();
   await expect(media.getByTestId("wishlist-card-v2-price")).toHaveCount(0);
+  await expect(footer.getByTestId("wishlist-card-v2-price")).toHaveCount(0);
   await expect(title).toHaveClass(/line-clamp-2/);
 });
 

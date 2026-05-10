@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { UserAvatar } from "@/components/UserAvatar";
 import type { ItemComment } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
+import { cn } from "@/lib/utils";
 
 type ItemActivitySectionProps = {
   comments: ItemComment[];
@@ -16,6 +17,7 @@ type ItemActivitySectionProps = {
   onCommentTextChange: (value: string) => void;
   onSubmitComment: (event: React.FormEvent) => void;
   onDeleteComment: (commentId: string) => void;
+  className?: string;
 };
 
 export function ItemActivitySection({
@@ -27,14 +29,15 @@ export function ItemActivitySection({
   onCommentTextChange,
   onSubmitComment,
   onDeleteComment,
+  className,
 }: ItemActivitySectionProps) {
   const { locale, t } = useI18n();
 
   return (
-    <div className="space-y-2.5 border-t pt-3 sm:space-y-3 sm:pt-4">
-      <h3 className="text-sm font-semibold">{t("Комментарии")}</h3>
+    <div className={cn("space-y-3 border-t border-border/70 pt-4 sm:space-y-4 sm:pt-5", className)}>
+      <h3 className="text-sm font-semibold text-foreground">{t("Комментарии")}</h3>
 
-      <div className="max-h-40 space-y-2 overflow-y-auto sm:max-h-48">
+      <div className="max-h-40 space-y-2 overflow-y-auto sm:max-h-52">
         {comments.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("Комментариев пока нет")}</p>
         ) : (

@@ -221,13 +221,22 @@ export function WishlistWorkspace({
           </DropdownMenu>
         </div>
 
-        <div className="hidden min-w-0 w-full flex-wrap items-center justify-between gap-3 sm:flex">
-          <div className="flex min-w-[min(100%,28rem)] flex-1 flex-wrap items-center gap-2">
+        <div className="hidden min-w-0 w-full flex-col gap-2 sm:flex xl:flex-row xl:items-start xl:justify-between">
+          <div className="flex min-w-0 flex-1 flex-col gap-2 xl:max-w-[42rem]">
             <WishlistSearchInput
               search={search}
               onSearchChange={onSearchChange}
               className="min-w-[18rem] flex-1"
             />
+            <TagFilter
+              tags={tagsForFilters}
+              selectedTags={effectiveSelectedTags}
+              onToggleTag={onToggleTag}
+              onClearTags={onClearTags}
+            />
+          </div>
+
+          <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
             {currentUserId && usersWithStats.length > 0 ? (
               <CombinedFilter
                 currentUserId={currentUserId}
@@ -241,11 +250,33 @@ export function WishlistWorkspace({
                 onEditList={onEditSelectedList}
               />
             ) : null}
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
+            <WishlistToolbarControls
+              sortBy={sortBy}
+              onSortChange={onSortChange}
+              showPurchased={showPurchased}
+              onTogglePurchased={onTogglePurchasedVisibility}
+              selectionMode={selectionMode}
+              onToggleSelection={onToggleSelectionMode}
+              showSelectionButton={false}
+            />
+            <WishlistViewToggle
+              value={viewMode}
+              onValueChange={onViewModeChange}
+              className="hidden lg:inline-flex"
+            />
+            <Button
+              type="button"
+              variant={selectionMode ? "secondary" : "outline"}
+              size="sm"
+              className={selectionMode ? uiState.selectionActive : uiState.selectionIdle}
+              onClick={onToggleSelectionMode}
+            >
+              <CheckSquare className="h-4 w-4 shrink-0" />
+              {selectionMode ? t("Режим выбора") : t("Выбрать")}
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button type="button" variant="outline" size="sm" className="h-9 gap-2">
+                <Button type="button" variant="outline" size="sm" className="h-9 gap-2 text-muted-foreground hover:text-foreground">
                   <Download className="h-4 w-4" />
                   {t("Экспорт")}
                 </Button>
@@ -262,43 +293,6 @@ export function WishlistWorkspace({
             <Button type="button" size="sm" className="h-9 gap-2" onClick={onAddItem}>
               <Plus className="h-4 w-4" />
               {t("Добавить товар")}
-            </Button>
-          </div>
-        </div>
-
-        <div className="hidden min-w-0 w-full items-center justify-between gap-2 sm:flex">
-          <div className="min-w-0 flex-1">
-            <TagFilter
-              tags={tagsForFilters}
-              selectedTags={effectiveSelectedTags}
-              onToggleTag={onToggleTag}
-              onClearTags={onClearTags}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <WishlistViewToggle
-              value={viewMode}
-              onValueChange={onViewModeChange}
-              className="hidden lg:inline-flex"
-            />
-            <WishlistToolbarControls
-              sortBy={sortBy}
-              onSortChange={onSortChange}
-              showPurchased={showPurchased}
-              onTogglePurchased={onTogglePurchasedVisibility}
-              selectionMode={selectionMode}
-              onToggleSelection={onToggleSelectionMode}
-              showSelectionButton={false}
-            />
-            <Button
-              type="button"
-              variant={selectionMode ? "secondary" : "outline"}
-              size="sm"
-              className={selectionMode ? uiState.selectionActive : uiState.selectionIdle}
-              onClick={onToggleSelectionMode}
-            >
-              <CheckSquare className="h-4 w-4 shrink-0" />
-              {selectionMode ? t("Режим выбора") : t("Выбрать")}
             </Button>
           </div>
         </div>

@@ -92,14 +92,14 @@ export const WishCard = memo(function WishCard({
 
   const showImage = Boolean(imageUrl && !imageError);
 
-  const visibleTags = item.tags.slice(0, 1);
+  const visibleTags = item.tags.slice(0, 2);
   const hiddenTagCount = Math.max(0, item.tags.length - visibleTags.length);
 
   return (
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "group/card flex h-full min-h-[27rem] flex-col overflow-hidden border-border/80 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] shadow-[0_14px_34px_rgba(0,0,0,0.28),inset_0_1px_0_hsl(var(--foreground)/0.035)] max-sm:min-h-0 max-sm:rounded-xl max-sm:shadow-[0_8px_22px_rgba(0,0,0,0.24),inset_0_1px_0_hsl(var(--foreground)/0.035)]",
+          "group/card flex h-full min-h-[24.75rem] flex-col overflow-hidden border-border/80 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] shadow-[0_14px_34px_rgba(0,0,0,0.28),inset_0_1px_0_hsl(var(--foreground)/0.035)] max-sm:min-h-0 max-sm:rounded-xl max-sm:shadow-[0_8px_22px_rgba(0,0,0,0.24),inset_0_1px_0_hsl(var(--foreground)/0.035)]",
           isBought && "opacity-45 grayscale",
           isCardInteractive &&
             "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_28px_hsl(var(--primary)/0.16),inset_0_1px_0_hsl(var(--foreground)/0.05)] focus-visible:border-primary/45 focus-visible:shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_28px_hsl(var(--primary)/0.16),inset_0_1px_0_hsl(var(--foreground)/0.05)]",
@@ -113,7 +113,7 @@ export const WishCard = memo(function WishCard({
       >
         <div
           data-testid="wishlist-card-v2-media"
-          className="group relative aspect-[16/10] shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] sm:aspect-[4/5]"
+          className="group relative aspect-[16/10] shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] sm:aspect-[4/3]"
         >
           <PriorityBadgeOverlay priority={item.priority} />
           {selectionMode ? (
@@ -167,10 +167,18 @@ export const WishCard = memo(function WishCard({
           >
             {item.title}
           </CardTitle>
+          {item.price != null ? (
+            <p
+              data-testid="wishlist-card-v2-price"
+              className="text-base font-semibold leading-tight tabular-nums tracking-tight text-foreground sm:text-[17px]"
+            >
+              {formatPrice(item.price, item.currency, language)}
+            </p>
+          ) : null}
         </CardHeader>
 
-        <CardContent className="flex min-h-[5.25rem] flex-col gap-2 p-2.5 sm:min-h-[6.5rem] sm:gap-3 sm:p-3">
-          <div className="flex min-h-5 flex-wrap items-center gap-1.5 sm:min-h-6">
+        <CardContent className="flex min-h-[4.75rem] flex-col gap-2 p-2.5 sm:min-h-[5.5rem] sm:p-3">
+          <div className="flex min-h-5 flex-wrap items-center gap-1 sm:min-h-6">
             {visibleTags.length > 0 ? (
               <>
                 {visibleTags.map((tag) => {
@@ -179,7 +187,7 @@ export const WishCard = memo(function WishCard({
                   return (
                     <span
                       key={tag.id}
-                      className="max-w-[8rem] truncate rounded-full border px-1.5 py-0.5 text-[10px] font-medium sm:px-2 sm:text-[11px]"
+                      className="max-w-[7rem] truncate rounded-full border px-1.5 py-0.5 text-[10px] font-medium opacity-90 sm:max-w-[7.5rem] sm:px-2 sm:text-[11px]"
                       style={{ borderColor: color, color }}
                     >
                       {tag.name}
@@ -196,46 +204,34 @@ export const WishCard = memo(function WishCard({
               <span className="sr-only">{t("Без тегов")}</span>
             )}
           </div>
-          {(ownerName || item.price != null) && (
-            <div className="mt-auto flex items-center justify-between gap-2 border-t border-border/55 pt-2 sm:gap-3 sm:pt-3">
-              {ownerName ? (
-                <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
-                  <Avatar className="h-6 w-6 shrink-0 sm:h-7 sm:w-7">
-                    {ownerImage && !ownerImageError ? (
-                      <Image
-                        src={ownerImage}
-                        alt={ownerName}
-                        fill
-                        className="object-cover"
-                        sizes="28px"
-                        unoptimized={ownerImage.startsWith("/uploads/")}
-                        onError={() => setOwnerImageError(true)}
-                      />
-                    ) : (
-                      <AvatarFallback
-                        className={cn(
-                          "text-[10px] font-semibold text-primary-foreground",
-                          getAvatarColor(ownerId)
-                        )}
-                      >
-                        {getInitials(ownerName)}
-                      </AvatarFallback>
+          {ownerName ? (
+            <div className="mt-auto flex min-h-7 items-center gap-1.5 border-t border-border/45 pt-2 text-muted-foreground sm:gap-2">
+              <Avatar className="h-5 w-5 shrink-0 sm:h-6 sm:w-6">
+                {ownerImage && !ownerImageError ? (
+                  <Image
+                    src={ownerImage}
+                    alt={ownerName}
+                    fill
+                    className="object-cover"
+                    sizes="24px"
+                    unoptimized={ownerImage.startsWith("/uploads/")}
+                    onError={() => setOwnerImageError(true)}
+                  />
+                ) : (
+                  <AvatarFallback
+                    className={cn(
+                      "text-[9px] font-semibold text-primary-foreground",
+                      getAvatarColor(ownerId)
                     )}
-                  </Avatar>
-                  <span className="min-w-0 truncate text-[11px] text-muted-foreground sm:text-xs">{ownerName}</span>
-                </div>
-              ) : (
-                <span className="min-w-0 shrink" aria-hidden />
-              )}
-              {item.price != null ? (
-                <p
-                  data-testid="wishlist-card-v2-price"
-                  className="shrink-0 text-right text-sm font-semibold tabular-nums tracking-tight text-foreground sm:text-[15px]"
-                >
-                  {formatPrice(item.price, item.currency, language)}
-                </p>
-              ) : null}
+                  >
+                    {getInitials(ownerName)}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <span className="min-w-0 truncate text-[11px] sm:text-xs">{ownerName}</span>
             </div>
+          ) : (
+            <div className="mt-auto min-h-7 border-t border-border/45 pt-2" aria-hidden />
           )}
         </CardContent>
 

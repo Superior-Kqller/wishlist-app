@@ -24,9 +24,9 @@ export function TagFilter({
   if (tags.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-2 min-h-0">
-      <span className="text-xs text-muted-foreground font-medium shrink-0 hidden sm:inline">{t("Теги:")}</span>
-      <div className="flex flex-1 min-w-0 overflow-x-auto scrollbar-none py-0.5 -mx-1 px-1 gap-1.5 flex-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="flex items-center gap-1.5 min-h-0">
+      <span className="text-[11px] text-muted-foreground font-medium shrink-0 hidden sm:inline">{t("Теги:")}</span>
+      <div className="flex flex-1 min-w-0 overflow-x-auto scrollbar-none py-0.5 -mx-1 px-1 gap-1 flex-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {tags.map((tag) => {
           const isSelected = selectedTags.includes(tag.id);
           const color = tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
@@ -38,14 +38,14 @@ export function TagFilter({
               aria-pressed={isSelected}
               aria-label={`${isSelected ? t("Убрать тег") : t("Добавить тег")}: ${tag.name}`}
               className={cn(
-                "min-h-[44px] shrink-0 rounded-full transition-transform duration-150 focus-ring",
+                "min-h-9 shrink-0 rounded-full transition-transform duration-150 focus-ring",
                 isSelected ? "scale-[0.98]" : "hover:scale-[1.02] active:scale-95"
               )}
             >
               <Badge
                 variant={isSelected ? "default" : "outline"}
                 className={cn(
-                  "min-h-[34px] cursor-pointer rounded-full px-3 py-1 text-xs transition-all hover:opacity-90",
+                  "min-h-7 cursor-pointer rounded-full px-2.5 py-0.5 text-[11px] transition-all hover:opacity-90",
                   isSelected && "shadow-[0_0_18px_rgba(0,0,0,0.22)]"
                 )}
                 style={
@@ -63,7 +63,7 @@ export function TagFilter({
           <button
             type="button"
             onClick={onClearTags}
-            className="flex min-h-[44px] shrink-0 items-center gap-1 rounded-sm py-1 text-xs text-muted-foreground transition-colors hover:text-foreground focus-ring"
+            className="flex min-h-9 shrink-0 items-center gap-1 rounded-sm py-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground focus-ring"
             aria-label={t("Сбросить выбранные теги")}
           >
             <X className="w-3 h-3" />

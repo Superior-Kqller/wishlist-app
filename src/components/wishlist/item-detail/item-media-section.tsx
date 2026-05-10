@@ -6,7 +6,13 @@ import { ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
 
-export function ItemMediaSection({ item }: { item: WishlistItem }) {
+export function ItemMediaSection({
+  item,
+  className,
+}: {
+  item: WishlistItem;
+  className?: string;
+}) {
   const [imageError, setImageError] = useState(false);
   const mainImage = item.images?.[0] ?? null;
 
@@ -15,7 +21,12 @@ export function ItemMediaSection({ item }: { item: WishlistItem }) {
   }, [item.id]);
 
   return (
-    <div className="relative h-[min(30vh,200px)] w-full shrink-0 overflow-hidden bg-[radial-gradient(circle_at_50%_10%,hsl(var(--primary)/0.12),transparent_22rem),hsl(var(--surface-1))] sm:h-[280px]">
+    <div
+      className={cn(
+        "relative h-[min(28vh,180px)] w-full shrink-0 overflow-hidden bg-[radial-gradient(circle_at_50%_10%,hsl(var(--primary)/0.12),transparent_22rem),hsl(var(--surface-1))] sm:h-full sm:min-h-[360px]",
+        className,
+      )}
+    >
       {mainImage && !imageError ? (
         <Image
           src={mainImage}

@@ -63,19 +63,19 @@ export function ItemMetaSection({
 
   return (
     <>
-      <DialogHeader className="space-y-2 pr-10 sm:space-y-3 sm:pr-12">
+      <DialogHeader className="space-y-1.5 pr-10 sm:space-y-2 sm:pr-12">
         <div className="min-w-0">
           <DialogTitle
             className={cn(
-              "break-words text-left text-lg leading-snug sm:text-xl",
+              "break-words text-left text-lg leading-snug sm:text-[1.35rem]",
               item.purchased && "line-through",
             )}
           >
             {item.title}
           </DialogTitle>
-          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1.5">
             {item.price != null && item.price > 0 ? (
-              <p className="mr-1 text-xl font-semibold tabular-nums tracking-tight text-foreground">
+              <p className="mr-1 text-xl font-semibold leading-tight tabular-nums tracking-tight text-foreground sm:text-2xl">
                 {formatPrice(item.price, item.currency, language)}
               </p>
             ) : null}
@@ -98,10 +98,10 @@ export function ItemMetaSection({
       ) : null}
 
       {item.notes ? (
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <p
             className={cn(
-              "whitespace-pre-wrap text-sm text-muted-foreground",
+              "whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground",
               hasLongNotes && !showFullNotes && "line-clamp-4",
             )}
           >
@@ -139,7 +139,7 @@ export function ItemMetaSection({
       ) : null}
 
       {(item.url || canManage || canClaim) && (
-        <div className="grid gap-2 border-t border-border pt-3 sm:flex sm:flex-wrap sm:items-center sm:gap-2 sm:pt-3">
+        <div className="grid gap-2 border-t border-border/70 pt-3 sm:flex sm:flex-wrap sm:items-center sm:gap-2 sm:pt-3">
           {item.url ? (
             <Button
               asChild

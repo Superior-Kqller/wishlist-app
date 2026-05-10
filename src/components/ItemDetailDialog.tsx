@@ -146,7 +146,7 @@ export function ItemDetailDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         className={cn(
-          "max-w-3xl gap-0 border-primary/18 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] shadow-[0_24px_70px_rgba(0,0,0,0.5)]",
+          "max-w-5xl gap-0 border-primary/18 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] shadow-[0_24px_70px_rgba(0,0,0,0.5)]",
           /* Мобильные: почти на всю ширину и высоту экрана */
           "max-sm:max-h-[min(94dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.75rem))]",
           "max-sm:w-[calc(100vw-0.75rem)] max-sm:max-w-[min(42rem,calc(100vw-0.75rem))]",
@@ -159,29 +159,33 @@ export function ItemDetailDialog({
             ? `, ${t("Ориентировочная стоимость").toLowerCase()} ${formatPrice(item.price, item.currency, language)}`
             : ""}
         </DialogDescription>
-        <ItemMediaSection item={item} />
-        <ItemDetailBody>
-          <ItemMetaSection
-            item={item}
-            canManage={canManage}
-            canClaim={canClaim}
-            statusPending={statusPending}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onTogglePurchased={handleTogglePurchased}
-            onClaimAction={handleClaimAction}
-          />
-          <ItemActivitySection
-            comments={comments}
-            currentUserId={currentUserId}
-            commentText={commentText}
-            submittingComment={submittingComment}
-            deletingCommentId={deletingCommentId}
-            onCommentTextChange={setCommentText}
-            onSubmitComment={handleAddComment}
-            onDeleteComment={handleDeleteComment}
-          />
-        </ItemDetailBody>
+        <div className="grid min-h-0 sm:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+          <ItemMediaSection item={item} />
+          <ItemDetailBody className="sm:min-h-[360px]">
+            <ItemMetaSection
+              item={item}
+              canManage={canManage}
+              canClaim={canClaim}
+              statusPending={statusPending}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onTogglePurchased={handleTogglePurchased}
+              onClaimAction={handleClaimAction}
+            />
+          </ItemDetailBody>
+          <div className="px-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:col-span-2 sm:px-6 sm:pb-6">
+            <ItemActivitySection
+              comments={comments}
+              currentUserId={currentUserId}
+              commentText={commentText}
+              submittingComment={submittingComment}
+              deletingCommentId={deletingCommentId}
+              onCommentTextChange={setCommentText}
+              onSubmitComment={handleAddComment}
+              onDeleteComment={handleDeleteComment}
+            />
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
