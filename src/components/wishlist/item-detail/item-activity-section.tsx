@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, MessageCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -35,11 +35,17 @@ export function ItemActivitySection({
 
   return (
     <div className={cn("space-y-3 rounded-xl border border-border/45 bg-[hsl(var(--surface-3))/0.34] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] sm:space-y-3.5 sm:p-4", className)}>
-      <h3 className="text-sm font-semibold text-foreground">{t("Комментарии")}</h3>
+      <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+        <MessageCircle className="h-4 w-4 text-muted-foreground/78" />
+        {t("Комментарии")}
+      </h3>
 
       <div className="max-h-40 space-y-2 overflow-y-auto sm:max-h-52">
         {comments.length === 0 ? (
-          <p className="text-sm text-muted-foreground/75">{t("Комментариев пока нет")}</p>
+          <div className="flex min-h-24 flex-col items-center justify-center text-center">
+            <MessageCircle className="h-6 w-6 text-muted-foreground/35" />
+            <p className="mt-2 text-sm text-muted-foreground/75">{t("Комментариев пока нет")}</p>
+          </div>
         ) : (
           comments.map((comment) => (
             <div

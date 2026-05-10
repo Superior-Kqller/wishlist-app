@@ -14,7 +14,7 @@ export const uiSurface = {
   shell:
     "min-h-screen bg-[hsl(var(--background))] text-foreground",
   sidebar:
-    "border-r border-border bg-[hsl(var(--surface-2))/0.86] shadow-[8px_0_28px_rgba(0,0,0,0.22)] backdrop-blur-xl",
+    "border-r border-border/45 bg-[hsl(var(--surface-2))/0.72] shadow-[10px_0_34px_rgba(0,0,0,0.18)] backdrop-blur-xl",
   topHeader:
     "border-b border-border bg-[hsl(var(--surface-2))/0.88] shadow-[0_1px_8px_rgba(0,0,0,0.38)] backdrop-blur-xl",
   pageHeader:
@@ -46,9 +46,9 @@ export const uiState = {
   focusVisible:
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   navBase:
-    "h-10 gap-2.5 border border-transparent px-3 text-muted-foreground hover:text-foreground",
+    "h-10 gap-2.5 border border-transparent px-3 text-muted-foreground/88 hover:bg-[hsl(var(--surface-3))/0.7] hover:text-foreground",
   navActive:
-    "border-primary/28 bg-primary/10 text-foreground shadow-none",
+    "border-primary/24 bg-primary/14 text-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]",
   selectionIdle:
     "h-9 gap-1.5 px-3 border border-border bg-card text-muted-foreground hover:text-foreground",
   selectionActive:

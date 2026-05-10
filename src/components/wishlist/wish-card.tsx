@@ -2,7 +2,7 @@
 
 import { memo, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
-import { Check, Globe2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
+import { Check, Globe2, Link2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -248,26 +248,49 @@ export const WishCard = memo(function WishCard({
             <TooltipProvider delayDuration={450} skipDelayDuration={200}>
               <div className="flex w-full flex-row items-center gap-2 sm:justify-between sm:gap-3">
                 {item.url ? (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        asChild
-                        className="h-11 min-h-[44px] min-w-0 flex-1 justify-center rounded-lg border-primary/30 bg-primary/10 px-3 text-sm font-semibold shadow-none hover:border-primary/50 hover:bg-primary/16 sm:h-10 sm:min-h-10 sm:w-auto sm:min-w-[8rem] sm:flex-none sm:px-4"
-                      >
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                  <>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="icon"
                           aria-label={t("Открыть ссылку на товар в новой вкладке")}
-                          onClick={(e) => e.stopPropagation()}
+                          className="size-11 min-w-[44px] shrink-0 rounded-lg border-border/55 bg-card/70 text-muted-foreground shadow-none hover:text-foreground sm:size-10 sm:min-w-10"
                         >
-                          {t("Открыть")}
-                        </a>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>{t("Открыть в новой вкладке")}</TooltipContent>
-                  </Tooltip>
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Link2 className="h-5 w-5" />
+                          </a>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{t("Открыть в новой вкладке")}</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          asChild
+                          className="h-11 min-h-[44px] min-w-0 flex-1 justify-center rounded-lg border-primary/30 bg-primary/10 px-3 text-sm font-semibold shadow-none hover:border-primary/50 hover:bg-primary/16 sm:h-10 sm:min-h-10 sm:w-auto sm:min-w-[8rem] sm:flex-none sm:px-4"
+                        >
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={t("Открыть ссылку на товар в новой вкладке")}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {t("Открыть")}
+                          </a>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{t("Открыть в новой вкладке")}</TooltipContent>
+                    </Tooltip>
+                  </>
                 ) : null}
 
                 {canManage && !selectionMode ? (

@@ -1,6 +1,15 @@
 "use client";
 
-import { Sparkles, RotateCcw, X } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock3,
+  Package,
+  RotateCcw,
+  ShoppingBag,
+  Sparkles,
+  WalletCards,
+  X,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -41,11 +50,11 @@ export function DashboardSummary({
       ? `${Math.round(summary.totalValue).toLocaleString(locale)} ₽`
       : "—";
   const metrics = [
-    [t("Всего"), summary.total],
-    [t("Доступно"), summary.available],
-    [t("Забронировано"), summary.claimed],
-    [t("Куплено"), summary.purchased],
-    [t("Общая стоимость"), formattedValue],
+    { label: t("Всего"), value: summary.total, icon: Package },
+    { label: t("Доступно"), value: summary.available, icon: CheckCircle2 },
+    { label: t("Забронировано"), value: summary.claimed, icon: Clock3 },
+    { label: t("Куплено"), value: summary.purchased, icon: ShoppingBag },
+    { label: t("Общая стоимость"), value: formattedValue, icon: WalletCards },
   ];
 
   return (
@@ -85,15 +94,18 @@ export function DashboardSummary({
         </div>
 
         <div className="mt-2.5 grid grid-cols-2 gap-2.5 lg:grid-cols-5">
-          {metrics.map(([label, value]) => (
+          {metrics.map(({ label, value, icon: Icon }) => (
             <div
               key={label}
-              className="h-16 rounded-lg border border-border/32 bg-[hsl(var(--surface-3))/0.78] px-3.5 py-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)]"
+              className="relative h-16 rounded-lg border border-border/28 bg-[hsl(var(--surface-3))/0.72] px-3.5 py-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)]"
             >
               <p className="text-[11px] font-medium leading-none text-muted-foreground/78">{label}</p>
               <p className="mt-1.5 text-[1.35rem] font-semibold leading-none tabular-nums tracking-tight text-foreground">
                 {value}
               </p>
+              <span className="absolute right-3 top-2.5 inline-flex h-6 w-6 items-center justify-center rounded-full border border-primary/18 bg-primary/12 text-primary/85">
+                <Icon className="h-3.5 w-3.5" aria-hidden />
+              </span>
             </div>
           ))}
         </div>

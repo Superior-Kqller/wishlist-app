@@ -221,23 +221,17 @@ export function WishlistWorkspace({
           </DropdownMenu>
         </div>
 
-        <div className="hidden min-w-0 w-full flex-col gap-2.5 sm:flex xl:flex-row xl:items-start xl:justify-between xl:gap-6">
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5 xl:max-w-[44rem]">
+        <div className="hidden min-w-0 w-full flex-col gap-2 sm:flex">
+          <div className="flex min-w-0 flex-col gap-2 xl:flex-row xl:items-center xl:justify-between xl:gap-5">
+            <div className="min-w-0 flex-1 xl:max-w-[36rem]">
             <WishlistSearchInput
               search={search}
               onSearchChange={onSearchChange}
               className="min-w-[18rem] flex-1"
             />
-            <TagFilter
-              tags={tagsForFilters}
-              selectedTags={effectiveSelectedTags}
-              onToggleTag={onToggleTag}
-              onClearTags={onClearTags}
-            />
-          </div>
+            </div>
 
-          <div className="flex min-w-0 flex-wrap items-center justify-end gap-3">
-            <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">
+            <div className="flex min-w-0 flex-wrap items-center justify-start gap-1.5 xl:justify-end">
               {currentUserId && usersWithStats.length > 0 ? (
                 <CombinedFilter
                   currentUserId={currentUserId}
@@ -300,6 +294,13 @@ export function WishlistWorkspace({
               </Button>
             </div>
           </div>
+
+          <TagFilter
+            tags={tagsForFilters}
+            selectedTags={effectiveSelectedTags}
+            onToggleTag={onToggleTag}
+            onClearTags={onClearTags}
+          />
         </div>
 
         <FiltersDrawer

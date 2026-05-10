@@ -47,12 +47,27 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
 
   return (
     <aside className={cn(uiSurface.contentPanel, "flex h-full flex-col rounded-xl border-border/38 bg-[hsl(var(--surface-2))/0.48] p-2 shadow-[0_6px_16px_rgba(0,0,0,0.14)] sm:rounded-2xl sm:p-3.5 sm:shadow-[0_10px_24px_rgba(0,0,0,0.2),inset_0_1px_0_hsl(var(--foreground)/0.03)]")}>
-      <div className="flex items-center justify-between gap-2.5">
+      <div className="flex items-start justify-between gap-2.5">
         <div>
           <h2 className="text-[13px] font-semibold text-foreground/90">{t("Активность")}</h2>
           <p className="text-[10px] text-muted-foreground/70 sm:mt-0.5 sm:text-[11px]">{t("Последние изменения")}</p>
         </div>
-        <Clock3 className="h-3.5 w-3.5 text-muted-foreground/55" aria-hidden />
+        {recentItems.length > 2 ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-6 gap-1 px-1.5 text-[11px] text-primary/82 hover:text-primary"
+            onClick={() => setExpanded((value) => !value)}
+          >
+            {expanded ? t("Свернуть") : t("Все изменения")}
+            <ChevronDown
+              className={cn("h-3 w-3 transition-transform", expanded && "rotate-180")}
+            />
+          </Button>
+        ) : (
+          <Clock3 className="h-3.5 w-3.5 text-muted-foreground/55" aria-hidden />
+        )}
       </div>
 
       {recentItems.length > 0 ? (
@@ -104,20 +119,6 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
               </div>
             );
           })}
-          {recentItems.length > 2 ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-6 w-full gap-1 text-[11px] text-muted-foreground/72 sm:h-6 sm:gap-1.5 sm:text-[11px]"
-              onClick={() => setExpanded((value) => !value)}
-            >
-              {expanded ? t("Свернуть") : t("Все изменения")}
-              <ChevronDown
-                className={cn("h-3 w-3 transition-transform sm:h-3.5 sm:w-3.5", expanded && "rotate-180")}
-              />
-            </Button>
-          ) : null}
         </div>
       ) : (
         <div className={cn(uiSurface.emptyState, "mt-2 min-h-0 flex-1 border-border/50 bg-[hsl(var(--surface-2))/0.5] px-3 py-2.5 sm:mt-4 sm:py-6")}>

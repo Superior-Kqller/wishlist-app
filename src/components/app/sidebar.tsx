@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { UserAvatar } from "@/components/UserAvatar";
 import { useI18n } from "@/components/i18n/language-provider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -49,7 +50,7 @@ export function AppSidebar() {
   return (
     <aside
       className={cn(
-        "sticky top-0 hidden h-svh w-[17.5rem] shrink-0 flex-col px-4 py-5 lg:flex",
+        "sticky top-0 hidden h-svh w-[17rem] shrink-0 flex-col px-4 py-5 lg:flex",
         uiSurface.sidebar,
       )}
       aria-label={t("Основная навигация")}
@@ -57,7 +58,7 @@ export function AppSidebar() {
       <button
         type="button"
         onClick={() => router.push("/")}
-        className="mb-6 rounded-xl text-left transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="mb-6 rounded-xl text-left transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         aria-label={t("Вишлист — на главную")}
       >
         <BrandLockup />
@@ -77,7 +78,7 @@ export function AppSidebar() {
               type="button"
               variant="ghost"
               className={cn(
-                "justify-start rounded-lg",
+                "justify-start rounded-lg font-medium",
                 uiState.navBase,
                 active && uiState.navActive,
               )}
@@ -94,19 +95,30 @@ export function AppSidebar() {
         })}
       </nav>
 
-      <div className="rounded-xl border border-border bg-[hsl(var(--surface-3))/0.7] px-3 py-3">
-        <p className="truncate text-sm font-semibold text-foreground">
-          {session.user.name ?? t("Пользователь")}
-        </p>
-        <p className="mt-0.5 truncate text-xs text-muted-foreground">
-          {session.user.email ?? session.user.username ?? t("Аккаунт")}
-        </p>
-        <LanguageSwitcher className="mt-3 w-full justify-start px-2 text-muted-foreground hover:text-foreground" />
+      <div className="rounded-xl border border-border/45 bg-[hsl(var(--surface-3))/0.46] px-3 py-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <UserAvatar
+            avatarUrl={session.user.avatarUrl}
+            name={session.user.name ?? t("Пользователь")}
+            userId={session.user.id}
+            size="md"
+            className="ring-1 ring-border/35"
+          />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-foreground">
+              {session.user.name ?? t("Пользователь")}
+            </p>
+            <p className="mt-0.5 truncate text-xs text-muted-foreground/78">
+              {session.user.email ?? session.user.username ?? t("Аккаунт")}
+            </p>
+          </div>
+        </div>
+        <LanguageSwitcher className="mt-3 h-8 w-full justify-start px-2 text-muted-foreground/82 hover:text-foreground" />
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="mt-3 h-8 w-full justify-start gap-2 px-2 text-muted-foreground hover:text-foreground"
+          className="mt-2 h-8 w-full justify-start gap-2 border-t border-border/35 px-2 pt-2 text-muted-foreground/82 hover:text-foreground"
           onClick={handleSignOut}
         >
           <LogOut className="h-4 w-4" />
