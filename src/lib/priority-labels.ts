@@ -1,3 +1,5 @@
+import { type Language, translate } from "@/lib/i18n";
+
 export const PRIORITY_LABELS: Record<number, string> = {
   1: "Хочу при случае",
   2: "Было бы классно",
@@ -14,8 +16,9 @@ export const PRIORITY_EMOJIS: Record<number, string> = {
   5: "🚀",
 };
 
-export function getPriorityLabel(priority: number): string {
-  return PRIORITY_LABELS[priority] ?? `Приоритет ${priority}`;
+export function getPriorityLabel(priority: number, language: Language = "ru"): string {
+  const label = PRIORITY_LABELS[priority];
+  return label ? translate(language, label) : `${translate(language, "Приоритет")} ${priority}`;
 }
 
 export const PRIORITY_SHORT_LABELS: Record<number, string> = {
@@ -26,8 +29,9 @@ export const PRIORITY_SHORT_LABELS: Record<number, string> = {
   5: "Срочно",
 };
 
-export function getPriorityShortLabel(priority: number): string {
-  return PRIORITY_SHORT_LABELS[priority] ?? `P${priority}`;
+export function getPriorityShortLabel(priority: number, language: Language = "ru"): string {
+  const label = PRIORITY_SHORT_LABELS[priority];
+  return label ? translate(language, label) : `P${priority}`;
 }
 
 export function getPriorityEmoji(priority: number): string {

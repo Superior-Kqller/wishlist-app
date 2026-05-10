@@ -13,8 +13,10 @@ import { fetcher } from "@/lib/fetcher";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
+import { useI18n } from "@/components/i18n/language-provider";
 
 export default function SettingsPage() {
+  const { t, locale } = useI18n();
   const { status } = useSession();
   const router = useRouter();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -42,9 +44,9 @@ export default function SettingsPage() {
     return (
       <PageShell className="flex items-center justify-center">
         <div className="text-center space-y-2">
-          <p className="text-destructive font-medium">Не удалось загрузить профиль</p>
+          <p className="text-destructive font-medium">{t("Не удалось загрузить профиль")}</p>
           <Button variant="outline" size="sm" onClick={() => mutate()}>
-            Повторить
+            {t("Повторить")}
           </Button>
         </div>
       </PageShell>
@@ -61,8 +63,8 @@ export default function SettingsPage() {
       <PageMain className="max-w-2xl">
         <div className="space-y-6">
           <PageIntro
-            title="Настройки"
-            description="Управление вашим профилем и паролем"
+            title={t("Настройки")}
+            description={t("Управление вашим профилем и паролем")}
           />
 
           <div className="space-y-6">
@@ -81,20 +83,20 @@ export default function SettingsPage() {
             <PasswordForm key={`password-${refreshKey}`} userId={user.id} />
 
             <div className={cn(uiSurface.contentPanel, "p-5 sm:p-6")}>
-              <h3 className="font-medium mb-2">Информация</h3>
+              <h3 className="font-medium mb-2">{t("Информация")}</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Роль:</span>
+                  <span className="text-muted-foreground">{t("Роль:")}</span>
                   <Badge
                     variant={user.role === "ADMIN" ? "default" : "outline"}
                   >
-                    {user.role === "ADMIN" ? "Администратор" : "Пользователь"}
+                    {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Создан:</span>
+                  <span className="text-muted-foreground">{t("Создан:")}</span>
                   <span>
-                    {new Date(user.createdAt).toLocaleDateString("ru-RU", {
+                    {new Date(user.createdAt).toLocaleDateString(locale, {
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",

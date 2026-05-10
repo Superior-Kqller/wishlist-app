@@ -44,8 +44,10 @@ import { filterAndSortWishlistItems } from "@/lib/home/filter-wishlist-items";
 import { useInfiniteWishlistItems } from "@/hooks/use-infinite-wishlist-items";
 import { useWishlistUrlSync } from "@/hooks/use-wishlist-url-sync";
 import { useWishlistAddUrlDeepLink } from "@/hooks/use-wishlist-add-url-deeplink";
+import { useI18n } from "@/components/i18n/language-provider";
 
 function HomePageContent() {
+  const { t } = useI18n();
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -197,7 +199,7 @@ function HomePageContent() {
   const handleExport = useCallback(async (format: "csv" | "json") => {
     const res = await fetch(`/api/items/export?format=${format}`);
     if (!res.ok) {
-      toast.error("Не удалось экспортировать каталог");
+      toast.error(t("Не удалось экспортировать каталог"));
       return;
     }
     const blob = await res.blob();
@@ -209,7 +211,7 @@ function HomePageContent() {
       `wishlist.${format}`;
     a.click();
     URL.revokeObjectURL(url);
-  }, []);
+  }, [t]);
 
   const { setActions } = useHeaderActions();
   useEffect(() => {
@@ -318,41 +320,41 @@ function HomePageContent() {
 
   const selectedUserName = useMemo(() => {
     if (!normalizedSelectedUserId || normalizedSelectedUserId === "all") return null;
-    if (normalizedSelectedUserId === "me") return "Мои желания";
+    if (normalizedSelectedUserId === "me") return t("Мои желания");
     return usersWithStats.find((u) => u.id === normalizedSelectedUserId)?.name ?? null;
-  }, [normalizedSelectedUserId, usersWithStats]);
+  }, [normalizedSelectedUserId, usersWithStats, t]);
 
   const activeFilterChips = useMemo(() => {
     const chips: Array<{ key: string; label: string; onRemove: () => void }> = [];
     if (search.trim()) {
       chips.push({
         key: "search",
-        label: `Поиск: ${search.trim()}`,
+        label: `${t("Поиск")}: ${search.trim()}`,
         onRemove: () => setSearch(""),
       });
     }
     if (selectedListName) {
       chips.push({
         key: "list",
-        label: `Подборка: ${selectedListName}`,
+        label: `${t("Подборка")}: ${selectedListName}`,
         onRemove: () => syncFiltersToUrl({ listId: null }),
       });
     }
     if (normalizedSelectedUserId && normalizedSelectedUserId !== "all") {
       const userName =
         normalizedSelectedUserId === "me"
-          ? "Мои"
-          : usersWithStats.find((u) => u.id === normalizedSelectedUserId)?.name ?? "Пользователь";
+          ? t("Мои")
+          : usersWithStats.find((u) => u.id === normalizedSelectedUserId)?.name ?? t("Пользователь");
       chips.push({
         key: "user",
-        label: `Владелец: ${userName}`,
+        label: `${t("Владелец")}: ${userName}`,
         onRemove: () => syncFiltersToUrl({ userId: null, listId: null }),
       });
     }
     if (!showPurchased) {
       chips.push({
         key: "purchased",
-        label: "Купленные скрыты",
+        label: t("Купленные скрыты"),
         onRemove: () => setShowPurchased(true),
       });
     }
@@ -361,7 +363,7 @@ function HomePageContent() {
       if (!tag) return;
       chips.push({
         key: `tag-${tagId}`,
-        label: `Тег: ${tag.name}`,
+        label: `${t("Тег")}: ${tag.name}`,
         onRemove: () => {
           setSelectedTags((prev) => prev.filter((id) => id !== tagId));
         },
@@ -377,15 +379,16 @@ function HomePageContent() {
     effectiveSelectedTags,
     tagsForFilters,
     syncFiltersToUrl,
+    t,
   ]);
 
   const hasActiveFilters = activeFilterChips.length > 0;
   const summaryEyebrow = selectedListName
-    ? "Подборка"
+    ? t("Подборка")
     : selectedUserName
-      ? "Владелец"
-      : "Общий обзор";
-  const summaryTitle = selectedListName ?? selectedUserName ?? "Каталог желаний";
+      ? t("Владелец")
+      : t("Общий обзор");
+  const summaryTitle = selectedListName ?? selectedUserName ?? t("Каталог желаний");
 
   // Handlers
   const handleCreateItem = useCallback(async (data: CreateItemPayload) => {
@@ -394,11 +397,11 @@ function HomePageContent() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error("Ошибка при создании желания");
-    toast.success("Добавлено в список!");
+    if (!res.ok) throw new Error(t("Ошибка при создании желания"));
+    toast.success(t("Добавлено в список!"));
     mutateItems();
     mutate("/api/tags");
-  }, [mutateItems]);
+  }, [mutateItems, t]);
 
   const handleUpdateItem = useCallback(
     async (data: CreateItemPayload) => {
@@ -408,13 +411,13 @@ function HomePageContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Ошибка при обновлении желания");
-      toast.success("Сохранено!");
+      if (!res.ok) throw new Error(t("Ошибка при обновлении желания"));
+      toast.success(t("Сохранено!"));
       mutateItems();
       mutate("/api/tags");
       setEditingItem(null);
     },
-    [editingItem, mutateItems],
+    [editingItem, mutateItems, t],
   );
 
   const handleDeleteItem = useCallback((id: string) => {
@@ -424,11 +427,11 @@ function HomePageContent() {
   const confirmDeleteItem = useCallback(async () => {
     if (!deletingItemId) return;
     const res = await fetch(`/api/items/${deletingItemId}`, { method: "DELETE" });
-    if (!res.ok) throw new Error("Ошибка при удалении желания");
-    toast.success("Удалено");
+    if (!res.ok) throw new Error(t("Ошибка при удалении желания"));
+    toast.success(t("Удалено"));
     mutateItems();
     setDeletingItemId(null);
-  }, [deletingItemId, mutateItems]);
+  }, [deletingItemId, mutateItems, t]);
 
   const confirmDeleteList = useCallback(async () => {
     if (!listDeleteTarget) return;
@@ -437,18 +440,18 @@ function HomePageContent() {
       const res = await fetch(`/api/lists/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Не удалось удалить подборку");
+        throw new Error(err.error || t("Не удалось удалить подборку"));
       }
-      toast.success("Подборка удалена");
+      toast.success(t("Подборка удалена"));
       await mutateLists();
       await mutateItems();
       if (selectedListId === id) {
         syncFiltersToUrl({ listId: null });
       }
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Ошибка удаления");
+      toast.error(e instanceof Error ? e.message : t("Ошибка удаления"));
     }
-  }, [listDeleteTarget, selectedListId, syncFiltersToUrl, mutateItems, mutateLists]);
+  }, [listDeleteTarget, selectedListId, syncFiltersToUrl, mutateItems, mutateLists, t]);
 
   const handleTogglePurchased = useCallback(
     async (id: string, purchased: boolean) => {
@@ -457,11 +460,11 @@ function HomePageContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ purchased }),
       });
-      if (!res.ok) throw new Error("Ошибка при обновлении желания");
-      toast.success(purchased ? "Отмечено как купленное" : "Отметка снята");
+      if (!res.ok) throw new Error(t("Ошибка при обновлении желания"));
+      toast.success(purchased ? t("Отмечено как купленное") : t("Отметка снята"));
       mutateItems();
     },
-    [mutateItems],
+    [mutateItems, t],
   );
 
   const handleSetItemStatus = useCallback(
@@ -477,25 +480,25 @@ function HomePageContent() {
         if (!res.ok) {
           if (res.status === 409) {
             await mutateItems();
-            toast.error("Статус уже изменился, список обновлён");
+            toast.error(t("Статус уже изменился, список обновлён"));
             return;
           }
           const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || "Ошибка смены статуса");
+          throw new Error(err.error || t("Ошибка смены статуса"));
         }
         const statusText =
           status === "AVAILABLE"
-            ? "Бронь снята"
+            ? t("Бронь снята")
             : status === "CLAIMED"
-              ? "Товар забронирован"
-              : "Отмечено купленным";
+              ? t("Товар забронирован")
+              : t("Отмечено купленным");
         toast.success(statusText);
         await mutateItems();
       } finally {
         setPendingStatusByItemId((prev) => ({ ...prev, [id]: false }));
       }
     },
-    [mutateItems, pendingStatusByItemId]
+    [mutateItems, pendingStatusByItemId, t]
   );
 
   const handleParsed = useCallback((data: ParsedProductResponse) => {
@@ -529,12 +532,12 @@ function HomePageContent() {
       ids.map((id) => fetch(`/api/items/${id}`, { method: "DELETE" })),
     );
     const ok = results.filter((r) => r.status === "fulfilled" && (r.value as Response).ok).length;
-    toast.success(`Удалено ${ok} из ${ids.length}`);
+    toast.success(`${t("Удалено")} ${ok} / ${ids.length}`);
     setSelectedIds(new Set());
     setSelectionMode(false);
     setBulkProcessing(false);
     mutateItems();
-  }, [selectedIds, mutateItems]);
+  }, [selectedIds, mutateItems, t]);
 
   const handleBulkMarkPurchased = useCallback(async () => {
     if (selectedIds.size === 0) return;
@@ -550,12 +553,12 @@ function HomePageContent() {
       ),
     );
     const ok = results.filter((r) => r.status === "fulfilled" && (r.value as Response).ok).length;
-    toast.success(`Отмечено купленным: ${ok} из ${ids.length}`);
+    toast.success(`${t("Отмечено купленным")}: ${ok} / ${ids.length}`);
     setSelectedIds(new Set());
     setSelectionMode(false);
     setBulkProcessing(false);
     mutateItems();
-  }, [selectedIds, mutateItems]);
+  }, [selectedIds, mutateItems, t]);
 
   const handleClearSelection = useCallback(() => {
     setSelectedIds(new Set());
@@ -744,9 +747,9 @@ function HomePageContent() {
       <ConfirmDialog
         open={!!deletingItemId}
         onOpenChange={(open) => !open && setDeletingItemId(null)}
-        title="Удалить желание?"
-        description="Это действие нельзя отменить."
-        confirmLabel="Удалить"
+        title={t("Удалить желание?")}
+        description={t("Это действие нельзя отменить.")}
+        confirmLabel={t("Удалить")}
         variant="destructive"
         onConfirm={confirmDeleteItem}
       />
@@ -756,11 +759,11 @@ function HomePageContent() {
         onOpenChange={(open) => !open && setListDeleteTarget(null)}
         title={
           listDeleteTarget
-            ? `Удалить подборку «${listDeleteTarget.name}»?`
-            : "Удалить подборку?"
+            ? `${t("Удалить подборку?")} ${listDeleteTarget.name}`
+            : t("Удалить подборку?")
         }
-        description="Желания останутся в общем списке, но без привязки к этой подборке. Восстановить подборку будет нельзя."
-        confirmLabel="Удалить подборку"
+        description={t("Желания останутся в общем списке, но без привязки к этой подборке. Восстановить подборку будет нельзя.")}
+        confirmLabel={t("Удалить подборку")}
         variant="destructive"
         onConfirm={() => {
           void confirmDeleteList();

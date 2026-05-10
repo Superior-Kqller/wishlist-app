@@ -16,6 +16,7 @@ import { ItemDetailBody } from "@/components/wishlist/item-detail/item-detail-la
 import { ItemMediaSection } from "@/components/wishlist/item-detail/item-media-section";
 import { ItemMetaSection } from "@/components/wishlist/item-detail/item-meta-section";
 import { ItemActivitySection } from "@/components/wishlist/item-detail/item-activity-section";
+import { useI18n } from "@/components/i18n/language-provider";
 
 const fetcher = (url: string) =>
   fetch(url).then((r) => {
@@ -46,6 +47,7 @@ export function ItemDetailDialog({
   onSetStatus,
   statusPending = false,
 }: ItemDetailDialogProps) {
+  const { language, t } = useI18n();
   const [commentText, setCommentText] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
@@ -80,12 +82,12 @@ export function ItemDetailDialog({
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || "Ошибка при отправке");
+        throw new Error(err.error || t("Ошибка при отправке"));
       }
       setCommentText("");
       mutateComments();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Ошибка при отправке комментария");
+      toast.error(err instanceof Error ? err.message : t("Ошибка при отправке комментария"));
     } finally {
       setSubmittingComment(false);
     }
@@ -100,13 +102,13 @@ export function ItemDetailDialog({
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Не удалось удалить");
+        throw new Error(err.error || t("Не удалось удалить"));
       }
-      toast.success("Комментарий удалён");
+      toast.success(t("Комментарий удалён"));
       mutateComments();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Ошибка при удалении комментария"
+        err instanceof Error ? err.message : t("Ошибка при удалении комментария")
       );
     } finally {
       setDeletingCommentId(null);
@@ -152,9 +154,9 @@ export function ItemDetailDialog({
         bodyClassName="p-0 gap-0 overflow-y-auto overscroll-y-contain"
       >
         <DialogDescription className="sr-only">
-          Детали желания: {item.title}
+          {t("Детали желания")}: {item.title}
           {item.price != null && item.price > 0
-            ? `, ориентировочная цена ${formatPrice(item.price, item.currency)}`
+            ? `, ${t("Ориентировочная стоимость").toLowerCase()} ${formatPrice(item.price, item.currency, language)}`
             : ""}
         </DialogDescription>
         <ItemMediaSection item={item} />

@@ -13,6 +13,7 @@ import { ChevronDown, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import { resolveUserScope } from "@/lib/filter-state";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface UserFilterProps {
   selectedUserId: string | null; // null = все, "me" = мои, userId = конкретный
@@ -27,6 +28,7 @@ export function UserFilter({
   users,
   currentUserId,
 }: UserFilterProps) {
+  const { language, t } = useI18n();
   const currentUser = users.find((u) => u.id === currentUserId);
   const otherUsers = users.filter((u) => u.id !== currentUserId);
   const userScope = resolveUserScope(selectedUserId, currentUserId);
@@ -42,7 +44,7 @@ export function UserFilter({
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            aria-label="Выбрать пользователя"
+            aria-label={t("Выбрать пользователя")}
             className={cn(
               "flex h-10 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
               "border border-input hover:bg-accent hover:text-accent-foreground",
@@ -74,12 +76,12 @@ export function UserFilter({
                     size="sm"
                   />
                 )}
-                <span>Мои</span>
+                <span>{t("Мои")}</span>
               </>
             ) : (
               <>
                 <User className="w-4 h-4 opacity-60" />
-                <span>Все пользователи</span>
+                <span>{t("Все пользователи")}</span>
               </>
             )}
             <ChevronDown className="w-4 h-4 opacity-50" />
@@ -99,7 +101,7 @@ export function UserFilter({
             )}
             data-testid="mobile-user-option-all"
           >
-            Все пользователи
+            {t("Все пользователи")}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => onUserChange("me")}
@@ -109,7 +111,7 @@ export function UserFilter({
             )}
             data-testid="mobile-user-option-me"
           >
-            Мои
+            {t("Мои")}
           </DropdownMenuItem>
           {otherUsers.length > 0 && <div className="my-1 h-px bg-border" />}
           {otherUsers.map((user) => (
@@ -131,8 +133,8 @@ export function UserFilter({
               <div className="flex-1 min-w-0">
                 <div className="font-medium truncate">{user.name}</div>
                 <div className="text-xs text-muted-foreground">
-                  {user.stats.unpurchasedItems} товаров •{" "}
-                  {formatStatsUnpurchasedSummary(user.stats)}
+                  {user.stats.unpurchasedItems} {t("товаров")} •{" "}
+                  {formatStatsUnpurchasedSummary(user.stats, language)}
                 </div>
               </div>
             </DropdownMenuItem>

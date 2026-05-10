@@ -25,6 +25,7 @@ import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import { StatusBadge } from "@/components/wishlist/status-badge";
 import { cn, formatPrice } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
+import { useI18n } from "@/components/i18n/language-provider";
 
 export interface ProductRowProps {
   item: WishlistItem;
@@ -55,6 +56,7 @@ export const ProductRow = memo(function ProductRow({
   currentUserId,
   currentUserRole,
 }: ProductRowProps) {
+  const { language, t } = useI18n();
   const [imageError, setImageError] = useState(false);
   const [ownerImageError, setOwnerImageError] = useState(false);
   const imageUrl = item.images?.[0] ?? null;
@@ -140,7 +142,7 @@ export const ProductRow = memo(function ProductRow({
                 onClick={(event) => event.stopPropagation()}
               >
                 <ExternalLink className="h-3 w-3" />
-                Открыть товар
+                {t("Открыть товар")}
               </a>
             ) : null}
           </div>
@@ -186,7 +188,7 @@ export const ProductRow = memo(function ProductRow({
       </TableCell>
 
       <TableCell className="text-right font-semibold tabular-nums">
-        {item.price != null ? formatPrice(item.price, item.currency) : "—"}
+        {item.price != null ? formatPrice(item.price, item.currency, language) : "—"}
       </TableCell>
 
       <TableCell>
@@ -212,7 +214,7 @@ export const ProductRow = memo(function ProductRow({
                 type="button"
                 variant="ghost"
                 size="iconToolbar"
-                aria-label="Действия с товаром"
+                aria-label={t("Действия с товаром")}
                 onClick={(event) => event.stopPropagation()}
               >
                 <MoreHorizontal className="h-4 w-4" />
@@ -231,7 +233,7 @@ export const ProductRow = memo(function ProductRow({
                 ) : (
                   <Check className="mr-2 h-4 w-4" />
                 )}
-                {isBought ? "Вернуть в доступные" : "Отметить купленным"}
+                {isBought ? t("Вернуть в доступные") : t("Отметить купленным")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={(event) => {
@@ -241,7 +243,7 @@ export const ProductRow = memo(function ProductRow({
                 disabled={statusPending}
               >
                 <Pencil className="mr-2 h-4 w-4" />
-                Редактировать
+                {t("Редактировать")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={(event) => {
@@ -251,13 +253,13 @@ export const ProductRow = memo(function ProductRow({
                 className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                Удалить
+                {t("Удалить")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : selectionMode ? (
           <span className="text-xs text-muted-foreground">
-            {isSelected ? "Выбрано" : "Выбрать"}
+            {isSelected ? t("Выбрано") : t("Выбрать")}
           </span>
         ) : null}
       </TableCell>

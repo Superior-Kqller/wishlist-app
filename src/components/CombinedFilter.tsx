@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
 import { filterListsBySelectedUser } from "@/lib/list-filter-client";
 import { resolveUserScope } from "@/lib/filter-state";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface CombinedFilterProps {
   currentUserId: string;
@@ -48,6 +49,7 @@ export function CombinedFilter({
   onCreateList,
   onEditList,
 }: CombinedFilterProps) {
+  const { t } = useI18n();
   const currentUser = users.find((u) => u.id === currentUserId);
   const otherUsers = users.filter((u) => u.id !== currentUserId);
 
@@ -74,7 +76,7 @@ export function CombinedFilter({
             type="button"
             variant="outline"
             className={cn("h-9 gap-2 px-3 touch-manipulation", filterBarTriggerClass)}
-            aria-label="Выбрать пользователя"
+            aria-label={t("Выбрать пользователя")}
             data-testid="combined-user-trigger"
           >
             {selectedOtherUser ? (
@@ -101,12 +103,12 @@ export function CombinedFilter({
                     />
                   </div>
                 )}
-                <span>Мои</span>
+                <span>{t("Мои")}</span>
               </>
             ) : (
               <>
                 <User className="w-4 h-4 opacity-60" />
-                <span>Все пользователи</span>
+                <span>{t("Все пользователи")}</span>
               </>
             )}
             <ChevronDown className="w-4 h-4 opacity-60" />
@@ -117,7 +119,7 @@ export function CombinedFilter({
           className="w-56 rounded-xl border border-border bg-popover p-1.5"
         >
           <DropdownMenuLabel className="px-2 py-2 text-[11px] uppercase tracking-wide text-muted-foreground">
-            Пользователь
+            {t("Пользователь")}
           </DropdownMenuLabel>
           <DropdownMenuSeparator className="my-1 bg-border/80" />
           <DropdownMenuItem
@@ -130,7 +132,7 @@ export function CombinedFilter({
             )}
             data-testid="combined-user-option-all"
           >
-            Все пользователи
+            {t("Все пользователи")}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => handleSelectUser("me")}
@@ -142,7 +144,7 @@ export function CombinedFilter({
             )}
             data-testid="combined-user-option-me"
           >
-            Мои
+            {t("Мои")}
           </DropdownMenuItem>
           {otherUsers.length > 0 && <DropdownMenuSeparator className="my-1 bg-border/80" />}
           {otherUsers.map((user) => (
@@ -168,7 +170,7 @@ export function CombinedFilter({
               <div className="flex-1 min-w-0">
                 <div className="font-medium truncate">{user.name}</div>
                 <div className="text-xs text-muted-foreground">
-                  {user.stats.unpurchasedItems} желаний
+                  {user.stats.unpurchasedItems} {t("желаний")}
                 </div>
               </div>
             </DropdownMenuItem>
@@ -185,10 +187,10 @@ export function CombinedFilter({
             className={cn("h-9 w-[min(180px,100%)] sm:w-[180px]", filterBarTriggerClass)}
           >
             <FolderOpen className="w-4 h-4 mr-2 opacity-60" />
-            <SelectValue placeholder="Подборка" />
+            <SelectValue placeholder={t("Подборка")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Все подборки</SelectItem>
+            <SelectItem value="all">{t("Все подборки")}</SelectItem>
             {selectedUserLists.map((list) => (
               <SelectItem key={list.id} value={list.id}>
                 {list.name} ({list._count.items})
@@ -203,7 +205,7 @@ export function CombinedFilter({
             variant="outline"
             size="iconToolbar"
             onClick={onEditList}
-            title="Изменить подборку"
+            title={t("Изменить подборку")}
           >
             <Pencil className="w-4 h-4" />
           </Button>
@@ -218,7 +220,7 @@ export function CombinedFilter({
             className="h-9 gap-1.5"
           >
             <ListPlus className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Создать</span>
+            <span className="hidden sm:inline">{t("Создать")}</span>
           </Button>
         )}
       </div>

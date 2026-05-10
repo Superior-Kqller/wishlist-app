@@ -17,6 +17,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { RotateCcw } from "lucide-react";
+import { useI18n } from "@/components/i18n/language-provider";
+import { getItemWord } from "@/lib/i18n";
 
 interface WishlistGridProps {
   items: WishlistItem[];
@@ -69,6 +71,8 @@ export function WishlistGrid({
   emptySecondaryLabel,
   onEmptySecondaryAction,
 }: WishlistGridProps) {
+  const { language, t } = useI18n();
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
@@ -82,7 +86,7 @@ export function WishlistGrid({
   if (items.length === 0) {
     return (
       <EmptyState
-        title={emptyTitle ?? "Список пуст"}
+        title={emptyTitle ?? t("Список пуст")}
         description={emptyDescription}
         actionLabel={emptyActionLabel}
         onAction={onEmptyAction}
@@ -98,18 +102,18 @@ export function WishlistGrid({
       <div
         role="region"
         aria-live="polite"
-        aria-label={`Таблица желаний: ${items.length} ${items.length === 1 ? "товар" : items.length < 5 ? "товара" : "товаров"}`}
+        aria-label={`${t("Таблица желаний")}: ${items.length} ${getItemWord(language, items.length)}`}
         className={cn(uiSurface.contentPanel, "overflow-hidden")}
       >
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Товар</TableHead>
-              <TableHead>Владелец</TableHead>
-              <TableHead>Статус</TableHead>
-              <TableHead className="text-right">Ориентировочная стоимость</TableHead>
-              <TableHead>Теги</TableHead>
-              <TableHead className="text-right">Действия</TableHead>
+              <TableHead>{t("Товар")}</TableHead>
+              <TableHead>{t("Владелец")}</TableHead>
+              <TableHead>{t("Статус")}</TableHead>
+              <TableHead className="text-right">{t("Ориентировочная стоимость")}</TableHead>
+              <TableHead>{t("Теги")}</TableHead>
+              <TableHead className="text-right">{t("Действия")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -140,7 +144,7 @@ export function WishlistGrid({
     <div
       role="region"
       aria-live="polite"
-      aria-label={`Список желаний: ${items.length} ${items.length === 1 ? "товар" : items.length < 5 ? "товара" : "товаров"}`}
+      aria-label={`${t("Список желаний")}: ${items.length} ${getItemWord(language, items.length)}`}
       className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4"
     >
       {items.map((item) => (

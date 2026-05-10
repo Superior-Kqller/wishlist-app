@@ -12,6 +12,7 @@ import { uiSurface } from "@/lib/ui-contract";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SearchField } from "@/components/ui/search-field";
+import { useI18n } from "@/components/i18n/language-provider";
 import {
   Table,
   TableBody,
@@ -32,6 +33,7 @@ export function UserTable({
   currentUserId,
   onRefresh,
 }: UserTableProps) {
+  const { t, locale } = useI18n();
   const [search, setSearch] = useState("");
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [passwordUser, setPasswordUser] = useState<User | null>(null);
@@ -58,7 +60,7 @@ export function UserTable({
         <SearchField
           value={search}
           onValueChange={setSearch}
-          placeholder="Поиск по логину, имени или роли..."
+          placeholder={t("Поиск по логину, имени или роли...")}
           wrapperClassName="sm:max-w-md"
         />
       </div>
@@ -67,12 +69,12 @@ export function UserTable({
         <Table>
           <TableHeader className="bg-muted/35">
             <TableRow className="hover:bg-transparent">
-              <TableHead>Логин</TableHead>
-              <TableHead>Имя</TableHead>
-              <TableHead>Роль</TableHead>
-              <TableHead>Желаний</TableHead>
-              <TableHead>Создан</TableHead>
-              <TableHead className="text-right">Действия</TableHead>
+              <TableHead>{t("Логин")}</TableHead>
+              <TableHead>{t("Имя")}</TableHead>
+              <TableHead>{t("Роль")}</TableHead>
+              <TableHead>{t("Желаний")}</TableHead>
+              <TableHead>{t("Создан")}</TableHead>
+              <TableHead className="text-right">{t("Действия")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -81,8 +83,8 @@ export function UserTable({
                 <TableCell colSpan={6} className="p-0">
                   <EmptyState
                     icon={<Users className="h-5 w-5" aria-hidden />}
-                    title="Пользователи не найдены"
-                    description="Измените поисковый запрос или создайте нового пользователя."
+                    title={t("Пользователи не найдены")}
+                    description={t("Измените поисковый запрос или создайте нового пользователя.")}
                     className="min-h-[240px] rounded-none border-0 bg-transparent"
                   />
                 </TableCell>
@@ -95,7 +97,7 @@ export function UserTable({
                       <span className="font-medium">{user.username}</span>
                       {user.id === currentUserId && (
                         <Badge variant="secondary" className="text-xs">
-                          Вы
+                          {t("Вы")}
                         </Badge>
                       )}
                     </div>
@@ -105,12 +107,12 @@ export function UserTable({
                     <Badge
                       variant={user.role === "ADMIN" ? "default" : "outline"}
                     >
-                      {user.role === "ADMIN" ? "Администратор" : "Пользователь"}
+                      {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
                     </Badge>
                   </TableCell>
                   <TableCell>{user._count?.items || 0}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {new Date(user.createdAt).toLocaleDateString("ru-RU", {
+                    {new Date(user.createdAt).toLocaleDateString(locale, {
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
@@ -122,7 +124,7 @@ export function UserTable({
                         variant="ghost"
                         size="icon"
                         onClick={() => setEditingUser(user)}
-                        title="Редактировать"
+                        title={t("Редактировать")}
                       >
                         <Pencil className="w-4 h-4" />
                       </Button>
@@ -130,7 +132,7 @@ export function UserTable({
                         variant="ghost"
                         size="icon"
                         onClick={() => setPasswordUser(user)}
-                        title="Изменить пароль"
+                        title={t("Изменить пароль")}
                       >
                         <Key className="w-4 h-4" />
                       </Button>
@@ -141,8 +143,8 @@ export function UserTable({
                         disabled={isLastAdmin(user)}
                         title={
                           isLastAdmin(user)
-                            ? "Нельзя удалить последнего администратора"
-                            : "Удалить"
+                            ? t("Нельзя удалить последнего администратора")
+                            : t("Удалить")
                         }
                       >
                         <Trash2 className="w-4 h-4" />

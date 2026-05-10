@@ -23,6 +23,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { passwordSchema, validatePasswordComplexity } from "@/lib/password-validation";
 import { CreateUserPayload } from "@/types";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface CreateUserDialogProps {
   open: boolean;
@@ -35,6 +36,7 @@ export function CreateUserDialog({
   onOpenChange,
   onSuccess,
 }: CreateUserDialogProps) {
+  const { t } = useI18n();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -57,20 +59,20 @@ export function CreateUserDialog({
 
     // Валидация
     if (!username.trim() || !password || !name.trim()) {
-      toast.error("Заполните все поля");
+      toast.error(t("Заполните все поля"));
       return;
     }
 
     const passwordValidation = validatePasswordComplexity(password);
     if (!passwordValidation.valid) {
-      toast.error("Пароль не соответствует требованиям");
+      toast.error(t("Пароль не соответствует требованиям"));
       return;
     }
 
     try {
       passwordSchema.parse(password);
     } catch {
-      toast.error("Пароль не соответствует требованиям");
+      toast.error(t("Пароль не соответствует требованиям"));
       return;
     }
 
@@ -89,16 +91,16 @@ export function CreateUserDialog({
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || "Ошибка при создании пользователя");
+        throw new Error(error.error || t("Ошибка при создании пользователя"));
       }
 
-      toast.success("Пользователь создан");
+      toast.success(t("Пользователь создан"));
       onSuccess();
       onOpenChange(false);
       resetForm();
     } catch (err: unknown) {
       toast.error(
-        err instanceof Error ? err.message : "Ошибка при создании пользователя",
+        err instanceof Error ? err.message : t("Ошибка при создании пользователя"),
       );
     } finally {
       setSaving(false);
@@ -117,15 +119,15 @@ export function CreateUserDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Создать пользователя</DialogTitle>
+          <DialogTitle>{t("Создать пользователя")}</DialogTitle>
           <DialogDescription>
-            Создайте новую учетную запись пользователя
+            {t("Создайте новую учетную запись пользователя")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="username">Логин *</Label>
+            <Label htmlFor="username">{t("Логин")} *</Label>
             <Input
               id="username"
               value={username}
@@ -133,55 +135,55 @@ export function CreateUserDialog({
               placeholder="username"
               required
               pattern="[a-zA-Z0-9_]+"
-              title="Только буквы, цифры и _"
+              title={t("Только буквы, цифры и _")}
             />
             <p className="text-xs text-muted-foreground">
-              Только буквы, цифры и символ _
+              {t("Только буквы, цифры и символ _")}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="name">Имя *</Label>
+            <Label htmlFor="name">{t("Имя")} *</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Имя пользователя"
+              placeholder={t("Имя пользователя")}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Пароль *</Label>
+            <Label htmlFor="password">{t("Пароль")} *</Label>
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => handlePasswordChange(e.target.value)}
-              placeholder="Пароль"
+              placeholder={t("Пароль")}
               required
             />
             {passwordErrors.length > 0 && (
               <ul className="text-xs text-destructive space-y-1">
                 {passwordErrors.map((err, i) => (
-                  <li key={i}>• {err}</li>
+                  <li key={i}>• {t(err)}</li>
                 ))}
               </ul>
             )}
             <p className="text-xs text-muted-foreground">
-              Минимум 8 символов, буквы, цифры и спецсимволы
+              {t("Минимум 8 символов, буквы, цифры и спецсимволы")}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label>Роль</Label>
+            <Label>{t("Роль")}</Label>
             <Select value={role} onValueChange={(v) => setRole(v as "USER" | "ADMIN")}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="USER">Пользователь</SelectItem>
-                <SelectItem value="ADMIN">Администратор</SelectItem>
+                <SelectItem value="USER">{t("Пользователь")}</SelectItem>
+                <SelectItem value="ADMIN">{t("Администратор")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -195,11 +197,11 @@ export function CreateUserDialog({
                 resetForm();
               }}
             >
-              Отмена
+              {t("Отмена")}
             </Button>
             <Button type="submit" disabled={saving || passwordErrors.length > 0}>
               {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Создать
+              {t("Создать")}
             </Button>
           </DialogFooter>
         </form>

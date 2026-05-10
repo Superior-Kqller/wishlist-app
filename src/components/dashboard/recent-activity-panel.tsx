@@ -5,6 +5,7 @@ import { ChevronDown, Clock3 } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/components/i18n/language-provider";
 import { getItemStatusLabel, getItemStatusTone } from "@/lib/item-status-presentation";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
@@ -14,11 +15,11 @@ type RecentActivityPanelProps = {
   items: WishlistItem[];
 };
 
-function formatActivityDate(value: string) {
+function formatActivityDate(value: string, locale: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
 
-  return date.toLocaleString("ru-RU", {
+  return date.toLocaleString(locale, {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
@@ -26,14 +27,15 @@ function formatActivityDate(value: string) {
   });
 }
 
-function getActivityLabel(item: WishlistItem) {
-  if (item.status === "PURCHASED") return "Отмечено как купленное";
-  if (item.status === "CLAIMED") return "Забронировано";
-  if (item.updatedAt !== item.createdAt) return "Обновлено";
-  return "Добавлено";
+function getActivityLabel(item: WishlistItem, t: (key: string) => string) {
+  if (item.status === "PURCHASED") return t("Отмечено как купленное");
+  if (item.status === "CLAIMED") return t("Забронировано");
+  if (item.updatedAt !== item.createdAt) return t("Обновлено");
+  return t("Добавлено");
 }
 
 export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
+  const { language, locale, t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const recentItems = [...items]
     .sort(
@@ -47,8 +49,8 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
     <aside className={cn(uiSurface.contentPanel, "flex h-full flex-col rounded-xl border-border/50 bg-[hsl(var(--surface-2))/0.58] p-2 shadow-[0_6px_16px_rgba(0,0,0,0.16)] sm:rounded-2xl sm:p-5 sm:shadow-[0_14px_34px_rgba(0,0,0,0.3),inset_0_1px_0_hsl(var(--foreground)/0.04)]")}>
       <div className="flex items-center justify-between gap-2.5">
         <div>
-          <h2 className="text-[13px] font-semibold text-foreground/90 sm:text-sm">Активность</h2>
-          <p className="text-[10px] text-muted-foreground/70 sm:mt-0.5 sm:text-xs">Последние изменения</p>
+          <h2 className="text-[13px] font-semibold text-foreground/90 sm:text-sm">{t("Активность")}</h2>
+          <p className="text-[10px] text-muted-foreground/70 sm:mt-0.5 sm:text-xs">{t("Последние изменения")}</p>
         </div>
         <Clock3 className="h-3.5 w-3.5 text-muted-foreground/65 sm:h-4 sm:w-4" aria-hidden />
       </div>
@@ -84,7 +86,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
                         {item.title}
                       </p>
                       <p className="truncate text-[10px] text-muted-foreground/70 sm:mt-0.5 sm:text-xs">
-                        {getActivityLabel(item)}
+                        {getActivityLabel(item, t)}
                         {actor ? ` · ${actor.name}` : ""}
                       </p>
                     </div>
@@ -92,11 +94,11 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
                       variant="outline"
                       className={cn("shrink-0 px-1 py-0 text-[9px] leading-4 opacity-85 sm:px-1.5 sm:text-[10px]", getItemStatusTone(item.status))}
                     >
-                      {getItemStatusLabel(item.status)}
+                      {getItemStatusLabel(item.status, language)}
                     </Badge>
                   </div>
                   <p className="text-[10px] text-muted-foreground/60 sm:mt-1 sm:text-[11px]">
-                    {formatActivityDate(item.updatedAt)}
+                    {formatActivityDate(item.updatedAt, locale)}
                   </p>
                 </div>
               </div>
@@ -110,7 +112,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
               className="h-6 w-full gap-1 text-[11px] text-muted-foreground/80 sm:h-8 sm:gap-1.5 sm:text-xs"
               onClick={() => setExpanded((value) => !value)}
             >
-              {expanded ? "Свернуть" : "Все изменения"}
+              {expanded ? t("Свернуть") : t("Все изменения")}
               <ChevronDown
                 className={cn("h-3 w-3 transition-transform sm:h-3.5 sm:w-3.5", expanded && "rotate-180")}
               />
@@ -119,9 +121,9 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
         </div>
       ) : (
         <div className={cn(uiSurface.emptyState, "mt-2 min-h-0 flex-1 border-border/50 bg-[hsl(var(--surface-2))/0.5] px-3 py-2.5 sm:mt-4 sm:py-6")}>
-          <p className="text-sm font-medium text-foreground">Пока нет активности</p>
+          <p className="text-sm font-medium text-foreground">{t("Пока нет активности")}</p>
           <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1">
-            Добавленные и обновленные товары появятся здесь.
+            {t("Добавленные и обновленные товары появятся здесь.")}
           </p>
         </div>
       )}

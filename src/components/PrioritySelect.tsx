@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import { getPriorityLabel, getPriorityShortLabel } from "@/lib/priority-labels";
 import { clampWishlistPriority, priorityDotClassByPriority } from "@/lib/priority-styles";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface PrioritySelectProps {
   priority: number;
@@ -31,11 +32,12 @@ export function PrioritySelect({
   triggerClassName,
   prominentDot = false,
 }: PrioritySelectProps) {
+  const { language, t } = useI18n();
   const normalizedPriority = clampWishlistPriority(priority);
   const priorityDotClass = priorityDotClassByPriority[normalizedPriority];
   const currentLabel = compact
-    ? getPriorityShortLabel(normalizedPriority)
-    : getPriorityLabel(normalizedPriority);
+    ? getPriorityShortLabel(normalizedPriority, language)
+    : getPriorityLabel(normalizedPriority, language);
 
   return (
     <Select
@@ -51,7 +53,7 @@ export function PrioritySelect({
           compact && prominentDot && "h-9 text-xs",
           triggerClassName
         )}
-        aria-label={ariaLabel}
+        aria-label={ariaLabel === "Приоритет" ? t("Приоритет") : ariaLabel}
       >
         <span
           aria-hidden="true"
@@ -74,7 +76,7 @@ export function PrioritySelect({
                   priorityDotClassByPriority[clampWishlistPriority(value)]
                 )}
               />
-              <span>{compact ? getPriorityShortLabel(value) : getPriorityLabel(value)}</span>
+              <span>{compact ? getPriorityShortLabel(value, language) : getPriorityLabel(value, language)}</span>
             </span>
           </SelectItem>
         ))}

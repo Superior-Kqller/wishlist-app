@@ -18,6 +18,7 @@ import { ListWithMeta } from "@/types";
 import { UserWithStats } from "@/types";
 import { cn } from "@/lib/utils";
 import { MemberList } from "@/components/wishlist/member-list";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface ListFormDialogProps {
   open: boolean;
@@ -37,6 +38,7 @@ export function ListFormDialog({
   onSuccess,
   onDeleteRequest,
 }: ListFormDialogProps) {
+  const { t } = useI18n();
   const [name, setName] = useState("");
   const [viewerIds, setViewerIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
@@ -62,7 +64,7 @@ export function ListFormDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      toast.error("Введите название подборки");
+      toast.error(t("Введите название подборки"));
       return;
     }
 
@@ -76,9 +78,9 @@ export function ListFormDialog({
         });
         if (!res.ok) {
           const err = await res.json();
-          throw new Error(err.error || "Ошибка при обновлении");
+          throw new Error(err.error || t("Ошибка при обновлении"));
         }
-        toast.success("Подборка обновлена");
+        toast.success(t("Подборка обновлена"));
       } else {
         const res = await fetch("/api/lists", {
           method: "POST",
@@ -87,14 +89,14 @@ export function ListFormDialog({
         });
         if (!res.ok) {
           const err = await res.json();
-          throw new Error(err.error || "Ошибка при создании");
+          throw new Error(err.error || t("Ошибка при создании"));
         }
-        toast.success("Подборка создана");
+        toast.success(t("Подборка создана"));
       }
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Ошибка при сохранении");
+      toast.error(err instanceof Error ? err.message : t("Ошибка при сохранении"));
     } finally {
       setSaving(false);
     }
@@ -106,36 +108,36 @@ export function ListFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Редактировать подборку" : "Создать подборку"}</DialogTitle>
+          <DialogTitle>{isEdit ? t("Редактировать подборку") : t("Создать подборку")}</DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Измените название и выберите, кто может видеть эту подборку."
-              : "Название и пользователи, которые смогут видеть подборку (кроме вас)."}
+              ? t("Измените название и выберите, кто может видеть эту подборку.")
+              : t("Название и пользователи, которые смогут видеть подборку (кроме вас).")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="list-name">Название *</Label>
+            <Label htmlFor="list-name">{t("Название")} *</Label>
             <Input
               id="list-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Например: День рождения"
+              placeholder={t("Например: День рождения")}
               required
             />
           </div>
 
           {otherUsers.length > 0 && (
             <div className="space-y-2">
-              <Label>Кто увидит подборку</Label>
+              <Label>{t("Кто увидит подборку")}</Label>
               {isEdit ? (
                 <div className="rounded-lg border border-border bg-[hsl(var(--surface-2))/0.55] p-2">
                   <MemberList
                     users={users}
                     ownerId={list.userId}
                     viewerIds={viewerIds}
-                    emptyLabel="Подборка видна только владельцу"
+                    emptyLabel={t("Подборка видна только владельцу")}
                   />
                 </div>
               ) : null}
@@ -173,17 +175,17 @@ export function ListFormDialog({
                   }}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Удалить подборку
+                  {t("Удалить подборку")}
                 </Button>
               ) : null}
             </div>
             <div className="flex w-full flex-col-reverse gap-2 sm:w-auto sm:flex-row">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Отмена
+                {t("Отмена")}
               </Button>
               <Button type="submit" disabled={saving}>
                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {isEdit ? "Сохранить" : "Создать"}
+                {isEdit ? t("Сохранить") : t("Создать")}
               </Button>
             </div>
           </DialogFooter>

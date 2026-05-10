@@ -12,7 +12,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <html lang="ru">
+    <html lang="en">
       <body
         style={{
           fontFamily: "system-ui",
@@ -23,10 +23,10 @@ export default function GlobalError({
         }}
       >
         <h1 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>
-          Что-то пошло не так
+          Something went wrong
         </h1>
         <p style={{ color: "#9ca6b8", marginBottom: "1rem" }}>
-          {error.message || "Неожиданная ошибка приложения"}
+          {error.message || "Unexpected application error"}
         </p>
         <button
           type="button"
@@ -40,7 +40,7 @@ export default function GlobalError({
             cursor: "pointer",
           }}
         >
-          Попробовать снова
+          Try again
         </button>
       </body>
     </html>

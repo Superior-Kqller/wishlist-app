@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ListPlus, Pencil } from "lucide-react";
 import { ListWithMeta } from "@/types";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface ListFilterProps {
   selectedListId: string | null;
@@ -26,6 +27,8 @@ export function ListFilter({
   onCreateClick,
   onEditClick,
 }: ListFilterProps) {
+  const { t } = useI18n();
+
   return (
     <div className="flex items-center gap-2 flex-wrap shrink-0">
       <Select
@@ -33,10 +36,10 @@ export function ListFilter({
         onValueChange={(v) => onListChange(v === "all" ? null : v)}
       >
         <SelectTrigger className="h-10 w-full min-w-0 max-w-[180px] sm:w-[180px]">
-          <SelectValue placeholder="Подборка" />
+          <SelectValue placeholder={t("Подборка")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Все подборки</SelectItem>
+          <SelectItem value="all">{t("Все подборки")}</SelectItem>
           {lists.map((list) => (
             <SelectItem key={list.id} value={list.id}>
               {list.name} ({list._count.items})
@@ -51,7 +54,7 @@ export function ListFilter({
           size="sm"
           onClick={onEditClick}
           className="h-10"
-          title="Изменить подборку"
+          title={t("Изменить подборку")}
         >
           <Pencil className="w-4 h-4" />
         </Button>
@@ -64,7 +67,7 @@ export function ListFilter({
         className="h-10"
       >
         <ListPlus className="w-4 h-4 mr-2" />
-        Создать подборку
+        {t("Создать подборку")}
       </Button>
     </div>
   );

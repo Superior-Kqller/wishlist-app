@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getPriorityLabel } from "@/lib/priority-labels";
 import { clampWishlistPriority, priorityBadgeToneByPriority } from "@/lib/priority-styles";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface PriorityBadgeProps {
   priority: number;
@@ -11,7 +12,9 @@ interface PriorityBadgeProps {
 }
 
 export function PriorityBadge({ priority, className }: PriorityBadgeProps) {
+  const { language, t } = useI18n();
   const normalizedPriority = clampWishlistPriority(priority);
+  const label = getPriorityLabel(normalizedPriority, language);
 
   return (
     <Badge
@@ -22,9 +25,9 @@ export function PriorityBadge({ priority, className }: PriorityBadgeProps) {
         className
       )}
       data-testid="priority-badge"
-      aria-label={`Приоритет: ${getPriorityLabel(normalizedPriority)}`}
+      aria-label={`${t("Приоритет")}: ${label}`}
     >
-      {getPriorityLabel(normalizedPriority)}
+      {label}
     </Badge>
   );
 }

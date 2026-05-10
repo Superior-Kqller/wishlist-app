@@ -1,16 +1,26 @@
 import type { MetadataRoute } from "next";
+import { cookies } from "next/headers";
+import {
+  LANGUAGE_COOKIE_NAME,
+  appMetadataCopy,
+  normalizeLanguage,
+} from "@/lib/i18n";
 
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const cookieStore = await cookies();
+  const language = normalizeLanguage(cookieStore.get(LANGUAGE_COOKIE_NAME)?.value);
+  const copy = appMetadataCopy[language];
+
   return {
-    name: "Вишлист",
-    short_name: "Вишлист",
-    description: "Умный вишлист для совместных желаний",
+    name: copy.title,
+    short_name: copy.title,
+    description: copy.description,
     start_url: "/",
     display: "standalone",
     background_color: "#0E1119",
     theme_color: "#0E1119",
     orientation: "portrait-primary",
-    lang: "ru",
+    lang: language,
     icons: [
       {
         src: "/assets/favicon/app-icon-1.8.0-192.png",

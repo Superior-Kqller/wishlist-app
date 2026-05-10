@@ -27,6 +27,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { StatusBadge } from "@/components/wishlist/status-badge";
 import { formatPrice, getTagColor, cn } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
+import { useI18n } from "@/components/i18n/language-provider";
 
 type ItemMetaSectionProps = {
   item: WishlistItem;
@@ -49,6 +50,7 @@ export function ItemMetaSection({
   onTogglePurchased,
   onClaimAction,
 }: ItemMetaSectionProps) {
+  const { language, t } = useI18n();
   const [showFullNotes, setShowFullNotes] = useState(false);
   const actionButtonClass =
     "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-border bg-card/85 px-3 text-foreground backdrop-blur-[8px] hover:border-border/90 hover:bg-accent sm:h-9 sm:min-h-9 sm:w-auto";
@@ -74,7 +76,7 @@ export function ItemMetaSection({
           <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1.5">
             {item.price != null && item.price > 0 ? (
               <p className="mr-1 text-xl font-semibold tabular-nums tracking-tight text-foreground">
-                {formatPrice(item.price, item.currency)}
+                {formatPrice(item.price, item.currency, language)}
               </p>
             ) : null}
             <StatusBadge status={item.status} />
@@ -111,7 +113,7 @@ export function ItemMetaSection({
               className="text-xs font-medium text-primary hover:text-primary/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
               onClick={() => setShowFullNotes((value) => !value)}
             >
-              {showFullNotes ? "Свернуть" : "Показать полностью"}
+              {showFullNotes ? t("Свернуть") : t("Показать полностью")}
             </button>
           ) : null}
         </div>
@@ -145,7 +147,7 @@ export function ItemMetaSection({
             >
               <a href={item.url} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-4 w-4 shrink-0" />
-                Открыть ссылку
+                {t("Открыть ссылку")}
               </a>
             </Button>
           ) : null}
@@ -158,13 +160,13 @@ export function ItemMetaSection({
                   className={cn(actionButtonClass, "gap-2 sm:ml-auto")}
                 >
                   <MoreHorizontal className="h-4 w-4 shrink-0" />
-                  Действия
+                  {t("Действия")}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem onClick={onEdit}>
                   <Pencil className="mr-2 h-4 w-4" />
-                  Редактировать
+                  {t("Редактировать")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={onTogglePurchased}
@@ -176,8 +178,8 @@ export function ItemMetaSection({
                     <ShoppingCart className="mr-2 h-4 w-4" />
                   )}
                   {item.status === "PURCHASED"
-                    ? "Снять отметку"
-                    : "Отметить купленным"}
+                    ? t("Снять отметку")
+                    : t("Отметить купленным")}
                 </DropdownMenuItem>
                 {canClaim ? (
                   <DropdownMenuItem
@@ -185,7 +187,7 @@ export function ItemMetaSection({
                     disabled={statusPending}
                   >
                     <Clock3 className="mr-2 h-4 w-4" />
-                    {item.status === "CLAIMED" ? "Снять бронь" : "Забронировать"}
+                    {item.status === "CLAIMED" ? t("Снять бронь") : t("Забронировать")}
                   </DropdownMenuItem>
                 ) : null}
                 <DropdownMenuItem
@@ -193,7 +195,7 @@ export function ItemMetaSection({
                   className="text-destructive focus:text-destructive"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Удалить
+                  {t("Удалить")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -208,7 +210,7 @@ export function ItemMetaSection({
               )}
               disabled={statusPending}
             >
-              {item.status === "CLAIMED" ? "Снять бронь" : "Забронировать"}
+              {item.status === "CLAIMED" ? t("Снять бронь") : t("Забронировать")}
             </Button>
           ) : null}
         </div>

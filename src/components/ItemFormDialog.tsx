@@ -33,6 +33,7 @@ import { cn, getTagColor } from "@/lib/utils";
 import { AlertTriangle, Loader2, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface ItemFormDialogProps {
   open: boolean;
@@ -71,6 +72,7 @@ export function ItemFormDialog({
   defaultListId = null,
   listPickerRequired = false,
 }: ItemFormDialogProps) {
+  const { language, t } = useI18n();
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [price, setPrice] = useState("");
@@ -147,7 +149,7 @@ export function ItemFormDialog({
   const handleFillFromUrl = useCallback(async () => {
     const u = url.trim();
     if (!u) {
-      toast.error("Вставьте ссылку в поле ниже");
+      toast.error(t("Вставьте ссылку в поле ниже"));
       return;
     }
     setParsingUrl(true);
@@ -159,7 +161,7 @@ export function ItemFormDialog({
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || "Не удалось получить данные по ссылке");
+        throw new Error(err.message || t("Не удалось получить данные по ссылке"));
       }
       const data: {
         title?: string;
@@ -183,14 +185,14 @@ export function ItemFormDialog({
           return `${p}\n\n${d}`;
         });
       }
-      toast.success("Поля заполнены по ссылке");
+      toast.success(t("Поля заполнены по ссылке"));
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Ошибка парсинга";
+      const msg = e instanceof Error ? e.message : t("Ошибка парсинга");
       toast.error(msg);
     } finally {
       setParsingUrl(false);
     }
-  }, [url]);
+  }, [url, t]);
 
   useEffect(() => {
     if (!open || isEdit || !autoFillFromUrlOnce || autoFillOnceDoneRef.current) {
@@ -205,7 +207,7 @@ export function ItemFormDialog({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) {
-      toast.error("Введите название");
+      toast.error(t("Введите название"));
       return;
     }
 
@@ -214,8 +216,8 @@ export function ItemFormDialog({
     if (listPickerRequired && !effectiveListId) {
       toast.error(
         existingLists.length === 0
-          ? "Сначала создайте подборку в фильтрах на главной"
-          : "Выберите подборку",
+          ? t("Сначала создайте подборку в фильтрах на главной")
+          : t("Выберите подборку"),
       );
       return;
     }
@@ -236,7 +238,7 @@ export function ItemFormDialog({
       onOpenChange(false);
       resetForm();
     } catch {
-      toast.error("Ошибка при сохранении");
+      toast.error(t("Ошибка при сохранении"));
     } finally {
       setSaving(false);
     }
@@ -249,19 +251,19 @@ export function ItemFormDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Редактировать" : "Добавить товар"}
+            {isEdit ? t("Редактировать") : t("Добавить товар")}
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Измените данные и сохраните"
-              : "По ссылке / Вручную. Ссылка необязательна — заполните название и при желании цену, фото и теги."}
+              ? t("Измените данные и сохраните")
+              : t("По ссылке / Вручную. Ссылка необязательна — заполните название и при желании цену, фото и теги.")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title">Название *</Label>
+            <Label htmlFor="title">{t("Название")} *</Label>
             <Input
               id="title"
               value={title}
@@ -273,10 +275,9 @@ export function ItemFormDialog({
 
           {/* URL */}
           <div className="space-y-2">
-            <Label htmlFor="url">Ссылка (необязательно)</Label>
+            <Label htmlFor="url">{t("Ссылка (необязательно)")}</Label>
             <p className="text-xs text-muted-foreground">
-              Вставьте URL страницы товара и нажмите «Заполнить» — подтянем название,
-              цену, изображения и краткое описание (Open Graph), где это доступно.
+              {t("Вставьте URL страницы товара и нажмите «Заполнить» — подтянем название, цену, изображения и краткое описание, где это доступно.")}
             </p>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
               <Input
@@ -295,14 +296,14 @@ export function ItemFormDialog({
                 onClick={handleFillFromUrl}
                 title={
                   isEdit
-                    ? "Автозаполнение по ссылке доступно только при добавлении товара"
+                    ? t("Автозаполнение по ссылке доступно только при добавлении товара")
                     : undefined
                 }
               >
                 {parsingUrl && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
                 )}
-                {parsingUrl ? "Загрузка…" : "Заполнить по ссылке"}
+                {parsingUrl ? t("Загрузка…") : t("Заполнить по ссылке")}
               </Button>
             </div>
           </div>
@@ -310,7 +311,7 @@ export function ItemFormDialog({
           {/* List (optional при редактировании; при добавлении с главной — обязательна) */}
           {existingLists.length > 0 && (
             <div className="space-y-2">
-              <Label>Подборка{listPickerRequired ? " *" : ""}</Label>
+              <Label>{t("Подборка")}{listPickerRequired ? " *" : ""}</Label>
               <Select
                 value={
                   listPickerRequired
@@ -322,13 +323,13 @@ export function ItemFormDialog({
                 <SelectTrigger>
                   <SelectValue
                     placeholder={
-                      listPickerRequired ? "Выберите подборку" : "Без подборки"
+                      listPickerRequired ? t("Выберите подборку") : t("Без подборки")
                     }
                   />
                 </SelectTrigger>
                 <SelectContent>
                   {!listPickerRequired && (
-                    <SelectItem value="none">Без подборки</SelectItem>
+                    <SelectItem value="none">{t("Без подборки")}</SelectItem>
                   )}
                   {existingLists.map((list) => (
                     <SelectItem key={list.id} value={list.id}>
@@ -340,7 +341,7 @@ export function ItemFormDialog({
               {!listPickerRequired && !listId && (
                 <p className="flex items-start gap-1.5 text-xs text-warning">
                   <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                  Товар без подборки будет скрыт. Привяжите его к подборке, чтобы он стал виден.
+                  {t("Товар без подборки будет скрыт. Привяжите его к подборке, чтобы он стал виден.")}
                 </p>
               )}
             </div>
@@ -349,7 +350,7 @@ export function ItemFormDialog({
           {/* Информационная цена + валюта */}
           <div className="grid grid-cols-[1fr_120px] gap-2">
             <div className="space-y-2">
-              <Label htmlFor="price">Ориентировочная цена</Label>
+              <Label htmlFor="price">{t("Ориентировочная цена")}</Label>
               <Input
                 id="price"
                 type="number"
@@ -361,7 +362,7 @@ export function ItemFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label>Валюта</Label>
+              <Label>{t("Валюта")}</Label>
               <Select value={currency} onValueChange={setCurrency}>
                 <SelectTrigger>
                   <SelectValue />
@@ -379,10 +380,10 @@ export function ItemFormDialog({
 
           {/* Priority */}
           <div className="space-y-2">
-            <Label>Приоритет</Label>
+            <Label>{t("Приоритет")}</Label>
             <div
               role="group"
-              aria-label="Приоритет"
+              aria-label={t("Приоритет")}
               data-testid="priority-select-dialog"
               className="grid grid-cols-5 overflow-hidden rounded-lg border border-input bg-card"
             >
@@ -394,7 +395,7 @@ export function ItemFormDialog({
                     key={value}
                     type="button"
                     aria-pressed={isSelected}
-                    aria-label={`Приоритет ${value}: ${getPriorityShortLabel(value)}`}
+                    aria-label={`${t("Приоритет")} ${value}: ${getPriorityShortLabel(value, language)}`}
                     onClick={() => setPriority(value)}
                     className={cn(
                       "flex min-h-[44px] flex-col items-center justify-center gap-1 border-r border-input px-1.5 text-xs font-semibold transition-colors duration-150 last:border-r-0 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
@@ -423,13 +424,13 @@ export function ItemFormDialog({
                   priorityDotClassByPriority[selectedPriority],
                 )}
               />
-              {getPriorityShortLabel(selectedPriority)}
+              {getPriorityShortLabel(selectedPriority, language)}
             </p>
           </div>
 
           {/* Одно изображение по URL */}
           <div className="space-y-2">
-            <Label htmlFor="item-image-url">Изображение</Label>
+            <Label htmlFor="item-image-url">{t("Изображение")}</Label>
             {imageUrl.trim() ? (
               <div className="relative h-24 w-24 overflow-hidden rounded-lg border group">
                 <Image
@@ -443,9 +444,9 @@ export function ItemFormDialog({
                 <button
                   type="button"
                   onClick={() => setImageUrl("")}
-                  aria-label="Убрать изображение"
+                  aria-label={t("Убрать изображение")}
                   className="absolute right-1.5 top-1.5 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border/70 bg-[hsl(var(--surface-1)/0.78)] text-foreground opacity-100 transition-opacity backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
-                  title="Убрать изображение"
+                  title={t("Убрать изображение")}
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -455,26 +456,26 @@ export function ItemFormDialog({
               id="item-image-url"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="URL изображения (необязательно)"
+              placeholder={t("URL изображения (необязательно)")}
             />
           </div>
 
           {/* Tags */}
           <div className="space-y-2">
-            <Label>Теги</Label>
+            <Label>{t("Теги")}</Label>
             {existingTags.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
-                <span className="text-xs text-muted-foreground w-full">Выберите из существующих:</span>
-                {existingTags.map((t) => {
-                  const selected = tags.includes(t.name);
-                  const color = t.color === "#6366f1" ? getTagColor(t.name) : t.color;
+                <span className="text-xs text-muted-foreground w-full">{t("Выберите из существующих:")}</span>
+                {existingTags.map((tag) => {
+                  const selected = tags.includes(tag.name);
+                  const color = tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
                   return (
                     <button
-                      key={t.id}
+                      key={tag.id}
                       type="button"
-                      onClick={() => (selected ? removeTag(t.name) : setTags([...tags, t.name]))}
+                      onClick={() => (selected ? removeTag(tag.name) : setTags([...tags, tag.name]))}
                       aria-pressed={selected}
-                      aria-label={`${selected ? "Убрать тег" : "Добавить тег"}: ${t.name}`}
+                      aria-label={`${selected ? t("Убрать тег") : t("Добавить тег")}: ${tag.name}`}
                       className="min-h-[44px] rounded-full transition-transform active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
                       <Badge
@@ -482,7 +483,7 @@ export function ItemFormDialog({
                         className="min-h-[36px] cursor-pointer px-3"
                         style={selected ? { backgroundColor: color, borderColor: color } : { borderColor: color, color }}
                       >
-                        {t.name}
+                        {tag.name}
                       </Badge>
                     </button>
                   );
@@ -491,14 +492,14 @@ export function ItemFormDialog({
             )}
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-1">
-                <span className="text-xs text-muted-foreground w-full">Выбранные:</span>
+                <span className="text-xs text-muted-foreground w-full">{t("Выбранные:")}</span>
                 {tags.map((tag) => (
                   <Badge key={tag} variant="secondary" className="gap-1">
                     {tag}
                     <button
                       type="button"
                       onClick={() => removeTag(tag)}
-                      aria-label={`Убрать тег: ${tag}`}
+                      aria-label={`${t("Убрать тег")}: ${tag}`}
                       className="-mr-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
                       <X className="w-3 h-3" />
@@ -511,7 +512,7 @@ export function ItemFormDialog({
               <Input
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                placeholder="Новый тег (Enter)"
+                placeholder={t("Новый тег (Enter)")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -524,7 +525,7 @@ export function ItemFormDialog({
                 variant="outline"
                 size="icon"
                 onClick={addTag}
-                title="Добавить тег"
+                title={t("Добавить тег")}
               >
                 <Plus className="w-4 h-4" />
               </Button>
@@ -533,12 +534,12 @@ export function ItemFormDialog({
 
           {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="notes">Заметка</Label>
+            <Label htmlFor="notes">{t("Заметка")}</Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Дополнительная информация..."
+              placeholder={t("Дополнительная информация...")}
               rows={3}
             />
           </div>
@@ -549,11 +550,11 @@ export function ItemFormDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Отмена
+              {t("Отмена")}
             </Button>
             <Button type="submit" disabled={saving}>
               {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {isEdit ? "Сохранить" : "Добавить"}
+              {isEdit ? t("Сохранить") : t("Добавить")}
             </Button>
           </DialogFooter>
         </form>

@@ -16,6 +16,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { validatePasswordComplexity } from "@/lib/password-validation";
 import { User } from "@/types";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface ChangePasswordDialogProps {
   open: boolean;
@@ -30,6 +31,7 @@ export function ChangePasswordDialog({
   user,
   onSuccess,
 }: ChangePasswordDialogProps) {
+  const { t } = useI18n();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
@@ -51,18 +53,18 @@ export function ChangePasswordDialog({
     if (!user) return;
 
     if (!password) {
-      toast.error("Введите пароль");
+      toast.error(t("Введите пароль"));
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error("Пароли не совпадают");
+      toast.error(t("Пароли не совпадают"));
       return;
     }
 
     const passwordValidation = validatePasswordComplexity(password);
     if (!passwordValidation.valid) {
-      toast.error("Пароль не соответствует требованиям");
+      toast.error(t("Пароль не соответствует требованиям"));
       return;
     }
 
@@ -76,10 +78,10 @@ export function ChangePasswordDialog({
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || "Ошибка при изменении пароля");
+        throw new Error(error.error || t("Ошибка при изменении пароля"));
       }
 
-      toast.success("Пароль изменен");
+      toast.success(t("Пароль изменен"));
       onSuccess();
       onOpenChange(false);
       setPassword("");
@@ -87,7 +89,7 @@ export function ChangePasswordDialog({
       setPasswordErrors([]);
     } catch (err: unknown) {
       toast.error(
-        err instanceof Error ? err.message : "Ошибка при изменении пароля",
+        err instanceof Error ? err.message : t("Ошибка при изменении пароля"),
       );
     } finally {
       setSaving(false);
@@ -100,47 +102,47 @@ export function ChangePasswordDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Изменить пароль</DialogTitle>
+          <DialogTitle>{t("Изменить пароль")}</DialogTitle>
           <DialogDescription>
-            Измените пароль для пользователя {user.username}
+            {t("Измените пароль для пользователя")} {user.username}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="password">Новый пароль *</Label>
+            <Label htmlFor="password">{t("Новый пароль")} *</Label>
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => handlePasswordChange(e.target.value)}
-              placeholder="Пароль"
+              placeholder={t("Пароль")}
               required
             />
             {passwordErrors.length > 0 && (
               <ul className="text-xs text-destructive space-y-1">
                 {passwordErrors.map((err, i) => (
-                  <li key={i}>• {err}</li>
+                  <li key={i}>• {t(err)}</li>
                 ))}
               </ul>
             )}
             <p className="text-xs text-muted-foreground">
-              Минимум 8 символов, буквы, цифры и спецсимволы
+              {t("Минимум 8 символов, буквы, цифры и спецсимволы")}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Подтвердите пароль *</Label>
+            <Label htmlFor="confirmPassword">{t("Подтвердите пароль")} *</Label>
             <Input
               id="confirmPassword"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Повторите пароль"
+              placeholder={t("Повторите пароль")}
               required
             />
             {confirmPassword && password !== confirmPassword && (
-              <p className="text-xs text-destructive">Пароли не совпадают</p>
+              <p className="text-xs text-destructive">{t("Пароли не совпадают")}</p>
             )}
           </div>
 
@@ -155,7 +157,7 @@ export function ChangePasswordDialog({
                 setPasswordErrors([]);
               }}
             >
-              Отмена
+              {t("Отмена")}
             </Button>
             <Button
               type="submit"
@@ -167,7 +169,7 @@ export function ChangePasswordDialog({
               }
             >
               {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Изменить
+              {t("Изменить")}
             </Button>
           </DialogFooter>
         </form>

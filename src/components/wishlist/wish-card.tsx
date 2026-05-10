@@ -19,6 +19,7 @@ import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import { PriorityBadgeOverlay } from "./priority-badge";
 import { IconButton } from "@/components/ui/icon-button";
 import { StatusBadge } from "@/components/wishlist/status-badge";
+import { useI18n } from "@/components/i18n/language-provider";
 
 export interface WishCardProps {
   item: WishlistItem;
@@ -49,6 +50,7 @@ export const WishCard = memo(function WishCard({
   currentUserId,
   currentUserRole,
 }: WishCardProps) {
+  const { language, t } = useI18n();
   const [imageError, setImageError] = useState(false);
   const [ownerImageError, setOwnerImageError] = useState(false);
 
@@ -123,7 +125,7 @@ export const WishCard = memo(function WishCard({
                   : "border-border bg-card/90 text-muted-foreground"
               )}
             >
-              {isSelected ? "Выбрано" : "Выбрать"}
+              {isSelected ? t("Выбрано") : t("Выбрать")}
             </div>
           ) : (
             <StatusBadge
@@ -191,7 +193,7 @@ export const WishCard = memo(function WishCard({
                 ) : null}
               </>
             ) : (
-              <span className="sr-only">Без тегов</span>
+              <span className="sr-only">{t("Без тегов")}</span>
             )}
           </div>
           {(ownerName || item.price != null) && (
@@ -230,7 +232,7 @@ export const WishCard = memo(function WishCard({
                   data-testid="wishlist-card-v2-price"
                   className="shrink-0 text-right text-sm font-semibold tabular-nums tracking-tight text-foreground sm:text-[15px]"
                 >
-                  {formatPrice(item.price, item.currency)}
+                  {formatPrice(item.price, item.currency, language)}
                 </p>
               ) : null}
             </div>
@@ -243,7 +245,7 @@ export const WishCard = memo(function WishCard({
         >
           {selectionMode ? (
             <p className="text-xs text-muted-foreground">
-              Нажмите на карточку, чтобы {isSelected ? "снять выбор" : "выбрать"}.
+              {t("Нажмите на карточку, чтобы")} {isSelected ? t("снять выбор") : t("выбрать")}.
             </p>
           ) : null}
           {item.url || canManage ? (
@@ -261,14 +263,14 @@ export const WishCard = memo(function WishCard({
                           href={item.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label="Открыть ссылку на товар в новой вкладке"
+                          aria-label={t("Открыть ссылку на товар в новой вкладке")}
                           onClick={(e) => e.stopPropagation()}
                         >
-                          Открыть
+                          {t("Открыть")}
                         </a>
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>Открыть в новой вкладке</TooltipContent>
+                    <TooltipContent>{t("Открыть в новой вкладке")}</TooltipContent>
                   </Tooltip>
                 ) : null}
 
@@ -279,7 +281,7 @@ export const WishCard = memo(function WishCard({
                         type="button"
                         data-testid="wishlist-card-actions"
                         intent="default"
-                        aria-label="Действия с карточкой"
+                        aria-label={t("Действия с карточкой")}
                         className="size-11 min-w-[44px] shrink-0 sm:w-11"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -299,7 +301,7 @@ export const WishCard = memo(function WishCard({
                         ) : (
                           <Check className="mr-2 h-4 w-4" />
                         )}
-                        {isBought ? "Вернуть в доступные" : "Отметить купленным"}
+                        {isBought ? t("Вернуть в доступные") : t("Отметить купленным")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={(e) => {
@@ -309,7 +311,7 @@ export const WishCard = memo(function WishCard({
                         disabled={statusPending}
                       >
                         <Pencil className="mr-2 h-4 w-4" />
-                        Редактировать
+                        {t("Редактировать")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={(e) => {
@@ -319,7 +321,7 @@ export const WishCard = memo(function WishCard({
                         className="text-destructive focus:text-destructive"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Удалить
+                        {t("Удалить")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

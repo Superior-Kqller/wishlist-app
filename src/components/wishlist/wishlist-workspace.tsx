@@ -3,6 +3,7 @@
 import type { RefObject } from "react";
 import { ArrowUpDown, CheckSquare, Download, Loader2, MoreHorizontal, Plus, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/components/i18n/language-provider";
 import { SearchField } from "@/components/ui/search-field";
 import {
   DropdownMenu,
@@ -23,6 +24,7 @@ import {
   type WishlistViewMode,
 } from "@/components/wishlist/wishlist-view-toggle";
 import { uiState, uiSurface } from "@/lib/ui-contract";
+import { getCardWord } from "@/lib/i18n";
 import type {
   ListWithMeta,
   Tag,
@@ -135,6 +137,8 @@ export function WishlistWorkspace({
   size,
   setSize,
 }: WishlistWorkspaceProps) {
+  const { language, t } = useI18n();
+
   return (
     <>
       <div className={uiSurface.homeToolbar}>
@@ -142,7 +146,7 @@ export function WishlistWorkspace({
           <SearchField
             value={search}
             onValueChange={onSearchChange}
-            placeholder="Поиск..."
+            placeholder={t("Поиск...")}
             wrapperClassName="min-w-0 flex-1"
             inputClassName={`h-11 min-h-[44px] rounded-lg ${uiSurface.inputAlt} pl-9 text-sm`}
           />
@@ -153,15 +157,15 @@ export function WishlistWorkspace({
             variant="outline"
             className="relative h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px]"
             onClick={() => onMobileFiltersOpenChange(true)}
-            title="Фильтры"
+            title={t("Фильтры")}
             aria-label={
               hasActiveFilters
-                ? `Фильтры, активно: ${activeFilterCount}`
-                : "Фильтры"
+                ? `${t("Фильтры")}: ${activeFilterCount}`
+                : t("Фильтры")
             }
           >
             <SlidersHorizontal className="h-4 w-4 shrink-0" />
-            <span className="min-w-0 truncate">Фильтр</span>
+            <span className="min-w-0 truncate">{t("Фильтр")}</span>
             {hasActiveFilters ? (
               <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-background bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
                 {activeFilterCount}
@@ -172,20 +176,20 @@ export function WishlistWorkspace({
             variant="outline"
             className="h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px]"
             onClick={() => onMobileFiltersOpenChange(true)}
-            title="Сортировка"
+            title={t("Сортировка")}
           >
             <ArrowUpDown className="h-4 w-4 shrink-0" />
-            <span className="min-w-0 truncate">Сорт</span>
+            <span className="min-w-0 truncate">{t("Сорт")}</span>
           </Button>
           <Button
             variant={selectionMode ? "secondary" : "outline"}
             className="h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px]"
             onClick={onToggleSelectionMode}
-            title={selectionMode ? "Отменить выбор" : "Выбрать"}
-            aria-label={selectionMode ? "Отменить выбор" : "Выбрать карточки"}
+            title={selectionMode ? t("Отменить выбор") : t("Выбрать")}
+            aria-label={selectionMode ? t("Отменить выбор") : t("Выбрать карточки")}
           >
             <CheckSquare className="h-4 w-4 shrink-0" />
-            <span className="min-w-0 truncate">{selectionMode ? "Готово" : "Выбор"}</span>
+            <span className="min-w-0 truncate">{selectionMode ? t("Готово") : t("Выбрать")}</span>
           </Button>
 
           <DropdownMenu>
@@ -194,24 +198,24 @@ export function WishlistWorkspace({
                 type="button"
                 variant="outline"
                 className="h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px]"
-                aria-label="Ещё действия"
+                aria-label={t("Ещё действия")}
               >
                 <MoreHorizontal className="h-4 w-4 shrink-0" />
-                <span className="min-w-0 truncate">Ещё</span>
+                <span className="min-w-0 truncate">{t("Ещё")}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
               <DropdownMenuItem onClick={onAddItem}>
                 <Plus className="mr-2 h-4 w-4" />
-                Добавить товар
+                {t("Добавить товар")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onExport("csv")}>
                 <Download className="mr-2 h-4 w-4" />
-                Экспорт CSV
+                {t("Экспорт CSV")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onExport("json")}>
                 <Download className="mr-2 h-4 w-4" />
-                Экспорт JSON
+                {t("Экспорт JSON")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -243,21 +247,21 @@ export function WishlistWorkspace({
               <DropdownMenuTrigger asChild>
                 <Button type="button" variant="outline" size="sm" className="h-9 gap-2">
                   <Download className="h-4 w-4" />
-                  Экспорт
+                  {t("Экспорт")}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
                 <DropdownMenuItem onClick={() => onExport("csv")}>
-                  Экспорт CSV
+                  {t("Экспорт CSV")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onExport("json")}>
-                  Экспорт JSON
+                  {t("Экспорт JSON")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <Button type="button" size="sm" className="h-9 gap-2" onClick={onAddItem}>
               <Plus className="h-4 w-4" />
-              Добавить товар
+              {t("Добавить товар")}
             </Button>
           </div>
         </div>
@@ -294,7 +298,7 @@ export function WishlistWorkspace({
               onClick={onToggleSelectionMode}
             >
               <CheckSquare className="h-4 w-4 shrink-0" />
-              {selectionMode ? "Режим выбора" : "Выбрать"}
+              {selectionMode ? t("Режим выбора") : t("Выбрать")}
             </Button>
           </div>
         </div>
@@ -326,17 +330,13 @@ export function WishlistWorkspace({
         <div className={uiSurface.homeSelectionState}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p>
-              Режим выбора активен: отмечено{" "}
+              {t("Режим выбора")}:
               <span className="font-semibold">{selectedIds.size}</span>{" "}
-              {selectedIds.size === 1
-                ? "карточка"
-                : selectedIds.size < 5
-                  ? "карточки"
-                  : "карточек"}
+              {getCardWord(language, selectedIds.size)}
               .
             </p>
             <Button type="button" variant="ghost" size="sm" onClick={onClearSelectionMode}>
-              Завершить выбор
+              {t("Завершить выбор")}
             </Button>
           </div>
         </div>
@@ -359,20 +359,20 @@ export function WishlistWorkspace({
         currentUserId={currentUserId}
         currentUserRole={currentUserRole}
         emptyTitle={
-          items.length === 0 ? "В списке пока пусто" : "По этим фильтрам ничего нет"
+          items.length === 0 ? t("В списке пока пусто") : t("По этим фильтрам ничего нет")
         }
         emptyDescription={
           items.length === 0
             ? ownedListsForCreate.length === 0
-              ? "Сначала создайте подборку, затем добавьте первый товар."
-              : "Добавьте первый товар вручную или вставьте ссылку на страницу товара."
-            : "Попробуйте сбросить часть фильтров или изменить поиск."
+              ? t("Сначала создайте подборку, затем добавьте первый товар.")
+              : t("Добавьте первый товар вручную или вставьте ссылку на страницу товара.")
+            : t("Попробуйте сбросить часть фильтров или изменить поиск.")
         }
         emptyActionLabel={
           items.length === 0
             ? ownedListsForCreate.length === 0
-              ? "Создать подборку"
-              : "Добавить товар"
+              ? t("Создать подборку")
+              : t("Добавить товар")
             : undefined
         }
         onEmptyAction={
@@ -383,7 +383,7 @@ export function WishlistWorkspace({
             : undefined
         }
         emptySecondaryLabel={
-          items.length > 0 && hasActiveFilters ? "Сбросить фильтры" : undefined
+          items.length > 0 && hasActiveFilters ? t("Сбросить фильтры") : undefined
         }
         onEmptySecondaryAction={
           items.length > 0 && hasActiveFilters ? onClearAllFilters : undefined
@@ -396,7 +396,7 @@ export function WishlistWorkspace({
         ) : null}
         {!isLoadingMore && hasMore ? (
           <Button variant="outline" onClick={() => setSize(size + 1)}>
-            Загрузить ещё
+            {t("Загрузить ещё")}
           </Button>
         ) : null}
       </div>

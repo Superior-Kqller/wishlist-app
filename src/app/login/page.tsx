@@ -8,8 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { useI18n } from "@/components/i18n/language-provider";
 
 export default function LoginPage() {
+  const { t } = useI18n();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -28,7 +31,7 @@ export default function LoginPage() {
     });
 
     if (result?.error) {
-      setError("Неверный логин или пароль");
+      setError(t("Неверный логин или пароль"));
       setLoading(false);
     } else {
       router.push("/");
@@ -40,20 +43,23 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center page-bg">
       <div className="w-full max-w-sm mx-4">
         <div className="glass rounded-2xl p-8">
+          <div className="mb-4 flex justify-end">
+            <LanguageSwitcher />
+          </div>
           <div className="flex flex-col items-center mb-8">
             <BrandLockup className="mb-3 justify-center" />
             <p className="text-muted-foreground text-sm mt-1 text-center">
-              Войдите в свой аккаунт
+              {t("Войдите в свой аккаунт")}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="username">Логин</Label>
+            <Label htmlFor="username">{t("Логин")}</Label>
             <Input
               id="username"
               type="text"
-              placeholder="Введите логин"
+              placeholder={t("Введите логин")}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
@@ -62,11 +68,11 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Пароль</Label>
+            <Label htmlFor="password">{t("Пароль")}</Label>
             <Input
               id="password"
               type="password"
-              placeholder="Введите пароль"
+              placeholder={t("Введите пароль")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
@@ -84,7 +90,7 @@ export default function LoginPage() {
             {loading ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : null}
-            Войти
+            {t("Войти")}
           </Button>
         </form>
         </div>

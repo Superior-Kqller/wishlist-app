@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Link, Sparkles } from "lucide-react";
 import { ParsedProductResponse } from "@/types";
 import { toast } from "sonner";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface ParseUrlDialogProps {
   open: boolean;
@@ -27,6 +28,7 @@ export function ParseUrlDialog({
   onOpenChange,
   onParsed,
 }: ParseUrlDialogProps) {
+  const { t } = useI18n();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -44,17 +46,17 @@ export function ParseUrlDialog({
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || "Не удалось распарсить страницу");
+        throw new Error(error.message || t("Не удалось распарсить страницу"));
       }
 
       const data: ParsedProductResponse = await res.json();
-      toast.success("Данные получены!");
+      toast.success(t("Данные получены!"));
       onParsed(data);
       onOpenChange(false);
       setUrl("");
     } catch (err: unknown) {
       toast.error(
-        err instanceof Error ? err.message : "Ошибка при парсинге URL",
+        err instanceof Error ? err.message : t("Ошибка при парсинге URL"),
       );
     } finally {
       setLoading(false);
@@ -67,18 +69,16 @@ export function ParseUrlDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            Добавить из ссылки
+            {t("Добавить из ссылки")}
           </DialogTitle>
           <DialogDescription>
-            Вставьте ссылку на товар или страницу: подтянем название, цену и
-            картинки (в т.ч. через Open Graph), для маркетплейсов — специализированный
-            парсинг. Описание со страницы попадёт в заметку, если оно есть.
+            {t("Вставьте ссылку на товар или страницу: подтянем название, цену и картинки. Описание со страницы попадёт в заметку, если оно есть.")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleParse} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="parse-url">Ссылка на товар</Label>
+            <Label htmlFor="parse-url">{t("Ссылка на товар")}</Label>
             <div className="relative">
               <Link className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -98,7 +98,7 @@ export function ParseUrlDialog({
             <span className="px-2 py-1 bg-muted rounded-md">Wildberries</span>
             <span className="px-2 py-1 bg-muted rounded-md">Ozon</span>
             <span className="px-2 py-1 bg-muted rounded-md">AliExpress</span>
-            <span className="px-2 py-1 bg-muted rounded-md">Любой сайт</span>
+            <span className="px-2 py-1 bg-muted rounded-md">{t("Любой сайт")}</span>
           </div>
 
           <DialogFooter>
@@ -107,16 +107,16 @@ export function ParseUrlDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Отмена
+              {t("Отмена")}
             </Button>
             <Button type="submit" disabled={loading || !url.trim()}>
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Парсинг...
+                  {t("Парсинг...")}
                 </>
               ) : (
-                "Получить данные"
+                t("Получить данные")
               )}
             </Button>
           </DialogFooter>

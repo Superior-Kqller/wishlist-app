@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { UserAvatar } from "@/components/UserAvatar";
 import type { ItemComment } from "@/types";
+import { useI18n } from "@/components/i18n/language-provider";
 
 type ItemActivitySectionProps = {
   comments: ItemComment[];
@@ -27,13 +28,15 @@ export function ItemActivitySection({
   onSubmitComment,
   onDeleteComment,
 }: ItemActivitySectionProps) {
+  const { locale, t } = useI18n();
+
   return (
     <div className="space-y-2.5 border-t pt-3 sm:space-y-3 sm:pt-4">
-      <h3 className="text-sm font-semibold">Комментарии</h3>
+      <h3 className="text-sm font-semibold">{t("Комментарии")}</h3>
 
       <div className="max-h-40 space-y-2 overflow-y-auto sm:max-h-48">
         {comments.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Комментариев пока нет</p>
+          <p className="text-sm text-muted-foreground">{t("Комментариев пока нет")}</p>
         ) : (
           comments.map((comment) => (
             <div
@@ -50,7 +53,7 @@ export function ItemActivitySection({
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{comment.user.name}</span>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(comment.createdAt).toLocaleString("ru-RU", {
+                    {new Date(comment.createdAt).toLocaleString(locale, {
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
@@ -69,8 +72,8 @@ export function ItemActivitySection({
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
-                  title="Удалить комментарий"
-                  aria-label="Удалить комментарий"
+                  title={t("Удалить комментарий")}
+                  aria-label={t("Удалить комментарий")}
                   disabled={deletingCommentId === comment.id}
                   onClick={() => onDeleteComment(comment.id)}
                 >
@@ -93,7 +96,7 @@ export function ItemActivitySection({
         <Textarea
           value={commentText}
           onChange={(event) => onCommentTextChange(event.target.value)}
-          placeholder="Добавить комментарий..."
+          placeholder={t("Добавить комментарий...")}
           className="min-h-[56px] resize-none sm:min-h-[80px] sm:flex-1"
           maxLength={2000}
           disabled={submittingComment}
@@ -107,7 +110,7 @@ export function ItemActivitySection({
           {submittingComment ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            "Отправить"
+            t("Отправить")
           )}
         </Button>
       </form>

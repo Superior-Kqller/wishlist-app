@@ -10,6 +10,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { AvatarUploadDialog } from "./AvatarUploadDialog";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface ProfileFormProps {
   initialName: string;
@@ -22,10 +23,13 @@ interface ProfileFormProps {
   onSuccess: () => void;
 }
 
-function getTelegramStatusText(status: "not_configured" | "pending" | "linked" | undefined): string {
-  if (status === "linked") return "Подключено";
-  if (status === "pending") return "Ожидает подтверждения";
-  return "Не настроено";
+function getTelegramStatusText(
+  status: "not_configured" | "pending" | "linked" | undefined,
+  t: (key: string) => string,
+): string {
+  if (status === "linked") return t("Подключено");
+  if (status === "pending") return t("Ожидает подтверждения");
+  return t("Не настроено");
 }
 
 export function ProfileForm({
@@ -38,6 +42,7 @@ export function ProfileForm({
   userId,
   onSuccess,
 }: ProfileFormProps) {
+  const { t } = useI18n();
   const [name, setName] = useState(initialName);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const [telegramId, setTelegramId] = useState(initialTelegramId ?? "");
@@ -66,17 +71,17 @@ export function ProfileForm({
     e.preventDefault();
 
     if (!name.trim()) {
-      toast.error("Введите имя");
+      toast.error(t("Введите имя"));
       return;
     }
 
     if (telegramId.trim() && !/^\d{5,20}$/.test(telegramId.trim())) {
-      toast.error("Telegram ID должен содержать только цифры (5-20 символов)");
+      toast.error(t("Telegram ID должен содержать только цифры (5-20 символов)"));
       return;
     }
 
     if (!hasChanges) {
-      toast.info("Нет изменений для сохранения");
+      toast.info(t("Нет изменений для сохранения"));
       return;
     }
 
@@ -94,14 +99,14 @@ export function ProfileForm({
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || "Ошибка при обновлении профиля");
+        throw new Error(error.error || t("Ошибка при обновлении профиля"));
       }
 
-      toast.success("Профиль обновлен");
+      toast.success(t("Профиль обновлен"));
       onSuccess();
     } catch (err: unknown) {
       toast.error(
-        err instanceof Error ? err.message : "Ошибка при обновлении профиля",
+        err instanceof Error ? err.message : t("Ошибка при обновлении профиля"),
       );
     } finally {
       setSaving(false);
@@ -111,10 +116,10 @@ export function ProfileForm({
   return (
     <>
       <div className={cn(uiSurface.contentPanel, "p-5 sm:p-6")}>
-        <h2 className="text-lg font-semibold mb-4">Профиль</h2>
+        <h2 className="text-lg font-semibold mb-4">{t("Профиль")}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Аватар</Label>
+            <Label>{t("Аватар")}</Label>
             <div className="flex items-center gap-4">
               <UserAvatar
                 avatarUrl={avatarUrl || undefined}
@@ -128,13 +133,13 @@ export function ProfileForm({
                 onClick={() => setAvatarDialogOpen(true)}
               >
                 <Camera className="w-4 h-4 mr-2" />
-                Изменить аватар
+                {t("Изменить аватар")}
               </Button>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="username">Логин</Label>
+            <Label htmlFor="username">{t("Логин")}</Label>
             <Input
               id="username"
               value={initialUsername}
@@ -142,17 +147,17 @@ export function ProfileForm({
               className="bg-muted"
             />
             <p className="text-xs text-muted-foreground">
-              Логин нельзя изменить
+              {t("Логин нельзя изменить")}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="name">Имя *</Label>
+            <Label htmlFor="name">{t("Имя")} *</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ваше имя"
+              placeholder={t("Ваше имя")}
               required
             />
           </div>
@@ -164,11 +169,11 @@ export function ProfileForm({
                 id="telegramId"
                 value={telegramId}
                 onChange={(e) => setTelegramId(e.target.value)}
-                placeholder="Например: 123456789"
+                placeholder={t("Например: 123456789")}
                 inputMode="numeric"
               />
               <p className="text-xs text-muted-foreground">
-                Статус: {getTelegramStatusText(initialTelegramLinkStatus)}. После сохранения отправьте /start боту.
+                {t("Статус")}: {getTelegramStatusText(initialTelegramLinkStatus, t)}. {t("После сохранения отправьте /start боту.")}
               </p>
             </div>
 
@@ -178,13 +183,13 @@ export function ProfileForm({
                 checked={telegramNotificationsEnabled}
                 onChange={(e) => setTelegramNotificationsEnabled(e.target.checked)}
               />
-              Включить Telegram-уведомления
+              {t("Включить Telegram-уведомления")}
             </label>
           </div>
 
           <Button type="submit" disabled={saving || !hasChanges}>
             {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            Сохранить
+            {t("Сохранить")}
           </Button>
         </form>
       </div>

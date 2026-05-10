@@ -4,6 +4,7 @@ import { Grid2X2, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
+import { useI18n } from "@/components/i18n/language-provider";
 
 export type WishlistViewMode = "grid" | "table";
 
@@ -18,6 +19,8 @@ export function WishlistViewToggle({
   onValueChange,
   className,
 }: WishlistViewToggleProps) {
+  const { t } = useI18n();
+
   return (
     <div
       className={cn(
@@ -25,13 +28,13 @@ export function WishlistViewToggle({
         uiSurface.chip,
         className,
       )}
-      aria-label="Режим отображения"
+      aria-label={t("Режим отображения")}
     >
       <Button
         type="button"
         variant={value === "grid" ? "glassActive" : "ghost"}
         size="iconToolbar"
-        aria-label="Показать карточками"
+        aria-label={t("Показать карточками")}
         aria-pressed={value === "grid"}
         onClick={() => onValueChange("grid")}
       >
@@ -41,7 +44,7 @@ export function WishlistViewToggle({
         type="button"
         variant={value === "table" ? "glassActive" : "ghost"}
         size="iconToolbar"
-        aria-label="Показать таблицей"
+        aria-label={t("Показать таблицей")}
         aria-pressed={value === "table"}
         onClick={() => onValueChange("table")}
       >

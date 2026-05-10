@@ -4,6 +4,7 @@ import { useEffect, type MutableRefObject } from "react";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import type { CreateItemPayload } from "@/types";
+import { useI18n } from "@/components/i18n/language-provider";
 
 type DeepLinkBox = {
   addUrl: string | null;
@@ -22,6 +23,8 @@ export function useWishlistAddUrlDeepLink(
   setAddDialogAutoFill: (v: boolean) => void,
   setAddDialogOpen: (v: boolean) => void,
 ) {
+  const { t } = useI18n();
+
   useEffect(() => {
     if (!currentUserId) return;
     const box = deepLinkRef.current;
@@ -41,7 +44,7 @@ export function useWishlistAddUrlDeepLink(
       if (decoded.length > 2048) throw new Error("too long");
       new URL(decoded);
     } catch {
-      toast.error("Некорректная ссылка в параметре addUrl");
+      toast.error(t("Некорректная ссылка в параметре addUrl"));
       box.consumed = true;
       paramsCleanup();
       return;
@@ -63,5 +66,6 @@ export function useWishlistAddUrlDeepLink(
     setAddDialogAutoFill,
     setAddDialogOpen,
     deepLinkRef,
+    t,
   ]);
 }

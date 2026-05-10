@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { getPriorityLabel, getPriorityEmoji } from "@/lib/priority-labels";
 import { clampWishlistPriority, priorityOverlayToneByPriority } from "@/lib/priority-styles";
+import { useI18n } from "@/components/i18n/language-provider";
 
 export interface PriorityBadgeOverlayProps {
   priority: number;
@@ -10,9 +11,10 @@ export interface PriorityBadgeOverlayProps {
 }
 
 export function PriorityBadgeOverlay({ priority, className }: PriorityBadgeOverlayProps) {
+  const { language } = useI18n();
   const p = clampWishlistPriority(priority);
   const emoji = getPriorityEmoji(p);
-  const label = getPriorityLabel(p);
+  const label = getPriorityLabel(p, language);
   const styles = priorityOverlayToneByPriority[p];
 
   return (

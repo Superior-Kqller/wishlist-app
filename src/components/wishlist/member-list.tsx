@@ -1,7 +1,10 @@
+"use client";
+
 import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
 import { uiSurface } from "@/lib/ui-contract";
 import type { UserWithStats } from "@/types";
+import { useI18n } from "@/components/i18n/language-provider";
 
 type MemberListProps = {
   users: UserWithStats[];
@@ -14,8 +17,9 @@ export function MemberList({
   users,
   viewerIds,
   ownerId,
-  emptyLabel = "Только владелец",
+  emptyLabel,
 }: MemberListProps) {
+  const { t } = useI18n();
   const owner = ownerId ? users.find((user) => user.id === ownerId) : null;
   const viewers = viewerIds
     .map((id) => users.find((user) => user.id === id))
@@ -25,7 +29,7 @@ export function MemberList({
     : viewers;
 
   if (members.length === 0) {
-    return <p className="text-sm text-muted-foreground">{emptyLabel}</p>;
+    return <p className="text-sm text-muted-foreground">{emptyLabel ?? t("Только владелец")}</p>;
   }
 
   return (
@@ -46,7 +50,7 @@ export function MemberList({
           </span>
           {ownerId === user.id ? (
             <Badge variant="secondary" className="text-[10px]">
-              Владелец
+              {t("Владелец")}
             </Badge>
           ) : null}
         </div>

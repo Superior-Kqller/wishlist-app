@@ -1,11 +1,16 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { type Language, getLanguageLocale } from "@/lib/i18n";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(price: number, currency: string = "RUB"): string {
+export function formatPrice(
+  price: number,
+  currency: string = "RUB",
+  language: Language = "ru",
+): string {
   const symbols: Record<string, string> = {
     RUB: "₽",
     USD: "$",
@@ -13,7 +18,7 @@ export function formatPrice(price: number, currency: string = "RUB"): string {
     CNY: "¥",
   };
   const symbol = symbols[currency] || currency;
-  return `${price.toLocaleString("ru-RU")} ${symbol}`;
+  return `${price.toLocaleString(getLanguageLocale(language))} ${symbol}`;
 }
 
 /** Суммы по валютам в статистике вишлиста */
@@ -32,20 +37,20 @@ export function formatStatsUnpurchasedSummary(stats: {
   totalWishlistValue: number;
   currency?: string;
   pricesByCurrency?: Record<string, CurrencyTotals>;
-}): string {
+}, language: Language = "ru"): string {
   const fallbackCur = stats.currency || "RUB";
   const hasBreakdown =
     stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
   if (!hasBreakdown) {
-    return formatPrice(stats.totalWishlistValue, fallbackCur);
+    return formatPrice(stats.totalWishlistValue, fallbackCur, language);
   }
   const entries = sortCurrencyTotalsEntries(stats.pricesByCurrency).filter(
     ([, v]) => v.unpurchased > 0,
   );
   if (entries.length === 0) {
-    return formatPrice(0, fallbackCur);
+    return formatPrice(0, fallbackCur, language);
   }
-  return entries.map(([c, v]) => formatPrice(v.unpurchased, c)).join(" · ");
+  return entries.map(([c, v]) => formatPrice(v.unpurchased, c, language)).join(" · ");
 }
 
 /** Текст суммы купленного по валютам; null если нет купленных позиций с ценой */
@@ -53,13 +58,13 @@ export function formatStatsPurchasedSummary(stats: {
   totalPurchasedValue: number;
   currency?: string;
   pricesByCurrency?: Record<string, CurrencyTotals>;
-}): string | null {
+}, language: Language = "ru"): string | null {
   const fallbackCur = stats.currency || "RUB";
   const hasBreakdown =
     stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
   if (!hasBreakdown) {
     if (stats.totalPurchasedValue > 0) {
-      return formatPrice(stats.totalPurchasedValue, fallbackCur);
+      return formatPrice(stats.totalPurchasedValue, fallbackCur, language);
     }
     return null;
   }
@@ -67,7 +72,7 @@ export function formatStatsPurchasedSummary(stats: {
     ([, v]) => v.purchased > 0,
   );
   if (entries.length === 0) return null;
-  return entries.map(([c, v]) => formatPrice(v.purchased, c)).join(" · ");
+  return entries.map(([c, v]) => formatPrice(v.purchased, c, language)).join(" · ");
 }
 
 export function statsHasPurchasedPrices(stats: {

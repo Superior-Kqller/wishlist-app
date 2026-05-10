@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Loader2, Upload, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface AvatarUploadDialogProps {
   open: boolean;
@@ -27,6 +28,7 @@ export function AvatarUploadDialog({
   userId,
   onSuccess,
 }: AvatarUploadDialogProps) {
+  const { t } = useI18n();
   const [uploadMethod, setUploadMethod] = useState<"file" | "url">("file");
   const [file, setFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
@@ -46,15 +48,15 @@ export function AvatarUploadDialog({
     if (!allowedTypes.includes(selectedFile.type)) {
       toast.error(
         selectedFile.type
-          ? `Недопустимый тип файла: ${selectedFile.type}. Разрешены: JPEG, PNG, WebP, GIF`
-          : "Не удалось определить тип файла. Попробуйте PNG/JPEG/WebP/GIF",
+          ? `${t("Недопустимый тип файла")}: ${selectedFile.type}. ${t("Разрешены")}: JPEG, PNG, WebP, GIF`
+          : t("Не удалось определить тип файла. Попробуйте PNG/JPEG/WebP/GIF"),
       );
       return;
     }
 
     // Валидация размера (2MB)
     if (selectedFile.size > 2 * 1024 * 1024) {
-      toast.error("Файл слишком большой. Максимум: 2MB");
+      toast.error(t("Файл слишком большой. Максимум: 2MB"));
       return;
     }
 
@@ -88,16 +90,16 @@ export function AvatarUploadDialog({
 
         if (!res.ok) {
           const error = await res.json();
-          throw new Error(error.error || "Ошибка при загрузке файла");
+          throw new Error(error.error || t("Ошибка при загрузке файла"));
         }
 
-        toast.success("Аватар загружен");
+        toast.success(t("Аватар загружен"));
       } else if (uploadMethod === "url" && url.trim()) {
         // Валидация URL
         try {
           new URL(url);
         } catch {
-          toast.error("Некорректный URL");
+          toast.error(t("Некорректный URL"));
           setUploading(false);
           return;
         }
@@ -111,12 +113,12 @@ export function AvatarUploadDialog({
 
         if (!res.ok) {
           const error = await res.json();
-          throw new Error(error.error || "Ошибка при обновлении аватара");
+          throw new Error(error.error || t("Ошибка при обновлении аватара"));
         }
 
-        toast.success("Аватар обновлен");
+        toast.success(t("Аватар обновлен"));
       } else {
-        toast.error("Выберите файл или введите URL");
+        toast.error(t("Выберите файл или введите URL"));
         setUploading(false);
         return;
       }
@@ -133,7 +135,7 @@ export function AvatarUploadDialog({
       }
     } catch (err: unknown) {
       toast.error(
-        err instanceof Error ? err.message : "Ошибка при загрузке аватара",
+        err instanceof Error ? err.message : t("Ошибка при загрузке аватара"),
       );
     } finally {
       setUploading(false);
@@ -151,10 +153,10 @@ export function AvatarUploadDialog({
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || "Ошибка при удалении аватара");
+        throw new Error(error.error || t("Ошибка при удалении аватара"));
       }
 
-      toast.success("Аватар удален");
+      toast.success(t("Аватар удален"));
       onSuccess();
       onOpenChange(false);
       setFile(null);
@@ -163,7 +165,7 @@ export function AvatarUploadDialog({
       setUrl("");
     } catch (err: unknown) {
       toast.error(
-        err instanceof Error ? err.message : "Ошибка при удалении аватара",
+        err instanceof Error ? err.message : t("Ошибка при удалении аватара"),
       );
     } finally {
       setUploading(false);
@@ -180,9 +182,9 @@ export function AvatarUploadDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Изменить аватар</DialogTitle>
+          <DialogTitle>{t("Изменить аватар")}</DialogTitle>
           <DialogDescription>
-            Загрузите изображение или укажите URL
+            {t("Загрузите изображение или укажите URL")}
           </DialogDescription>
         </DialogHeader>
 
@@ -201,7 +203,7 @@ export function AvatarUploadDialog({
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="file">
                 <Upload className="w-4 h-4 mr-2" />
-                Файл
+                {t("Файл")}
               </TabsTrigger>
               <TabsTrigger value="url">
                 <LinkIcon className="w-4 h-4 mr-2" />
@@ -211,7 +213,7 @@ export function AvatarUploadDialog({
 
             <TabsContent value="file" className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="avatar-file">Выберите файл</Label>
+                <Label htmlFor="avatar-file">{t("Выберите файл")}</Label>
                 <Input
                   id="avatar-file"
                   type="file"
@@ -230,18 +232,18 @@ export function AvatarUploadDialog({
                 />
                 {fileLabel && (
                   <p className="text-xs text-muted-foreground">
-                    Выбран файл: {fileLabel}
+                    {t("Выбран файл")}: {fileLabel}
                   </p>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  Максимальный размер: 2MB. Форматы: JPEG, PNG, WebP, GIF
+                  {t("Максимальный размер: 2MB. Форматы: JPEG, PNG, WebP, GIF")}
                 </p>
               </div>
             </TabsContent>
 
             <TabsContent value="url" className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="avatar-url">URL изображения</Label>
+                <Label htmlFor="avatar-url">{t("URL изображения")}</Label>
                 <Input
                   id="avatar-url"
                   type="url"
@@ -262,7 +264,7 @@ export function AvatarUploadDialog({
                 onClick={handleRemove}
                 disabled={uploading}
               >
-                Удалить
+                {t("Удалить")}
               </Button>
             )}
             <Button
@@ -276,7 +278,7 @@ export function AvatarUploadDialog({
               }
             >
               {uploading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Сохранить
+              {t("Сохранить")}
             </Button>
           </div>
         </div>

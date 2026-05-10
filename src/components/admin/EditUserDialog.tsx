@@ -22,6 +22,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { User, UpdateUserPayload } from "@/types";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface EditUserDialogProps {
   open: boolean;
@@ -38,6 +39,7 @@ export function EditUserDialog({
   onSuccess,
   isLastAdmin = false,
 }: EditUserDialogProps) {
+  const { t } = useI18n();
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [role, setRole] = useState<"USER" | "ADMIN">("USER");
@@ -57,13 +59,13 @@ export function EditUserDialog({
     if (!user) return;
 
     if (!username.trim() || !name.trim()) {
-      toast.error("Заполните все поля");
+      toast.error(t("Заполните все поля"));
       return;
     }
 
     // Проверка изменения роли последнего админа
     if (isLastAdmin && user.role === "ADMIN" && role === "USER") {
-      toast.error("Нельзя изменить роль последнего администратора");
+      toast.error(t("Нельзя изменить роль последнего администратора"));
       return;
     }
 
@@ -75,7 +77,7 @@ export function EditUserDialog({
       if (role !== user.role) payload.role = role;
 
       if (Object.keys(payload).length === 0) {
-        toast.info("Нет изменений для сохранения");
+        toast.info(t("Нет изменений для сохранения"));
         setSaving(false);
         return;
       }
@@ -88,15 +90,15 @@ export function EditUserDialog({
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || "Ошибка при обновлении пользователя");
+        throw new Error(error.error || t("Ошибка при обновлении пользователя"));
       }
 
-      toast.success("Пользователь обновлен");
+      toast.success(t("Пользователь обновлен"));
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
       toast.error(
-        err instanceof Error ? err.message : "Ошибка при обновлении пользователя",
+        err instanceof Error ? err.message : t("Ошибка при обновлении пользователя"),
       );
     } finally {
       setSaving(false);
@@ -109,15 +111,15 @@ export function EditUserDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Редактировать пользователя</DialogTitle>
+          <DialogTitle>{t("Редактировать пользователя")}</DialogTitle>
           <DialogDescription>
-            Измените данные пользователя
+            {t("Измените данные пользователя")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="username">Логин *</Label>
+            <Label htmlFor="username">{t("Логин")} *</Label>
             <Input
               id="username"
               value={username}
@@ -125,23 +127,23 @@ export function EditUserDialog({
               placeholder="username"
               required
               pattern="[a-zA-Z0-9_]+"
-              title="Только буквы, цифры и _"
+              title={t("Только буквы, цифры и _")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="name">Имя *</Label>
+            <Label htmlFor="name">{t("Имя")} *</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Имя пользователя"
+              placeholder={t("Имя пользователя")}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Роль</Label>
+            <Label>{t("Роль")}</Label>
             <Select
               value={role}
               onValueChange={(v) => setRole(v as "USER" | "ADMIN")}
@@ -151,13 +153,13 @@ export function EditUserDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="USER">Пользователь</SelectItem>
-                <SelectItem value="ADMIN">Администратор</SelectItem>
+                <SelectItem value="USER">{t("Пользователь")}</SelectItem>
+                <SelectItem value="ADMIN">{t("Администратор")}</SelectItem>
               </SelectContent>
             </Select>
             {isLastAdmin && user.role === "ADMIN" && (
               <p className="text-xs text-destructive">
-                Нельзя изменить роль последнего администратора
+                {t("Нельзя изменить роль последнего администратора")}
               </p>
             )}
           </div>
@@ -168,11 +170,11 @@ export function EditUserDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Отмена
+              {t("Отмена")}
             </Button>
             <Button type="submit" disabled={saving}>
               {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Сохранить
+              {t("Сохранить")}
             </Button>
           </DialogFooter>
         </form>

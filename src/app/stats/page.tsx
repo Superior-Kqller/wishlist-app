@@ -18,15 +18,17 @@ import {
 } from "@/lib/utils";
 import { fetcher } from "@/lib/fetcher";
 import { uiSurface } from "@/lib/ui-contract";
+import { useI18n } from "@/components/i18n/language-provider";
 
 function StatsWishlistValueBlock({ stats }: { stats: UserStats }) {
+  const { language } = useI18n();
   const fallbackCur = stats.currency || "RUB";
   const hasBreakdown =
     stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
   if (!hasBreakdown) {
     return (
       <p className="text-2xl font-bold">
-        {formatPrice(stats.totalWishlistValue, fallbackCur)}
+        {formatPrice(stats.totalWishlistValue, fallbackCur, language)}
       </p>
     );
   }
@@ -35,20 +37,20 @@ function StatsWishlistValueBlock({ stats }: { stats: UserStats }) {
   ).filter(([, v]) => v.unpurchased > 0);
   if (unpurchasedEntries.length === 0) {
     return (
-      <p className="text-2xl font-bold">{formatPrice(0, fallbackCur)}</p>
+      <p className="text-2xl font-bold">{formatPrice(0, fallbackCur, language)}</p>
     );
   }
   if (unpurchasedEntries.length === 1) {
     const [c, v] = unpurchasedEntries[0];
     return (
-      <p className="text-2xl font-bold">{formatPrice(v.unpurchased, c)}</p>
+      <p className="text-2xl font-bold">{formatPrice(v.unpurchased, c, language)}</p>
     );
   }
   return (
     <div className="space-y-1">
       {unpurchasedEntries.map(([c, v]) => (
         <p key={c} className="text-xl font-bold tabular-nums">
-          {formatPrice(v.unpurchased, c)}
+          {formatPrice(v.unpurchased, c, language)}
         </p>
       ))}
     </div>
@@ -56,10 +58,11 @@ function StatsWishlistValueBlock({ stats }: { stats: UserStats }) {
 }
 
 function StatsPurchasedValueBlock({ stats }: { stats: UserStats }) {
+  const { language } = useI18n();
   const hasBreakdown =
     stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
   if (!hasBreakdown) {
-    const summary = formatStatsPurchasedSummary(stats);
+    const summary = formatStatsPurchasedSummary(stats, language);
     return (
       <p className="text-lg font-semibold text-muted-foreground">{summary}</p>
     );
@@ -81,13 +84,14 @@ function StatsPurchasedValueBlock({ stats }: { stats: UserStats }) {
       </div>
     );
   }
-  const summary = formatStatsPurchasedSummary(stats);
+  const summary = formatStatsPurchasedSummary(stats, language);
   return (
     <p className="text-lg font-semibold text-muted-foreground">{summary}</p>
   );
 }
 
 export default function StatsPage() {
+  const { t } = useI18n();
   const { status } = useSession();
   const router = useRouter();
 
@@ -127,15 +131,15 @@ export default function StatsPage() {
       <PageMain className="max-w-6xl">
         <div className="space-y-6">
           <PageIntro
-            title="Статистика"
-            description="Товары в общих подборках и ориентировочная стоимость по участникам"
+            title={t("Статистика")}
+            description={t("Товары в общих подборках и ориентировочная стоимость по участникам")}
           />
 
           {users.length === 0 ? (
             <EmptyState
               icon={<BarChart3 className="h-5 w-5" aria-hidden />}
-              title="Нет данных для отображения"
-              description="Статистика появится, когда в общих списках будут товары."
+              title={t("Нет данных для отображения")}
+              description={t("Статистика появится, когда в общих списках будут товары.")}
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -162,13 +166,13 @@ export default function StatsPage() {
                   <CardContent className="space-y-3">
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
-                        <p className="text-muted-foreground">Всего товаров</p>
+                        <p className="text-muted-foreground">{t("Всего товаров")}</p>
                         <p className="text-lg font-semibold">
                           {user.stats.totalItems}
                         </p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground">Не куплено</p>
+                        <p className="text-muted-foreground">{t("Не куплено")}</p>
                         <p className="text-lg font-semibold">
                           {user.stats.unpurchasedItems}
                         </p>
@@ -177,7 +181,7 @@ export default function StatsPage() {
 
                     <div className="pt-3 border-t border-border/70">
                       <p className="text-xs text-muted-foreground mb-1">
-                        Ориентировочная стоимость
+                        {t("Ориентировочная стоимость")}
                       </p>
                       <StatsWishlistValueBlock stats={user.stats} />
                     </div>
@@ -185,7 +189,7 @@ export default function StatsPage() {
                     {statsHasPurchasedPrices(user.stats) && (
                       <div className="pt-2 border-t border-border/70">
                         <p className="text-xs text-muted-foreground mb-1">
-                          Отмечено купленным
+                          {t("Отмечено купленным")}
                         </p>
                         <StatsPurchasedValueBlock stats={user.stats} />
                       </div>
@@ -200,7 +204,7 @@ export default function StatsPage() {
           {versionData?.version && (
             <div className="pt-6 border-t border-border/50 text-center">
               <p className="text-xs text-muted-foreground">
-                Вишлист v{versionData.version}
+                {t("Вишлист")} v{versionData.version}
               </p>
             </div>
           )}

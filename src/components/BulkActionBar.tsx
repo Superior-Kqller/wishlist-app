@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2, ShoppingCart, X, CheckSquare } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { uiSurface } from "@/lib/ui-contract";
+import { useI18n } from "@/components/i18n/language-provider";
 
 interface BulkActionBarProps {
   selectedCount: number;
@@ -20,6 +21,7 @@ export function BulkActionBar({
   onClearSelection,
   isProcessing,
 }: BulkActionBarProps) {
+  const { t } = useI18n();
   const reduceMotion = useReducedMotion();
 
   return (
@@ -52,7 +54,7 @@ export function BulkActionBar({
               className="h-10 flex-1 px-3 sm:flex-none"
             >
               <ShoppingCart className="mr-1.5 h-4 w-4" />
-              Куплено
+              {t("Куплено")}
             </Button>
 
             <Button
@@ -63,7 +65,7 @@ export function BulkActionBar({
               className="h-10 flex-1 px-3 sm:flex-none"
             >
               <Trash2 className="mr-1.5 h-4 w-4" />
-              Удалить
+              {t("Удалить")}
             </Button>
 
             <Button
@@ -72,7 +74,7 @@ export function BulkActionBar({
               className="ml-1 h-10 w-10 shrink-0"
               onClick={onClearSelection}
               disabled={isProcessing}
-              aria-label="Снять выбор"
+              aria-label={t("Отменить выбор")}
             >
               <X className="h-4 w-4" />
             </Button>
