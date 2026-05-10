@@ -159,9 +159,9 @@ export function ItemDetailDialog({
             ? `, ${t("Ориентировочная стоимость").toLowerCase()} ${formatPrice(item.price, item.currency, language)}`
             : ""}
         </DialogDescription>
-        <div className="grid min-h-0 sm:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <div className="grid min-h-0 sm:grid-cols-2">
           <ItemMediaSection item={item} />
-          <ItemDetailBody className="sm:min-h-[360px]">
+          <ItemDetailBody className="sm:min-h-[340px]">
             <ItemMetaSection
               item={item}
               canManage={canManage}

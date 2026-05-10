@@ -23,7 +23,7 @@ export function ItemMediaSection({
   return (
     <div
       className={cn(
-        "relative h-[min(28vh,180px)] w-full shrink-0 overflow-hidden bg-[radial-gradient(circle_at_50%_10%,hsl(var(--primary)/0.12),transparent_22rem),hsl(var(--surface-1))] sm:h-full sm:min-h-[360px]",
+        "relative h-[min(28vh,180px)] w-full shrink-0 overflow-hidden bg-[radial-gradient(circle_at_50%_10%,hsl(var(--primary)/0.1),transparent_22rem),hsl(var(--surface-1))] sm:h-full sm:min-h-[340px]",
         className,
       )}
     >

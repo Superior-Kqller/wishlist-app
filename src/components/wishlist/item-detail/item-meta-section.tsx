@@ -53,7 +53,7 @@ export function ItemMetaSection({
   const { language, t } = useI18n();
   const [showFullNotes, setShowFullNotes] = useState(false);
   const actionButtonClass =
-    "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-border bg-card/85 px-3 text-foreground backdrop-blur-[8px] hover:border-border/90 hover:bg-accent sm:h-9 sm:min-h-9 sm:w-auto";
+    "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-border/60 bg-card/70 px-3 text-foreground backdrop-blur-[8px] hover:border-border/80 hover:bg-accent sm:h-10 sm:min-h-10 sm:w-auto";
   const claimButtonVariant = !item.url && !canManage ? "default" : "outline";
   const hasLongNotes = Boolean(item.notes && item.notes.length > 180);
 
@@ -63,30 +63,30 @@ export function ItemMetaSection({
 
   return (
     <>
-      <DialogHeader className="space-y-1.5 pr-10 sm:space-y-2 sm:pr-12">
+      <DialogHeader className="space-y-1 pr-10 sm:pr-12">
         <div className="min-w-0">
           <DialogTitle
             className={cn(
-              "break-words text-left text-lg leading-snug sm:text-[1.35rem]",
+              "break-words text-left text-lg leading-[1.16] sm:text-[1.35rem]",
               item.purchased && "line-through",
             )}
           >
             {item.title}
           </DialogTitle>
-          <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+          <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1">
             {item.price != null && item.price > 0 ? (
               <p className="mr-1 text-xl font-semibold leading-tight tabular-nums tracking-tight text-foreground sm:text-2xl">
                 {formatPrice(item.price, item.currency, language)}
               </p>
             ) : null}
-            <StatusBadge status={item.status} />
-            <PriorityBadge priority={item.priority} />
+            <StatusBadge status={item.status} className="text-[11px] opacity-85" />
+            <PriorityBadge priority={item.priority} className="text-[11px] opacity-85" />
           </div>
         </div>
       </DialogHeader>
 
       {item.user ? (
-        <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground/82">
           <UserAvatar
             avatarUrl={item.user.avatarUrl || undefined}
             name={item.user.name}
@@ -98,10 +98,10 @@ export function ItemMetaSection({
       ) : null}
 
       {item.notes ? (
-        <div className="space-y-1.5">
+        <div className="max-w-[34rem] space-y-1">
           <p
             className={cn(
-              "whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground",
+              "whitespace-pre-wrap text-sm leading-relaxed text-foreground/72",
               hasLongNotes && !showFullNotes && "line-clamp-4",
             )}
           >
@@ -120,7 +120,7 @@ export function ItemMetaSection({
       ) : null}
 
       {item.tags.length > 0 ? (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1">
           {item.tags.map((tag) => {
             const color =
               tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
@@ -128,7 +128,7 @@ export function ItemMetaSection({
               <Badge
                 key={tag.id}
                 variant="outline"
-                className="px-1.5 py-0.5 text-[11px] sm:text-xs"
+                className="px-1.5 py-0.5 text-[11px] opacity-90"
                 style={{ borderColor: color, color }}
               >
                 {tag.name}
@@ -139,11 +139,11 @@ export function ItemMetaSection({
       ) : null}
 
       {(item.url || canManage || canClaim) && (
-        <div className="grid gap-2 border-t border-border/70 pt-3 sm:flex sm:flex-wrap sm:items-center sm:gap-2 sm:pt-3">
+        <div className="grid gap-2 border-t border-border/45 pt-2.5 sm:flex sm:flex-wrap sm:items-center sm:gap-2">
           {item.url ? (
             <Button
               asChild
-              className="h-11 min-h-[44px] w-full shrink-0 justify-center gap-2 px-3 sm:h-9 sm:min-h-9 sm:w-auto"
+              className="h-11 min-h-[44px] w-full shrink-0 justify-center gap-2 px-3 sm:h-10 sm:min-h-10 sm:w-auto"
             >
               <a href={item.url} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-4 w-4 shrink-0" />

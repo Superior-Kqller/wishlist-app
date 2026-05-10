@@ -46,7 +46,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
   const visibleItems = expanded ? recentItems : recentItems.slice(0, 2);
 
   return (
-    <aside className={cn(uiSurface.contentPanel, "flex h-full flex-col rounded-xl border-border/45 bg-[hsl(var(--surface-2))/0.5] p-2 shadow-[0_6px_16px_rgba(0,0,0,0.14)] sm:rounded-2xl sm:p-4 sm:shadow-[0_10px_24px_rgba(0,0,0,0.22),inset_0_1px_0_hsl(var(--foreground)/0.035)]")}>
+    <aside className={cn(uiSurface.contentPanel, "flex h-full flex-col rounded-xl border-border/38 bg-[hsl(var(--surface-2))/0.48] p-2 shadow-[0_6px_16px_rgba(0,0,0,0.14)] sm:rounded-2xl sm:p-3.5 sm:shadow-[0_10px_24px_rgba(0,0,0,0.2),inset_0_1px_0_hsl(var(--foreground)/0.03)]")}>
       <div className="flex items-center justify-between gap-2.5">
         <div>
           <h2 className="text-[13px] font-semibold text-foreground/90">{t("Активность")}</h2>
@@ -56,7 +56,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
       </div>
 
       {recentItems.length > 0 ? (
-        <div className="mt-1.5 space-y-1.5 sm:mt-2.5 sm:space-y-2">
+        <div className="mt-1.5 space-y-1 sm:mt-2 sm:space-y-1.5">
           {visibleItems.map((item) => {
             const actor =
               item.status === "CLAIMED" && item.claimedByUser
@@ -66,7 +66,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
             return (
               <div
                 key={item.id}
-                className="grid grid-cols-[auto_minmax(0,1fr)] gap-1.5 border-t border-border/30 pt-1.5 first:border-t-0 first:pt-0 sm:gap-2 sm:border-border/45 sm:pt-2"
+                className="grid grid-cols-[auto_minmax(0,1fr)] gap-1.5 border-t border-border/25 pt-1.5 first:border-t-0 first:pt-0 sm:gap-2 sm:border-border/35 sm:pt-1.5"
               >
                 {actor ? (
                   <UserAvatar
@@ -97,7 +97,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
                       {getItemStatusLabel(item.status, language)}
                     </Badge>
                   </div>
-                  <p className="text-[10px] text-muted-foreground/55 sm:mt-0.5 sm:text-[11px]">
+                  <p className="text-[10px] text-muted-foreground/45 sm:mt-0.5 sm:text-[11px]">
                     {formatActivityDate(item.updatedAt, locale)}
                   </p>
                 </div>
@@ -109,7 +109,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
               type="button"
               variant="ghost"
               size="sm"
-              className="h-6 w-full gap-1 text-[11px] text-muted-foreground/78 sm:h-7 sm:gap-1.5 sm:text-xs"
+              className="h-6 w-full gap-1 text-[11px] text-muted-foreground/72 sm:h-6 sm:gap-1.5 sm:text-[11px]"
               onClick={() => setExpanded((value) => !value)}
             >
               {expanded ? t("Свернуть") : t("Все изменения")}

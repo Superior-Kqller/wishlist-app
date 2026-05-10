@@ -7,6 +7,21 @@
 
 ## [Unreleased]
 
+## [1.8.4] — 2026-05-11
+
+### Изменено
+
+- **Карточки желаний** — финально уплотнены пропорции: image area стала ниже, title/price/tag/owner собраны в единый content cluster, action row закреплен компактнее.
+- **Карточка товара** — desktop-модалка получила более ровный баланс колонок, плотный верхний info block и менее рыхлые actions.
+- **Комментарии** — секция отделена мягкой поверхностью, empty state и поле ввода стали спокойнее и компактнее.
+- **Overview и toolbar** — дополнительно выровнены density, border weight, группы controls и визуальный приоритет primary action.
+
+### Проверено
+
+- `npm run lint` — PASS
+- `npx tsc --noEmit` — PASS
+- `git diff --check` — PASS
+
 ## [1.8.3] — 2026-05-11
 
 ### Изменено

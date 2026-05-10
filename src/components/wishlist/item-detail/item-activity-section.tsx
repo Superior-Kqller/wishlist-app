@@ -34,17 +34,17 @@ export function ItemActivitySection({
   const { locale, t } = useI18n();
 
   return (
-    <div className={cn("space-y-3 border-t border-border/70 pt-4 sm:space-y-4 sm:pt-5", className)}>
+    <div className={cn("space-y-3 rounded-xl border border-border/45 bg-[hsl(var(--surface-3))/0.34] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] sm:space-y-3.5 sm:p-4", className)}>
       <h3 className="text-sm font-semibold text-foreground">{t("Комментарии")}</h3>
 
       <div className="max-h-40 space-y-2 overflow-y-auto sm:max-h-52">
         {comments.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("Комментариев пока нет")}</p>
+          <p className="text-sm text-muted-foreground/75">{t("Комментариев пока нет")}</p>
         ) : (
           comments.map((comment) => (
             <div
               key={comment.id}
-              className="flex gap-2 rounded-lg bg-muted/50 p-2 text-sm"
+              className="flex gap-2 rounded-lg bg-muted/38 p-2 text-sm"
             >
               <UserAvatar
                 avatarUrl={comment.user.avatarUrl || undefined}
@@ -55,7 +55,7 @@ export function ItemActivitySection({
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{comment.user.name}</span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground/72">
                     {new Date(comment.createdAt).toLocaleString(locale, {
                       day: "2-digit",
                       month: "2-digit",
@@ -94,20 +94,20 @@ export function ItemActivitySection({
 
       <form
         onSubmit={onSubmitComment}
-        className="flex flex-col gap-2 sm:flex-row sm:items-end"
+        className="flex flex-col gap-2 border-t border-border/35 pt-3 sm:flex-row sm:items-end"
       >
         <Textarea
           value={commentText}
           onChange={(event) => onCommentTextChange(event.target.value)}
           placeholder={t("Добавить комментарий...")}
-          className="min-h-[56px] resize-none sm:min-h-[80px] sm:flex-1"
+          className="min-h-[56px] resize-none bg-[hsl(var(--surface-2))/0.7] sm:min-h-16 sm:flex-1"
           maxLength={2000}
           disabled={submittingComment}
         />
         <Button
           type="submit"
           size="sm"
-          className="w-full shrink-0 sm:w-auto"
+          className="h-10 w-full shrink-0 sm:w-auto"
           disabled={!commentText.trim() || submittingComment}
         >
           {submittingComment ? (

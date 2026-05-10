@@ -221,8 +221,8 @@ export function WishlistWorkspace({
           </DropdownMenu>
         </div>
 
-        <div className="hidden min-w-0 w-full flex-col gap-2 sm:flex xl:flex-row xl:items-start xl:justify-between">
-          <div className="flex min-w-0 flex-1 flex-col gap-2 xl:max-w-[42rem]">
+        <div className="hidden min-w-0 w-full flex-col gap-2.5 sm:flex xl:flex-row xl:items-start xl:justify-between xl:gap-6">
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5 xl:max-w-[44rem]">
             <WishlistSearchInput
               search={search}
               onSearchChange={onSearchChange}
@@ -236,64 +236,69 @@ export function WishlistWorkspace({
             />
           </div>
 
-          <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
-            {currentUserId && usersWithStats.length > 0 ? (
-              <CombinedFilter
-                currentUserId={currentUserId}
-                users={usersWithStats}
-                lists={lists}
-                selectedUserId={normalizedSelectedUserId}
-                selectedListId={selectedListId}
-                onUserChange={onUserChange}
-                onListChange={onListChange}
-                onCreateList={onCreateList}
-                onEditList={onEditSelectedList}
+          <div className="flex min-w-0 flex-wrap items-center justify-end gap-3">
+            <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">
+              {currentUserId && usersWithStats.length > 0 ? (
+                <CombinedFilter
+                  currentUserId={currentUserId}
+                  users={usersWithStats}
+                  lists={lists}
+                  selectedUserId={normalizedSelectedUserId}
+                  selectedListId={selectedListId}
+                  onUserChange={onUserChange}
+                  onListChange={onListChange}
+                  onCreateList={onCreateList}
+                  onEditList={onEditSelectedList}
+                />
+              ) : null}
+              <WishlistToolbarControls
+                sortBy={sortBy}
+                onSortChange={onSortChange}
+                showPurchased={showPurchased}
+                onTogglePurchased={onTogglePurchasedVisibility}
+                selectionMode={selectionMode}
+                onToggleSelection={onToggleSelectionMode}
+                showSelectionButton={false}
               />
-            ) : null}
-            <WishlistToolbarControls
-              sortBy={sortBy}
-              onSortChange={onSortChange}
-              showPurchased={showPurchased}
-              onTogglePurchased={onTogglePurchasedVisibility}
-              selectionMode={selectionMode}
-              onToggleSelection={onToggleSelectionMode}
-              showSelectionButton={false}
-            />
-            <WishlistViewToggle
-              value={viewMode}
-              onValueChange={onViewModeChange}
-              className="hidden lg:inline-flex"
-            />
-            <Button
-              type="button"
-              variant={selectionMode ? "secondary" : "outline"}
-              size="sm"
-              className={selectionMode ? uiState.selectionActive : uiState.selectionIdle}
-              onClick={onToggleSelectionMode}
-            >
-              <CheckSquare className="h-4 w-4 shrink-0" />
-              {selectionMode ? t("Режим выбора") : t("Выбрать")}
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button type="button" variant="outline" size="sm" className="h-9 gap-2 text-muted-foreground hover:text-foreground">
-                  <Download className="h-4 w-4" />
-                  {t("Экспорт")}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuItem onClick={() => onExport("csv")}>
-                  {t("Экспорт CSV")}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onExport("json")}>
-                  {t("Экспорт JSON")}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button type="button" size="sm" className="h-9 gap-2" onClick={onAddItem}>
-              <Plus className="h-4 w-4" />
-              {t("Добавить товар")}
-            </Button>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-1.5">
+              <WishlistViewToggle
+                value={viewMode}
+                onValueChange={onViewModeChange}
+                className="hidden opacity-80 lg:inline-flex"
+              />
+              <Button
+                type="button"
+                variant={selectionMode ? "secondary" : "outline"}
+                size="sm"
+                className={selectionMode ? uiState.selectionActive : `${uiState.selectionIdle} text-muted-foreground`}
+                onClick={onToggleSelectionMode}
+              >
+                <CheckSquare className="h-4 w-4 shrink-0" />
+                {selectionMode ? t("Режим выбора") : t("Выбрать")}
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button type="button" variant="outline" size="sm" className="h-9 gap-2 border-border/65 bg-card/70 text-muted-foreground hover:text-foreground">
+                    <Download className="h-4 w-4" />
+                    {t("Экспорт")}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44">
+                  <DropdownMenuItem onClick={() => onExport("csv")}>
+                    {t("Экспорт CSV")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onExport("json")}>
+                    {t("Экспорт JSON")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button type="button" size="sm" className="h-9 gap-2 px-3.5" onClick={onAddItem}>
+                <Plus className="h-4 w-4" />
+                {t("Добавить товар")}
+              </Button>
+            </div>
           </div>
         </div>
 
