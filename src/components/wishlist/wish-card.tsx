@@ -2,8 +2,8 @@
 
 import { memo, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
-import { Check, Globe2, Link2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Check, Globe2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
+import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -99,7 +99,7 @@ export const WishCard = memo(function WishCard({
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "group/card flex h-full min-h-[23.75rem] flex-col overflow-hidden border-border/65 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] shadow-[0_12px_30px_rgba(0,0,0,0.26),inset_0_1px_0_hsl(var(--foreground)/0.035)] max-sm:min-h-0 max-sm:rounded-xl max-sm:shadow-[0_8px_22px_rgba(0,0,0,0.24),inset_0_1px_0_hsl(var(--foreground)/0.035)]",
+          "group/card flex h-full min-h-[21.5rem] flex-col overflow-hidden border-border/65 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] shadow-[0_12px_30px_rgba(0,0,0,0.26),inset_0_1px_0_hsl(var(--foreground)/0.035)] max-sm:min-h-0 max-sm:rounded-xl max-sm:shadow-[0_8px_22px_rgba(0,0,0,0.24),inset_0_1px_0_hsl(var(--foreground)/0.035)]",
           isBought && "opacity-45 grayscale",
           isCardInteractive &&
             "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_28px_hsl(var(--primary)/0.16),inset_0_1px_0_hsl(var(--foreground)/0.05)] focus-visible:border-primary/45 focus-visible:shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_28px_hsl(var(--primary)/0.16),inset_0_1px_0_hsl(var(--foreground)/0.05)]",
@@ -113,7 +113,7 @@ export const WishCard = memo(function WishCard({
       >
         <div
           data-testid="wishlist-card-v2-media"
-          className="group relative aspect-[16/10] shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] sm:aspect-[3/2]"
+          className="group relative aspect-[16/10] shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] sm:aspect-[4/3]"
         >
           <PriorityBadgeOverlay priority={item.priority} />
           {selectionMode ? (
@@ -127,15 +127,7 @@ export const WishCard = memo(function WishCard({
             >
               {isSelected ? t("Выбрано") : t("Выбрать")}
             </div>
-          ) : (
-            <StatusBadge
-              status={item.status}
-              className={cn(
-                "pointer-events-none absolute bottom-2 right-2 z-10 max-w-[72%] truncate border px-1.5 py-0.5 text-[10px] font-medium backdrop-blur-sm sm:bottom-2.5 sm:right-2.5 sm:px-2 sm:py-1 sm:text-[11px]",
-                "bg-[hsl(var(--surface-2))/0.82] shadow-[0_8px_18px_rgba(0,0,0,0.28)]",
-              )}
-            />
-          )}
+          ) : null}
           {showImage ? (
             <Image
               src={imageUrl!}
@@ -157,87 +149,102 @@ export const WishCard = memo(function WishCard({
           />
         </div>
 
-        <CardHeader className="space-y-0.5 border-t border-border/30 p-2.5 pb-0 sm:p-3 sm:pb-0">
-          <CardTitle
-            data-testid="wishlist-card-v2-title"
-            className={cn(
-              "line-clamp-2 min-h-[2.2rem] text-[15px] font-semibold leading-[1.18] text-foreground sm:min-h-[2.35rem] sm:text-base",
-              isBought && "line-through"
-            )}
-          >
-            {item.title}
-          </CardTitle>
-          {item.price != null ? (
-            <p
-              data-testid="wishlist-card-v2-price"
-              className="text-base font-semibold leading-none tabular-nums tracking-tight text-foreground sm:text-[17px]"
+        <CardHeader className="space-y-2 border-t border-border/30 p-2.5 sm:p-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+            <CardTitle
+              data-testid="wishlist-card-v2-title"
+              className={cn(
+                "line-clamp-2 min-h-[2.2rem] text-[15px] font-semibold leading-[1.18] text-foreground sm:min-h-[2.35rem] sm:text-base",
+                isBought && "line-through"
+              )}
             >
-              {formatPrice(item.price, item.currency, language)}
-            </p>
-          ) : null}
-        </CardHeader>
-
-        <CardContent className="flex min-h-[4.4rem] flex-col gap-1.5 p-2.5 pt-2 sm:min-h-[5rem] sm:p-3 sm:pt-2">
-          <div className="flex min-h-5 flex-wrap items-center gap-1">
-            {visibleTags.length > 0 ? (
-              <>
-                {visibleTags.map((tag) => {
-                  const color =
-                    tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
-                  return (
-                    <span
-                      key={tag.id}
-                      className="max-w-[7rem] truncate rounded-full border border-opacity-70 px-1.5 py-0.5 text-[10px] font-medium opacity-85 sm:max-w-[7.5rem] sm:px-2 sm:text-[11px]"
-                      style={{ borderColor: color, color }}
-                    >
-                      {tag.name}
-                    </span>
-                  );
-                })}
-                {hiddenTagCount > 0 ? (
-                  <span className="rounded-full border border-border/45 px-1.5 py-0.5 text-[10px] text-muted-foreground sm:px-2 sm:text-[11px]">
-                    +{hiddenTagCount}
-                  </span>
-                ) : null}
-              </>
-            ) : (
-              <span className="sr-only">{t("Без тегов")}</span>
-            )}
+              {item.title}
+            </CardTitle>
+            {item.price != null ? (
+              <p
+                data-testid="wishlist-card-v2-price"
+                className="max-w-[8.5rem] shrink-0 truncate pt-0.5 text-right text-base font-semibold leading-none tabular-nums tracking-tight text-foreground sm:text-[17px]"
+              >
+                {formatPrice(item.price, item.currency, language)}
+              </p>
+            ) : null}
           </div>
-          {ownerName ? (
-            <div className="mt-auto flex min-h-6 items-center gap-1 border-t border-border/20 pt-1.5 text-muted-foreground/82 sm:gap-1.5">
-              <Avatar className="h-5 w-5 shrink-0">
-                {ownerImage && !ownerImageError ? (
-                  <Image
-                    src={ownerImage}
-                    alt={ownerName}
-                    fill
-                    className="object-cover"
-                    sizes="24px"
-                    unoptimized={ownerImage.startsWith("/uploads/")}
-                    onError={() => setOwnerImageError(true)}
-                  />
-                ) : (
-                  <AvatarFallback
-                    className={cn(
-                      "text-[9px] font-semibold text-primary-foreground",
-                      getAvatarColor(ownerId)
-                    )}
-                  >
-                    {getInitials(ownerName)}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              <span className="min-w-0 truncate text-[11px]">{ownerName}</span>
+
+          <div
+            data-testid="wishlist-card-v2-meta"
+            className="flex min-h-6 items-center gap-2"
+          >
+            {ownerName ? (
+              <div
+                data-testid="wishlist-card-v2-owner"
+                className="flex min-w-[4.5rem] max-w-[45%] shrink-0 items-center gap-1 text-muted-foreground/82 sm:gap-1.5"
+              >
+                <Avatar className="h-5 w-5 shrink-0">
+                  {ownerImage && !ownerImageError ? (
+                    <Image
+                      src={ownerImage}
+                      alt={ownerName}
+                      fill
+                      className="object-cover"
+                      sizes="24px"
+                      unoptimized={ownerImage.startsWith("/uploads/")}
+                      onError={() => setOwnerImageError(true)}
+                    />
+                  ) : (
+                    <AvatarFallback
+                      className={cn(
+                        "text-[9px] font-semibold text-primary-foreground",
+                        getAvatarColor(ownerId)
+                      )}
+                    >
+                      {getInitials(ownerName)}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+                <span className="min-w-0 truncate text-[11px]">{ownerName}</span>
+              </div>
+            ) : (
+              <span className="min-w-0" aria-hidden />
+            )}
+            <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-1">
+              <span data-testid="wishlist-card-v2-status" className="min-w-0">
+                <StatusBadge
+                  status={item.status}
+                  className="max-w-[5.75rem] truncate px-1.5 py-0.5 text-[10px] font-medium leading-none sm:max-w-[6.5rem] [&_svg]:h-3 [&_svg]:w-3 [&_svg]:shrink-0"
+                />
+              </span>
+              {visibleTags.length > 0 ? (
+                <>
+                  {visibleTags.map((tag) => {
+                    const color =
+                      tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
+                    return (
+                      <span
+                        key={tag.id}
+                        data-testid="wishlist-card-v2-tag"
+                        className="max-w-[5.5rem] truncate rounded-full border border-opacity-70 px-1.5 py-0.5 text-[10px] font-medium opacity-85 sm:max-w-[6.5rem] sm:px-2 sm:text-[11px]"
+                        style={{ borderColor: color, color }}
+                      >
+                        {tag.name}
+                      </span>
+                    );
+                  })}
+                  {hiddenTagCount > 0 ? (
+                    <span className="rounded-full border border-border/45 px-1.5 py-0.5 text-[10px] text-muted-foreground sm:px-2 sm:text-[11px]">
+                      +{hiddenTagCount}
+                    </span>
+                  ) : null}
+                </>
+              ) : (
+                <span className="sr-only">{t("Без тегов")}</span>
+              )}
             </div>
-          ) : (
-            <div className="mt-auto min-h-6 border-t border-border/20 pt-1.5" aria-hidden />
-          )}
-        </CardContent>
+          </div>
+        </CardHeader>
 
         <CardFooter
           data-testid="wishlist-card-v2-footer"
-          className="mt-auto flex min-h-[3.1rem] flex-row items-center gap-2 border-t border-border/25 p-2.5 sm:min-h-[3.25rem] sm:flex-wrap sm:justify-between sm:p-2.5"
+          className="mt-auto flex min-h-[3.1rem] flex-row items-center gap-2 border-t border-border/25 p-2.5 sm:min-h-[3.25rem] sm:p-2.5"
         >
           {selectionMode ? (
             <p className="text-xs text-muted-foreground">
@@ -246,51 +253,28 @@ export const WishCard = memo(function WishCard({
           ) : null}
           {item.url || canManage ? (
             <TooltipProvider delayDuration={450} skipDelayDuration={200}>
-              <div className="flex w-full flex-row items-center gap-2 sm:justify-between sm:gap-3">
+              <div className="flex w-full flex-row items-center justify-between gap-2 sm:gap-3">
                 {item.url ? (
-                  <>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          asChild
-                          variant="outline"
-                          size="icon"
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        asChild
+                        className="h-11 min-h-[44px] min-w-0 flex-1 justify-center rounded-lg border-primary/30 bg-primary/10 px-3 text-sm font-semibold shadow-none hover:border-primary/50 hover:bg-primary/16 sm:h-10 sm:min-h-10 sm:min-w-[8rem] sm:flex-none sm:px-4"
+                      >
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           aria-label={t("Открыть ссылку на товар в новой вкладке")}
-                          className="size-11 min-w-[44px] shrink-0 rounded-lg border-border/55 bg-card/70 text-muted-foreground shadow-none hover:text-foreground sm:size-10 sm:min-w-10"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          <a
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Link2 className="h-5 w-5" />
-                          </a>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>{t("Открыть в новой вкладке")}</TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          asChild
-                          className="h-11 min-h-[44px] min-w-0 flex-1 justify-center rounded-lg border-primary/30 bg-primary/10 px-3 text-sm font-semibold shadow-none hover:border-primary/50 hover:bg-primary/16 sm:h-10 sm:min-h-10 sm:w-auto sm:min-w-[8rem] sm:flex-none sm:px-4"
-                        >
-                          <a
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={t("Открыть ссылку на товар в новой вкладке")}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {t("Открыть")}
-                          </a>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>{t("Открыть в новой вкладке")}</TooltipContent>
-                    </Tooltip>
-                  </>
+                          {t("Открыть")}
+                        </a>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{t("Открыть в новой вкладке")}</TooltipContent>
+                  </Tooltip>
                 ) : null}
 
                 {canManage && !selectionMode ? (
@@ -301,7 +285,7 @@ export const WishCard = memo(function WishCard({
                         data-testid="wishlist-card-actions"
                         intent="default"
                         aria-label={t("Действия с карточкой")}
-                        className="size-11 min-w-[44px] shrink-0 sm:size-10 sm:min-w-10"
+                        className="ml-auto size-11 min-w-[44px] shrink-0 sm:size-10 sm:min-w-10"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <MoreHorizontal className="h-5 w-5" />

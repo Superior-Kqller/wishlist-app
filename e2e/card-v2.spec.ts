@@ -40,15 +40,41 @@ test("card-v2-layout-price-near-title", async ({ page }) => {
 
   const media = firstCard.getByTestId("wishlist-card-v2-media");
   const footer = firstCard.getByTestId("wishlist-card-v2-footer");
+  const meta = firstCard.getByTestId("wishlist-card-v2-meta");
+  const owner = firstCard.getByTestId("wishlist-card-v2-owner");
+  const status = firstCard.getByTestId("wishlist-card-v2-status");
+  const tag = firstCard.getByTestId("wishlist-card-v2-tag");
   const price = firstCard.getByTestId("wishlist-card-v2-price");
   const title = firstCard.getByTestId("wishlist-card-v2-title");
 
   await expect(media).toBeVisible();
   await expect(footer).toBeVisible();
+  await expect(meta).toBeVisible();
+  await expect(owner).toBeVisible();
+  await expect(status).toBeVisible();
+  await expect(tag.first()).toBeVisible();
   await expect(price).toBeVisible();
+  await expect(media.getByTestId("wishlist-card-v2-status")).toHaveCount(0);
   await expect(media.getByTestId("wishlist-card-v2-price")).toHaveCount(0);
   await expect(footer.getByTestId("wishlist-card-v2-price")).toHaveCount(0);
   await expect(title).toHaveClass(/line-clamp-2/);
+
+  const titleBox = await title.boundingBox();
+  const priceBox = await price.boundingBox();
+  expect(titleBox).not.toBeNull();
+  expect(priceBox).not.toBeNull();
+  expect(Math.abs(titleBox!.y - priceBox!.y)).toBeLessThan(12);
+});
+
+test("card-v2-has-single-open-link-action", async ({ page }) => {
+  await loginAsUser(page);
+
+  const firstCard = page.getByTestId("wishlist-card-v2").first();
+  await expect(firstCard).toBeVisible();
+
+  await expect(
+    firstCard.getByRole("link", { name: "Открыть ссылку на товар в новой вкладке" }),
+  ).toHaveCount(1);
 });
 
 test("card-v2-actions-are-labeled-and-keyboard-accessible", async ({ page }) => {
