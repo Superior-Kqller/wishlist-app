@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { mutate as mutateCache } from "swr";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -205,6 +206,7 @@ export function ProfileForm({
             .then((res) => res.json())
             .then((data) => {
               setAvatarUrl(data.avatarUrl);
+              void mutateCache("/api/users/me", data, false);
               onSuccess();
             })
             .catch(() => {

@@ -49,7 +49,9 @@ export default function AdminPage() {
     );
   }
 
-  const currentUserId = session?.user?.id;
+  if (!session?.user?.id) return null;
+
+  const currentUserId = session.user.id;
 
   return (
     <PageShell>

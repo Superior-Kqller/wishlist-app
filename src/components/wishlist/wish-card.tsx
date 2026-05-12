@@ -36,6 +36,9 @@ export interface WishCardProps {
   currentUserRole?: "ADMIN" | "USER" | null;
 }
 
+const cardMetaChipClass =
+  "inline-flex h-5 max-w-[5.75rem] items-center rounded-full border bg-[hsl(var(--surface-1))/0.64] px-1.5 py-0 text-[10px] font-medium leading-none shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)] backdrop-blur-sm sm:max-w-[6.5rem]";
+
 export const WishCard = memo(function WishCard({
   item,
   onEdit,
@@ -210,7 +213,13 @@ export const WishCard = memo(function WishCard({
               <span data-testid="wishlist-card-v2-status" className="min-w-0">
                 <StatusBadge
                   status={item.status}
-                  className="h-5 max-w-[5.75rem] truncate px-1.5 py-0 text-[10px] font-medium leading-none sm:max-w-[6.5rem] [&_svg]:h-3 [&_svg]:w-3 [&_svg]:shrink-0"
+                  className={cn(
+                    cardMetaChipClass,
+                    "bg-[hsl(var(--surface-1))/0.64] [&_svg]:h-3 [&_svg]:w-3 [&_svg]:shrink-0",
+                    item.status === "CLAIMED" && "border-warning/65 text-warning",
+                    item.status === "PURCHASED" && "border-success/65 text-success",
+                    item.status === "AVAILABLE" && "border-info/65 text-info"
+                  )}
                 />
               </span>
               {visibleTags.length > 0 ? (
@@ -222,7 +231,7 @@ export const WishCard = memo(function WishCard({
                       <span
                         key={tag.id}
                         data-testid="wishlist-card-v2-tag"
-                        className="inline-flex h-5 max-w-[5.5rem] items-center truncate rounded-full border border-opacity-70 px-1.5 py-0 text-[10px] font-medium leading-none opacity-85 sm:max-w-[6.5rem]"
+                        className={cn(cardMetaChipClass, "max-w-[5.5rem]")}
                         style={{ borderColor: color, color }}
                       >
                         {tag.name}
@@ -230,7 +239,12 @@ export const WishCard = memo(function WishCard({
                     );
                   })}
                   {hiddenTagCount > 0 ? (
-                    <span className="inline-flex h-5 items-center rounded-full border border-border/45 px-1.5 py-0 text-[10px] leading-none text-muted-foreground">
+                    <span
+                      className={cn(
+                        cardMetaChipClass,
+                        "max-w-none border-border/45 text-muted-foreground"
+                      )}
+                    >
                       +{hiddenTagCount}
                     </span>
                   ) : null}

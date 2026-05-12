@@ -2,6 +2,7 @@
 
 import { signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
+import useSWR from "swr";
 import {
   BarChart3,
   Home,
@@ -15,6 +16,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { useI18n } from "@/components/i18n/language-provider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { fetcher } from "@/lib/fetcher";
 import { uiState, uiSurface } from "@/lib/ui-contract";
 
 type NavItem = {
@@ -23,13 +25,31 @@ type NavItem = {
   icon: React.ComponentType<{ className?: string }>;
 };
 
+type SidebarUser = {
+  id: string;
+  name?: string | null;
+  username?: string | null;
+  email?: string | null;
+  avatarUrl?: string | null;
+  role?: "USER" | "ADMIN";
+};
+
 export function AppSidebar() {
   const { t } = useI18n();
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
+  const { data: profile } = useSWR<SidebarUser>(
+    session?.user && pathname !== "/login" ? "/api/users/me" : null,
+    fetcher,
+  );
 
   if (!session?.user || pathname === "/login") return null;
+  const currentUser = profile ?? session.user;
+  const currentUserName = currentUser.name ?? t("Пользователь");
+  const currentUserId = currentUser.id ?? session.user.id;
+  const currentUsername =
+    currentUser.email ?? currentUser.username ?? session.user.email ?? t("Аккаунт");
 
   const navItems: NavItem[] = [
     { label: t("Главная"), href: "/", icon: Home },
@@ -96,23 +116,29 @@ export function AppSidebar() {
       </nav>
 
       <div className="rounded-xl border border-border/45 bg-[hsl(var(--surface-3))/0.46] px-3 py-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
-        <div className="flex min-w-0 items-center gap-2.5">
+        <button
+          type="button"
+          onClick={() => router.push("/settings")}
+          className="flex w-full min-w-0 items-center gap-2.5 rounded-lg px-1.5 py-1.5 text-left transition-colors hover:bg-accent/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          aria-label={t("Настройки")}
+          title={t("Настройки")}
+        >
           <UserAvatar
-            avatarUrl={session.user.avatarUrl}
-            name={session.user.name ?? t("Пользователь")}
-            userId={session.user.id}
+            avatarUrl={currentUser.avatarUrl}
+            name={currentUserName}
+            userId={currentUserId}
             size="md"
             className="ring-1 ring-border/35"
           />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-foreground">
-              {session.user.name ?? t("Пользователь")}
+              {currentUserName}
             </p>
             <p className="mt-0.5 truncate text-xs text-muted-foreground/78">
-              {session.user.email ?? session.user.username ?? t("Аккаунт")}
+              {currentUsername}
             </p>
           </div>
-        </div>
+        </button>
         <LanguageSwitcher className="mt-3 h-8 w-full justify-start px-2 text-muted-foreground/82 hover:text-foreground" />
         <Button
           type="button"

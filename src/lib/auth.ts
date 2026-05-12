@@ -39,6 +39,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           name: user.name,
           email: user.username, // next-auth expects email field
+          avatarUrl: user.avatarUrl,
           role: user.role,
         };
       },
@@ -53,6 +54,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.username = user.email ?? "";
+        token.avatarUrl = user.avatarUrl ?? null;
         token.role = user.role;
       }
       return token;
@@ -61,6 +63,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id;
         session.user.username = token.username;
+        session.user.avatarUrl = token.avatarUrl;
         session.user.role = token.role;
       }
       return session;
