@@ -210,7 +210,7 @@ export const WishCard = memo(function WishCard({
               <span data-testid="wishlist-card-v2-status" className="min-w-0">
                 <StatusBadge
                   status={item.status}
-                  className="max-w-[5.75rem] truncate px-1.5 py-0.5 text-[10px] font-medium leading-none sm:max-w-[6.5rem] [&_svg]:h-3 [&_svg]:w-3 [&_svg]:shrink-0"
+                  className="h-5 max-w-[5.75rem] truncate px-1.5 py-0 text-[10px] font-medium leading-none sm:max-w-[6.5rem] [&_svg]:h-3 [&_svg]:w-3 [&_svg]:shrink-0"
                 />
               </span>
               {visibleTags.length > 0 ? (
@@ -222,7 +222,7 @@ export const WishCard = memo(function WishCard({
                       <span
                         key={tag.id}
                         data-testid="wishlist-card-v2-tag"
-                        className="max-w-[5.5rem] truncate rounded-full border border-opacity-70 px-1.5 py-0.5 text-[10px] font-medium opacity-85 sm:max-w-[6.5rem] sm:px-2 sm:text-[11px]"
+                        className="inline-flex h-5 max-w-[5.5rem] items-center truncate rounded-full border border-opacity-70 px-1.5 py-0 text-[10px] font-medium leading-none opacity-85 sm:max-w-[6.5rem]"
                         style={{ borderColor: color, color }}
                       >
                         {tag.name}
@@ -230,7 +230,7 @@ export const WishCard = memo(function WishCard({
                     );
                   })}
                   {hiddenTagCount > 0 ? (
-                    <span className="rounded-full border border-border/45 px-1.5 py-0.5 text-[10px] text-muted-foreground sm:px-2 sm:text-[11px]">
+                    <span className="inline-flex h-5 items-center rounded-full border border-border/45 px-1.5 py-0 text-[10px] leading-none text-muted-foreground">
                       +{hiddenTagCount}
                     </span>
                   ) : null}
