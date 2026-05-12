@@ -177,6 +177,10 @@ export function AvatarUploadDialog({
     : uploadMethod === "url" && url.trim()
     ? url
     : currentAvatarUrl;
+  const submitDisabled =
+    uploading ||
+    (uploadMethod === "file" && !file) ||
+    (uploadMethod === "url" && !url.trim());
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -270,12 +274,7 @@ export function AvatarUploadDialog({
             <Button
               type="button"
               onClick={handleSubmit}
-              disabled={
-                uploading ||
-                (uploadMethod === "file" &&
-                  !(file ?? fileInputRef.current?.files?.[0])) ||
-                (uploadMethod === "url" && !url.trim())
-              }
+              disabled={submitDisabled}
             >
               {uploading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {t("Сохранить")}
