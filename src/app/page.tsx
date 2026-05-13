@@ -28,6 +28,7 @@ import {
   WishlistItem,
   Tag,
   CreateItemPayload,
+  UpdateItemPayload,
   ParsedProductResponse,
   UserWithStats,
   ListWithMeta,
@@ -391,27 +392,33 @@ function HomePageContent() {
   const summaryTitle = selectedListName ?? selectedUserName ?? t("Каталог желаний");
 
   // Handlers
-  const handleCreateItem = useCallback(async (data: CreateItemPayload) => {
+  const handleCreateItem = useCallback(async (data: CreateItemPayload | UpdateItemPayload) => {
     const res = await fetch("/api/items", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error(t("Ошибка при создании желания"));
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || t("Ошибка при создании желания"));
+    }
     toast.success(t("Добавлено в список!"));
     mutateItems();
     mutate("/api/tags");
   }, [mutateItems, t]);
 
   const handleUpdateItem = useCallback(
-    async (data: CreateItemPayload) => {
+    async (data: CreateItemPayload | UpdateItemPayload) => {
       if (!editingItem) return;
       const res = await fetch(`/api/items/${editingItem.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error(t("Ошибка при обновлении желания"));
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || t("Ошибка при обновлении желания"));
+      }
       toast.success(t("Сохранено!"));
       mutateItems();
       mutate("/api/tags");

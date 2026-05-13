@@ -243,6 +243,7 @@ const en: Dictionary = {
   "Ошибка парсинга": "Parsing failed",
   "Некорректная ссылка в параметре addUrl": "Invalid link in addUrl parameter",
   "Введите название": "Enter a title",
+  "Введите корректную цену": "Enter a valid price",
   "Сначала создайте подборку в фильтрах на главной": "Create a list in the home filters first",
   "Выберите подборку": "Choose a list",
   "Ссылка (необязательно)": "Link (optional)",

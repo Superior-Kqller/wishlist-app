@@ -74,7 +74,12 @@ export interface CreateItemPayload {
   listId?: string | null;
 }
 
-export interface UpdateItemPayload extends Partial<CreateItemPayload> {
+export interface UpdateItemPayload
+  extends Partial<Omit<CreateItemPayload, "url" | "price" | "notes" | "listId">> {
+  url?: string | null;
+  price?: number | null;
+  notes?: string | null;
+  listId?: string | null;
   purchased?: boolean;
   status?: ItemStatus;
 }

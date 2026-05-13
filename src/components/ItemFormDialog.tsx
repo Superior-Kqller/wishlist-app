@@ -21,7 +21,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { WishlistItem, CreateItemPayload, Tag, ListWithMeta } from "@/types";
+import {
+  WishlistItem,
+  CreateItemPayload,
+  UpdateItemPayload,
+  Tag,
+  ListWithMeta,
+} from "@/types";
 import { getPriorityShortLabel } from "@/lib/priority-labels";
 import {
   clampWishlistPriority,
@@ -39,7 +45,7 @@ interface ItemFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   item?: WishlistItem | null;
-  onSave: (data: CreateItemPayload) => Promise<void>;
+  onSave: (data: CreateItemPayload | UpdateItemPayload) => Promise<void>;
   initialData?: Partial<CreateItemPayload>;
   existingTags?: Tag[];
   existingLists?: ListWithMeta[];
@@ -59,6 +65,10 @@ const CURRENCIES = [
 ];
 
 const PRIORITY_OPTIONS: WishlistPriority[] = [1, 2, 3, 4, 5];
+
+function areStringArraysEqual(a: string[], b: string[]): boolean {
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
 
 export function ItemFormDialog({
   open,
@@ -206,8 +216,20 @@ export function ItemFormDialog({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim()) {
+    const nextTitle = title.trim();
+    const nextUrl = url.trim();
+    const nextNotes = notes.trim();
+    const nextImageUrl = imageUrl.trim();
+    const nextImages = nextImageUrl ? [nextImageUrl] : [];
+    const nextPriceText = price.trim().replace(",", ".");
+    const nextPrice = nextPriceText ? Number(nextPriceText) : null;
+
+    if (!nextTitle) {
       toast.error(t("Введите название"));
+      return;
+    }
+    if (nextPrice !== null && (!Number.isFinite(nextPrice) || nextPrice < 0)) {
+      toast.error(t("Введите корректную цену"));
       return;
     }
 
@@ -224,21 +246,45 @@ export function ItemFormDialog({
 
     setSaving(true);
     try {
-      await onSave({
-        title: title.trim(),
-        url: url.trim() || undefined,
-        price: price ? parseFloat(price) : undefined,
-        currency,
-        priority,
-        listId: effectiveListId || undefined,
-        notes: notes.trim() || undefined,
-        images: imageUrl.trim() ? [imageUrl.trim()] : [],
-        tags,
-      });
+      if (item) {
+        const nextListId = effectiveListId ?? null;
+        const nextTags = tags;
+        const currentTags = item.tags.map((tag) => tag.name);
+        const data: UpdateItemPayload = {};
+
+        if (nextTitle !== item.title) data.title = nextTitle;
+        if (nextUrl !== (item.url ?? "")) data.url = nextUrl || null;
+        if (nextPrice !== item.price) data.price = nextPrice;
+        if (currency !== item.currency) data.currency = currency;
+        if (priority !== item.priority) data.priority = priority;
+        if (nextListId !== (item.listId ?? null)) data.listId = nextListId;
+        if (nextNotes !== (item.notes ?? "")) data.notes = nextNotes || null;
+        if (!areStringArraysEqual(nextImages, item.images)) data.images = nextImages;
+        if (!areStringArraysEqual(nextTags, currentTags)) data.tags = nextTags;
+
+        if (Object.keys(data).length === 0) {
+          toast.info(t("Нет изменений для сохранения"));
+          return;
+        }
+
+        await onSave(data);
+      } else {
+        await onSave({
+          title: nextTitle,
+          url: nextUrl || undefined,
+          price: nextPrice ?? undefined,
+          currency,
+          priority,
+          listId: effectiveListId || undefined,
+          notes: nextNotes || undefined,
+          images: nextImages,
+          tags,
+        });
+      }
       onOpenChange(false);
       resetForm();
-    } catch {
-      toast.error(t("Ошибка при сохранении"));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("Ошибка при сохранении"));
     } finally {
       setSaving(false);
     }
