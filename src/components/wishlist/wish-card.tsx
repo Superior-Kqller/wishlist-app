@@ -102,12 +102,12 @@ export const WishCard = memo(function WishCard({
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "group/card flex h-full min-h-[21.5rem] flex-col overflow-hidden border-border/65 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] shadow-[0_12px_30px_rgba(0,0,0,0.26),inset_0_1px_0_hsl(var(--foreground)/0.035)] max-sm:min-h-0 max-sm:rounded-xl max-sm:shadow-[0_8px_22px_rgba(0,0,0,0.24),inset_0_1px_0_hsl(var(--foreground)/0.035)]",
+          "group/card flex h-full min-h-[21.5rem] flex-col overflow-hidden border-border/65 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] elevation-interactive-card max-sm:min-h-0 max-sm:rounded-xl",
           isBought && "opacity-45 grayscale",
           isCardInteractive &&
-            "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 hover:shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_28px_hsl(var(--primary)/0.16),inset_0_1px_0_hsl(var(--foreground)/0.05)] focus-visible:border-primary/45 focus-visible:shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_28px_hsl(var(--primary)/0.16),inset_0_1px_0_hsl(var(--foreground)/0.05)]",
+            "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 focus-visible:border-primary/45",
           selectionMode && "ring-1 ring-border/80",
-          isSelected && "border-primary/65 ring-2 ring-primary/45 shadow-[0_18px_46px_rgba(0,0,0,0.42),0_0_30px_hsl(var(--primary)/0.2)]"
+          isSelected && "border-primary/65 ring-2 ring-primary/45 elevation-selected-card"
         )}
         role={isCardInteractive ? "button" : undefined}
         tabIndex={isCardInteractive ? 0 : undefined}

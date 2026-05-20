@@ -48,9 +48,9 @@ export default function LoginPage() {
           </div>
           <div className="flex flex-col items-center mb-8">
             <BrandLockup className="mb-3 justify-center" />
-            <p className="text-muted-foreground text-sm mt-1 text-center">
+            <h1 className="text-muted-foreground text-sm mt-1 text-center">
               {t("Войдите в свой аккаунт")}
-            </p>
+            </h1>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

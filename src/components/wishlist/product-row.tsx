@@ -97,7 +97,8 @@ export const ProductRow = memo(function ProductRow({
       data-testid="wishlist-product-row"
       className={cn(
         "group/row outline-none",
-        isInteractive && "cursor-pointer focus-visible:bg-muted/45",
+        isInteractive &&
+          "cursor-pointer focus-visible:bg-muted/45 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
         isSelected && "bg-primary/10",
         isBought && "opacity-55",
       )}

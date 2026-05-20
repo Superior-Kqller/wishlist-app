@@ -11,7 +11,7 @@ const buttonVariants = cva(
         default:
           "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
         gradient:
-          "text-primary-foreground shadow-md [background:linear-gradient(135deg,hsl(var(--primary)),hsl(var(--info)))] hover:brightness-110 hover:shadow-[0_0_20px_hsl(var(--primary)/0.32)] active:brightness-95",
+          "brand-action-glow text-primary-foreground shadow-md [background:linear-gradient(135deg,hsl(var(--primary)),hsl(var(--info)))] hover:brightness-110 active:brightness-95",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
@@ -27,12 +27,12 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
+        default: "min-h-11 px-4 py-2 sm:min-h-10",
+        sm: "min-h-11 rounded-md px-3 sm:min-h-9",
         lg: "h-11 rounded-lg px-8",
-        icon: "h-10 w-10",
+        icon: "h-11 w-11 sm:h-10 sm:w-10",
         /** Компактные иконки в полосе фильтров */
-        iconToolbar: "h-9 w-9 rounded-lg",
+        iconToolbar: "h-11 w-11 rounded-lg sm:h-9 sm:w-9",
       },
     },
     defaultVariants: {

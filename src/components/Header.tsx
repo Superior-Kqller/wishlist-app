@@ -54,12 +54,12 @@ export function Header() {
   if (isLoginPage) return null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/80 bg-[hsl(var(--surface-2)/0.9)] shadow-[0_1px_6px_rgba(0,0,0,0.28)] backdrop-blur-lg lg:hidden">
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-[hsl(var(--surface-2)/0.9)] elevation-header backdrop-blur-lg lg:hidden">
       <div className="pt-[env(safe-area-inset-top,0px)]">
         <div className="container mx-auto flex min-h-[50px] items-center px-3 sm:min-h-[64px] sm:px-4">
           <button
             onClick={() => router.push("/")}
-            className="shrink-0 transition-opacity hover:opacity-90"
+            className="flex min-h-11 shrink-0 items-center rounded-xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             title={t("На главную")}
             aria-label={t("Вишлист — на главную")}
           >

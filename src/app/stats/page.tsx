@@ -95,7 +95,12 @@ export default function StatsPage() {
   const { status } = useSession();
   const router = useRouter();
 
-  const { data: statsData, isLoading } = useSWR<{ users: UserWithStats[] }>(
+  const {
+    data: statsData,
+    isLoading,
+    error,
+    mutate,
+  } = useSWR<{ users: UserWithStats[] }>(
     status === "authenticated" ? "/api/users/stats" : null,
     fetcher,
     {
@@ -111,7 +116,12 @@ export default function StatsPage() {
     { revalidateOnFocus: false, dedupingInterval: 60000 }
   );
 
-  if (status === "loading" || isLoading || !statsData) {
+  if (status === "unauthenticated") {
+    router.push("/login");
+    return null;
+  }
+
+  if (status === "loading" || isLoading) {
     return (
       <PageShell className="flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
@@ -119,9 +129,20 @@ export default function StatsPage() {
     );
   }
 
-  if (status === "unauthenticated") {
-    router.push("/login");
-    return null;
+  if (error || !statsData) {
+    return (
+      <PageShell>
+        <PageMain className="max-w-6xl">
+          <EmptyState
+            icon={<BarChart3 className="h-5 w-5" aria-hidden />}
+            title={t("Не удалось загрузить статистику")}
+            description={t("Проверьте подключение и попробуйте обновить данные.")}
+            actionLabel={t("Повторить")}
+            onAction={() => mutate()}
+          />
+        </PageMain>
+      </PageShell>
+    );
   }
 
   const users = statsData.users || [];
