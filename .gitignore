@@ -24,6 +24,8 @@ wishlist-brandbook.pdf
 
 # Локальная память агента / правила — не в репозитории
 AGENTS.md
+.codegraph/
+.commitshow/
 
 # Playwright
 playwright-report/
