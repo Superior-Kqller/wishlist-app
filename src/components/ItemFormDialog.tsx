@@ -28,7 +28,7 @@ import {
   Tag,
   ListWithMeta,
 } from "@/types";
-import { getPriorityShortLabel } from "@/lib/priority-labels";
+import { getPriorityLabel, getPriorityShortLabel } from "@/lib/priority-labels";
 import {
   clampWishlistPriority,
   priorityBadgeToneByPriority,
@@ -431,47 +431,49 @@ export function ItemFormDialog({
               role="group"
               aria-label={t("Приоритет")}
               data-testid="priority-select-dialog"
-              className="grid grid-cols-5 overflow-hidden rounded-lg border border-input bg-card"
+              className="grid gap-2 sm:grid-cols-2"
             >
               {PRIORITY_OPTIONS.map((value) => {
                 const isSelected = selectedPriority === value;
+                const label = getPriorityLabel(value, language);
+                const shortLabel = getPriorityShortLabel(value, language);
 
                 return (
                   <button
                     key={value}
                     type="button"
                     aria-pressed={isSelected}
-                    aria-label={`${t("Приоритет")} ${value}: ${getPriorityShortLabel(value, language)}`}
+                    aria-label={`${t("Приоритет")} ${value}: ${label}`}
                     onClick={() => setPriority(value)}
                     className={cn(
-                      "flex min-h-[44px] flex-col items-center justify-center gap-1 border-r border-input px-1.5 text-xs font-semibold transition-colors duration-150 last:border-r-0 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                      "flex min-h-[46px] items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                       isSelected
                         ? priorityBadgeToneByPriority[value]
-                        : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                        : "border-input bg-card text-muted-foreground hover:bg-accent hover:text-foreground",
                     )}
                   >
                     <span
                       aria-hidden="true"
                       className={cn(
-                        "h-2.5 w-2.5 rounded-full",
+                        "h-2.5 w-2.5 shrink-0 rounded-full",
                         priorityDotClassByPriority[value],
                       )}
                     />
-                    <span>{value}</span>
+                    <span className="min-w-0">
+                      <span className="block truncate">{label}</span>
+                      <span className="block text-xs font-medium text-muted-foreground/82">
+                        {t("Уровень")} {value} · {shortLabel}
+                      </span>
+                    </span>
+                    {isSelected ? (
+                      <span className="ml-auto shrink-0 text-xs text-muted-foreground">
+                        {t("Выбрано")}
+                      </span>
+                    ) : null}
                   </button>
                 );
               })}
             </div>
-            <p className="flex items-center gap-2 text-xs font-semibold text-foreground">
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "h-2 w-2 rounded-full",
-                  priorityDotClassByPriority[selectedPriority],
-                )}
-              />
-              {getPriorityShortLabel(selectedPriority, language)}
-            </p>
           </div>
 
           {/* Одно изображение по URL */}

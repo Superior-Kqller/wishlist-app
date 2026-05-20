@@ -62,10 +62,13 @@ export async function GET(req: NextRequest) {
         listId: { in: visibleListIds },
       },
       select: {
+        id: true,
+        title: true,
         userId: true,
         price: true,
         currency: true,
         purchased: true,
+        priority: true,
       },
     });
     const itemsByUserId = new Map<string, typeof items>();
@@ -82,8 +85,10 @@ export async function GET(req: NextRequest) {
 
       const pricesByCurrency: Record<string, { unpurchased: number; purchased: number }> =
         {};
+      const priorityCounts: Record<string, number> = {};
 
       userItems.forEach((item) => {
+        priorityCounts[item.priority] = (priorityCounts[item.priority] ?? 0) + 1;
         if (!item.price) return;
         const currency = item.currency || "RUB";
         if (!pricesByCurrency[currency]) {
@@ -117,12 +122,55 @@ export async function GET(req: NextRequest) {
           totalPurchasedValue: mainStats.purchased,
           currency: mainCurrency,
           pricesByCurrency,
+          priorityCounts,
         },
       };
     });
 
+    const summaryPricesByCurrency: Record<string, { unpurchased: number; purchased: number }> =
+      {};
+    const summaryPriorityCounts: Record<string, number> = {};
+    for (const item of items) {
+      summaryPriorityCounts[item.priority] =
+        (summaryPriorityCounts[item.priority] ?? 0) + 1;
+      if (!item.price) continue;
+      const currency = item.currency || "RUB";
+      if (!summaryPricesByCurrency[currency]) {
+        summaryPricesByCurrency[currency] = { unpurchased: 0, purchased: 0 };
+      }
+      if (item.purchased) {
+        summaryPricesByCurrency[currency].purchased += item.price;
+      } else {
+        summaryPricesByCurrency[currency].unpurchased += item.price;
+      }
+    }
+
+    const userNameById = new Map(users.map((user) => [user.id, user.name]));
+    const topItems = items
+      .filter((item) => !item.purchased && item.price != null)
+      .sort((a, b) => (b.price ?? 0) - (a.price ?? 0))
+      .slice(0, 3)
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        price: item.price ?? 0,
+        currency: item.currency || "RUB",
+        priority: item.priority,
+        userId: item.userId,
+        userName: userNameById.get(item.userId) ?? "",
+      }));
+
+    const summary = {
+      totalItems: items.length,
+      unpurchasedItems: items.filter((item) => !item.purchased).length,
+      memberCount: users.length,
+      pricesByCurrency: summaryPricesByCurrency,
+      priorityCounts: summaryPriorityCounts,
+      topItems,
+    };
+
     return NextResponse.json(
-      { users: usersWithStats },
+      { users: usersWithStats, summary },
       {
         headers: {
           "Cache-Control": "private, s-maxage=60, stale-while-revalidate=120",

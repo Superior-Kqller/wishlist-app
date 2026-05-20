@@ -123,10 +123,30 @@ export interface UserStats {
   totalPurchasedValue: number;
   currency?: string;
   pricesByCurrency?: Record<string, { unpurchased: number; purchased: number }>;
+  priorityCounts?: Record<string, number>;
 }
 
 export interface UserWithStats extends User {
   stats: UserStats;
+}
+
+export interface StatsTopItem {
+  id: string;
+  title: string;
+  price: number;
+  currency: string;
+  priority: number;
+  userId: string;
+  userName: string;
+}
+
+export interface StatsSummary {
+  totalItems: number;
+  unpurchasedItems: number;
+  memberCount: number;
+  pricesByCurrency: Record<string, { unpurchased: number; purchased: number }>;
+  priorityCounts: Record<string, number>;
+  topItems: StatsTopItem[];
 }
 
 export interface CreateUserPayload {
