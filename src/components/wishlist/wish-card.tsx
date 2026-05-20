@@ -116,7 +116,7 @@ export const WishCard = memo(function WishCard({
       >
         <div
           data-testid="wishlist-card-v2-media"
-          className="group relative aspect-[16/10] shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] sm:aspect-[4/3]"
+          className="group relative aspect-[16/10] shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[hsl(var(--background)/0.38)] after:content-[''] sm:aspect-[4/3]"
         >
           <PriorityBadgeOverlay priority={item.priority} />
           {selectionMode ? (
@@ -147,7 +147,7 @@ export const WishCard = memo(function WishCard({
             </div>
           )}
           <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-28 bg-gradient-to-t from-[hsl(var(--overlay-image-scrim))] via-[hsl(var(--background)/0.34)] to-transparent"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-28 bg-gradient-to-t from-[hsl(var(--overlay-image-scrim))] via-[hsl(var(--background)/0.34)] to-transparent"
             aria-hidden
           />
         </div>
