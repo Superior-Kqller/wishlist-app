@@ -102,7 +102,7 @@ export const WishCard = memo(function WishCard({
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "group/card flex h-full min-h-[21.5rem] flex-col overflow-hidden border-border/65 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] elevation-interactive-card max-sm:min-h-0 max-sm:rounded-xl",
+          "group/card flex h-full min-h-[21.5rem] flex-col overflow-hidden border-border/65 bg-[hsl(var(--surface-2))] elevation-interactive-card max-sm:min-h-0 max-sm:rounded-xl",
           isBought && "opacity-45 grayscale",
           isCardInteractive &&
             "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 focus-visible:border-primary/45",
@@ -136,7 +136,7 @@ export const WishCard = memo(function WishCard({
               src={imageUrl!}
               alt={item.title}
               fill
-              className="object-cover transition-transform duration-500 ease-out group-hover/card:scale-[1.045]"
+              className="object-cover transition-transform duration-150 ease-out group-hover/card:scale-[1.02]"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               unoptimized
               onError={() => setImageError(true)}
@@ -146,10 +146,6 @@ export const WishCard = memo(function WishCard({
               <Globe2 className="h-14 w-14 text-muted-foreground/65" aria-hidden />
             </div>
           )}
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-28 bg-gradient-to-t from-[hsl(var(--overlay-image-scrim))] via-[hsl(var(--background)/0.34)] to-transparent"
-            aria-hidden
-          />
         </div>
 
         <CardHeader className="space-y-2 border-t border-border/30 p-2.5 sm:p-3">
@@ -157,7 +153,7 @@ export const WishCard = memo(function WishCard({
             <CardTitle
               data-testid="wishlist-card-v2-title"
               className={cn(
-                "line-clamp-2 min-h-[2.2rem] text-[15px] font-semibold leading-[1.18] text-foreground sm:min-h-[2.35rem] sm:text-base",
+                "line-clamp-2 min-h-[2.2rem] text-[15px] font-semibold leading-[1.18] text-balance text-foreground sm:min-h-[2.35rem] sm:text-base",
                 isBought && "line-through"
               )}
             >
@@ -166,7 +162,7 @@ export const WishCard = memo(function WishCard({
             {item.price != null ? (
               <p
                 data-testid="wishlist-card-v2-price"
-                className="max-w-[8.5rem] shrink-0 truncate pt-0.5 text-right text-base font-semibold leading-none tabular-nums tracking-tight text-foreground sm:text-[17px]"
+                className="max-w-[8.5rem] shrink-0 truncate pt-0.5 text-right text-base font-semibold leading-none tabular-nums text-foreground sm:text-[17px]"
               >
                 {formatPrice(item.price, item.currency, language)}
               </p>

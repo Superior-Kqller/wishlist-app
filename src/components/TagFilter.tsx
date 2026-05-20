@@ -38,15 +38,15 @@ export function TagFilter({
               aria-pressed={isSelected}
               aria-label={`${isSelected ? t("Убрать тег") : t("Добавить тег")}: ${tag.name}`}
               className={cn(
-                "min-h-9 shrink-0 rounded-full transition-transform duration-150 focus-ring",
-                isSelected ? "scale-[0.98]" : "hover:scale-[1.02] active:scale-95"
+                "min-h-9 shrink-0 rounded-full transition-opacity duration-150 focus-ring",
+                !isSelected && "hover:opacity-90 active:opacity-80"
               )}
             >
               <Badge
                 variant={isSelected ? "default" : "outline"}
                 className={cn(
-                  "min-h-7 cursor-pointer rounded-full px-2.5 py-0.5 text-[11px] transition-all hover:opacity-90",
-                  isSelected && "shadow-[0_0_18px_rgba(0,0,0,0.22)]"
+                  "min-h-7 cursor-pointer rounded-full px-2.5 py-0.5 text-[11px] transition-colors",
+                  isSelected && "border-transparent"
                 )}
                 style={
                   isSelected

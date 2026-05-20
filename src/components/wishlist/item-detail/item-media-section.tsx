@@ -23,7 +23,7 @@ export function ItemMediaSection({
   return (
     <div
       className={cn(
-        "h-[min(28vh,180px)] w-full shrink-0 bg-[radial-gradient(circle_at_50%_10%,hsl(var(--primary)/0.1),transparent_22rem),hsl(var(--surface-1))] p-3 sm:h-full sm:min-h-[340px] sm:p-5",
+        "h-[min(28vh,180px)] w-full shrink-0 bg-[hsl(var(--surface-1))] p-3 sm:h-full sm:min-h-[340px] sm:p-5",
         className,
       )}
     >
@@ -46,10 +46,6 @@ export function ItemMediaSection({
             <ImageIcon className="h-16 w-16 text-muted-foreground/30" />
           </div>
         )}
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[hsl(var(--surface-3)/0.82)] to-transparent"
-          aria-hidden
-        />
       </div>
     </div>
   );

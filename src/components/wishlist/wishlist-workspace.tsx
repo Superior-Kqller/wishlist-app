@@ -189,7 +189,7 @@ export function WishlistWorkspace({
             aria-label={selectionMode ? t("Отменить выбор") : t("Выбрать карточки")}
           >
             <CheckSquare className="h-4 w-4 shrink-0" />
-            <span className="min-w-0 truncate">{selectionMode ? t("Готово") : t("Выбрать")}</span>
+            <span className="min-w-0 truncate">{selectionMode ? t("Готово") : t("Выбор")}</span>
           </Button>
 
           <DropdownMenu>

@@ -18,11 +18,11 @@ export const uiSurface = {
   topHeader:
     "border-b border-border bg-[hsl(var(--surface-2))/0.88] elevation-header backdrop-blur-xl",
   pageHeader:
-    "rounded-2xl border border-primary/18 bg-[linear-gradient(135deg,hsl(var(--surface-3)/0.98),hsl(var(--surface-2)/0.94))] elevation-page-header",
+    "rounded-2xl border border-border/80 bg-[hsl(var(--surface-2))/0.9] elevation-page-header",
   contentPanel:
     "rounded-2xl border border-border/80 bg-[hsl(var(--surface-2))/0.82] elevation-panel backdrop-blur-md",
   interactiveCard:
-    "border-border/80 bg-[linear-gradient(180deg,hsl(var(--surface-3)),hsl(var(--surface-2)))] elevation-interactive-card transition-[border-color,box-shadow,transform] hover:border-primary/45",
+    "border-border/80 bg-[hsl(var(--surface-2))] elevation-interactive-card transition-[border-color,box-shadow,transform] hover:border-primary/45",
   emptyState:
     "rounded-xl border border-dashed border-border bg-[hsl(var(--surface-2))] px-4 py-10 text-center",
   panel:
@@ -37,7 +37,7 @@ export const uiSurface = {
   homeSummary:
     "relative overflow-hidden rounded-2xl border border-border/80 bg-[hsl(var(--surface-2))/0.82] elevation-panel backdrop-blur-md",
   homeToolbar:
-    "relative z-20 flex min-w-0 flex-col gap-2 overflow-hidden rounded-xl border border-primary/14 bg-[hsl(var(--surface-2))/0.92] px-2.5 py-2 elevation-panel backdrop-blur-md sm:z-auto sm:rounded-2xl sm:bg-[hsl(var(--surface-2))/0.82] sm:px-4 sm:py-3",
+    "relative z-20 flex min-w-0 flex-col gap-2 overflow-hidden rounded-xl border border-border/80 bg-[hsl(var(--surface-2))/0.92] px-2.5 py-2 elevation-panel backdrop-blur-md sm:z-auto sm:rounded-2xl sm:bg-[hsl(var(--surface-2))/0.82] sm:px-4 sm:py-3",
   homeSelectionState:
     "rounded-lg border border-primary/45 bg-primary/12 px-3 py-2 text-sm text-foreground",
 } as const;
