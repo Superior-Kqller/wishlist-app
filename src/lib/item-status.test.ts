@@ -16,6 +16,24 @@ describe("item-status transitions", () => {
     ).toBe(true);
   });
 
+  it("разрешает владельцу отметить AVAILABLE как PURCHASED", () => {
+    expect(
+      canTransitionStatus("AVAILABLE", "PURCHASED", {
+        actorUserId: "u1",
+        ownerUserId: "u1",
+        claimerUserId: null,
+      })
+    ).toBe(true);
+
+    expect(
+      canTransitionStatus("AVAILABLE", "PURCHASED", {
+        actorUserId: "u2",
+        ownerUserId: "u1",
+        claimerUserId: null,
+      })
+    ).toBe(false);
+  });
+
   it("разрешает переход CLAIMED -> PURCHASED для claimer", () => {
     expect(
       canTransitionStatus("CLAIMED", "PURCHASED", {

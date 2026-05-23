@@ -15,6 +15,10 @@ export function canTransitionStatus(
 
   if (from === "AVAILABLE" && to === "CLAIMED") return true;
 
+  if (from === "AVAILABLE" && to === "PURCHASED") {
+    return options.actorUserId === options.ownerUserId;
+  }
+
   if (from === "CLAIMED" && to === "PURCHASED") {
     return (
       options.actorUserId === options.ownerUserId ||
