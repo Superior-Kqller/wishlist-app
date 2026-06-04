@@ -1,10 +1,10 @@
-# Wishlist App
-
 [Русская версия](README.ru.md)
 
 <p align="center">
-  <img src="public/assets/github/readme-banner.png" alt="Wishlist banner" width="960">
+  <img src="public/assets/logo/logo-mark-1.8.0-512.png" alt="Wishlist logo" width="96">
 </p>
+
+<h1 align="center">Wishlist App</h1>
 
 A simple app for personal and shared wishlists. Add gift ideas, share lists, reserve items, mark purchases, and optionally connect a Telegram bot.
 
@@ -26,11 +26,11 @@ Release history: [CHANGELOG.md](CHANGELOG.md).
 ## Screenshots
 
 <p align="center">
-  <img src="assets/app-demo.png" alt="Wishlist main screen" width="920">
+  <img src="assets/readme-home-desktop.png" alt="Wishlist desktop home screen" width="920">
 </p>
 
 <p align="center">
-  <img src="assets/add-smth.png" alt="Adding a gift" width="920">
+  <img src="assets/readme-home-mobile.png" alt="Wishlist mobile home screen" width="320">
 </p>
 
 ## Stack

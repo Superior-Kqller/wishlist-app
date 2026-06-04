@@ -221,17 +221,17 @@ export function WishlistWorkspace({
           </DropdownMenu>
         </div>
 
-        <div className="hidden min-w-0 w-full flex-col gap-2 sm:flex">
-          <div className="flex min-w-0 flex-col gap-2 xl:flex-row xl:items-center xl:justify-between xl:gap-5">
-            <div className="min-w-0 flex-1 xl:max-w-[36rem]">
-            <WishlistSearchInput
-              search={search}
-              onSearchChange={onSearchChange}
-              className="min-w-[18rem] flex-1"
-            />
+        <div className="hidden min-w-0 w-full flex-col gap-2.5 sm:flex">
+          <div className="grid min-w-0 gap-2.5 xl:grid-cols-[minmax(18rem,1fr)_auto] xl:items-start xl:gap-x-5 xl:gap-y-2">
+            <div className="min-w-0 xl:order-1">
+              <WishlistSearchInput
+                search={search}
+                onSearchChange={onSearchChange}
+                className="min-w-0"
+              />
             </div>
 
-            <div className="flex min-w-0 flex-wrap items-center justify-start gap-1.5 xl:justify-end">
+            <div className="flex min-w-0 flex-wrap items-center justify-start gap-1.5 xl:order-3 xl:col-span-2">
               {currentUserId && usersWithStats.length > 0 ? (
                 <CombinedFilter
                   currentUserId={currentUserId}
@@ -256,7 +256,7 @@ export function WishlistWorkspace({
               />
             </div>
 
-            <div className="flex shrink-0 items-center gap-1.5">
+            <div className="flex shrink-0 items-center justify-start gap-1.5 xl:order-2 xl:justify-end">
               <WishlistViewToggle
                 value={viewMode}
                 onValueChange={onViewModeChange}

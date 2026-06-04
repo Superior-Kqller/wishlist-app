@@ -186,7 +186,7 @@
   h2,
   h3 {
     font-weight: 600;
-    letter-spacing: -0.025em;
+    letter-spacing: 0;
     text-wrap: balance;
   }
 
@@ -199,7 +199,17 @@
 }
 
 .page-bg {
-  background: hsl(var(--background));
+  background:
+    linear-gradient(
+      180deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--surface-1)) 42%,
+      hsl(222 18% 5%) 100%
+    );
+}
+
+.tracking-tight {
+  letter-spacing: 0;
 }
 
 .card-elevated {

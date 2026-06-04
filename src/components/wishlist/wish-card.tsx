@@ -116,7 +116,10 @@ export const WishCard = memo(function WishCard({
       >
         <div
           data-testid="wishlist-card-v2-media"
-          className="group relative aspect-[16/10] shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[hsl(var(--background)/0.38)] after:content-[''] sm:aspect-[4/3]"
+          className={cn(
+            "group relative shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[hsl(var(--background)/0.34)] after:content-['']",
+            showImage ? "aspect-[16/10] sm:aspect-[4/3]" : "h-36 sm:h-40",
+          )}
         >
           <PriorityBadgeOverlay priority={item.priority} />
           {selectionMode ? (
@@ -142,8 +145,8 @@ export const WishCard = memo(function WishCard({
               onError={() => setImageError(true)}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <Globe2 className="h-14 w-14 text-muted-foreground/65" aria-hidden />
+            <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_center,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_68%)]">
+              <Globe2 className="h-10 w-10 text-muted-foreground/55 sm:h-11 sm:w-11" aria-hidden />
             </div>
           )}
         </div>

@@ -1,8 +1,8 @@
-# Вишлист
-
 <p align="center">
-  <img src="public/assets/github/readme-banner.png" alt="Wishlist banner" width="960">
+  <img src="public/assets/logo/logo-mark-1.8.0-512.png" alt="Логотип Вишлиста" width="96">
 </p>
+
+<h1 align="center">Вишлист</h1>
 
 Простое приложение для личных и общих списков желаний. Можно добавлять подарки, делиться списками, бронировать позиции, отмечать покупки и при желании подключить Telegram-бота.
 
@@ -24,11 +24,11 @@
 ## Скриншоты
 
 <p align="center">
-  <img src="assets/app-demo.png" alt="Главный экран Вишлиста" width="920">
+  <img src="assets/readme-home-desktop.png" alt="Главный экран Вишлиста на desktop" width="920">
 </p>
 
 <p align="center">
-  <img src="assets/add-smth.png" alt="Добавление подарка" width="920">
+  <img src="assets/readme-home-mobile.png" alt="Главный экран Вишлиста на телефоне" width="320">
 </p>
 
 ## Стек
