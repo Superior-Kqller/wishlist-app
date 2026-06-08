@@ -2,7 +2,7 @@
 
 import { memo, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
-import { Check, Globe2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
+import { Check, ExternalLink, Globe2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -37,7 +37,7 @@ export interface WishCardProps {
 }
 
 const cardMetaChipClass =
-  "inline-flex h-5 max-w-[5.75rem] items-center rounded-full border bg-[hsl(var(--surface-1))/0.64] px-1.5 py-0 text-[10px] font-medium leading-none shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)] backdrop-blur-sm sm:max-w-[6.5rem]";
+  "inline-flex h-5 max-w-[5.75rem] items-center rounded-full border bg-[hsl(var(--surface-2))/0.72] px-1.5 py-0 text-[10px] font-medium leading-none shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-sm sm:max-w-[6.5rem]";
 
 export const WishCard = memo(function WishCard({
   item,
@@ -102,10 +102,10 @@ export const WishCard = memo(function WishCard({
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "group/card flex h-full min-h-[21.5rem] flex-col overflow-hidden border-border/65 bg-[hsl(var(--surface-2))] elevation-interactive-card max-sm:min-h-0 max-sm:rounded-xl",
+          "group/card flex h-full min-h-[21.5rem] flex-col overflow-hidden border-border/58 bg-[linear-gradient(180deg,hsl(var(--surface-2))_0%,hsl(var(--surface-3))_100%)] elevation-interactive-card max-sm:min-h-0 max-sm:rounded-xl",
           isBought && "opacity-45 grayscale",
           isCardInteractive &&
-            "cursor-pointer transition-[border-color,box-shadow,transform] hover:border-primary/45 focus-visible:border-primary/45",
+            "cursor-pointer transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/50 focus-visible:border-primary/45",
           selectionMode && "ring-1 ring-border/80",
           isSelected && "border-primary/65 ring-2 ring-primary/45 elevation-selected-card"
         )}
@@ -117,7 +117,7 @@ export const WishCard = memo(function WishCard({
         <div
           data-testid="wishlist-card-v2-media"
           className={cn(
-            "group relative shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[hsl(var(--background)/0.34)] after:content-['']",
+            "group relative shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[linear-gradient(180deg,hsl(var(--background)/0.04)_0%,transparent_48%,hsl(var(--background)/0.32)_100%)] after:content-['']",
             showImage ? "aspect-[16/10] sm:aspect-[4/3]" : "h-36 sm:h-40",
           )}
         >
@@ -139,19 +139,19 @@ export const WishCard = memo(function WishCard({
               src={imageUrl!}
               alt={item.title}
               fill
-              className="object-cover transition-transform duration-150 ease-out group-hover/card:scale-[1.02]"
+              className="object-cover transition-transform duration-500 ease-out group-hover/card:scale-[1.045]"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               unoptimized
               onError={() => setImageError(true)}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_center,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_68%)]">
+            <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_100%)]">
               <Globe2 className="h-10 w-10 text-muted-foreground/55 sm:h-11 sm:w-11" aria-hidden />
             </div>
           )}
         </div>
 
-        <CardHeader className="space-y-2 border-t border-border/30 p-2.5 sm:p-3">
+        <CardHeader className="space-y-2 border-t border-border/28 bg-[hsl(var(--surface-2))/0.72] p-2.5 sm:p-3">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
             <CardTitle
               data-testid="wishlist-card-v2-title"
@@ -214,7 +214,7 @@ export const WishCard = memo(function WishCard({
                   status={item.status}
                   className={cn(
                     cardMetaChipClass,
-                    "bg-[hsl(var(--surface-1))/0.64] [&_svg]:h-3 [&_svg]:w-3 [&_svg]:shrink-0",
+                    "bg-[hsl(var(--surface-2))/0.72] [&_svg]:h-3 [&_svg]:w-3 [&_svg]:shrink-0",
                     item.status === "CLAIMED" && "border-warning/65 text-warning",
                     item.status === "PURCHASED" && "border-success/65 text-success",
                     item.status === "AVAILABLE" && "border-info/65 text-info"
@@ -257,7 +257,7 @@ export const WishCard = memo(function WishCard({
 
         <CardFooter
           data-testid="wishlist-card-v2-footer"
-          className="mt-auto flex min-h-[3.1rem] flex-row items-center gap-2 border-t border-border/25 p-2.5 sm:min-h-[3.25rem] sm:p-2.5"
+          className="mt-auto flex min-h-[3.1rem] flex-row items-center gap-2 border-t border-border/25 bg-[hsl(var(--surface-2))/0.64] p-2.5 sm:min-h-[3.25rem] sm:p-2.5"
         >
           {selectionMode ? (
             <p className="text-xs text-muted-foreground">
@@ -273,7 +273,7 @@ export const WishCard = memo(function WishCard({
                       <Button
                         variant="outline"
                         asChild
-                        className="h-11 min-h-[44px] min-w-0 flex-1 justify-center rounded-lg border-primary/30 bg-primary/10 px-3 text-sm font-semibold shadow-none hover:border-primary/50 hover:bg-primary/16 sm:h-10 sm:min-h-10 sm:min-w-[8rem] sm:flex-none sm:px-4"
+                        className="h-11 min-h-[44px] min-w-0 flex-1 justify-center gap-2 rounded-lg border-primary/30 bg-primary/12 px-3 text-sm font-semibold shadow-none hover:border-primary/50 hover:bg-primary/18 sm:h-10 sm:min-h-10 sm:min-w-[8rem] sm:flex-none sm:px-4"
                       >
                         <a
                           href={item.url}
@@ -282,6 +282,7 @@ export const WishCard = memo(function WishCard({
                           aria-label={t("Открыть ссылку на товар в новой вкладке")}
                           onClick={(e) => e.stopPropagation()}
                         >
+                          <ExternalLink className="h-4 w-4" aria-hidden />
                           {t("Открыть")}
                         </a>
                       </Button>

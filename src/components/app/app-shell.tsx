@@ -9,7 +9,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-0 flex-1">
         <AppSidebar />
         <div className="flex min-w-0 flex-1 flex-col">
-          <main className="flex-1 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:pb-0">
+          <main id="content" className="flex-1 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:pb-0">
             {children}
           </main>
           <Footer />

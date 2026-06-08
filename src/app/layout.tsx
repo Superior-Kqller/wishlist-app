@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono, Manrope } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AppShell } from "@/components/app/app-shell";
@@ -8,9 +8,10 @@ import {
   LANGUAGE_COOKIE_NAME,
   appMetadataCopy,
   normalizeLanguage,
+  translate,
 } from "@/lib/i18n";
 
-const inter = Inter({
+const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
   variable: "--font-sans",
   display: "swap",
@@ -80,11 +81,18 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const language = await getRequestLanguage();
+  const skipLabel = translate(language, "К основному содержимому");
 
   return (
     <html lang={language} className="dark" suppressHydrationWarning>
       <head />
-      <body className={`${inter.variable} ${jetbrainsMono.variable} ${inter.className}`}>
+      <body className={`${manrope.variable} ${jetbrainsMono.variable} ${manrope.className}`}>
+        <a
+          href="#content"
+          className="sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:not-sr-only focus:rounded-lg focus:border focus:border-primary/45 focus:bg-[hsl(var(--surface-2))] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-[var(--shadow-floating)] focus:outline-none"
+        >
+          {skipLabel}
+        </a>
         <Providers language={language}>
           <AppShell>{children}</AppShell>
         </Providers>

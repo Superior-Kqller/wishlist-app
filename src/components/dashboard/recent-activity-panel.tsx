@@ -46,18 +46,18 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
   const visibleItems = expanded ? recentItems : recentItems.slice(0, 2);
 
   return (
-    <aside className={cn(uiSurface.contentPanel, "flex h-full flex-col rounded-xl border-border/38 bg-[hsl(var(--surface-2))/0.48] p-2 shadow-[0_6px_16px_rgba(0,0,0,0.14)] sm:rounded-2xl sm:p-3.5 sm:shadow-[0_10px_24px_rgba(0,0,0,0.2),inset_0_1px_0_hsl(var(--foreground)/0.03)]")}>
+    <aside className={cn(uiSurface.contentPanel, "flex h-full flex-col rounded-xl border-border/42 bg-[hsl(var(--surface-2))/0.66] p-3 shadow-[0_12px_28px_rgba(0,0,0,0.22),inset_0_1px_0_hsl(var(--foreground)/0.04)] sm:rounded-2xl sm:p-4")}>
       <div className="flex items-start justify-between gap-2.5">
         <div>
-          <h2 className="text-[13px] font-semibold text-foreground/90">{t("Активность")}</h2>
-          <p className="text-[10px] text-muted-foreground/70 sm:mt-0.5 sm:text-[11px]">{t("Последние изменения")}</p>
+          <h2 className="text-sm font-semibold text-foreground/92">{t("Активность")}</h2>
+          <p className="text-[11px] text-muted-foreground/72 sm:mt-0.5">{t("Последние изменения")}</p>
         </div>
         {recentItems.length > 2 ? (
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="h-6 gap-1 px-1.5 text-[11px] text-primary/82 hover:text-primary"
+            className="h-7 gap-1 rounded-full px-2 text-[11px] text-primary/86 hover:text-primary"
             onClick={() => setExpanded((value) => !value)}
           >
             {expanded ? t("Свернуть") : t("Все изменения")}
@@ -66,12 +66,14 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
             />
           </Button>
         ) : (
-          <Clock3 className="h-3.5 w-3.5 text-muted-foreground/55" aria-hidden />
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border/48 bg-[hsl(var(--surface-3))/0.72] text-muted-foreground/62">
+            <Clock3 className="h-3.5 w-3.5" aria-hidden />
+          </span>
         )}
       </div>
 
       {recentItems.length > 0 ? (
-        <div className="mt-1.5 space-y-1 sm:mt-2 sm:space-y-1.5">
+        <div className="relative mt-3 space-y-2 pl-1 before:absolute before:bottom-1 before:left-[0.625rem] before:top-1 before:w-px before:bg-border/36">
           {visibleItems.map((item) => {
             const actor =
               item.status === "CLAIMED" && item.claimedByUser
@@ -81,38 +83,39 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
             return (
               <div
                 key={item.id}
-                className="grid grid-cols-[auto_minmax(0,1fr)] gap-1.5 border-t border-border/25 pt-1.5 first:border-t-0 first:pt-0 sm:gap-2 sm:border-border/35 sm:pt-1.5"
+                className="relative grid grid-cols-[auto_minmax(0,1fr)] gap-2 rounded-xl border border-border/26 bg-[hsl(var(--surface-3))/0.42] p-2.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.025)]"
               >
+                <span className="absolute left-[0.43rem] top-4 z-[1] h-2.5 w-2.5 rounded-full border border-[hsl(var(--surface-2))] bg-primary shadow-[0_0_0_3px_hsl(var(--primary)/0.14)]" aria-hidden />
                 {actor ? (
                   <UserAvatar
                     avatarUrl={actor.avatarUrl || undefined}
                     name={actor.name}
                     userId={actor.id}
                     size="sm"
-                    className="h-5 w-5 text-[10px]"
+                    className="relative z-[2] h-5 w-5 text-[10px]"
                   />
                 ) : (
-                  <div className="h-5 w-5 rounded-full border border-border/50 bg-[hsl(var(--surface-3))]" />
+                  <div className="relative z-[2] h-5 w-5 rounded-full border border-border/50 bg-[hsl(var(--surface-3))]" />
                 )}
                 <div className="min-w-0">
                   <div className="flex min-w-0 items-start justify-between gap-1.5 sm:gap-2">
                     <div className="min-w-0">
-                      <p className="truncate text-xs font-medium text-foreground/88">
+                      <p className="truncate text-xs font-semibold text-foreground/90">
                         {item.title}
                       </p>
-                      <p className="truncate text-[10px] text-muted-foreground/70 sm:mt-0.5 sm:text-[11px]">
+                      <p className="truncate text-[11px] text-muted-foreground/72 sm:mt-0.5">
                         {getActivityLabel(item, t)}
                         {actor ? ` · ${actor.name}` : ""}
                       </p>
                     </div>
                     <Badge
                       variant="outline"
-                      className={cn("shrink-0 px-1 py-0 text-[9px] leading-4 opacity-75 sm:px-1.5 sm:text-[10px]", getItemStatusTone(item.status))}
+                      className={cn("shrink-0 px-1.5 py-0 text-[10px] leading-4 opacity-86", getItemStatusTone(item.status))}
                     >
                       {getItemStatusLabel(item.status, language)}
                     </Badge>
                   </div>
-                  <p className="text-[10px] text-muted-foreground/45 sm:mt-0.5 sm:text-[11px]">
+                  <p className="text-[11px] text-muted-foreground/48 sm:mt-0.5">
                     {formatActivityDate(item.updatedAt, locale)}
                   </p>
                 </div>
@@ -121,7 +124,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
           })}
         </div>
       ) : (
-        <div className={cn(uiSurface.emptyState, "mt-2 min-h-0 flex-1 border-border/50 bg-[hsl(var(--surface-2))/0.5] px-3 py-2.5 sm:mt-4 sm:py-6")}>
+        <div className={cn(uiSurface.emptyState, "mt-3 min-h-0 flex-1 border-border/50 bg-[hsl(var(--surface-3))/0.38] px-3 py-4 sm:mt-4 sm:py-6")}>
           <p className="text-sm font-medium text-foreground">{t("Пока нет активности")}</p>
           <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1">
             {t("Добавленные и обновленные товары появятся здесь.")}

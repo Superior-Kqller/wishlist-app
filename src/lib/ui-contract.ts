@@ -20,7 +20,7 @@ export const uiSurface = {
   pageHeader:
     "rounded-2xl border border-border/80 bg-[hsl(var(--surface-2))/0.9] elevation-page-header",
   contentPanel:
-    "rounded-2xl border border-border/70 bg-[hsl(var(--surface-2))/0.78] elevation-panel backdrop-blur-md",
+    "rounded-2xl border border-border/68 bg-[hsl(var(--surface-2))/0.82] elevation-panel backdrop-blur-md",
   interactiveCard:
     "border-border/80 bg-[hsl(var(--surface-2))] elevation-interactive-card transition-[border-color,box-shadow,transform] hover:border-primary/45",
   emptyState:
@@ -35,9 +35,9 @@ export const uiSurface = {
   chip: "border-border bg-[hsl(var(--surface-3))]",
   inputAlt: "bg-[hsl(var(--surface-3))]",
   homeSummary:
-    "relative overflow-hidden rounded-2xl border border-border/70 bg-[hsl(var(--surface-2))/0.8] elevation-panel backdrop-blur-md",
+    "home-summary-panel relative overflow-hidden rounded-2xl border border-border/62 elevation-hero-panel backdrop-blur-md",
   homeToolbar:
-    "relative z-20 flex min-w-0 flex-col gap-2.5 rounded-xl border border-border/70 bg-[hsl(var(--surface-2))/0.92] px-2.5 py-2.5 elevation-panel backdrop-blur-md sm:z-auto sm:rounded-2xl sm:bg-[hsl(var(--surface-2))/0.78] sm:px-4 sm:py-3",
+    "home-toolbar-panel relative z-20 flex min-w-0 flex-col gap-2.5 rounded-xl border border-border/64 px-2.5 py-2.5 elevation-panel backdrop-blur-md sm:z-auto sm:rounded-2xl sm:px-4 sm:py-3",
   homeSelectionState:
     "rounded-lg border border-primary/45 bg-primary/12 px-3 py-2 text-sm text-foreground",
 } as const;

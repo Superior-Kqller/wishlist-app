@@ -40,15 +40,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center page-bg">
-      <div className="w-full max-w-sm mx-4">
-        <div className="glass rounded-2xl p-8">
-          <div className="mb-4 flex justify-end">
+    <div className="flex min-h-screen items-center justify-center page-bg px-4 py-8">
+      <div className="relative w-full max-w-[26rem]">
+        <div className="absolute -inset-px rounded-[1.35rem] bg-[linear-gradient(135deg,hsl(var(--primary)/0.48),hsl(var(--info)/0.22),hsl(var(--warning)/0.18))] opacity-80 blur-sm" aria-hidden />
+        <div className="glass relative rounded-2xl border-border/58 bg-[hsl(var(--surface-2))/0.86] p-7 shadow-[0_24px_70px_rgba(0,0,0,0.44),inset_0_1px_0_hsl(var(--foreground)/0.05)] sm:p-8">
+          <div className="mb-5 flex justify-end">
             <LanguageSwitcher />
           </div>
-          <div className="flex flex-col items-center mb-8">
+          <div className="mb-8 flex flex-col items-center">
             <BrandLockup className="mb-3 justify-center" />
-            <h1 className="text-muted-foreground text-sm mt-1 text-center">
+            <h1 className="mt-1 text-center text-sm font-medium text-muted-foreground">
               {t("Войдите в свой аккаунт")}
             </h1>
           </div>
@@ -86,7 +87,7 @@ export default function LoginPage() {
             </p>
           )}
 
-          <Button type="submit" variant="gradient" className="w-full" disabled={loading}>
+          <Button type="submit" variant="gradient" className="mt-1 w-full shadow-[var(--shadow-brand-action)]" disabled={loading}>
             {loading ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : null}

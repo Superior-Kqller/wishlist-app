@@ -35,13 +35,14 @@ export function AddItemCard({ onAdd, disabled, disabledHint }: AddItemCardProps)
       className={cn(
         "flex min-h-[220px] flex-col items-center justify-center gap-4 border-dashed p-4 text-center sm:min-h-[240px]",
         uiSurface.contentPanel,
+        "bg-[linear-gradient(135deg,hsl(var(--surface-2))/0.72,hsl(var(--surface-3))/0.58)]",
         disabled
           ? "cursor-not-allowed border-border/45 opacity-60"
-          : "cursor-pointer border-border/50 transition-colors hover:border-primary/35 hover:bg-muted",
+          : "cursor-pointer border-border/50 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-[0_18px_42px_rgba(0,0,0,0.32),0_0_0_1px_hsl(var(--primary)/0.14)]",
         !disabled && uiState.focusVisible,
       )}
     >
-      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-primary/45 bg-primary/16 text-primary shadow-[0_8px_20px_rgba(0,0,0,0.25)]">
+      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-primary/45 bg-primary/16 text-primary shadow-[0_10px_24px_rgba(0,0,0,0.28),0_0_18px_hsl(var(--primary)/0.18)]">
         <Plus className="h-5 w-5" />
       </span>
       <div className="space-y-1.5">

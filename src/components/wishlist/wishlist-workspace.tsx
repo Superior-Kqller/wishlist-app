@@ -24,7 +24,7 @@ import {
   type WishlistViewMode,
 } from "@/components/wishlist/wishlist-view-toggle";
 import { uiState, uiSurface } from "@/lib/ui-contract";
-import { getCardWord } from "@/lib/i18n";
+import { getCardWord, getItemWord } from "@/lib/i18n";
 import type {
   ListWithMeta,
   Tag,
@@ -138,6 +138,8 @@ export function WishlistWorkspace({
   setSize,
 }: WishlistWorkspaceProps) {
   const { language, t } = useI18n();
+  const visibleItemCount = filteredItems.length;
+  const visibleItemLabel = `${visibleItemCount} ${getItemWord(language, visibleItemCount)}`;
 
   return (
     <>
@@ -221,7 +223,56 @@ export function WishlistWorkspace({
           </DropdownMenu>
         </div>
 
-        <div className="hidden min-w-0 w-full flex-col gap-2.5 sm:flex">
+        <div className="hidden min-w-0 w-full flex-col gap-3 sm:flex">
+          <div className="flex min-w-0 items-center justify-between gap-3 border-b border-border/36 pb-3">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/72">
+                {t("Каталог желаний")}
+              </p>
+              <p className="mt-0.5 text-sm font-medium text-foreground/90">
+                {visibleItemLabel}
+                {hasActiveFilters ? ` · ${activeFilterCount} ${t("Фильтры").toLowerCase()}` : ""}
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-1.5">
+              <WishlistViewToggle
+                value={viewMode}
+                onValueChange={onViewModeChange}
+                className="hidden opacity-86 lg:inline-flex"
+              />
+              <Button
+                type="button"
+                variant={selectionMode ? "secondary" : "outline"}
+                size="sm"
+                className={selectionMode ? uiState.selectionActive : `${uiState.selectionIdle} text-muted-foreground`}
+                onClick={onToggleSelectionMode}
+              >
+                <CheckSquare className="h-4 w-4 shrink-0" />
+                {selectionMode ? t("Режим выбора") : t("Выбрать")}
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button type="button" variant="outline" size="sm" className="h-9 gap-2 border-border/60 bg-[hsl(var(--surface-3))/0.62] text-muted-foreground hover:text-foreground">
+                    <Download className="h-4 w-4" />
+                    {t("Экспорт")}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44">
+                  <DropdownMenuItem onClick={() => onExport("csv")}>
+                    {t("Экспорт CSV")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onExport("json")}>
+                    {t("Экспорт JSON")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button type="button" size="sm" className="h-9 gap-2 px-3.5 shadow-[var(--shadow-brand-action)]" onClick={onAddItem}>
+                <Plus className="h-4 w-4" />
+                {t("Добавить товар")}
+              </Button>
+            </div>
+          </div>
+
           <div className="grid min-w-0 gap-2.5 xl:grid-cols-[minmax(18rem,1fr)_auto] xl:items-start xl:gap-x-5 xl:gap-y-2">
             <div className="min-w-0 xl:order-1">
               <WishlistSearchInput
@@ -254,44 +305,6 @@ export function WishlistWorkspace({
                 onToggleSelection={onToggleSelectionMode}
                 showSelectionButton={false}
               />
-            </div>
-
-            <div className="flex shrink-0 items-center justify-start gap-1.5 xl:order-2 xl:justify-end">
-              <WishlistViewToggle
-                value={viewMode}
-                onValueChange={onViewModeChange}
-                className="hidden opacity-80 lg:inline-flex"
-              />
-              <Button
-                type="button"
-                variant={selectionMode ? "secondary" : "outline"}
-                size="sm"
-                className={selectionMode ? uiState.selectionActive : `${uiState.selectionIdle} text-muted-foreground`}
-                onClick={onToggleSelectionMode}
-              >
-                <CheckSquare className="h-4 w-4 shrink-0" />
-                {selectionMode ? t("Режим выбора") : t("Выбрать")}
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button type="button" variant="outline" size="sm" className="h-9 gap-2 border-border/65 bg-card/70 text-muted-foreground hover:text-foreground">
-                    <Download className="h-4 w-4" />
-                    {t("Экспорт")}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-44">
-                  <DropdownMenuItem onClick={() => onExport("csv")}>
-                    {t("Экспорт CSV")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onExport("json")}>
-                    {t("Экспорт JSON")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button type="button" size="sm" className="h-9 gap-2 px-3.5" onClick={onAddItem}>
-                <Plus className="h-4 w-4" />
-                {t("Добавить товар")}
-              </Button>
             </div>
           </div>
 
