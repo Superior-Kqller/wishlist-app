@@ -175,7 +175,12 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
   );
 
   return (
-    <section className={cn(uiSurface.contentPanel, "overflow-hidden p-4 sm:p-5")}>
+    <section
+      className={cn(
+        uiSurface.contentPanel,
+        "overflow-hidden bg-[linear-gradient(135deg,hsl(var(--surface-2))/0.88,hsl(var(--surface-3))/0.62)] p-4 sm:p-5",
+      )}
+    >
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
         <div className="space-y-4">
           <div>
@@ -186,7 +191,7 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
               {totalValues.map((value) => (
                 <p
                   key={value}
-                  className="text-3xl font-bold leading-tight tracking-tight tabular-nums sm:text-4xl"
+                  className="text-3xl font-semibold leading-tight tracking-tight tabular-nums sm:text-4xl"
                 >
                   {value}
                 </p>
@@ -195,19 +200,19 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-lg border border-border/65 bg-[hsl(var(--surface-3))/0.72] p-3">
+            <div className="rounded-lg border border-border/56 bg-[hsl(var(--surface-3))/0.62] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
               <Package className="mb-2 h-4 w-4 text-info" aria-hidden />
               <p className="text-2xl font-semibold tabular-nums">{summary.totalItems}</p>
               <p className="text-xs text-muted-foreground">{t("Всего товаров")}</p>
             </div>
-            <div className="rounded-lg border border-border/65 bg-[hsl(var(--surface-3))/0.72] p-3">
+            <div className="rounded-lg border border-border/56 bg-[hsl(var(--surface-3))/0.62] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
               <Target className="mb-2 h-4 w-4 text-warning" aria-hidden />
               <p className="text-2xl font-semibold tabular-nums">
                 {summary.unpurchasedItems}
               </p>
               <p className="text-xs text-muted-foreground">{t("Активных желаний")}</p>
             </div>
-            <div className="rounded-lg border border-border/65 bg-[hsl(var(--surface-3))/0.72] p-3">
+            <div className="rounded-lg border border-border/56 bg-[hsl(var(--surface-3))/0.62] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
               <Users className="mb-2 h-4 w-4 text-primary" aria-hidden />
               <p className="text-2xl font-semibold tabular-nums">{summary.memberCount}</p>
               <p className="text-xs text-muted-foreground">{t("Участников")}</p>
@@ -216,14 +221,14 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <div className="rounded-lg border border-border/65 bg-[hsl(var(--surface-3))/0.72] p-4">
+          <div className="rounded-lg border border-border/56 bg-[hsl(var(--surface-3))/0.62] p-4 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
             <div className="flex items-center gap-4">
               <div
-                className="relative h-24 w-24 shrink-0 rounded-full"
+                className="relative h-24 w-24 shrink-0 rounded-full shadow-[inset_0_0_0_1px_hsl(var(--foreground)/0.08)]"
                 style={{ background: getPriorityGradient(summary.priorityCounts) }}
                 aria-hidden
               >
-                <div className="absolute inset-5 rounded-full bg-[hsl(var(--surface-3))]" />
+                <div className="absolute inset-5 rounded-full bg-[hsl(var(--surface-2))]" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">
@@ -252,17 +257,17 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
             </div>
           </div>
 
-          <div className="rounded-lg border border-border/65 bg-[hsl(var(--surface-3))/0.72] p-4">
+          <div className="rounded-lg border border-border/56 bg-[hsl(var(--surface-3))/0.62] p-4 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
             <div className="mb-3 flex items-center gap-2">
               <CircleDollarSign className="h-4 w-4 text-success" aria-hidden />
               <p className="text-sm font-semibold">{t("Самые дорогие желания")}</p>
             </div>
             {summary.topItems.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {summary.topItems.map((item) => (
                   <div
                     key={item.id}
-                    className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-sm"
+                    className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-md py-0.5 text-sm"
                   >
                     <div className="min-w-0">
                       <p className="truncate font-medium">{item.title}</p>
@@ -270,7 +275,7 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
                         {item.userName}
                       </p>
                     </div>
-                    <p className="font-semibold tabular-nums">
+                    <p className="font-semibold tabular-nums text-foreground">
                       {formatPrice(item.price, item.currency, language)}
                     </p>
                   </div>
@@ -364,7 +369,13 @@ export default function StatsPage() {
               <StatsOverview summary={summary} />
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {users.map((user) => (
-                  <Card key={user.id} className={cn(uiSurface.interactiveCard, "h-full")}>
+                  <Card
+                    key={user.id}
+                    className={cn(
+                      uiSurface.interactiveCard,
+                      "h-full border-border/58 bg-[linear-gradient(180deg,hsl(var(--surface-2))/0.92,hsl(var(--surface-3))/0.68)]",
+                    )}
+                  >
                     <CardHeader>
                       <div className="flex items-center gap-3">
                         <UserAvatar
@@ -385,13 +396,13 @@ export default function StatsPage() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
+                        <div className="rounded-lg bg-[hsl(var(--surface-2))/0.58] p-2.5">
                           <p className="text-muted-foreground">{t("Всего товаров")}</p>
                           <p className="text-lg font-semibold">
                             {user.stats.totalItems}
                           </p>
                         </div>
-                        <div>
+                        <div className="rounded-lg bg-[hsl(var(--surface-2))/0.58] p-2.5">
                           <p className="text-muted-foreground">{t("Не куплено")}</p>
                           <p className="text-lg font-semibold">
                             {user.stats.unpurchasedItems}

@@ -14,15 +14,15 @@ export const uiSurface = {
   shell:
     "min-h-screen bg-[hsl(var(--background))] text-foreground",
   sidebar:
-    "border-r border-border/45 bg-[hsl(var(--surface-2))/0.72] elevation-sidebar backdrop-blur-xl",
+    "border-r border-border/42 bg-[hsl(var(--surface-2))/0.78] elevation-sidebar backdrop-blur-xl",
   topHeader:
     "border-b border-border bg-[hsl(var(--surface-2))/0.88] elevation-header backdrop-blur-xl",
   pageHeader:
-    "rounded-2xl border border-border/80 bg-[hsl(var(--surface-2))/0.9] elevation-page-header",
+    "rounded-2xl border border-border/70 bg-[hsl(var(--surface-2))/0.88] elevation-page-header",
   contentPanel:
-    "rounded-2xl border border-border/68 bg-[hsl(var(--surface-2))/0.82] elevation-panel backdrop-blur-md",
+    "rounded-2xl border border-border/58 bg-[hsl(var(--surface-2))/0.8] elevation-panel backdrop-blur-md",
   interactiveCard:
-    "border-border/80 bg-[hsl(var(--surface-2))] elevation-interactive-card transition-[border-color,box-shadow,transform] hover:border-primary/45",
+    "border-border/62 bg-[hsl(var(--surface-2))] elevation-interactive-card transition-[border-color,box-shadow,transform] hover:border-primary/38",
   emptyState:
     "rounded-2xl border border-dashed border-border/70 bg-[hsl(var(--surface-2))/0.74] px-4 py-10 text-center",
   panel:
@@ -37,7 +37,7 @@ export const uiSurface = {
   homeSummary:
     "home-summary-panel relative overflow-hidden rounded-2xl border border-border/62 elevation-hero-panel backdrop-blur-md",
   homeToolbar:
-    "home-toolbar-panel relative z-20 flex min-w-0 flex-col gap-2.5 rounded-xl border border-border/64 px-2.5 py-2.5 elevation-panel backdrop-blur-md sm:z-auto sm:rounded-2xl sm:px-4 sm:py-3",
+    "home-toolbar-panel relative z-20 flex min-w-0 flex-col gap-2.5 rounded-xl border border-border/56 px-2.5 py-2.5 elevation-panel backdrop-blur-md sm:z-auto sm:rounded-2xl sm:px-4 sm:py-3",
   homeSelectionState:
     "rounded-lg border border-primary/45 bg-primary/12 px-3 py-2 text-sm text-foreground",
 } as const;
@@ -46,9 +46,9 @@ export const uiState = {
   focusVisible:
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   navBase:
-    "h-10 gap-2.5 border border-transparent px-3 text-muted-foreground/88 hover:bg-[hsl(var(--surface-3))/0.7] hover:text-foreground",
+    "h-10 gap-2.5 border border-transparent px-3 text-muted-foreground/88 hover:bg-[hsl(var(--surface-3))/0.74] hover:text-foreground",
   navActive:
-    "border-primary/24 bg-primary/14 text-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]",
+    "border-primary/22 bg-primary/12 text-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]",
   selectionIdle:
     "h-9 gap-1.5 px-3 border border-border bg-card text-muted-foreground hover:text-foreground",
   selectionActive:
