@@ -94,8 +94,12 @@ export function DashboardSummary({
   ];
 
   return (
-    <section className={`${uiSurface.homeSummary} h-full rounded-xl px-3 py-3 sm:rounded-2xl sm:px-5 sm:py-4`}>
-      <div className="sm:hidden">
+    <section className={`${uiSurface.homeSummary} isolate h-full rounded-xl border-border/54 px-3 py-3 sm:rounded-2xl sm:px-5 sm:py-4`}>
+      <div className="pointer-events-none absolute -right-16 -top-20 h-44 w-44 rounded-full bg-primary/14 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-20 left-12 h-36 w-56 rounded-full bg-info/10 blur-3xl" />
+      <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-primary/34 to-transparent" />
+
+      <div className="relative z-[1] sm:hidden">
         <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
           <Sparkles className="h-3.5 w-3.5 text-primary/90" />
           {eyebrow}
@@ -104,7 +108,7 @@ export function DashboardSummary({
           <h1 className="min-w-0 flex-1 truncate text-lg font-semibold tracking-tight text-foreground">
             {title}
           </h1>
-          <p className="shrink-0 rounded-full border border-primary/26 bg-primary/14 px-2.5 py-1 text-sm font-semibold tabular-nums text-primary-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]">
+          <p className="shrink-0 rounded-xl border border-primary/24 bg-primary/12 px-2.5 py-1 text-sm font-semibold tabular-nums text-primary-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05),0_10px_24px_hsl(var(--primary)/0.08)]">
             {formattedValue}
           </p>
         </div>
@@ -129,7 +133,7 @@ export function DashboardSummary({
         ) : null}
       </div>
 
-      <div className="hidden h-full min-w-0 flex-col sm:flex">
+      <div className="relative z-[1] hidden h-full min-w-0 flex-col sm:flex">
         <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
           <div className="min-w-0 space-y-1.5">
             <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
@@ -143,7 +147,7 @@ export function DashboardSummary({
               {t("Ваши желания в одном месте. Выбирайте, бронируйте и отмечайте покупки.")}
             </p>
           </div>
-          <div className="min-w-[9.5rem] rounded-2xl border border-primary/22 bg-primary/12 px-4 py-3 text-right shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]">
+          <div className="min-w-[10rem] rounded-2xl border border-primary/24 bg-[linear-gradient(145deg,hsl(var(--primary)_/_0.16),hsl(var(--surface-3)_/_0.72))] px-4 py-3 text-right shadow-[inset_0_1px_0_hsl(var(--foreground)/0.055),0_18px_40px_hsl(var(--primary)/0.08)]">
             <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
               {t("Общая стоимость")}
             </p>
@@ -154,7 +158,7 @@ export function DashboardSummary({
         </div>
 
         {summary.total > 0 ? (
-          <div className="mt-4">
+          <div className="mt-4 rounded-xl border border-border/26 bg-[hsl(var(--surface-2))/0.36] p-2.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
             <div className="flex h-2 overflow-hidden rounded-full bg-[hsl(var(--surface-1))/0.88] shadow-[inset_0_1px_2px_rgba(0,0,0,0.32)]">
               {distribution.map((segment) =>
                 segment.value > 0 ? (
@@ -167,9 +171,9 @@ export function DashboardSummary({
                 ) : null,
               )}
             </div>
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               {distribution.map((segment) => (
-                <span key={segment.label} className="inline-flex items-center gap-1.5">
+                <span key={segment.label} className="inline-flex items-center gap-1.5 rounded-lg border border-border/26 bg-[hsl(var(--surface-3))/0.46] px-2 py-1">
                   <span className={`h-2 w-2 rounded-full ${segment.className}`} aria-hidden />
                   {segment.label}: {segment.value}%
                 </span>
@@ -182,13 +186,14 @@ export function DashboardSummary({
           {metrics.map(({ label, value, icon: Icon, tone }) => (
             <div
               key={label}
-              className="relative h-[4.5rem] rounded-xl border border-border/28 bg-[hsl(var(--surface-3))/0.64] px-3.5 py-3.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)]"
+              className="group relative h-[4.65rem] overflow-hidden rounded-xl border border-border/28 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.66),hsl(var(--surface-2)_/_0.54))] px-3.5 py-3.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] transition-colors duration-200 hover:border-primary/28"
             >
+              <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" aria-hidden />
               <p className="text-[11px] font-medium leading-none text-muted-foreground/78">{label}</p>
               <p className="mt-2 text-[1.38rem] font-semibold leading-none tabular-nums tracking-tight text-foreground">
                 {value}
               </p>
-              <span className={`absolute right-3 top-3 inline-flex h-7 w-7 items-center justify-center rounded-full border ${tone}`}>
+              <span className={`absolute right-3 top-3 inline-flex h-7 w-7 items-center justify-center rounded-lg border shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] ${tone}`}>
                 <Icon className="h-3.5 w-3.5" aria-hidden />
               </span>
             </div>
@@ -197,7 +202,7 @@ export function DashboardSummary({
       </div>
 
       {filterChips.length > 0 ? (
-        <div className="mt-2 flex flex-wrap items-center gap-1.5 sm:mt-3 sm:gap-2">
+        <div className="relative z-[1] mt-2 flex flex-wrap items-center gap-1.5 sm:mt-3 sm:gap-2">
           {filterChips.map((chip) => (
             <Badge
               key={chip.key}

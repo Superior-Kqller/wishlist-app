@@ -7,6 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getItemStatusLabel, getItemStatusTone } from "@/lib/item-status-presentation";
+import {
+  getVisibleRecentActivityItems,
+  hasMoreRecentActivityItems,
+} from "@/lib/home/recent-activity";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import type { WishlistItem } from "@/types";
@@ -37,13 +41,8 @@ function getActivityLabel(item: WishlistItem, t: (key: string) => string) {
 export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
   const { language, locale, t } = useI18n();
   const [expanded, setExpanded] = useState(false);
-  const recentItems = [...items]
-    .sort(
-      (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-    )
-    .slice(0, 3);
-  const visibleItems = expanded ? recentItems : recentItems.slice(0, 2);
+  const visibleItems = getVisibleRecentActivityItems(items, { expanded });
+  const hasMoreItems = hasMoreRecentActivityItems(items);
 
   return (
     <aside className={cn(uiSurface.contentPanel, "relative isolate flex h-full min-h-[15rem] flex-col overflow-hidden rounded-2xl border-border/46 bg-[hsl(var(--surface-2))/0.72] p-3 shadow-[0_18px_46px_rgba(0,0,0,0.22),inset_0_1px_0_hsl(var(--foreground)/0.045)] sm:p-4")}>
@@ -58,7 +57,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
             <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground/70">{t("Последние изменения")}</p>
           </div>
         </div>
-        {recentItems.length > 2 ? (
+        {hasMoreItems ? (
           <Button
             type="button"
             variant="ghost"
@@ -74,8 +73,8 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
         ) : null}
       </div>
 
-      {recentItems.length > 0 ? (
-        <div className="mt-3 flex flex-1 flex-col gap-1.5">
+      {visibleItems.length > 0 ? (
+        <div className={cn("mt-3 flex flex-1 flex-col gap-1.5", expanded && "max-h-[28rem] overflow-y-auto pr-1")}>
           {visibleItems.map((item) => {
             const actor =
               item.status === "CLAIMED" && item.claimedByUser

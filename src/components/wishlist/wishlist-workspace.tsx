@@ -143,14 +143,15 @@ export function WishlistWorkspace({
 
   return (
     <>
-      <div className={uiSurface.homeToolbar}>
+      <div className={`${uiSurface.homeToolbar} overflow-hidden`}>
         <div className="flex min-w-0 items-center gap-2 sm:hidden">
           <SearchField
             value={search}
             onValueChange={onSearchChange}
             placeholder={t("Поиск...")}
-            wrapperClassName="min-w-0 flex-1"
-            inputClassName={`h-11 min-h-[44px] rounded-lg ${uiSurface.inputAlt} pl-9 text-sm`}
+            wrapperClassName="group min-w-0 flex-1"
+            iconClassName="left-3.5 text-muted-foreground/62 transition-colors duration-200 group-focus-within:text-primary/88"
+            inputClassName="h-11 min-h-[44px] rounded-xl border-border/52 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] placeholder:text-muted-foreground/54 focus-visible:border-primary/48 focus-visible:ring-2 focus-visible:ring-primary/18 focus-visible:ring-offset-0"
           />
         </div>
 
@@ -224,9 +225,9 @@ export function WishlistWorkspace({
         </div>
 
         <div className="hidden min-w-0 w-full flex-col gap-3 sm:flex">
-          <div className="flex min-w-0 items-center justify-between gap-3 border-b border-border/36 pb-3">
+          <div className="flex min-w-0 items-center justify-between gap-3 border-b border-border/28 pb-3">
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/72">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/68">
                 {t("Каталог желаний")}
               </p>
               <p className="mt-0.5 text-sm font-medium text-foreground/90">
@@ -273,7 +274,8 @@ export function WishlistWorkspace({
             </div>
           </div>
 
-          <div className="grid min-w-0 gap-2.5 xl:grid-cols-[minmax(18rem,1fr)_auto] xl:items-start xl:gap-x-5 xl:gap-y-2">
+          <div className="relative grid min-w-0 gap-2.5 rounded-xl border border-border/30 bg-[hsl(var(--surface-3))/0.24] p-2.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)] xl:grid-cols-[minmax(18rem,1fr)_auto] xl:items-start xl:gap-x-5 xl:gap-y-2">
+            <div className="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-primary/22 to-transparent" />
             <div className="min-w-0 xl:order-1">
               <WishlistSearchInput
                 search={search}

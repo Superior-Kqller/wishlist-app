@@ -35,8 +35,12 @@ export function WishlistSearchInput({
       value={search}
       onValueChange={onSearchChange}
       placeholder={t("Поиск...")}
-      wrapperClassName={className}
-      inputClassName={cn("h-9 text-sm", filterBarTriggerClass)}
+      wrapperClassName={cn("group", className)}
+      iconClassName="left-3.5 text-muted-foreground/62 transition-colors duration-200 group-focus-within:text-primary/88"
+      inputClassName={cn(
+        filterBarTriggerClass,
+        "h-11 rounded-xl border-border/52 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 pr-3 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045),0_10px_30px_rgba(0,0,0,0.12)] placeholder:text-muted-foreground/54 hover:border-primary/28 hover:bg-[hsl(var(--surface-3))/0.84] focus-visible:border-primary/48 focus-visible:ring-2 focus-visible:ring-primary/18 focus-visible:ring-offset-0",
+      )}
     />
   );
 }
