@@ -102,10 +102,10 @@ export const WishCard = memo(function WishCard({
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "group/card flex h-full min-h-[21.5rem] flex-col overflow-hidden border-border/54 bg-[linear-gradient(180deg,hsl(var(--surface-2))_0%,hsl(var(--surface-3))_78%,hsl(var(--surface-2))_100%)] elevation-interactive-card max-sm:min-h-0 max-sm:rounded-xl",
+          "group/card flex h-full min-h-[20.5rem] flex-col overflow-hidden rounded-2xl border-border/50 bg-[hsl(var(--surface-2))/0.88] shadow-[0_16px_40px_rgba(0,0,0,0.24),inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-md max-sm:min-h-0 max-sm:rounded-xl",
           isBought && "opacity-65 saturate-[0.72]",
           isCardInteractive &&
-            "cursor-pointer transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/38 focus-visible:border-primary/45",
+            "cursor-pointer transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-1 hover:border-primary/34 hover:shadow-[0_22px_52px_rgba(0,0,0,0.28),0_0_0_1px_hsl(var(--primary)/0.12)] focus-visible:border-primary/45",
           selectionMode && "ring-1 ring-border/80",
           isSelected && "border-primary/65 ring-2 ring-primary/45 elevation-selected-card"
         )}
@@ -117,8 +117,8 @@ export const WishCard = memo(function WishCard({
         <div
           data-testid="wishlist-card-v2-media"
           className={cn(
-            "group relative shrink-0 overflow-hidden bg-[hsl(var(--surface-1))] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[linear-gradient(180deg,hsl(var(--background)/0.03)_0%,transparent_54%,hsl(var(--background)/0.24)_100%)] after:content-['']",
-            showImage ? "aspect-[16/10] sm:aspect-[4/3]" : "h-36 sm:h-40",
+            "group relative m-2 mb-0 shrink-0 overflow-hidden rounded-xl border border-border/34 bg-[hsl(var(--surface-1))] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[linear-gradient(180deg,hsl(var(--background)/0.02)_0%,transparent_56%,hsl(var(--background)/0.22)_100%)] after:content-['']",
+            showImage ? "aspect-[16/11] sm:aspect-[5/4]" : "h-36 sm:h-44",
           )}
         >
           <PriorityBadgeOverlay priority={item.priority} />
@@ -151,12 +151,12 @@ export const WishCard = memo(function WishCard({
           )}
         </div>
 
-        <CardHeader className="space-y-2 border-t border-border/22 bg-[hsl(var(--surface-2))/0.64] p-2.5 sm:p-3">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+        <CardHeader className="space-y-2.5 border-0 bg-transparent p-3 sm:p-3.5">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2.5">
             <CardTitle
               data-testid="wishlist-card-v2-title"
               className={cn(
-                "line-clamp-2 min-h-[2.2rem] text-[15px] font-semibold leading-[1.18] text-balance text-foreground sm:min-h-[2.35rem] sm:text-base",
+                "line-clamp-2 min-h-[2.25rem] text-[15px] font-semibold leading-[1.16] text-balance text-foreground sm:min-h-[2.4rem] sm:text-base",
                 isBought && "line-through"
               )}
             >
@@ -165,7 +165,7 @@ export const WishCard = memo(function WishCard({
             {item.price != null ? (
               <p
                 data-testid="wishlist-card-v2-price"
-                className="max-w-[8.5rem] shrink-0 truncate pt-0.5 text-right text-base font-semibold leading-none tabular-nums text-foreground sm:text-[17px]"
+                className="max-w-[8.5rem] shrink-0 truncate pt-0.5 text-right text-base font-semibold leading-none tabular-nums text-foreground/95 sm:text-[17px]"
               >
                 {formatPrice(item.price, item.currency, language)}
               </p>
@@ -174,12 +174,12 @@ export const WishCard = memo(function WishCard({
 
           <div
             data-testid="wishlist-card-v2-meta"
-            className="flex min-h-6 items-center gap-2"
+            className="flex min-h-6 items-center gap-1.5"
           >
             {ownerName ? (
               <div
                 data-testid="wishlist-card-v2-owner"
-                className="flex min-w-[4.5rem] max-w-[45%] shrink-0 items-center gap-1 text-muted-foreground/82 sm:gap-1.5"
+                className="flex min-w-0 max-w-[42%] shrink-0 items-center gap-1 text-muted-foreground/82 sm:gap-1.5"
               >
                 <Avatar className="h-5 w-5 shrink-0">
                   {ownerImage && !ownerImageError ? (
@@ -257,7 +257,7 @@ export const WishCard = memo(function WishCard({
 
         <CardFooter
           data-testid="wishlist-card-v2-footer"
-          className="mt-auto flex min-h-[3.1rem] flex-row items-center gap-2 border-t border-border/22 bg-[hsl(var(--surface-2))/0.56] p-2.5 sm:min-h-[3.25rem] sm:p-2.5"
+          className="mt-auto flex min-h-[3.1rem] flex-row items-center gap-2 border-t border-border/18 bg-[hsl(var(--surface-1))/0.24] p-2.5 sm:min-h-[3.25rem] sm:p-2.5"
         >
           {selectionMode ? (
             <p className="text-xs text-muted-foreground">
@@ -273,7 +273,7 @@ export const WishCard = memo(function WishCard({
                       <Button
                         variant="outline"
                         asChild
-                        className="h-11 min-h-[44px] min-w-0 flex-1 justify-center gap-2 rounded-lg border-primary/26 bg-primary/10 px-3 text-sm font-semibold shadow-none hover:border-primary/40 hover:bg-primary/16 sm:h-10 sm:min-h-10 sm:min-w-[8rem] sm:flex-none sm:px-4"
+                        className="h-11 min-h-[44px] min-w-0 flex-1 justify-center gap-2 rounded-lg border-primary/24 bg-primary/9 px-3 text-sm font-semibold shadow-none hover:border-primary/40 hover:bg-primary/15 sm:h-10 sm:min-h-10 sm:min-w-[8rem] sm:flex-none sm:px-4"
                       >
                         <a
                           href={item.url}

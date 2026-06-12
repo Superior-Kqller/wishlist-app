@@ -34,15 +34,22 @@ export function ItemActivitySection({
   const { locale, t } = useI18n();
 
   return (
-    <div className={cn("space-y-3 rounded-xl border border-border/45 bg-[hsl(var(--surface-3))/0.34] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] sm:space-y-3.5 sm:p-4", className)}>
-      <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-        <MessageCircle className="h-4 w-4 text-muted-foreground/78" />
-        {t("Комментарии")}
+    <div className={cn("space-y-3 rounded-xl border border-border/34 bg-[hsl(var(--surface-2))/0.62] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] sm:space-y-3.5 sm:p-4", className)}>
+      <h3 className="flex items-center justify-between gap-2 text-sm font-semibold text-foreground">
+        <span className="flex min-w-0 items-center gap-2">
+          <MessageCircle className="h-4 w-4 text-muted-foreground/78" />
+          {t("Комментарии")}
+        </span>
+        {comments.length > 0 ? (
+          <span className="rounded-md border border-border/30 bg-[hsl(var(--surface-3))/0.5] px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+            {comments.length}
+          </span>
+        ) : null}
       </h3>
 
       <div className="max-h-40 space-y-2 overflow-y-auto sm:max-h-52">
         {comments.length === 0 ? (
-          <div className="flex min-h-24 flex-col items-center justify-center text-center">
+          <div className="flex min-h-20 flex-col items-center justify-center text-center">
             <MessageCircle className="h-6 w-6 text-muted-foreground/35" />
             <p className="mt-2 text-sm text-muted-foreground/75">{t("Комментариев пока нет")}</p>
           </div>
@@ -50,7 +57,7 @@ export function ItemActivitySection({
           comments.map((comment) => (
             <div
               key={comment.id}
-              className="flex gap-2 rounded-lg bg-muted/38 p-2 text-sm"
+              className="flex gap-2 rounded-lg bg-[hsl(var(--surface-3))/0.48] p-2 text-sm"
             >
               <UserAvatar
                 avatarUrl={comment.user.avatarUrl || undefined}

@@ -53,7 +53,7 @@ export function ItemMetaSection({
   const { language, t } = useI18n();
   const [showFullNotes, setShowFullNotes] = useState(false);
   const actionButtonClass =
-    "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-border/60 bg-card/70 px-3 text-foreground backdrop-blur-[8px] hover:border-border/80 hover:bg-accent sm:h-10 sm:min-h-10 sm:w-auto";
+    "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-border/54 bg-[hsl(var(--surface-3))/0.58] px-3 text-foreground backdrop-blur-[8px] hover:border-border/76 hover:bg-accent sm:h-10 sm:min-h-10 sm:w-auto";
   const claimButtonVariant = !item.url && !canManage ? "default" : "outline";
   const hasLongNotes = Boolean(item.notes && item.notes.length > 180);
 
@@ -63,19 +63,19 @@ export function ItemMetaSection({
 
   return (
     <>
-      <DialogHeader className="space-y-1 pr-10 sm:pr-12">
+      <DialogHeader className="space-y-2 pr-10 sm:pr-12">
         <div className="min-w-0">
           <DialogTitle
             className={cn(
-              "break-words text-left text-lg leading-[1.16] sm:text-[1.35rem]",
+              "break-words text-left text-xl font-semibold leading-[1.1] tracking-tight sm:text-2xl",
               item.purchased && "line-through",
             )}
           >
             {item.title}
           </DialogTitle>
-          <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1">
+          <div className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1.5">
             {item.price != null && item.price > 0 ? (
-              <p className="mr-1 text-xl font-semibold leading-tight tabular-nums tracking-tight text-foreground sm:text-2xl">
+              <p className="mr-1 text-2xl font-semibold leading-none tabular-nums tracking-tight text-foreground sm:text-[1.7rem]">
                 {formatPrice(item.price, item.currency, language)}
               </p>
             ) : null}
@@ -86,7 +86,7 @@ export function ItemMetaSection({
       </DialogHeader>
 
       {item.user ? (
-        <div className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground/82">
+        <div className="flex min-w-0 items-center gap-2 rounded-lg border border-border/28 bg-[hsl(var(--surface-3))/0.34] px-2.5 py-2 text-sm text-muted-foreground/82">
           <UserAvatar
             avatarUrl={item.user.avatarUrl || undefined}
             name={item.user.name}
@@ -98,7 +98,7 @@ export function ItemMetaSection({
       ) : null}
 
       {item.notes ? (
-        <div className="max-w-[34rem] space-y-1">
+        <div className="max-w-[34rem] space-y-1 rounded-xl border border-border/28 bg-[hsl(var(--surface-3))/0.26] p-3">
           <p
             className={cn(
               "whitespace-pre-wrap text-sm leading-relaxed text-foreground/72",
@@ -120,7 +120,7 @@ export function ItemMetaSection({
       ) : null}
 
       {item.tags.length > 0 ? (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-1.5">
           {item.tags.map((tag) => {
             const color =
               tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
@@ -139,7 +139,7 @@ export function ItemMetaSection({
       ) : null}
 
       {(item.url || canManage || canClaim) && (
-        <div className="grid gap-2 border-t border-border/45 pt-2.5 sm:flex sm:flex-wrap sm:items-center sm:gap-2">
+        <div className="grid gap-2 border-t border-border/34 pt-3 sm:flex sm:flex-wrap sm:items-center sm:gap-2">
           {item.url ? (
             <Button
               asChild

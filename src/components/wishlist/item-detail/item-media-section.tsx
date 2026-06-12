@@ -23,11 +23,11 @@ export function ItemMediaSection({
   return (
     <div
       className={cn(
-        "h-[min(28vh,180px)] w-full shrink-0 bg-[hsl(var(--surface-1))] p-3 sm:h-full sm:min-h-[340px] sm:p-5",
+        "h-[min(34vh,230px)] w-full shrink-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.12),transparent_34%),hsl(var(--surface-1))] p-2.5 sm:h-full sm:min-h-[360px] sm:p-4",
         className,
       )}
     >
-      <div className="relative h-full min-h-0 overflow-hidden rounded-xl border border-border/55 bg-[hsl(var(--surface-1))] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+      <div className="relative h-full min-h-0 overflow-hidden rounded-xl border border-border/42 bg-[hsl(var(--surface-2))/0.42] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
         {mainImage && !imageError ? (
           <Image
             src={mainImage}

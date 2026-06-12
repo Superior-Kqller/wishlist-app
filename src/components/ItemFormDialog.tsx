@@ -294,305 +294,318 @@ export function ItemFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
-            {isEdit ? t("Редактировать") : t("Добавить товар")}
-          </DialogTitle>
-          <DialogDescription>
-            {isEdit
-              ? t("Измените данные и сохраните")
-              : t("По ссылке / Вручную. Ссылка необязательна — заполните название и при желании цену, фото и теги.")}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent
+        className="sm:max-w-4xl"
+        bodyClassName="gap-0 overflow-y-auto p-0"
+      >
+        <div className="border-b border-border/34 bg-[hsl(var(--surface-2))/0.72] px-4 py-4 sm:px-5">
+          <DialogHeader className="space-y-1 pr-10 sm:pr-12">
+            <DialogTitle className="text-xl leading-tight sm:text-2xl">
+              {isEdit ? t("Редактировать") : t("Добавить товар")}
+            </DialogTitle>
+            <DialogDescription className="max-w-2xl text-sm leading-relaxed">
+              {isEdit
+                ? t("Измените данные и сохраните")
+                : t("По ссылке / Вручную: ссылка необязательна, можно заполнить карточку самому или подтянуть данные со страницы товара.")}
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title */}
-          <div className="space-y-2">
-            <Label htmlFor="title">{t("Название")} *</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="iPhone 16 Pro Max"
-              required
-            />
-          </div>
-
-          {/* URL */}
-          <div className="space-y-2">
-            <Label htmlFor="url">{t("Ссылка (необязательно)")}</Label>
-            <p className="text-xs text-muted-foreground">
-              {t("Вставьте URL страницы товара и нажмите «Заполнить» — подтянем название, цену, изображения и краткое описание, где это доступно.")}
-            </p>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
-              <Input
-                id="url"
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://..."
-                className="sm:flex-1"
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                className="shrink-0 sm:w-auto"
-                disabled={parsingUrl || !url.trim() || isEdit}
-                onClick={handleFillFromUrl}
-                title={
-                  isEdit
-                    ? t("Автозаполнение по ссылке доступно только при добавлении товара")
-                    : undefined
-                }
-              >
-                {parsingUrl && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
-                )}
-                {parsingUrl ? t("Загрузка…") : t("Заполнить по ссылке")}
-              </Button>
-            </div>
-          </div>
-
-          {/* List (optional при редактировании; при добавлении с главной — обязательна) */}
-          {existingLists.length > 0 && (
-            <div className="space-y-2">
-              <Label>{t("Подборка")}{listPickerRequired ? " *" : ""}</Label>
-              <Select
-                value={
-                  listPickerRequired
-                    ? (listId || defaultListId || existingLists[0]?.id || "")
-                    : (listId ?? "none")
-                }
-                onValueChange={(v) => setListId(v === "none" ? null : v)}
-              >
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={
-                      listPickerRequired ? t("Выберите подборку") : t("Без подборки")
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {!listPickerRequired && (
-                    <SelectItem value="none">{t("Без подборки")}</SelectItem>
-                  )}
-                  {existingLists.map((list) => (
-                    <SelectItem key={list.id} value={list.id}>
-                      {list.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {!listPickerRequired && !listId && (
-                <p className="flex items-start gap-1.5 text-xs text-warning">
-                  <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                  {t("Товар без подборки будет скрыт. Привяжите его к подборке, чтобы он стал виден.")}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Информационная цена + валюта */}
-          <div className="grid grid-cols-[1fr_120px] gap-2">
-            <div className="space-y-2">
-              <Label htmlFor="price">{t("Ориентировочная цена")}</Label>
-              <Input
-                id="price"
-                type="number"
-                step="0.01"
-                min="0"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="0"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{t("Валюта")}</Label>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CURRENCIES.map((c) => (
-                    <SelectItem key={c.value} value={c.value}>
-                      {c.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Priority */}
-          <div className="space-y-2">
-            <Label>{t("Приоритет")}</Label>
-            <div
-              role="group"
-              aria-label={t("Приоритет")}
-              data-testid="priority-select-dialog"
-              className="grid gap-2 sm:grid-cols-2"
-            >
-              {PRIORITY_OPTIONS.map((value) => {
-                const isSelected = selectedPriority === value;
-                const label = getPriorityLabel(value, language);
-                const shortLabel = getPriorityShortLabel(value, language);
-
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-pressed={isSelected}
-                    aria-label={`${t("Приоритет")} ${value}: ${label}`}
-                    onClick={() => setPriority(value)}
-                    className={cn(
-                      "flex min-h-[46px] items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                      isSelected
-                        ? priorityBadgeToneByPriority[value]
-                        : "border-input bg-card text-muted-foreground hover:bg-accent hover:text-foreground",
-                    )}
-                  >
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        "h-2.5 w-2.5 shrink-0 rounded-full",
-                        priorityDotClassByPriority[value],
-                      )}
-                    />
-                    <span className="min-w-0">
-                      <span className="block truncate">{label}</span>
-                      <span className="block text-xs font-medium text-muted-foreground/82">
-                        {t("Уровень")} {value} · {shortLabel}
-                      </span>
-                    </span>
-                    {isSelected ? (
-                      <span className="ml-auto shrink-0 text-xs text-muted-foreground">
-                        {t("Выбрано")}
-                      </span>
-                    ) : null}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Одно изображение по URL */}
-          <div className="space-y-2">
-            <Label htmlFor="item-image-url">{t("Изображение")}</Label>
-            {imageUrl.trim() ? (
-              <div className="relative h-24 w-24 overflow-hidden rounded-lg border group">
-                <Image
-                  src={imageUrl.trim()}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="96px"
-                  unoptimized
+        <form onSubmit={handleSubmit} className="min-h-0">
+          <div className="grid min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.78fr)]">
+            <div className="space-y-4 px-4 py-4 sm:px-5 sm:py-5">
+              <div className="space-y-2">
+                <Label htmlFor="title">{t("Название")} *</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="iPhone 16 Pro Max"
+                  required
                 />
-                <button
-                  type="button"
-                  onClick={() => setImageUrl("")}
-                  aria-label={t("Убрать изображение")}
-                  className="absolute right-1.5 top-1.5 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border/70 bg-[hsl(var(--surface-1)/0.78)] text-foreground opacity-100 transition-opacity backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
-                  title={t("Убрать изображение")}
-                >
-                  <X className="h-4 w-4" />
-                </button>
               </div>
-            ) : null}
-            <Input
-              id="item-image-url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder={t("URL изображения (необязательно)")}
-            />
-          </div>
 
-          {/* Tags */}
-          <div className="space-y-2">
-            <Label>{t("Теги")}</Label>
-            {existingTags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                <span className="text-xs text-muted-foreground w-full">{t("Выберите из существующих:")}</span>
-                {existingTags.map((tag) => {
-                  const selected = tags.includes(tag.name);
-                  const color = tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
-                  return (
-                    <button
-                      key={tag.id}
-                      type="button"
-                      onClick={() => (selected ? removeTag(tag.name) : setTags([...tags, tag.name]))}
-                      aria-pressed={selected}
-                      aria-label={`${selected ? t("Убрать тег") : t("Добавить тег")}: ${tag.name}`}
-                      className="min-h-[44px] rounded-full transition-transform active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    >
-                      <Badge
-                        variant={selected ? "default" : "outline"}
-                        className="min-h-[36px] cursor-pointer px-3"
-                        style={selected ? { backgroundColor: color, borderColor: color } : { borderColor: color, color }}
-                      >
-                        {tag.name}
-                      </Badge>
-                    </button>
-                  );
-                })}
+              <div className="space-y-2 rounded-xl border border-border/34 bg-[hsl(var(--surface-3))/0.28] p-3">
+                <div className="space-y-1">
+                  <Label htmlFor="url">{t("Ссылка (необязательно)")}</Label>
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    {t("Вставьте URL страницы товара и нажмите «Заполнить» — подтянем название, цену, изображения и краткое описание, где это доступно.")}
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+                  <Input
+                    id="url"
+                    type="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="https://..."
+                    className="sm:flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="shrink-0 sm:w-auto"
+                    disabled={parsingUrl || !url.trim() || isEdit}
+                    onClick={handleFillFromUrl}
+                    title={
+                      isEdit
+                        ? t("Автозаполнение по ссылке доступно только при добавлении товара")
+                        : undefined
+                    }
+                  >
+                    {parsingUrl && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+                    )}
+                    {parsingUrl ? t("Загрузка…") : t("Заполнить")}
+                  </Button>
+                </div>
               </div>
-            )}
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                <span className="text-xs text-muted-foreground w-full">{t("Выбранные:")}</span>
-                {tags.map((tag) => (
-                  <Badge key={tag} variant="secondary" className="gap-1">
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => removeTag(tag)}
-                      aria-label={`${t("Убрать тег")}: ${tag}`}
-                      className="-mr-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </Badge>
-                ))}
+
+              {existingLists.length > 0 && (
+                <div className="space-y-2">
+                  <Label>{t("Подборка")}{listPickerRequired ? " *" : ""}</Label>
+                  <Select
+                    value={
+                      listPickerRequired
+                        ? (listId || defaultListId || existingLists[0]?.id || "")
+                        : (listId ?? "none")
+                    }
+                    onValueChange={(v) => setListId(v === "none" ? null : v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          listPickerRequired ? t("Выберите подборку") : t("Без подборки")
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {!listPickerRequired && (
+                        <SelectItem value="none">{t("Без подборки")}</SelectItem>
+                      )}
+                      {existingLists.map((list) => (
+                        <SelectItem key={list.id} value={list.id}>
+                          {list.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {!listPickerRequired && !listId && (
+                    <p className="flex items-start gap-1.5 rounded-lg border border-warning/24 bg-warning/8 px-2.5 py-2 text-xs text-warning">
+                      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                      {t("Товар без подборки будет скрыт. Привяжите его к подборке, чтобы он стал виден.")}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="notes">{t("Заметка")}</Label>
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder={t("Дополнительная информация...")}
+                  rows={5}
+                  className="min-h-28 resize-y"
+                />
               </div>
-            )}
-            <div className="flex gap-2">
-              <Input
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                placeholder={t("Новый тег (Enter)")}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addTag();
-                  }
-                }}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={addTag}
-                title={t("Добавить тег")}
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
             </div>
+
+            <aside className="space-y-4 border-t border-border/34 bg-[hsl(var(--surface-1))/0.24] px-4 py-4 sm:px-5 sm:py-5 lg:border-l lg:border-t-0">
+              <div className="space-y-2">
+                <Label htmlFor="item-image-url">{t("Изображение")}</Label>
+                <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-border/38 bg-[hsl(var(--surface-2))/0.72] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+                  {imageUrl.trim() ? (
+                    <>
+                      <Image
+                        src={imageUrl.trim()}
+                        alt={title.trim() || t("Изображение товара")}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 100vw, 320px"
+                        unoptimized
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setImageUrl("")}
+                        aria-label={t("Убрать изображение")}
+                        className="absolute right-2 top-2 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border/70 bg-[hsl(var(--surface-1)/0.78)] text-foreground transition-colors backdrop-blur-md hover:bg-[hsl(var(--surface-2))/0.9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        title={t("Убрать изображение")}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </>
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center px-4 text-center text-muted-foreground/70">
+                      <span className="text-sm font-medium">{t("Предпросмотр")}</span>
+                      <span className="mt-1 text-xs">{t("Добавьте URL изображения ниже")}</span>
+                    </div>
+                  )}
+                </div>
+                <Input
+                  id="item-image-url"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder={t("URL изображения (необязательно)")}
+                />
+              </div>
+
+              <div className="grid grid-cols-[1fr_7.5rem] gap-2">
+                <div className="space-y-2">
+                  <Label htmlFor="price">{t("Ориентировочная цена")}</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t("Валюта")}</Label>
+                  <Select value={currency} onValueChange={setCurrency}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CURRENCIES.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t("Приоритет")}</Label>
+                <div
+                  role="group"
+                  aria-label={t("Приоритет")}
+                  data-testid="priority-select-dialog"
+                  className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1"
+                >
+                  {PRIORITY_OPTIONS.map((value) => {
+                    const isSelected = selectedPriority === value;
+                    const label = getPriorityLabel(value, language);
+                    const shortLabel = getPriorityShortLabel(value, language);
+
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        aria-pressed={isSelected}
+                        aria-label={`${t("Приоритет")} ${value}: ${label}`}
+                        onClick={() => setPriority(value)}
+                        className={cn(
+                          "flex min-h-[46px] items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                          isSelected
+                            ? priorityBadgeToneByPriority[value]
+                            : "border-border/50 bg-[hsl(var(--surface-2))/0.58] text-muted-foreground hover:bg-accent hover:text-foreground",
+                        )}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "h-2.5 w-2.5 shrink-0 rounded-full",
+                            priorityDotClassByPriority[value],
+                          )}
+                        />
+                        <span className="min-w-0">
+                          <span className="block truncate">{label}</span>
+                          <span className="block text-xs font-medium text-muted-foreground/82">
+                            {t("Уровень")} {value} · {shortLabel}
+                          </span>
+                        </span>
+                        {isSelected ? (
+                          <span className="ml-auto shrink-0 text-xs text-muted-foreground">
+                            {t("Выбрано")}
+                          </span>
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t("Теги")}</Label>
+                {existingTags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="w-full text-xs text-muted-foreground">{t("Выберите из существующих:")}</span>
+                    {existingTags.map((tag) => {
+                      const selected = tags.includes(tag.name);
+                      const color = tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
+                      return (
+                        <button
+                          key={tag.id}
+                          type="button"
+                          onClick={() => (selected ? removeTag(tag.name) : setTags([...tags, tag.name]))}
+                          aria-pressed={selected}
+                          aria-label={`${selected ? t("Убрать тег") : t("Добавить тег")}: ${tag.name}`}
+                          className="min-h-[44px] rounded-full transition-transform active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        >
+                          <Badge
+                            variant={selected ? "default" : "outline"}
+                            className="min-h-[36px] cursor-pointer px-3"
+                            style={selected ? { backgroundColor: color, borderColor: color } : { borderColor: color, color }}
+                          >
+                            {tag.name}
+                          </Badge>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    <span className="w-full text-xs text-muted-foreground">{t("Выбранные:")}</span>
+                    {tags.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="gap-1">
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => removeTag(tag)}
+                          aria-label={`${t("Убрать тег")}: ${tag}`}
+                          className="-mr-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Input
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    placeholder={t("Новый тег (Enter)")}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addTag();
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={addTag}
+                    title={t("Добавить тег")}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </aside>
           </div>
 
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label htmlFor="notes">{t("Заметка")}</Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder={t("Дополнительная информация...")}
-              rows={3}
-            />
-          </div>
-
-          <DialogFooter>
+          <DialogFooter className="border-t border-border/34 bg-[hsl(var(--surface-2))/0.72] px-4 py-3 sm:px-5">
             <Button
               type="button"
               variant="outline"
@@ -601,7 +614,7 @@ export function ItemFormDialog({
               {t("Отмена")}
             </Button>
             <Button type="submit" disabled={saving}>
-              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isEdit ? t("Сохранить") : t("Добавить")}
             </Button>
           </DialogFooter>
