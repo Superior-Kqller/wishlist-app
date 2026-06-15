@@ -53,7 +53,7 @@ describe("telegram webhook route", () => {
     expect(mockHandleTelegramUpdate).not.toHaveBeenCalled();
   });
 
-  it("returns 401 when telegram is enabled without webhook secret", async () => {
+  it("handles valid update when telegram is enabled without webhook secret", async () => {
     mockGetTelegramConfig.mockReturnValue({
       enabled: true,
       botToken: "token",
@@ -72,8 +72,8 @@ describe("telegram webhook route", () => {
 
     const response = await POST(req as never);
 
-    expect(response.status).toBe(401);
-    expect(mockHandleTelegramUpdate).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(mockHandleTelegramUpdate).toHaveBeenCalledTimes(1);
   });
 
   it("returns 400 for invalid payload", async () => {

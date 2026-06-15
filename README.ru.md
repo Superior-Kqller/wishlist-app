@@ -147,7 +147,8 @@ http://localhost:3000
 | `APP_PORT` | Порт приложения на хосте, по умолчанию `4030`. |
 | `REDIS_URL` | Valkey/Redis; если не задан, есть in-memory fallback. |
 | `TELEGRAM_BOT_TOKEN` | Токен Telegram-бота, если бот нужен. |
-| `TELEGRAM_WEBHOOK_SECRET` | Секрет webhook для Telegram. |
+| `TELEGRAM_CHAT_IDS` | Chat ID личных чатов, групп или супергрупп для базовых Telegram-уведомлений. |
+| `TELEGRAM_WEBHOOK_SECRET` | Опциональный секрет webhook для интерактивного Telegram-бота. |
 | `SEED_USER*_...` | Начальные пользователи при первом запуске. |
 
 Полный список смотрите в [.env.example](.env.example).
@@ -156,19 +157,27 @@ http://localhost:3000
 
 Telegram необязателен. Без него веб-приложение работает полностью.
 
-Краткая настройка:
+Быстрый режим уведомлений:
 
 1. Создайте бота через BotFather.
 2. Заполните в `.env`:
 
 ```env
 TELEGRAM_BOT_TOKEN=123456789:AA...
+TELEGRAM_CHAT_IDS=123456789,-1001234567890
+```
+
+3. Перезапустите приложение. После этого события бронирования и покупки будут уходить в указанные чаты.
+
+Чтобы узнать chat id, добавьте бота в нужный чат и отправьте команду `/chatid`. Для групп и супергрупп id обычно отрицательный.
+
+Интерактивный режим с командами `/start`, `/myitems`, `/available` и inline-кнопками требует публичный HTTPS-домен и webhook. Для него можно дополнительно задать:
+
+```env
 TELEGRAM_WEBHOOK_SECRET=long-random-secret
 ```
 
-3. Перезапустите приложение.
-4. Укажите свой Telegram ID в настройках профиля.
-5. Установите webhook:
+Затем установите webhook:
 
 ```powershell
 Invoke-RestMethod `
@@ -181,7 +190,7 @@ Invoke-RestMethod `
   }
 ```
 
-Для Telegram нужен публичный HTTPS-домен. `localhost` не подойдет.
+`secret_token` можно не передавать, если `TELEGRAM_WEBHOOK_SECRET` не задан. Для webhook нужен публичный HTTPS-домен; `localhost` не подойдет.
 
 ## Reverse proxy
 

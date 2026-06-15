@@ -149,7 +149,8 @@ http://localhost:3000
 | `APP_PORT` | Host port, defaults to `4030`. |
 | `REDIS_URL` | Valkey/Redis connection; in-memory fallback is used when unset. |
 | `TELEGRAM_BOT_TOKEN` | Telegram bot token, only if the bot is enabled. |
-| `TELEGRAM_WEBHOOK_SECRET` | Telegram webhook secret. |
+| `TELEGRAM_CHAT_IDS` | Private, group, or supergroup chat IDs for basic Telegram notifications. |
+| `TELEGRAM_WEBHOOK_SECRET` | Optional webhook secret for the interactive Telegram bot. |
 | `SEED_USER*_...` | Initial users for the first setup. |
 
 See the full list in [.env.example](.env.example).
@@ -158,19 +159,27 @@ See the full list in [.env.example](.env.example).
 
 Telegram is optional. The web app works without it.
 
-Short setup:
+Fast notification setup:
 
 1. Create a bot with BotFather.
 2. Fill `.env`:
 
 ```env
 TELEGRAM_BOT_TOKEN=123456789:AA...
+TELEGRAM_CHAT_IDS=123456789,-1001234567890
+```
+
+3. Restart the app. Booking and purchase events will be sent to the configured chats.
+
+To get a chat id, add the bot to the target chat and send `/chatid`. Group and supergroup ids are usually negative.
+
+The interactive mode with `/start`, `/myitems`, `/available`, and inline buttons requires a public HTTPS domain and a webhook. For that mode you can also set:
+
+```env
 TELEGRAM_WEBHOOK_SECRET=long-random-secret
 ```
 
-3. Restart the app.
-4. Add your Telegram ID in profile settings.
-5. Set the webhook:
+Then set the webhook:
 
 ```powershell
 Invoke-RestMethod `
@@ -183,7 +192,7 @@ Invoke-RestMethod `
   }
 ```
 
-Telegram needs a public HTTPS domain. `localhost` will not work.
+You can omit `secret_token` when `TELEGRAM_WEBHOOK_SECRET` is not set. Webhooks need a public HTTPS domain; `localhost` will not work.
 
 ## Reverse Proxy
 

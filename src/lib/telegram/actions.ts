@@ -402,6 +402,14 @@ async function handleMessage(message: TelegramMessage): Promise<void> {
   const text = message.text?.trim();
   if (!text) return;
 
+  if (text === "/chatid" || text.startsWith("/chatid@")) {
+    await sendTelegramMessage({
+      chatId: String(message.chat.id),
+      text: `Chat ID этого чата: ${message.chat.id}`,
+    });
+    return;
+  }
+
   if (text === "/start") {
     await handleStart(message);
     return;

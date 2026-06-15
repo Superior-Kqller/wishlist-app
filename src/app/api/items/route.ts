@@ -7,6 +7,7 @@ import { sanitizeError } from "@/lib/logger";
 import { canUserSeeList, getVisibleListIdsForUser } from "@/lib/list-utils";
 import { canSeeClaimerIdentity } from "@/lib/access-policy";
 import { itemResponseWithoutList } from "@/lib/item-json";
+import { notifyItemCreated } from "@/lib/telegram/notifications";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 
@@ -230,6 +231,12 @@ export async function POST(req: NextRequest) {
         claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
         list: { select: { userId: true } },
       },
+    });
+    await notifyItemCreated({
+      itemId: item.id,
+      itemTitle: item.title,
+      actorUserId: userId,
+      actorName: item.user?.name ?? "Пользователь",
     });
     const masked = maskClaimedByUserForActor(item, userId);
     return NextResponse.json(itemResponseWithoutList(masked), { status: 201 });
