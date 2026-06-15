@@ -56,14 +56,14 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-[hsl(var(--surface-2)/0.9)] elevation-header backdrop-blur-lg lg:hidden">
       <div className="pt-[env(safe-area-inset-top,0px)]">
-        <div className="container mx-auto flex min-h-[50px] items-center px-3 sm:min-h-[64px] sm:px-4">
+        <div className="container mx-auto flex min-h-[48px] items-center px-3 sm:min-h-[64px] sm:px-4">
           <button
             onClick={() => router.push("/")}
             className="flex min-h-11 shrink-0 items-center rounded-xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             title={t("На главную")}
             aria-label={t("Вишлист — на главную")}
           >
-            <BrandLockup />
+            <BrandLockup compact />
           </button>
 
           <nav className="hidden flex-1 items-center justify-center gap-1.5 px-4 lg:flex">
@@ -119,7 +119,7 @@ export function Header() {
             ) : null}
           </nav>
 
-          <div className="ml-auto flex min-w-[56px] items-center justify-end gap-1 sm:min-w-[220px] sm:gap-2 lg:min-w-[340px]">
+          <div className="ml-auto flex min-w-[52px] items-center justify-end gap-1 sm:min-w-[220px] sm:gap-2 lg:min-w-[340px]">
             <div className="hidden items-center gap-1.5 sm:flex lg:hidden">
               {isAdmin ? (
                 <Button
@@ -180,10 +180,10 @@ export function Header() {
 
             <div className="flex items-center gap-1 sm:hidden">
               <Button
-                variant="default"
+                variant="glass"
                 size="icon"
                 onClick={handleAddItem}
-                className="size-10 min-h-[44px] min-w-[44px] shrink-0 rounded-xl border border-primary/35 shadow-[0_7px_18px_rgba(0,0,0,0.26),0_0_12px_hsl(var(--primary)/0.16)]"
+                className="size-10 min-h-[44px] min-w-[44px] shrink-0 rounded-xl border-primary/28 bg-primary/10 text-primary shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] hover:border-primary/38 hover:bg-primary/14"
                 title={t("Добавить товар")}
                 aria-label={t("Добавить товар")}
               >

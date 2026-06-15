@@ -40,16 +40,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center page-bg px-4 py-8">
+    <div className="flex min-h-screen items-center justify-center page-bg px-4 py-6">
       <div className="relative w-full max-w-[26rem]">
         <div className="absolute -inset-px rounded-[1.35rem] bg-[linear-gradient(135deg,hsl(var(--primary)/0.48),hsl(var(--info)/0.22),hsl(var(--warning)/0.18))] opacity-80 blur-sm" aria-hidden />
-        <div className="glass relative rounded-2xl border-border/58 bg-[hsl(var(--surface-2))/0.86] p-7 shadow-[0_24px_70px_rgba(0,0,0,0.44),inset_0_1px_0_hsl(var(--foreground)/0.05)] sm:p-8">
-          <div className="mb-5 flex justify-end">
+        <div className="glass relative rounded-2xl border-border/58 bg-[hsl(var(--surface-2))/0.86] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.44),inset_0_1px_0_hsl(var(--foreground)/0.05)] sm:p-8">
+          <div className="mb-7 flex items-center justify-between gap-3">
+            <BrandLockup compact />
             <LanguageSwitcher />
           </div>
-          <div className="mb-8 flex flex-col items-center">
-            <BrandLockup className="mb-3 justify-center" />
-            <h1 className="mt-1 text-center text-sm font-medium text-muted-foreground">
+          <div className="mb-6">
+            <h1 className="text-left text-sm font-medium text-muted-foreground">
               {t("Войдите в свой аккаунт")}
             </h1>
           </div>

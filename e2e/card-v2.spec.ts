@@ -77,6 +77,33 @@ test("card-v2-has-single-open-link-action", async ({ page }) => {
   ).toHaveCount(1);
 });
 
+test("mobile card shows purchased state and several tags", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await loginAsUser(page);
+
+  const uniqueTitle = `mobile purchased tags ${Date.now()}`;
+  const importResponse = await page.request.post("/api/items/import", {
+    data: {
+      items: [
+        {
+          title: uniqueTitle,
+          price: 12990,
+          tags: ["кухня", "дом", "подарок"],
+          purchased: true,
+        },
+      ],
+    },
+  });
+  expect(importResponse.ok()).toBeTruthy();
+
+  await page.goto(`/?search=${encodeURIComponent(uniqueTitle)}`);
+
+  const card = page.getByTestId("wishlist-card-v2").filter({ hasText: uniqueTitle }).first();
+  await expect(card).toBeVisible();
+  await expect(card.getByTestId("wishlist-card-v2-purchased-label")).toBeVisible();
+  await expect(card.getByTestId("wishlist-card-v2-tag")).toHaveCount(3);
+});
+
 test("card-v2-actions-are-labeled-and-keyboard-accessible", async ({ page }) => {
   await loginAsUser(page);
 

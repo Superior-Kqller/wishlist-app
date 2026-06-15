@@ -52,6 +52,7 @@ const en: Dictionary = {
   "Доступно": "Available",
   "Забронировано": "Reserved",
   "Куплено": "Purchased",
+  "Уже куплено": "Already purchased",
   "Общая стоимость": "Total value",
   "Активность": "Activity",
   "Последние изменения": "Latest updates",

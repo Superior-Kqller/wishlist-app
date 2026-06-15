@@ -33,21 +33,21 @@ export function AddItemCard({ onAdd, disabled, disabledHint }: AddItemCardProps)
       onKeyDown={disabled ? undefined : onKeyDown}
       title={disabled ? disabledHint : undefined}
       className={cn(
-        "flex min-h-[220px] flex-col items-center justify-center gap-4 border-dashed p-4 text-center sm:min-h-[240px]",
+        "flex min-h-[132px] flex-col items-center justify-center gap-3 border-dashed p-4 text-center sm:min-h-[220px] sm:gap-4",
         uiSurface.contentPanel,
-        "bg-[linear-gradient(135deg,hsl(var(--surface-2))/0.72,hsl(var(--surface-3))/0.58)]",
+        "bg-[linear-gradient(135deg,hsl(var(--surface-2))/0.72,hsl(var(--surface-3))/0.52)]",
         disabled
           ? "cursor-not-allowed border-border/45 opacity-60"
-          : "cursor-pointer border-border/50 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-[0_18px_42px_rgba(0,0,0,0.32),0_0_0_1px_hsl(var(--primary)/0.14)]",
+          : "cursor-pointer border-border/50 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/34 hover:shadow-[0_14px_32px_rgba(0,0,0,0.24)]",
         !disabled && uiState.focusVisible,
       )}
     >
-      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-primary/45 bg-primary/16 text-primary shadow-[0_10px_24px_rgba(0,0,0,0.28),0_0_18px_hsl(var(--primary)/0.18)]">
+      <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-primary/28 bg-primary/10 text-primary shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] sm:h-12 sm:w-12 sm:rounded-full">
         <Plus className="h-5 w-5" />
       </span>
       <div className="space-y-1.5">
-        <p className="text-base font-semibold leading-tight">{t("Новый лот в коллекции")}</p>
-        <p className="text-sm text-muted-foreground leading-snug">
+        <p className="text-sm font-semibold leading-tight sm:text-base">{t("Новый лот в коллекции")}</p>
+        <p className="text-xs text-muted-foreground leading-snug sm:text-sm">
           {t("Добавьте товар по ссылке или заполните карточку вручную.")}
         </p>
       </div>

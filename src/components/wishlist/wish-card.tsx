@@ -2,7 +2,7 @@
 
 import { memo, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
-import { Check, ExternalLink, Globe2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
+import { Check, CheckCircle2, ExternalLink, Globe2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -37,7 +37,7 @@ export interface WishCardProps {
 }
 
 const cardMetaChipClass =
-  "inline-flex h-5 max-w-[5.75rem] items-center rounded-full border bg-[hsl(var(--surface-2))/0.72] px-1.5 py-0 text-[10px] font-medium leading-none shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-sm sm:max-w-[6.5rem]";
+  "inline-flex h-5 max-w-full items-center rounded-full border bg-[hsl(var(--surface-2))/0.72] px-1.5 py-0 text-[10px] font-medium leading-none shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-sm";
 
 export const WishCard = memo(function WishCard({
   item,
@@ -95,7 +95,7 @@ export const WishCard = memo(function WishCard({
 
   const showImage = Boolean(imageUrl && !imageError);
 
-  const visibleTags = item.tags.slice(0, 1);
+  const visibleTags = item.tags.slice(0, 3);
   const hiddenTagCount = Math.max(0, item.tags.length - visibleTags.length);
 
   return (
@@ -103,7 +103,7 @@ export const WishCard = memo(function WishCard({
         data-testid="wishlist-card-v2"
         className={cn(
           "group/card flex h-full min-h-[20.5rem] flex-col overflow-hidden rounded-2xl border-border/50 bg-[hsl(var(--surface-2))/0.88] shadow-[0_16px_40px_rgba(0,0,0,0.24),inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-md max-sm:min-h-0 max-sm:rounded-xl",
-          isBought && "opacity-65 saturate-[0.72]",
+          isBought && "opacity-85 saturate-[0.82]",
           isCardInteractive &&
             "cursor-pointer transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-1 hover:border-primary/34 hover:shadow-[0_22px_52px_rgba(0,0,0,0.28),0_0_0_1px_hsl(var(--primary)/0.12)] focus-visible:border-primary/45",
           selectionMode && "ring-1 ring-border/80",
@@ -118,7 +118,7 @@ export const WishCard = memo(function WishCard({
           data-testid="wishlist-card-v2-media"
           className={cn(
             "group relative m-2 mb-0 shrink-0 overflow-hidden rounded-xl border border-border/34 bg-[hsl(var(--surface-1))] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[linear-gradient(180deg,hsl(var(--background)/0.02)_0%,transparent_56%,hsl(var(--background)/0.22)_100%)] after:content-['']",
-            showImage ? "aspect-[16/11] sm:aspect-[5/4]" : "h-36 sm:h-44",
+            showImage ? "aspect-[16/10] sm:aspect-[5/4]" : "h-32 sm:h-44",
           )}
         >
           <PriorityBadgeOverlay priority={item.priority} />
@@ -172,6 +172,16 @@ export const WishCard = memo(function WishCard({
             ) : null}
           </div>
 
+          {isBought ? (
+            <div
+              data-testid="wishlist-card-v2-purchased-label"
+              className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-success/45 bg-success/10 px-2 py-1 text-[11px] font-semibold text-success"
+            >
+              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+              {t("Уже куплено")}
+            </div>
+          ) : null}
+
           <div
             data-testid="wishlist-card-v2-meta"
             className="flex min-h-6 items-center gap-1.5"
@@ -221,38 +231,39 @@ export const WishCard = memo(function WishCard({
                   )}
                 />
               </span>
-              {visibleTags.length > 0 ? (
-                <>
-                  {visibleTags.map((tag) => {
-                    const color =
-                      tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
-                    return (
-                      <span
-                        key={tag.id}
-                        data-testid="wishlist-card-v2-tag"
-                        className={cn(cardMetaChipClass, "max-w-[5.5rem]")}
-                        style={{ borderColor: color, color }}
-                      >
-                        {tag.name}
-                      </span>
-                    );
-                  })}
-                  {hiddenTagCount > 0 ? (
-                    <span
-                      className={cn(
-                        cardMetaChipClass,
-                        "max-w-none border-border/45 text-muted-foreground"
-                      )}
-                    >
-                      +{hiddenTagCount}
-                    </span>
-                  ) : null}
-                </>
-              ) : (
-                <span className="sr-only">{t("Без тегов")}</span>
-              )}
             </div>
           </div>
+
+          {visibleTags.length > 0 ? (
+            <div className="flex min-h-5 flex-wrap items-center gap-1">
+              {visibleTags.map((tag) => {
+                const color =
+                  tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
+                return (
+                  <span
+                    key={tag.id}
+                    data-testid="wishlist-card-v2-tag"
+                    className={cn(cardMetaChipClass, "max-w-[7.5rem] truncate")}
+                    style={{ borderColor: color, color }}
+                  >
+                    {tag.name}
+                  </span>
+                );
+              })}
+              {hiddenTagCount > 0 ? (
+                <span
+                  className={cn(
+                    cardMetaChipClass,
+                    "border-border/45 text-muted-foreground"
+                  )}
+                >
+                  +{hiddenTagCount}
+                </span>
+              ) : null}
+            </div>
+          ) : (
+            <span className="sr-only">{t("Без тегов")}</span>
+          )}
         </CardHeader>
 
         <CardFooter

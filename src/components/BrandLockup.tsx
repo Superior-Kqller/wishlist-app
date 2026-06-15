@@ -6,9 +6,10 @@ import { useI18n } from "@/components/i18n/language-provider";
 
 interface BrandLockupProps {
   className?: string;
+  compact?: boolean;
 }
 
-export function BrandLockup({ className }: BrandLockupProps) {
+export function BrandLockup({ className, compact = false }: BrandLockupProps) {
   const { t } = useI18n();
 
   return (
@@ -20,13 +21,22 @@ export function BrandLockup({ className }: BrandLockupProps) {
         height={72}
         priority
         unoptimized
-        className="h-7 w-7 shrink-0 rounded-lg object-contain sm:h-10 sm:w-10 sm:rounded-xl"
+        className={cn(
+          "h-7 w-7 shrink-0 rounded-lg object-contain sm:h-10 sm:w-10 sm:rounded-xl",
+          compact && "sm:h-9 sm:w-9",
+        )}
       />
       <div className="flex min-w-0 flex-col items-start text-left leading-tight">
-        <span className="truncate text-sm font-bold text-foreground sm:text-lg">
+        <span className={cn(
+          "truncate text-sm font-bold text-foreground sm:text-lg",
+          compact && "max-w-[8rem] sm:max-w-none sm:text-base",
+        )}>
           {t("Вишлист")}
         </span>
-        <span className="line-clamp-1 max-w-[65vw] text-[9px] uppercase tracking-[0.05em] text-muted-foreground/75 sm:max-w-none sm:text-[11px]">
+        <span className={cn(
+          "line-clamp-1 max-w-[65vw] text-[9px] uppercase tracking-[0.05em] text-muted-foreground/75 sm:max-w-none sm:text-[11px]",
+          compact && "max-sm:hidden sm:text-[10px]",
+        )}>
           {t("Каталог желаний")}
         </span>
       </div>
