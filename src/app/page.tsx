@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  type ChangeEvent,
   useState,
   useMemo,
   useCallback,
@@ -59,6 +60,7 @@ function HomePageContent() {
     fill: boolean;
     consumed: boolean;
   } | null>(null);
+  const importFileInputRef = useRef<HTMLInputElement | null>(null);
   if (deepLinkRef.current === null) {
     deepLinkRef.current = {
       addUrl: searchParams.get("addUrl"),
@@ -180,6 +182,7 @@ function HomePageContent() {
   const [detailItem, setDetailItem] = useState<WishlistItem | null>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
   const [listDeleteTarget, setListDeleteTarget] = useState<{
     id: string;
     name: string;
@@ -213,6 +216,56 @@ function HomePageContent() {
     a.click();
     URL.revokeObjectURL(url);
   }, [t]);
+
+  const handleImport = useCallback(() => {
+    importFileInputRef.current?.click();
+  }, []);
+
+  const handleImportFileChange = useCallback(
+    async (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      setIsImporting(true);
+      try {
+        const parsed = JSON.parse(await file.text()) as unknown;
+        const targetListId =
+          selectedListId && ownedListsForCreate.some((list) => list.id === selectedListId)
+            ? selectedListId
+            : defaultListIdForCreate;
+        const payload = Array.isArray(parsed)
+          ? { items: parsed, listId: targetListId }
+          : {
+              ...(parsed && typeof parsed === "object" ? parsed : { items: parsed }),
+              listId:
+                parsed && typeof parsed === "object" && "listId" in parsed
+                  ? (parsed as { listId?: unknown }).listId
+                  : targetListId,
+            };
+
+        const res = await fetch("/api/items/import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(body.error || t("Не удалось импортировать каталог"));
+        }
+        toast.success(`${t("Импортировано желаний")}: ${body.imported}`);
+        mutateItems();
+        mutate("/api/tags");
+        mutate("/api/users/stats");
+      } catch (err) {
+        toast.error(
+          err instanceof Error ? err.message : t("Не удалось импортировать каталог"),
+        );
+      } finally {
+        setIsImporting(false);
+        event.target.value = "";
+      }
+    },
+    [defaultListIdForCreate, mutateItems, ownedListsForCreate, selectedListId, t],
+  );
 
   const { setActions } = useHeaderActions();
   useEffect(() => {
@@ -653,6 +706,8 @@ function HomePageContent() {
           onClearTags={() => setSelectedTags([])}
           onAddItem={handleOpenAddItem}
           onExport={handleExport}
+          onImport={handleImport}
+          isImporting={isImporting}
           sortBy={sortBy}
           onSortChange={setSortBy}
           showPurchased={showPurchased}
@@ -699,6 +754,15 @@ function HomePageContent() {
           }}
         />
       </div>
+
+      <input
+        ref={importFileInputRef}
+        type="file"
+        accept="application/json,.json"
+        className="hidden"
+        onChange={handleImportFileChange}
+        aria-label={t("Импорт JSON")}
+      />
 
       {/* Add item dialog */}
       <ItemFormDialog

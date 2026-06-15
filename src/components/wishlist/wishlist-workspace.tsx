@@ -1,7 +1,7 @@
 "use client";
 
 import type { RefObject } from "react";
-import { ArrowUpDown, CheckSquare, Download, Loader2, MoreHorizontal, Plus, SlidersHorizontal } from "lucide-react";
+import { ArrowUpDown, CheckSquare, Download, Loader2, MoreHorizontal, Plus, SlidersHorizontal, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { SearchField } from "@/components/ui/search-field";
@@ -55,6 +55,8 @@ type WishlistWorkspaceProps = {
   onClearTags: () => void;
   onAddItem: () => void;
   onExport: (format: "csv" | "json") => void;
+  onImport: () => void;
+  isImporting: boolean;
   sortBy: string;
   onSortChange: (value: string) => void;
   showPurchased: boolean;
@@ -108,6 +110,8 @@ export function WishlistWorkspace({
   onClearTags,
   onAddItem,
   onExport,
+  onImport,
+  isImporting,
   sortBy,
   onSortChange,
   showPurchased,
@@ -212,6 +216,14 @@ export function WishlistWorkspace({
                 <Plus className="mr-2 h-4 w-4" />
                 {t("Добавить товар")}
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={onImport} disabled={isImporting}>
+                {isImporting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Upload className="mr-2 h-4 w-4" />
+                )}
+                {t("Импорт JSON")}
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onExport("csv")}>
                 <Download className="mr-2 h-4 w-4" />
                 {t("Экспорт CSV")}
@@ -255,10 +267,18 @@ export function WishlistWorkspace({
                 <DropdownMenuTrigger asChild>
                   <Button type="button" variant="outline" size="sm" className="h-9 gap-2 border-border/60 bg-[hsl(var(--surface-3))/0.62] text-muted-foreground hover:text-foreground">
                     <Download className="h-4 w-4" />
-                    {t("Экспорт")}
+                    {t("Данные")}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-44">
+                  <DropdownMenuItem onClick={onImport} disabled={isImporting}>
+                    {isImporting ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="mr-2 h-4 w-4" />
+                    )}
+                    {t("Импорт JSON")}
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onExport("csv")}>
                     {t("Экспорт CSV")}
                   </DropdownMenuItem>
