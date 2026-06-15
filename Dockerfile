@@ -1,5 +1,5 @@
 # --- Dependencies ---
-FROM node:22-alpine AS deps
+FROM node:24.16.0-alpine AS deps
 RUN apk add --no-cache openssl
 WORKDIR /app
 COPY package.json package-lock.json* ./
@@ -7,7 +7,7 @@ COPY prisma ./prisma
 RUN npm ci
 
 # --- Builder ---
-FROM node:22-alpine AS builder
+FROM node:24.16.0-alpine AS builder
 RUN apk add --no-cache openssl
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -29,7 +29,7 @@ RUN mkdir /prisma-cli && cd /prisma-cli && \
     npm install --production 2>/dev/null
 
 # --- Runner ---
-FROM node:22-alpine AS runner
+FROM node:24.16.0-alpine AS runner
 RUN apk add --no-cache openssl su-exec
 WORKDIR /app
 
