@@ -2,7 +2,6 @@
 
 import {
   CheckCircle2,
-  Clock3,
   Package,
   RotateCcw,
   ShoppingBag,
@@ -51,13 +50,10 @@ export function DashboardSummary({
       : "—";
   const availablePercent =
     summary.total > 0 ? Math.round((summary.available / summary.total) * 100) : 0;
-  const claimedPercent =
-    summary.total > 0 ? Math.round((summary.claimed / summary.total) * 100) : 0;
   const purchasedPercent =
-    summary.total > 0 ? Math.max(0, 100 - availablePercent - claimedPercent) : 0;
+    summary.total > 0 ? Math.max(0, 100 - availablePercent) : 0;
   const distribution = [
     { label: t("Доступно"), value: availablePercent, className: "bg-info" },
-    { label: t("Забронировано"), value: claimedPercent, className: "bg-warning" },
     { label: t("Куплено"), value: purchasedPercent, className: "bg-success" },
   ];
   const metrics = [
@@ -72,12 +68,6 @@ export function DashboardSummary({
       value: summary.available,
       icon: CheckCircle2,
       tone: "border-info/28 bg-info/10 text-info",
-    },
-    {
-      label: t("Забронировано"),
-      value: summary.claimed,
-      icon: Clock3,
-      tone: "border-warning/30 bg-warning/10 text-warning",
     },
     {
       label: t("Куплено"),
@@ -114,7 +104,6 @@ export function DashboardSummary({
         </div>
         <p className="mt-0.5 text-xs text-muted-foreground">
           {summary.total} {t("Всего").toLowerCase()} · {summary.available} {t("Доступно").toLowerCase()}
-          {summary.claimed > 0 ? ` · ${summary.claimed} ${t("Забронировано").toLowerCase()}` : ""}
           {summary.purchased > 0 ? ` · ${summary.purchased} ${t("Куплено").toLowerCase()}` : ""}
         </p>
         {summary.total > 0 ? (
@@ -144,7 +133,7 @@ export function DashboardSummary({
               {title}
             </h1>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              {t("Ваши желания в одном месте. Выбирайте, бронируйте и отмечайте покупки.")}
+              {t("Ваши желания в одном месте. Выбирайте и отмечайте покупки.")}
             </p>
           </div>
           <div className="min-w-[10rem] rounded-2xl border border-primary/24 bg-[linear-gradient(145deg,hsl(var(--primary)_/_0.16),hsl(var(--surface-3)_/_0.72))] px-4 py-3 text-right shadow-[inset_0_1px_0_hsl(var(--foreground)/0.055),0_18px_40px_hsl(var(--primary)/0.08)]">
@@ -182,7 +171,7 @@ export function DashboardSummary({
           </div>
         ) : null}
 
-        <div className="mt-4 grid grid-cols-2 gap-2.5 lg:grid-cols-5">
+        <div className="mt-4 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
           {metrics.map(({ label, value, icon: Icon, tone }) => (
             <div
               key={label}

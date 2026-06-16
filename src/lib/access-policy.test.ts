@@ -39,7 +39,7 @@ describe("access-policy list visibility", () => {
 });
 
 describe("access-policy claim", () => {
-  it("разрешает claim только для visible + available", () => {
+  it("запрещает claim", () => {
     expect(
       canClaimItem({
         actorUserId: "u2",
@@ -48,7 +48,7 @@ describe("access-policy claim", () => {
         isVisibleToActor: true,
         status: "AVAILABLE",
       })
-    ).toBe(true);
+    ).toBe(false);
 
     expect(
       canClaimItem({
@@ -61,7 +61,7 @@ describe("access-policy claim", () => {
     ).toBe(false);
   });
 
-  it("разрешает unclaim только owner/claimer", () => {
+  it("запрещает unclaim как отдельную функцию", () => {
     expect(
       canUnclaimItem({
         actorUserId: "u1",
@@ -70,7 +70,7 @@ describe("access-policy claim", () => {
         isVisibleToActor: true,
         status: "CLAIMED",
       })
-    ).toBe(true);
+    ).toBe(false);
 
     expect(
       canUnclaimItem({

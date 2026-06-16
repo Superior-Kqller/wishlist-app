@@ -26,7 +26,7 @@ interface WishlistGridProps {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
-  onSetStatus?: (id: string, status: "AVAILABLE" | "CLAIMED" | "PURCHASED") => void;
+  onSetStatus?: (id: string, status: "AVAILABLE" | "PURCHASED") => void;
   pendingStatusByItemId?: Record<string, boolean>;
   onEmptyAdd?: () => void;
   emptyAddDisabled?: boolean;

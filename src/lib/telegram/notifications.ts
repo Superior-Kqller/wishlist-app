@@ -22,6 +22,24 @@ interface NotifyItemCreatedInput {
   actorName: string;
 }
 
+function formatEventMessage(title: string, lines: string[]): string {
+  return [title, ...lines].join("\n");
+}
+
+function formatItemCreatedMessage(input: NotifyItemCreatedInput): string {
+  return formatEventMessage("🎁 Новый подарок", [
+    `👤 ${input.actorName}`,
+    `📌 ${input.itemTitle}`,
+  ]);
+}
+
+function formatPurchasedMessage(actorName: string, itemTitle: string): string {
+  return formatEventMessage("✅ Подарок куплен", [
+    `👤 ${actorName}`,
+    `📌 ${itemTitle}`,
+  ]);
+}
+
 async function sendTelegramToUser(userId: string, text: string): Promise<void> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -57,9 +75,7 @@ async function sendTelegramToConfiguredChats(text: string): Promise<void> {
 
 export async function notifyItemCreated(input: NotifyItemCreatedInput): Promise<void> {
   try {
-    await sendTelegramToConfiguredChats(
-      `${input.actorName} добавил(а) товар в вишлист: ${input.itemTitle}`
-    );
+    await sendTelegramToConfiguredChats(formatItemCreatedMessage(input));
   } catch (error) {
     sanitizeError("Telegram item created notification send error", error, {
       itemId: input.itemId,
@@ -77,50 +93,17 @@ export async function notifyStatusTransition(input: NotifyStatusTransitionInput)
 
     const actorName = actor?.name ?? "Пользователь";
 
-    if (input.nextStatus === "CLAIMED") {
-      await sendTelegramToConfiguredChats(
-        `${actorName} забронировал(а) подарок: ${input.itemTitle}`
-      );
-
-      await sendTelegramToUser(
-        input.ownerUserId,
-        `${actorName} забронировал(а) подарок: ${input.itemTitle}`
-      );
-
-      if (input.nextClaimerUserId) {
-        await sendTelegramToUser(
-          input.nextClaimerUserId,
-          `Вы забронировали подарок: ${input.itemTitle}`
-        );
-      }
-      return;
-    }
-
-    if (input.previousStatus === "CLAIMED" && input.nextStatus === "AVAILABLE") {
-      await sendTelegramToConfiguredChats(`Бронь снята: ${input.itemTitle}`);
-
-      if (input.previousClaimerUserId) {
-        await sendTelegramToUser(
-          input.previousClaimerUserId,
-          `Бронь снята: ${input.itemTitle}`
-        );
-      }
-      return;
-    }
+    if (input.nextStatus === "CLAIMED") return;
+    if (input.previousStatus === "CLAIMED" && input.nextStatus === "AVAILABLE") return;
 
     if (input.nextStatus === "PURCHASED") {
-      await sendTelegramToConfiguredChats(`Подарок отмечен купленным: ${input.itemTitle}`);
+      const text = formatPurchasedMessage(actorName, input.itemTitle);
+      await sendTelegramToConfiguredChats(text);
 
-      await sendTelegramToUser(
-        input.ownerUserId,
-        `Подарок отмечен купленным: ${input.itemTitle}`
-      );
+      await sendTelegramToUser(input.ownerUserId, text);
 
       if (input.nextClaimerUserId) {
-        await sendTelegramToUser(
-          input.nextClaimerUserId,
-          `Покупка подтверждена: ${input.itemTitle}`
-        );
+        await sendTelegramToUser(input.nextClaimerUserId, text);
       }
     }
   } catch (error) {

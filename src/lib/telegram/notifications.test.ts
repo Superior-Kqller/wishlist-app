@@ -31,7 +31,7 @@ describe("telegram notifications", () => {
     process.env = originalEnv;
   });
 
-  it("sends status transition notifications to configured chat ids", async () => {
+  it("does not send reservation notifications", async () => {
     mockFindUnique
       .mockResolvedValueOnce({ id: "actor-1", name: "Аня" })
       .mockResolvedValue({ telegramId: null, telegramConfirmedAt: null, telegramNotificationsEnabled: false });
@@ -49,13 +49,34 @@ describe("telegram notifications", () => {
       nextClaimerUserId: "actor-1",
     });
 
+    expect(mockSendTelegramMessage).not.toHaveBeenCalled();
+  });
+
+  it("sends purchased notifications with emoji to configured chat ids", async () => {
+    mockFindUnique
+      .mockResolvedValueOnce({ id: "actor-1", name: "Аня" })
+      .mockResolvedValue({ telegramId: null, telegramConfirmedAt: null, telegramNotificationsEnabled: false });
+
+    const { notifyStatusTransition } = await import("./notifications");
+
+    await notifyStatusTransition({
+      itemId: "item-1",
+      itemTitle: "Книга",
+      ownerUserId: "owner-1",
+      actorUserId: "actor-1",
+      previousStatus: "AVAILABLE",
+      nextStatus: "PURCHASED",
+      previousClaimerUserId: null,
+      nextClaimerUserId: null,
+    });
+
     expect(mockSendTelegramMessage).toHaveBeenCalledWith({
       chatId: "123456789",
-      text: "Аня забронировал(а) подарок: Книга",
+      text: "✅ Подарок куплен\n👤 Аня\n📌 Книга",
     });
     expect(mockSendTelegramMessage).toHaveBeenCalledWith({
       chatId: "-1001234567890",
-      text: "Аня забронировал(а) подарок: Книга",
+      text: "✅ Подарок куплен\n👤 Аня\n📌 Книга",
     });
   });
 
@@ -71,11 +92,11 @@ describe("telegram notifications", () => {
 
     expect(mockSendTelegramMessage).toHaveBeenCalledWith({
       chatId: "123456789",
-      text: "Аня добавил(а) товар в вишлист: Книга",
+      text: "🎁 Новый подарок\n👤 Аня\n📌 Книга",
     });
     expect(mockSendTelegramMessage).toHaveBeenCalledWith({
       chatId: "-1001234567890",
-      text: "Аня добавил(а) товар в вишлист: Книга",
+      text: "🎁 Новый подарок\n👤 Аня\n📌 Книга",
     });
   });
 });

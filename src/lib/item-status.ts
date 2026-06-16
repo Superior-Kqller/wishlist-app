@@ -11,36 +11,30 @@ export function canTransitionStatus(
   to: ItemStatus,
   options: TransitionOptions
 ): boolean {
+  if (to === "CLAIMED") return false;
+  if (from === "CLAIMED" && to === "AVAILABLE") return false;
+
+  const normalizedFrom = normalizeItemStatus(from, false);
+  if (normalizedFrom === to) return true;
+
   if (from === to) return true;
 
-  if (from === "AVAILABLE" && to === "CLAIMED") return true;
-
-  if (from === "AVAILABLE" && to === "PURCHASED") {
+  if (normalizedFrom === "AVAILABLE" && to === "PURCHASED") {
     return options.actorUserId === options.ownerUserId;
   }
 
-  if (from === "CLAIMED" && to === "PURCHASED") {
-    return (
-      options.actorUserId === options.ownerUserId ||
-      options.actorUserId === options.claimerUserId
-    );
-  }
-
-  if (from === "CLAIMED" && to === "AVAILABLE") {
-    return (
-      options.actorUserId === options.ownerUserId ||
-      options.actorUserId === options.claimerUserId
-    );
-  }
-
-  // Для MVP запрещаем возврат из purchased в claimed/available.
   return false;
 }
 
 export function getNextStatusActionLabel(status: ItemStatus): string {
-  if (status === "AVAILABLE") return "Забронировать";
+  if (status === "AVAILABLE") return "Отметить купленным";
   if (status === "CLAIMED") return "Отметить купленным";
   return "Уже куплено";
+}
+
+export function normalizeItemStatus(status: ItemStatus, purchased: boolean): ItemStatus {
+  if (status === "CLAIMED") return purchased ? "PURCHASED" : "AVAILABLE";
+  return status;
 }
 
 export function hasConflictingStatusPayload(input: {

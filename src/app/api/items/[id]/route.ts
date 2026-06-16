@@ -7,14 +7,11 @@ import { sanitizeError } from "@/lib/logger";
 import { canUserSeeItem } from "@/lib/list-utils";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
-import {
-  canClaimItem,
-  canSeeClaimerIdentity,
-  canUnclaimItem,
-} from "@/lib/access-policy";
+import { canSeeClaimerIdentity } from "@/lib/access-policy";
 import {
   canTransitionStatus,
   hasConflictingStatusPayload,
+  normalizeItemStatus,
 } from "@/lib/item-status";
 import { notifyStatusTransition } from "@/lib/telegram/notifications";
 import { itemResponseWithoutList } from "@/lib/item-json";
@@ -28,7 +25,7 @@ const updateItemSchema = z.object({
   images: z.array(z.string().url()).max(1).optional(),
   notes: z.string().max(2000).optional().or(z.null()),
   purchased: z.boolean().optional(),
-  status: z.enum(["AVAILABLE", "CLAIMED", "PURCHASED"]).optional(),
+  status: z.enum(["AVAILABLE", "PURCHASED"]).optional(),
   tags: z.array(z.string()).optional(),
   listId: z.string().trim().nullable().optional(),
 });
@@ -187,44 +184,12 @@ export async function PATCH(
     }
 
     if (data.status !== undefined) {
-      const currentStatus = existing.status;
+      const currentStatus = normalizeItemStatus(existing.status, existing.purchased);
       const nextStatus = data.status;
       const claimerUserId = existing.claimedByUserId;
 
       if (
-        nextStatus === "CLAIMED" &&
-        !canClaimItem({
-          actorUserId: userId,
-          ownerUserId: existing.userId,
-          claimerUserId,
-          isVisibleToActor: true,
-          status: currentStatus,
-        })
-      ) {
-        return NextResponse.json(
-          { error: "Нельзя забронировать этот товар" },
-          { status: 409 }
-        );
-      }
-
-      if (
-        nextStatus === "AVAILABLE" &&
-        !canUnclaimItem({
-          actorUserId: userId,
-          ownerUserId: existing.userId,
-          claimerUserId,
-          isVisibleToActor: true,
-          status: currentStatus,
-        })
-      ) {
-        return NextResponse.json(
-          { error: "Нельзя снять бронь для этого товара" },
-          { status: 403 }
-        );
-      }
-
-      if (
-        !canTransitionStatus(currentStatus, nextStatus, {
+        !canTransitionStatus(existing.status, nextStatus, {
           actorUserId: userId,
           ownerUserId: existing.userId,
           claimerUserId,
@@ -241,12 +206,7 @@ export async function PATCH(
         status: nextStatus,
       };
 
-      if (nextStatus === "CLAIMED") {
-        atomicUpdateData.claimedByUserId = userId;
-        atomicUpdateData.claimedAt = now;
-        atomicUpdateData.purchased = false;
-        atomicUpdateData.purchasedAt = null;
-      } else if (nextStatus === "AVAILABLE") {
+      if (nextStatus === "AVAILABLE") {
         atomicUpdateData.claimedByUserId = null;
         atomicUpdateData.claimedAt = null;
         atomicUpdateData.purchased = false;
@@ -260,9 +220,9 @@ export async function PATCH(
         const result = await tx.item.updateMany({
           where: {
             id,
-            status: currentStatus,
+            status: existing.status,
             claimedByUserId:
-              currentStatus === "CLAIMED" ? claimerUserId : existing.claimedByUserId,
+              existing.status === "CLAIMED" ? claimerUserId : existing.claimedByUserId,
           },
           data: atomicUpdateData,
         });
@@ -291,7 +251,7 @@ export async function PATCH(
         itemTitle: updated.title,
         ownerUserId: updated.userId,
         actorUserId: userId,
-        previousStatus: existing.status,
+        previousStatus: currentStatus,
         nextStatus: updated.status,
         previousClaimerUserId: existing.claimedByUserId,
         nextClaimerUserId: updated.claimedByUserId,

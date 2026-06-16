@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { sanitizeError } from "@/lib/logger";
-import { canViewList, canClaimItem, canUnclaimItem } from "@/lib/access-policy";
+import { canViewList } from "@/lib/access-policy";
 import { canTransitionStatus, type ItemStatus } from "@/lib/item-status";
 import { answerTelegramCallback, sendTelegramMessage } from "@/lib/telegram/client";
 import {
@@ -54,7 +54,7 @@ function formatAvailableItems(
   items: Array<{ id: string; title: string; ownerName: string; price: number | null; currency: string }>
 ): string {
   if (items.length === 0) {
-    return "Сейчас нет доступных подарков для бронирования.";
+    return "Сейчас нет доступных подарков.";
   }
 
   const lines = items.map((item) => {
@@ -65,19 +65,6 @@ function formatAvailableItems(
   return ["Доступные подарки:", ...lines].join("\n");
 }
 
-function buildAvailableItemsMarkup(
-  items: Array<{ id: string; title: string }>
-): { inline_keyboard: Array<Array<{ text: string; callback_data: string }>> } {
-  return {
-    inline_keyboard: items.map((item) => [
-      {
-        text: `Забронировать: ${item.title}`,
-        callback_data: `claim:${item.id}`,
-      },
-    ]),
-  };
-}
-
 function buildMyItemsMarkup(
   items: Array<{ id: string; title: string; status: ItemStatus; claimedByUserId: string | null; ownerUserId: string }>,
   actorUserId: string
@@ -85,13 +72,8 @@ function buildMyItemsMarkup(
   const rows: Array<Array<{ text: string; callback_data: string }>> = [];
 
   for (const item of items) {
-    if (item.status === "CLAIMED") {
-      if (item.claimedByUserId === actorUserId || item.ownerUserId === actorUserId) {
-        rows.push([{ text: `Снять бронь: ${item.title}`, callback_data: `unclaim:${item.id}` }]);
-      }
-      if (item.claimedByUserId === actorUserId || item.ownerUserId === actorUserId) {
-        rows.push([{ text: `Отметить куплено: ${item.title}`, callback_data: `bought:${item.id}` }]);
-      }
+    if (item.ownerUserId === actorUserId && item.status !== "PURCHASED") {
+      rows.push([{ text: `Отметить куплено: ${item.title}`, callback_data: `bought:${item.id}` }]);
     }
   }
 
@@ -190,7 +172,6 @@ async function handleAvailableItems(actorUserId: string, chatId: string): Promis
   await sendTelegramMessage({
     chatId,
     text: formatAvailableItems(items),
-    replyMarkup: buildAvailableItemsMarkup(items.map((item) => ({ id: item.id, title: item.title }))),
   });
 }
 
@@ -229,30 +210,8 @@ async function transitionItemStatusViaTelegram(params: {
     return { ok: false, message: "Нет доступа к товару" };
   }
 
-  if (
-    params.nextStatus === "CLAIMED" &&
-    !canClaimItem({
-      actorUserId: params.actorUserId,
-      ownerUserId: existing.userId,
-      claimerUserId: existing.claimedByUserId,
-      isVisibleToActor: true,
-      status: existing.status,
-    })
-  ) {
-    return { ok: false, message: "Нельзя забронировать этот товар" };
-  }
-
-  if (
-    params.nextStatus === "AVAILABLE" &&
-    !canUnclaimItem({
-      actorUserId: params.actorUserId,
-      ownerUserId: existing.userId,
-      claimerUserId: existing.claimedByUserId,
-      isVisibleToActor: true,
-      status: existing.status,
-    })
-  ) {
-    return { ok: false, message: "Нельзя снять эту бронь" };
+  if (params.nextStatus === "CLAIMED" || params.nextStatus === "AVAILABLE") {
+    return { ok: false, message: "Бронирование отключено" };
   }
 
   if (
@@ -276,17 +235,7 @@ async function transitionItemStatusViaTelegram(params: {
     status: params.nextStatus,
   };
 
-  if (params.nextStatus === "CLAIMED") {
-    updateData.claimedByUserId = params.actorUserId;
-    updateData.claimedAt = now;
-    updateData.purchased = false;
-    updateData.purchasedAt = null;
-  } else if (params.nextStatus === "AVAILABLE") {
-    updateData.claimedByUserId = null;
-    updateData.claimedAt = null;
-    updateData.purchased = false;
-    updateData.purchasedAt = null;
-  } else if (params.nextStatus === "PURCHASED") {
+  if (params.nextStatus === "PURCHASED") {
     updateData.purchased = true;
     updateData.purchasedAt = now;
   }
@@ -330,12 +279,6 @@ async function transitionItemStatusViaTelegram(params: {
     nextClaimerUserId: updated.claimedByUserId,
   });
 
-  if (params.nextStatus === "CLAIMED") {
-    return { ok: true, message: "Подарок успешно забронирован" };
-  }
-  if (params.nextStatus === "AVAILABLE") {
-    return { ok: true, message: "Бронь снята" };
-  }
   return { ok: true, message: "Подарок отмечен купленным" };
 }
 
@@ -365,9 +308,16 @@ async function handleCallback(actorUserId: string, callback: TelegramCallbackQue
     return;
   }
 
+  if (action === "claim" || action === "unclaim") {
+    await answerTelegramCallback({
+      callbackQueryId: callback.id,
+      text: "Бронирование отключено",
+      showAlert: true,
+    });
+    return;
+  }
+
   const nextStatus: Record<string, ItemStatus> = {
-    claim: "CLAIMED",
-    unclaim: "AVAILABLE",
     bought: "PURCHASED",
   };
 
@@ -390,11 +340,7 @@ async function handleCallback(actorUserId: string, callback: TelegramCallbackQue
   });
 
   if (result.ok && chatId) {
-    if (status === "CLAIMED") {
-      await handleAvailableItems(actorUserId, chatId);
-    } else {
-      await handleMyItems(actorUserId, chatId);
-    }
+    await handleMyItems(actorUserId, chatId);
   }
 }
 

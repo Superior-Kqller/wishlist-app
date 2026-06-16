@@ -5,7 +5,6 @@ export function buildMainMenuMarkup(): TelegramReplyMarkup {
     inline_keyboard: [
       [
         { text: "Мои подарки", callback_data: "menu:mine" },
-        { text: "Доступные", callback_data: "menu:available" },
       ],
     ],
   };

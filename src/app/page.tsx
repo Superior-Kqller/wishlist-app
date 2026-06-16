@@ -528,7 +528,7 @@ function HomePageContent() {
   );
 
   const handleSetItemStatus = useCallback(
-    async (id: string, status: "AVAILABLE" | "CLAIMED" | "PURCHASED") => {
+    async (id: string, status: "AVAILABLE" | "PURCHASED") => {
       if (pendingStatusByItemId[id]) return;
       setPendingStatusByItemId((prev) => ({ ...prev, [id]: true }));
       try {
@@ -548,10 +548,8 @@ function HomePageContent() {
         }
         const statusText =
           status === "AVAILABLE"
-            ? t("Бронь снята")
-            : status === "CLAIMED"
-              ? t("Товар забронирован")
-              : t("Отмечено купленным");
+            ? t("Отметка снята")
+            : t("Отмечено купленным");
         toast.success(statusText);
         await mutateItems();
       } finally {

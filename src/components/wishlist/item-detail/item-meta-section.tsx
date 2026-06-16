@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  Clock3,
   ExternalLink,
   MoreHorizontal,
   Pencil,
@@ -32,29 +31,24 @@ import { useI18n } from "@/components/i18n/language-provider";
 type ItemMetaSectionProps = {
   item: WishlistItem;
   canManage: boolean;
-  canClaim: boolean;
   statusPending: boolean;
   onEdit: () => void;
   onDelete: () => void;
   onTogglePurchased: () => void;
-  onClaimAction: () => void;
 };
 
 export function ItemMetaSection({
   item,
   canManage,
-  canClaim,
   statusPending,
   onEdit,
   onDelete,
   onTogglePurchased,
-  onClaimAction,
 }: ItemMetaSectionProps) {
   const { language, t } = useI18n();
   const [showFullNotes, setShowFullNotes] = useState(false);
   const actionButtonClass =
     "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-border/54 bg-[hsl(var(--surface-3))/0.58] px-3 text-foreground backdrop-blur-[8px] hover:border-border/76 hover:bg-accent sm:h-10 sm:min-h-10 sm:w-auto";
-  const claimButtonVariant = !item.url && !canManage ? "default" : "outline";
   const hasLongNotes = Boolean(item.notes && item.notes.length > 180);
 
   useEffect(() => {
@@ -138,7 +132,7 @@ export function ItemMetaSection({
         </div>
       ) : null}
 
-      {(item.url || canManage || canClaim) && (
+      {(item.url || canManage) && (
         <div className="grid gap-2 border-t border-border/34 pt-3 sm:flex sm:flex-wrap sm:items-center sm:gap-2">
           {item.url ? (
             <Button
@@ -181,15 +175,6 @@ export function ItemMetaSection({
                     ? t("Снять отметку")
                     : t("Отметить купленным")}
                 </DropdownMenuItem>
-                {canClaim ? (
-                  <DropdownMenuItem
-                    onClick={onClaimAction}
-                    disabled={statusPending}
-                  >
-                    <Clock3 className="mr-2 h-4 w-4" />
-                    {item.status === "CLAIMED" ? t("Снять бронь") : t("Забронировать")}
-                  </DropdownMenuItem>
-                ) : null}
                 <DropdownMenuItem
                   onClick={onDelete}
                   className="text-destructive focus:text-destructive"
@@ -199,19 +184,6 @@ export function ItemMetaSection({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : null}
-          {!canManage && canClaim ? (
-            <Button
-              variant={claimButtonVariant}
-              size="sm"
-              onClick={onClaimAction}
-              className={cn(
-                claimButtonVariant === "outline" && actionButtonClass,
-              )}
-              disabled={statusPending}
-            >
-              {item.status === "CLAIMED" ? t("Снять бронь") : t("Забронировать")}
-            </Button>
           ) : null}
         </div>
       )}

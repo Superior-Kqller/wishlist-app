@@ -1,6 +1,5 @@
 "use client";
 
-import { Clock3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   getItemStatusLabel,
@@ -23,7 +22,6 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
       variant="outline"
       className={cn("inline-flex items-center gap-1 text-xs", getItemStatusTone(status), className)}
     >
-      {status === "CLAIMED" ? <Clock3 className="h-3 w-3" /> : null}
       {getItemStatusLabel(status, language)}
     </Badge>
   );

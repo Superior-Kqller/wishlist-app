@@ -18,7 +18,8 @@ export function canViewList(input: ListAccessInput): boolean {
 }
 
 export function canClaimItem(input: ClaimAccessInput): boolean {
-  return input.isVisibleToActor && input.status === "AVAILABLE";
+  void input;
+  return false;
 }
 
 export function canSeeClaimerIdentity(input: {
@@ -36,10 +37,7 @@ export function canSeeClaimerIdentity(input: {
 }
 
 export function canUnclaimItem(input: ClaimAccessInput): boolean {
-  if (input.status !== "CLAIMED") return false;
-  return (
-    input.actorUserId === input.ownerUserId ||
-    input.actorUserId === input.claimerUserId
-  );
+  void input;
+  return false;
 }
 

@@ -26,7 +26,7 @@ export interface WishCardProps {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
-  onSetStatus?: (id: string, status: "AVAILABLE" | "CLAIMED" | "PURCHASED") => void;
+  onSetStatus?: (id: string, status: "AVAILABLE" | "PURCHASED") => void;
   statusPending?: boolean;
   onOpenDetail?: (item: WishlistItem) => void;
   selectionMode?: boolean;
@@ -225,9 +225,8 @@ export const WishCard = memo(function WishCard({
                   className={cn(
                     cardMetaChipClass,
                     "bg-[hsl(var(--surface-2))/0.72] [&_svg]:h-3 [&_svg]:w-3 [&_svg]:shrink-0",
-                    item.status === "CLAIMED" && "border-warning/65 text-warning",
                     item.status === "PURCHASED" && "border-success/65 text-success",
-                    item.status === "AVAILABLE" && "border-info/65 text-info"
+                    (item.status === "AVAILABLE" || item.status === "CLAIMED") && "border-info/65 text-info"
                   )}
                 />
               </span>

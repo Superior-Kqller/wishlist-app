@@ -3,17 +3,18 @@ import {
   canTransitionStatus,
   getNextStatusActionLabel,
   hasConflictingStatusPayload,
+  normalizeItemStatus,
 } from "./item-status";
 
 describe("item-status transitions", () => {
-  it("разрешает переход AVAILABLE -> CLAIMED", () => {
+  it("запрещает создавать бронь", () => {
     expect(
       canTransitionStatus("AVAILABLE", "CLAIMED", {
         actorUserId: "u2",
         ownerUserId: "u1",
         claimerUserId: null,
       })
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it("разрешает владельцу отметить AVAILABLE как PURCHASED", () => {
@@ -34,10 +35,18 @@ describe("item-status transitions", () => {
     ).toBe(false);
   });
 
-  it("разрешает переход CLAIMED -> PURCHASED для claimer", () => {
+  it("считает legacy CLAIMED доступным и запрещает claimer отмечать покупку", () => {
     expect(
       canTransitionStatus("CLAIMED", "PURCHASED", {
         actorUserId: "u2",
+        ownerUserId: "u1",
+        claimerUserId: "u2",
+      })
+    ).toBe(false);
+
+    expect(
+      canTransitionStatus("CLAIMED", "PURCHASED", {
+        actorUserId: "u1",
         ownerUserId: "u1",
         claimerUserId: "u2",
       })
@@ -54,18 +63,18 @@ describe("item-status transitions", () => {
     ).toBe(false);
   });
 
-  it("разрешает unclaim (CLAIMED -> AVAILABLE) только claimer или owner", () => {
+  it("запрещает снятие брони как отдельную функцию", () => {
     expect(
       canTransitionStatus("CLAIMED", "AVAILABLE", {
         actorUserId: "u2",
         ownerUserId: "u1",
         claimerUserId: "u2",
       })
-    ).toBe(true);
+    ).toBe(false);
 
     expect(
       canTransitionStatus("CLAIMED", "AVAILABLE", {
-        actorUserId: "u3",
+        actorUserId: "u1",
         ownerUserId: "u1",
         claimerUserId: "u2",
       })
@@ -75,9 +84,18 @@ describe("item-status transitions", () => {
 
 describe("item-status labels", () => {
   it("возвращает ожидаемые подписи для действий", () => {
-    expect(getNextStatusActionLabel("AVAILABLE")).toBe("Забронировать");
+    expect(getNextStatusActionLabel("AVAILABLE")).toBe("Отметить купленным");
     expect(getNextStatusActionLabel("CLAIMED")).toBe("Отметить купленным");
     expect(getNextStatusActionLabel("PURCHASED")).toBe("Уже куплено");
+  });
+});
+
+describe("legacy item-status normalization", () => {
+  it("считает CLAIMED обычным доступным или купленным статусом", () => {
+    expect(normalizeItemStatus("CLAIMED", false)).toBe("AVAILABLE");
+    expect(normalizeItemStatus("CLAIMED", true)).toBe("PURCHASED");
+    expect(normalizeItemStatus("AVAILABLE", false)).toBe("AVAILABLE");
+    expect(normalizeItemStatus("PURCHASED", true)).toBe("PURCHASED");
   });
 });
 

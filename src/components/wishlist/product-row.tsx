@@ -32,7 +32,7 @@ export interface ProductRowProps {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
-  onSetStatus?: (id: string, status: "AVAILABLE" | "CLAIMED" | "PURCHASED") => void;
+  onSetStatus?: (id: string, status: "AVAILABLE" | "PURCHASED") => void;
   statusPending?: boolean;
   onOpenDetail?: (item: WishlistItem) => void;
   selectionMode?: boolean;

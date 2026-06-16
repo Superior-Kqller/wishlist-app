@@ -33,7 +33,6 @@ function formatActivityDate(value: string, locale: string) {
 
 function getActivityLabel(item: WishlistItem, t: (key: string) => string) {
   if (item.status === "PURCHASED") return t("Отмечено как купленное");
-  if (item.status === "CLAIMED") return t("Забронировано");
   if (item.updatedAt !== item.createdAt) return t("Обновлено");
   return t("Добавлено");
 }
@@ -76,10 +75,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
       {visibleItems.length > 0 ? (
         <div className={cn("mt-3 flex flex-1 flex-col gap-1.5", expanded && "max-h-[28rem] overflow-y-auto pr-1")}>
           {visibleItems.map((item) => {
-            const actor =
-              item.status === "CLAIMED" && item.claimedByUser
-                ? item.claimedByUser
-                : item.user;
+            const actor = item.user;
 
             return (
               <div

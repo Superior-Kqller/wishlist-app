@@ -32,7 +32,7 @@ interface ItemDetailDialogProps {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
-  onSetStatus?: (id: string, status: "AVAILABLE" | "CLAIMED" | "PURCHASED") => void;
+  onSetStatus?: (id: string, status: "AVAILABLE" | "PURCHASED") => void;
   statusPending?: boolean;
 }
 
@@ -66,7 +66,6 @@ export function ItemDetailDialog({
   if (!item) return null;
 
   const canManage = currentUserId === item.userId;
-  const canClaim = Boolean(onSetStatus && item.status !== "PURCHASED");
 
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,13 +134,6 @@ export function ItemDetailDialog({
     onTogglePurchased(item.id, !item.purchased);
   };
 
-  const handleClaimAction = () => {
-    if (statusPending) return;
-    if (!onSetStatus) return;
-    if (item.status === "AVAILABLE") onSetStatus(item.id, "CLAIMED");
-    if (item.status === "CLAIMED") onSetStatus(item.id, "AVAILABLE");
-  };
-
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
@@ -165,12 +157,10 @@ export function ItemDetailDialog({
             <ItemMetaSection
               item={item}
               canManage={canManage}
-              canClaim={canClaim}
               statusPending={statusPending}
               onEdit={handleEdit}
               onDelete={handleDelete}
               onTogglePurchased={handleTogglePurchased}
-              onClaimAction={handleClaimAction}
             />
           </ItemDetailBody>
           <div className="border-t border-border/26 bg-[hsl(var(--surface-1))/0.18] px-3 py-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:col-span-2 sm:px-5 sm:py-5">
