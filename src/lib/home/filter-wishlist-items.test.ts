@@ -39,6 +39,19 @@ describe("filterAndSortWishlistItems", () => {
     expect(out.map((x) => x.id)).toEqual(["1"]);
   });
 
+  it("скрывает товары со статусом PURCHASED при showPurchased=false", () => {
+    const available = item({ id: "1", status: "AVAILABLE" });
+    const purchasedByStatus = item({ id: "2", status: "PURCHASED", purchased: false });
+
+    const out = filterAndSortWishlistItems([available, purchasedByStatus], {
+      sortBy: "newest",
+      showPurchased: false,
+      effectiveSelectedTags: [],
+    });
+
+    expect(out.map((x) => x.id)).toEqual(["1"]);
+  });
+
   it("фильтрует по тегам и сортирует по приоритету", () => {
     const t1 = { id: "tag1", name: "a", color: "#000" };
     const low = item({

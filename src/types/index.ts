@@ -1,3 +1,5 @@
+import type { GiftPreferences } from "@/lib/preferences";
+
 export type ItemStatus = "AVAILABLE" | "CLAIMED" | "PURCHASED";
 
 export interface WishlistItem {
@@ -109,6 +111,7 @@ export interface User {
   telegramConfirmedAt?: string | null;
   telegramNotificationsEnabled?: boolean;
   telegramLinkStatus?: TelegramLinkStatus;
+  giftPreferences?: GiftPreferences | null;
   createdAt: string;
   updatedAt: string;
   _count?: {

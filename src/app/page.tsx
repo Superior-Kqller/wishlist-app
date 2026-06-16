@@ -17,8 +17,6 @@ import {
   type WishlistViewMode,
 } from "@/components/wishlist/wishlist-view-toggle";
 import { WishlistWorkspace } from "@/components/wishlist/wishlist-workspace";
-import { DashboardSummary } from "@/components/dashboard/dashboard-summary";
-import { RecentActivityPanel } from "@/components/dashboard/recent-activity-panel";
 import { ItemFormDialog } from "@/components/ItemFormDialog";
 import { ParseUrlDialog } from "@/components/ParseUrlDialog";
 import { ListFormDialog } from "@/components/ListFormDialog";
@@ -87,7 +85,7 @@ function HomePageContent() {
   );
   const viewParamValue: WishlistViewMode =
     searchParams.get("view") === "table" ? "table" : "grid";
-  const [showPurchased, setShowPurchased] = useState(() => searchParams.get("purchased") !== "hide");
+  const [showPurchased, setShowPurchased] = useState(() => searchParams.get("purchased") === "show");
   const [selectedTags, setSelectedTags] = useState<string[]>(() => {
     const tagsParam = searchParams.get("tags");
     return tagsParam ? tagsParam.split(",").filter(Boolean) : [];
@@ -344,39 +342,10 @@ function HomePageContent() {
     [items, sortBy, showPurchased, effectiveSelectedTags],
   );
 
-  const summary = useMemo(() => {
-    const aggregated = filteredItems.reduce(
-      (acc, item) => {
-        if (item.status === "AVAILABLE") acc.available += 1;
-        if (item.status === "CLAIMED") acc.claimed += 1;
-        if (item.status === "PURCHASED") acc.purchased += 1;
-        if (item.price && item.status !== "PURCHASED") {
-          acc.totalValue += item.price;
-        }
-        return acc;
-      },
-      { available: 0, claimed: 0, purchased: 0, totalValue: 0 },
-    );
-
-    return {
-      total: filteredItems.length,
-      available: aggregated.available,
-      claimed: aggregated.claimed,
-      purchased: aggregated.purchased,
-      totalValue: aggregated.totalValue,
-    };
-  }, [filteredItems]);
-
   const selectedListName = useMemo(
     () => lists.find((list) => list.id === selectedListId)?.name ?? null,
     [lists, selectedListId]
   );
-
-  const selectedUserName = useMemo(() => {
-    if (!normalizedSelectedUserId || normalizedSelectedUserId === "all") return null;
-    if (normalizedSelectedUserId === "me") return t("Мои желания");
-    return usersWithStats.find((u) => u.id === normalizedSelectedUserId)?.name ?? null;
-  }, [normalizedSelectedUserId, usersWithStats, t]);
 
   const activeFilterChips = useMemo(() => {
     const chips: Array<{ key: string; label: string; onRemove: () => void }> = [];
@@ -405,11 +374,11 @@ function HomePageContent() {
         onRemove: () => syncFiltersToUrl({ userId: null, listId: null }),
       });
     }
-    if (!showPurchased) {
+    if (showPurchased) {
       chips.push({
         key: "purchased",
-        label: t("Купленные скрыты"),
-        onRemove: () => setShowPurchased(true),
+        label: t("Показаны купленные"),
+        onRemove: () => setShowPurchased(false),
       });
     }
     effectiveSelectedTags.forEach((tagId) => {
@@ -437,12 +406,6 @@ function HomePageContent() {
   ]);
 
   const hasActiveFilters = activeFilterChips.length > 0;
-  const summaryEyebrow = selectedListName
-    ? t("Подборка")
-    : selectedUserName
-      ? t("Владелец")
-      : t("Общий обзор");
-  const summaryTitle = selectedListName ?? selectedUserName ?? t("Каталог желаний");
 
   // Handlers
   const handleCreateItem = useCallback(async (data: CreateItemPayload | UpdateItemPayload) => {
@@ -627,7 +590,7 @@ function HomePageContent() {
     setSearch("");
     setSortBy("newest");
     setViewMode("grid");
-    setShowPurchased(true);
+    setShowPurchased(false);
     setSelectedTags([]);
     router.replace("/", { scroll: false });
   }, [router]);
@@ -657,17 +620,6 @@ function HomePageContent() {
   return (
     <div className="min-h-screen page-bg">
       <div className="container mx-auto space-y-2.5 px-2.5 py-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-5 sm:px-6 sm:py-6 sm:pb-6 xl:px-8">
-        <div className="grid items-stretch gap-2.5 sm:gap-5 xl:grid-cols-[minmax(0,2.35fr)_minmax(18rem,0.9fr)]">
-          <DashboardSummary
-            summary={summary}
-            eyebrow={summaryEyebrow}
-            title={summaryTitle}
-            filterChips={activeFilterChips}
-            onClearFilters={handleClearAllFilters}
-          />
-          <RecentActivityPanel items={filteredItems} />
-        </div>
-
         <WishlistWorkspace
           search={search}
           onSearchChange={setSearch}

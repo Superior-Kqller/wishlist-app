@@ -207,7 +207,7 @@ export const ProductRow = memo(function ProductRow({
         </div>
       </TableCell>
 
-      <TableCell className="w-[4rem] text-right">
+      <TableCell className="w-[3rem] text-right">
         {canManage ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

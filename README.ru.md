@@ -4,43 +4,31 @@
 
 <h1 align="center">Вишлист</h1>
 
-Простое приложение для личных и общих списков желаний. Можно добавлять подарки, делиться списками, бронировать позиции, отмечать покупки и при желании подключить Telegram-бота.
+Self-hosted приложение для личных и общих списков желаний. Добавляйте идеи подарков с фото и ценами, делитесь списками, бронируйте позиции, отмечайте покупки и держите планирование подарков в одном месте.
 
-История изменений: [CHANGELOG.md](CHANGELOG.md).
+<p align="center">
+  <img src="assets/readme-home-desktop.png" alt="Каталог Вишлиста на desktop с демо-данными" width="920">
+</p>
+
+<p align="center">
+  <img src="assets/readme-home-mobile.png" alt="Каталог Вишлиста на телефоне с демо-данными" width="320">
+</p>
 
 ## Возможности
 
 - личные и общие вишлисты;
 - бронирование подарков без дублей;
-- статусы `доступно`, `забронировано`, `куплено`;
-- добавление вручную или по ссылке на товар;
-- теги, приоритеты, цены, заметки, изображения и комментарии;
+- статусы: доступно, забронировано, куплено;
+- фото товаров, ссылки, заметки, теги, приоритеты и цены;
 - поиск, фильтры, сортировка, карточки и таблица;
-- роли пользователей и админ-панель;
-- экспорт в `CSV` и `JSON`;
-- PWA-установка на телефон;
-- опциональный Telegram-бот.
-
-## Скриншоты
-
-<p align="center">
-  <img src="assets/readme-home-desktop.png" alt="Главный экран Вишлиста на desktop" width="920">
-</p>
-
-<p align="center">
-  <img src="assets/readme-home-mobile.png" alt="Главный экран Вишлиста на телефоне" width="320">
-</p>
+- роли пользователей, админ-панель, экспорт в CSV/JSON и PWA для телефона;
+- опциональные Telegram-уведомления и команды бота.
 
 ## Стек
 
-- Next.js, React, TypeScript
-- Prisma, PostgreSQL
-- NextAuth
-- Tailwind CSS, Radix UI
-- Valkey/Redis для rate limit и кеша
-- Docker Compose для self-host запуска
+Next.js, React, TypeScript, Prisma, PostgreSQL, NextAuth, Tailwind CSS, Radix UI, Valkey/Redis, Docker Compose.
 
-## Быстрый запуск через Docker
+## Быстрый запуск
 
 Нужны Docker и Docker Compose.
 
@@ -50,54 +38,16 @@ cd wishlist-app
 cp .env.example .env
 ```
 
-В `.env` минимум нужно заменить:
-
-```env
-DB_PASSWORD=strong-postgres-password
-NEXTAUTH_SECRET=long-random-secret
-NEXTAUTH_URL=http://localhost:4030
-APP_PORT=4030
-
-SEED_USER1_USERNAME=user1
-SEED_USER1_PASSWORD=strong-password-1
-SEED_USER1_NAME=User One
-
-SEED_USER2_USERNAME=user2
-SEED_USER2_PASSWORD=strong-password-2
-SEED_USER2_NAME=User Two
-```
-
-Секрет можно сгенерировать так:
+Заполните `.env`: задайте сильные пароли, `NEXTAUTH_SECRET` и `NEXTAUTH_URL`. Все обязательные и опциональные переменные описаны в [.env.example](.env.example); необязательные настройки там закомментированы.
 
 ```bash
 openssl rand -base64 32
-```
-
-Создайте сеть для compose:
-
-```bash
 docker network create proxy
-```
-
-Запустите приложение:
-
-```bash
 docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-Откройте:
-
-```text
-http://127.0.0.1:4030
-```
-
-Проверить контейнеры и логи:
-
-```bash
-docker compose -f docker-compose.prod.yml ps
-docker compose -f docker-compose.prod.yml logs -f wishlist-app
-```
+Откройте `http://127.0.0.1:4030`.
 
 ## Локальная разработка
 
@@ -106,118 +56,46 @@ docker compose -f docker-compose.prod.yml logs -f wishlist-app
 ```bash
 npm ci
 cp .env.example .env
-```
-
-Для локальной разработки обычно достаточно таких значений:
-
-```env
-DATABASE_URL=postgresql://wishlist:password@localhost:5432/wishlist
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=local-secret-placeholder-minimum-32-chars
-DISABLE_PWA=1
-```
-
-Подготовить базу:
-
-```bash
 npx prisma migrate deploy
 npm run db:seed
-```
-
-Запустить dev-сервер:
-
-```bash
 npm run dev
 ```
 
-Открыть:
+Для локального запуска укажите в `.env` локальный `DATABASE_URL`, `NEXTAUTH_URL=http://localhost:3000` и `DISABLE_PWA=1`.
 
-```text
-http://localhost:3000
+## Настройка
+
+Источник правды по переменным окружения — [.env.example](.env.example). Там же описаны:
+
+- обязательные значения для Docker-запуска;
+- локальная разработка;
+- Telegram-бот и webhook;
+- reverse proxy;
+- Redis/Valkey;
+- seed-пользователи.
+
+Минимум для production:
+
+- `DB_PASSWORD`
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL`
+- `APP_PORT`
+- `SEED_USER1_*` и `SEED_USER2_*`
+
+## Эксплуатация
+
+Полезные команды:
+
+```bash
+docker compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml logs -f wishlist-app
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
 ```
 
-## Основные переменные
+Healthcheck доступен на `/api/health`, версия приложения — на `/api/version`. База, загруженные изображения и socket Valkey хранятся в Docker volumes.
 
-| Переменная | Зачем нужна |
-| --- | --- |
-| `DATABASE_URL` | Подключение Prisma к PostgreSQL. |
-| `DB_PASSWORD` | Пароль PostgreSQL в Docker Compose. |
-| `NEXTAUTH_SECRET` | Секрет для сессий NextAuth. |
-| `NEXTAUTH_URL` | Публичный URL приложения. |
-| `APP_PORT` | Порт приложения на хосте, по умолчанию `4030`. |
-| `REDIS_URL` | Valkey/Redis; если не задан, есть in-memory fallback. |
-| `TELEGRAM_BOT_TOKEN` | Токен Telegram-бота, если бот нужен. |
-| `TELEGRAM_CHAT_IDS` | Chat ID личных чатов, групп или супергрупп для базовых Telegram-уведомлений. |
-| `TELEGRAM_WEBHOOK_SECRET` | Опциональный секрет webhook для интерактивного Telegram-бота. |
-| `SEED_USER*_...` | Начальные пользователи при первом запуске. |
-
-Полный список смотрите в [.env.example](.env.example).
-
-## Telegram-бот
-
-Telegram необязателен. Без него веб-приложение работает полностью.
-
-Быстрый режим уведомлений:
-
-1. Создайте бота через BotFather.
-2. Заполните в `.env`:
-
-```env
-TELEGRAM_BOT_TOKEN=123456789:AA...
-TELEGRAM_CHAT_IDS=123456789,-1001234567890
-```
-
-3. Перезапустите приложение. После этого события бронирования и покупки будут уходить в указанные чаты.
-
-Чтобы узнать chat id, добавьте бота в нужный чат и отправьте команду `/chatid`. Для групп и супергрупп id обычно отрицательный.
-
-Интерактивный режим с командами `/start`, `/myitems`, `/available` и inline-кнопками требует публичный HTTPS-домен и webhook. Для него можно дополнительно задать:
-
-```env
-TELEGRAM_WEBHOOK_SECRET=long-random-secret
-```
-
-Затем установите webhook:
-
-```powershell
-Invoke-RestMethod `
-  -Method Post `
-  -Uri "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook" `
-  -ContentType "application/x-www-form-urlencoded" `
-  -Body @{
-    url = "https://your-domain.com/api/integrations/telegram/webhook"
-    secret_token = "<TELEGRAM_WEBHOOK_SECRET>"
-  }
-```
-
-`secret_token` можно не передавать, если `TELEGRAM_WEBHOOK_SECRET` не задан. Для webhook нужен публичный HTTPS-домен; `localhost` не подойдет.
-
-## Reverse proxy
-
-В production compose приложение слушает только локальный адрес:
-
-```text
-127.0.0.1:${APP_PORT:-4030}:4030
-```
-
-Обычно перед ним ставится Nginx, Caddy или другой reverse proxy.
-
-Пример для Caddy:
-
-```caddyfile
-wishlist.example.com {
-  reverse_proxy 127.0.0.1:4030
-}
-```
-
-После настройки домена обновите:
-
-```env
-NEXTAUTH_URL=https://wishlist.example.com
-AUTH_TRUST_HOST=true
-```
-
-## Команды
+## Команды разработки
 
 | Команда | Что делает |
 | --- | --- |
@@ -227,24 +105,10 @@ AUTH_TRUST_HOST=true
 | `npm run lint` | Запускает ESLint. |
 | `npm test` | Запускает unit-тесты. |
 | `npm run test:e2e` | Запускает Playwright e2e-тесты. |
-| `npm run db:seed` | Создает seed-пользователей. |
+| `npm run db:seed` | Создает начальных пользователей. |
 | `npm run db:studio` | Открывает Prisma Studio. |
 
-## Обновление
-
-```bash
-docker compose -f docker-compose.prod.yml pull
-docker compose -f docker-compose.prod.yml up -d
-```
-
-Если в релизе есть миграции, контейнер применит их при старте.
-
-## Где лежат данные
-
-- PostgreSQL: volume `postgres-data`
-- Загруженные изображения: volume `uploads-data`
-- Healthcheck: `/api/health`
-- Версия приложения: `/api/version`
+История изменений: [CHANGELOG.md](CHANGELOG.md).
 
 ## Лицензия
 

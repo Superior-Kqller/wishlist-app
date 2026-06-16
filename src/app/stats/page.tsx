@@ -6,9 +6,10 @@ import useSWR from "swr";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, CircleDollarSign, Loader2, Package, Target, Users } from "lucide-react";
-import { StatsSummary, UserStats, UserWithStats } from "@/types";
+import { ItemsPage, StatsSummary, UserStats, UserWithStats } from "@/types";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { EmptyState } from "@/components/ui/empty-state";
+import { RecentActivityPanel } from "@/components/dashboard/recent-activity-panel";
 import { getPriorityLabel } from "@/lib/priority-labels";
 import {
   cn,
@@ -316,6 +317,11 @@ export default function StatsPage() {
     fetcher,
     { revalidateOnFocus: false, dedupingInterval: 60000 }
   );
+  const { data: recentItemsData } = useSWR<ItemsPage>(
+    status === "authenticated" ? "/api/items?limit=8" : null,
+    fetcher,
+    { revalidateOnFocus: false, dedupingInterval: 30000 },
+  );
 
   if (status === "unauthenticated") {
     router.push("/login");
@@ -367,6 +373,9 @@ export default function StatsPage() {
           ) : (
             <>
               <StatsOverview summary={summary} />
+              <div className="max-w-3xl">
+                <RecentActivityPanel items={recentItemsData?.items ?? []} />
+              </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {users.map((user) => (
                   <Card

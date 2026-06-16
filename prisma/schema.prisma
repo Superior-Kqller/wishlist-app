@@ -28,6 +28,7 @@ model User {
   telegramLinkedAt DateTime?
   telegramConfirmedAt DateTime?
   telegramNotificationsEnabled Boolean @default(false)
+  giftPreferences Json?
   role          Role          @default(USER)
   items         Item[]
   claimedItems  Item[]         @relation("ItemClaimedByUser")

@@ -17,6 +17,7 @@ import {
   LogOut,
   Menu,
   Plus,
+  SlidersHorizontal,
   Settings,
   Shield,
 } from "lucide-react";
@@ -103,6 +104,18 @@ export function Header() {
               <Settings className="h-4 w-4" />
               {t("Настройки")}
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                uiState.navBase,
+                pathname === "/preferences" && uiState.navActive
+              )}
+              onClick={() => router.push("/preferences")}
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              {t("Предпочтения")}
+            </Button>
             {isAdmin ? (
               <Button
                 variant="ghost"
@@ -142,6 +155,16 @@ export function Header() {
                 aria-label={t("Статистика")}
               >
                 <BarChart3 className="h-5 w-5" />
+              </Button>
+              <Button
+                variant={pathname === "/preferences" ? "secondary" : "ghost"}
+                size="icon"
+                onClick={() => router.push("/preferences")}
+                className="h-10 w-10"
+                title={t("Предпочтения")}
+                aria-label={t("Предпочтения")}
+              >
+                <SlidersHorizontal className="h-5 w-5" />
               </Button>
               <Button
                 variant={pathname === "/settings" ? "secondary" : "ghost"}
@@ -208,6 +231,10 @@ export function Header() {
                   <DropdownMenuItem onClick={() => router.push("/stats")}>
                     <BarChart3 className="mr-2 h-4 w-4" />
                     {t("Статистика")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/preferences")}>
+                    <SlidersHorizontal className="mr-2 h-4 w-4" />
+                    {t("Предпочтения")}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push("/settings")}>
                     <Settings className="mr-2 h-4 w-4" />

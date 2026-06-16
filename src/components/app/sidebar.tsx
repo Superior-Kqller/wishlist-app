@@ -8,6 +8,7 @@ import {
   Folder,
   Home,
   LogOut,
+  SlidersHorizontal,
   Settings,
   Shield,
 } from "lucide-react";
@@ -63,6 +64,7 @@ export function AppSidebar() {
   const navItems: NavItem[] = [
     { label: t("Главная"), href: "/", icon: Home },
     { label: t("Статистика"), href: "/stats", icon: BarChart3 },
+    { label: t("Предпочтения"), href: "/preferences", icon: SlidersHorizontal },
     { label: t("Настройки"), href: "/settings", icon: Settings },
   ];
 

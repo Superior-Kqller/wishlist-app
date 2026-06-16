@@ -276,14 +276,14 @@ export const WishCard = memo(function WishCard({
           ) : null}
           {item.url || canManage ? (
             <TooltipProvider delayDuration={450} skipDelayDuration={200}>
-              <div className="flex w-full flex-row items-center justify-between gap-2 sm:gap-3">
+              <div className="flex w-full flex-row items-center justify-start gap-1.5">
                 {item.url ? (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         variant="outline"
                         asChild
-                        className="h-11 min-h-[44px] min-w-0 flex-1 justify-center gap-2 rounded-lg border-primary/24 bg-primary/9 px-3 text-sm font-semibold shadow-none hover:border-primary/40 hover:bg-primary/15 sm:h-10 sm:min-h-10 sm:min-w-[8rem] sm:flex-none sm:px-4"
+                        className="h-11 min-h-[44px] min-w-0 flex-1 justify-center gap-2 rounded-r-none border-primary/24 bg-primary/9 px-3 text-sm font-semibold shadow-none hover:border-primary/40 hover:bg-primary/15 sm:h-10 sm:min-h-10 sm:flex-none sm:px-4"
                       >
                         <a
                           href={item.url}
@@ -309,7 +309,10 @@ export const WishCard = memo(function WishCard({
                         data-testid="wishlist-card-actions"
                         intent="default"
                         aria-label={t("Действия с карточкой")}
-                        className="ml-auto size-11 min-w-[44px] shrink-0 sm:size-10 sm:min-w-10"
+                        className={cn(
+                          "size-11 min-w-[44px] shrink-0 sm:size-10 sm:min-w-10",
+                          item.url && "-ml-px rounded-l-none",
+                        )}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <MoreHorizontal className="h-5 w-5" />

@@ -5,6 +5,7 @@ import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { normalizeAvatarUrl } from "@/lib/avatar-url-policy";
 import { inferTelegramLinkStatus } from "@/lib/telegram/link-status";
+import { normalizeGiftPreferences, giftPreferencesSchema } from "@/lib/preferences";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
@@ -15,6 +16,7 @@ const updateProfileSchema = z.object({
   avatarUrl: z.string().max(2048).optional(),
   telegramId: z.union([telegramIdSchema, z.literal(""), z.null()]).optional(),
   telegramNotificationsEnabled: z.boolean().optional(),
+  giftPreferences: giftPreferencesSchema.optional(),
 });
 
 function hasOwnPasswordField(value: unknown): boolean {
@@ -48,6 +50,7 @@ export async function GET(req: NextRequest) {
       telegramLinkedAt: true,
       telegramConfirmedAt: true,
       telegramNotificationsEnabled: true,
+      giftPreferences: true,
       createdAt: true,
       updatedAt: true,
       _count: { select: { items: true } },
@@ -60,6 +63,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     ...user,
+    giftPreferences: normalizeGiftPreferences(user.giftPreferences),
     telegramLinkStatus: inferTelegramLinkStatus({
       telegramId: user.telegramId,
       telegramConfirmedAt: user.telegramConfirmedAt,
@@ -96,6 +100,7 @@ export async function PATCH(req: NextRequest) {
       telegramLinkedAt?: Date | null;
       telegramConfirmedAt?: Date | null;
       telegramNotificationsEnabled?: boolean;
+      giftPreferences?: Prisma.InputJsonValue;
     } = {};
 
     if (data.name !== undefined) {
@@ -116,6 +121,10 @@ export async function PATCH(req: NextRequest) {
 
     if (data.telegramNotificationsEnabled !== undefined) {
       updateData.telegramNotificationsEnabled = data.telegramNotificationsEnabled;
+    }
+
+    if (data.giftPreferences !== undefined) {
+      updateData.giftPreferences = normalizeGiftPreferences(data.giftPreferences);
     }
 
     if (data.telegramId !== undefined) {
@@ -162,6 +171,7 @@ export async function PATCH(req: NextRequest) {
         telegramLinkedAt: true,
         telegramConfirmedAt: true,
         telegramNotificationsEnabled: true,
+        giftPreferences: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -169,6 +179,7 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({
       ...user,
+      giftPreferences: normalizeGiftPreferences(user.giftPreferences),
       telegramLinkStatus: inferTelegramLinkStatus({
         telegramId: user.telegramId,
         telegramConfirmedAt: user.telegramConfirmedAt,

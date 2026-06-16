@@ -42,6 +42,7 @@ describe("PATCH /api/users/me", () => {
       telegramLinkedAt: null,
       telegramConfirmedAt: null,
       telegramNotificationsEnabled: false,
+      giftPreferences: null,
       createdAt: new Date("2026-01-01T00:00:00.000Z"),
       updatedAt: new Date("2026-01-01T00:00:00.000Z"),
     });
@@ -92,9 +93,42 @@ describe("PATCH /api/users/me", () => {
         telegramLinkedAt: true,
         telegramConfirmedAt: true,
         telegramNotificationsEnabled: true,
+        giftPreferences: true,
         createdAt: true,
         updatedAt: true,
       },
     });
+  });
+
+  it("updates gift preferences through the profile endpoint", async () => {
+    const { PATCH } = await import("./route");
+    const req = new Request("http://localhost/api/users/me", {
+      method: "PATCH",
+      body: JSON.stringify({
+        giftPreferences: {
+          favoriteColors: ["розовый"],
+          dislikedColors: ["черный"],
+          doNotBuy: ["часы"],
+          budget: "до 5000 ₽",
+        },
+      }),
+      headers: { "content-type": "application/json" },
+    });
+
+    const response = await PATCH(req as never);
+
+    expect(response.status).toBe(200);
+    expect(mockUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: {
+          giftPreferences: expect.objectContaining({
+            favoriteColors: ["розовый"],
+            dislikedColors: ["черный"],
+            doNotBuy: ["часы"],
+            budget: "до 5000 ₽",
+          }),
+        },
+      }),
+    );
   });
 });

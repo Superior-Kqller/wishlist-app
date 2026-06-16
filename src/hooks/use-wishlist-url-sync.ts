@@ -42,7 +42,7 @@ export function useWishlistUrlSync({
         search: search || null,
         sort: sortBy !== "newest" ? sortBy : null,
         view: viewMode === "table" ? "table" : null,
-        purchased: showPurchased ? null : "hide",
+        purchased: showPurchased ? "show" : null,
         tags: selectedTags.length > 0 ? selectedTags.join(",") : null,
         ...overrides,
       };

@@ -12,7 +12,7 @@ export function filterAndSortWishlistItems(
   let filtered = [...source];
 
   if (!showPurchased) {
-    filtered = filtered.filter((item) => !item.purchased);
+    filtered = filtered.filter((item) => !item.purchased && item.status !== "PURCHASED");
   }
 
   if (effectiveSelectedTags.length > 0) {
