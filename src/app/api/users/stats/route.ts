@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getVisibleListIdsForUser } from "@/lib/list-utils";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
+import { normalizeGiftPreferences } from "@/lib/preferences";
 
 // GET /api/users/stats — статистика по пользователям из «круга» общих подборок
 export async function GET(req: NextRequest) {
@@ -52,6 +53,7 @@ export async function GET(req: NextRequest) {
         username: true,
         name: true,
         avatarUrl: true,
+        giftPreferences: true,
       },
       orderBy: { createdAt: "asc" },
     });
@@ -115,6 +117,7 @@ export async function GET(req: NextRequest) {
         username: user.username,
         name: user.name,
         avatarUrl: user.avatarUrl,
+        giftPreferences: normalizeGiftPreferences(user.giftPreferences),
         stats: {
           totalItems,
           unpurchasedItems,

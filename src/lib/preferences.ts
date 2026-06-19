@@ -54,3 +54,20 @@ export function splitPreferenceList(value: string): string[] {
 export function joinPreferenceList(value: string[]): string {
   return value.join(", ");
 }
+
+export function countGiftPreferences(value: GiftPreferences): number {
+  return (
+    value.favoriteColors.length +
+    value.dislikedColors.length +
+    value.favoriteMaterials.length +
+    value.dislikedMaterials.length +
+    value.favoriteBrands.length +
+    value.dislikedBrands.length +
+    value.hobbies.length +
+    value.doNotBuy.length +
+    value.occasions.length +
+    Number(Boolean(value.sizes)) +
+    Number(Boolean(value.budget)) +
+    Number(Boolean(value.notes))
+  );
+}

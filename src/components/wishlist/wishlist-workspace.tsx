@@ -31,6 +31,7 @@ import type {
   UserWithStats,
   WishlistItem,
 } from "@/types";
+import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
 
 type WishlistWorkspaceProps = {
   search: string;
@@ -42,6 +43,7 @@ type WishlistWorkspaceProps = {
   currentUserId?: string;
   currentUserRole?: "ADMIN" | "USER" | null;
   usersWithStats: UserWithStats[];
+  selectedWishlistUser: UserWithStats | null;
   lists: ListWithMeta[];
   normalizedSelectedUserId: string | null;
   selectedListId: string | null;
@@ -97,6 +99,7 @@ export function WishlistWorkspace({
   currentUserId,
   currentUserRole,
   usersWithStats,
+  selectedWishlistUser,
   lists,
   normalizedSelectedUserId,
   selectedListId,
@@ -360,6 +363,13 @@ export function WishlistWorkspace({
           onClearTags={onClearTags}
         />
       </div>
+
+      {selectedWishlistUser ? (
+        <GiftPreferencesSummary
+          userName={selectedWishlistUser.name}
+          preferences={selectedWishlistUser.giftPreferences}
+        />
+      ) : null}
 
       {selectionMode ? (
         <div className={uiSurface.homeSelectionState}>

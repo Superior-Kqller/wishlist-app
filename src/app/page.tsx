@@ -264,6 +264,16 @@ function HomePageContent() {
     },
     [defaultListIdForCreate, mutateItems, ownedListsForCreate, selectedListId, t],
   );
+  const selectedWishlistUser = useMemo(() => {
+    if (
+      !normalizedSelectedUserId ||
+      normalizedSelectedUserId === "all" ||
+      normalizedSelectedUserId === "me"
+    ) {
+      return null;
+    }
+    return usersWithStats.find((user) => user.id === normalizedSelectedUserId) ?? null;
+  }, [normalizedSelectedUserId, usersWithStats]);
 
   const { setActions } = useHeaderActions();
   useEffect(() => {
@@ -630,6 +640,7 @@ function HomePageContent() {
           currentUserId={currentUserId}
           currentUserRole={session?.user?.role ?? null}
           usersWithStats={usersWithStats}
+          selectedWishlistUser={selectedWishlistUser}
           lists={lists}
           normalizedSelectedUserId={normalizedSelectedUserId}
           selectedListId={selectedListId}
