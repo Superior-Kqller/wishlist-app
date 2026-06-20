@@ -7,12 +7,14 @@ import useSWR, { mutate as mutateCache } from "swr";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   CircleDollarSign,
+  Gift,
   Heart,
   Loader2,
   Ruler,
   Save,
   ShieldAlert,
   Sparkles,
+  UsersRound,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,7 @@ import {
   type PreferenceSuggestion,
 } from "@/components/preferences/preference-chip-picker";
 import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
+import { PreferenceProfileCard } from "@/components/preferences/preference-profile-card";
 import { fetcher } from "@/lib/fetcher";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
@@ -37,7 +40,25 @@ import {
 } from "@/lib/preferences";
 
 type PreferencesUser = {
+  id: string;
+  username: string;
+  name: string;
+  avatarUrl?: string | null;
   giftPreferences?: GiftPreferences | null;
+  _count?: { items: number };
+};
+
+type CircleUser = {
+  id: string;
+  username: string;
+  name: string;
+  avatarUrl?: string | null;
+  giftPreferences?: GiftPreferences | null;
+  stats?: { totalItems: number };
+};
+
+type CircleUsersResponse = {
+  users: CircleUser[];
 };
 
 type EditorSection = "likes" | "avoid" | "details";
@@ -191,10 +212,10 @@ function PreferencesPageSkeleton() {
       <PageMain className="max-w-7xl">
         <div className="space-y-5 animate-pulse">
           <div className="h-24 rounded-2xl bg-muted/50" />
-          <div className="grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)_21rem]">
-            <div className="h-48 rounded-2xl bg-muted/40" />
-            <div className="h-[34rem] rounded-2xl bg-muted/40" />
-            <div className="h-72 rounded-2xl bg-muted/40" />
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="h-56 rounded-[1.35rem] bg-muted/40 md:col-span-2" />
+            <div className="h-56 rounded-[1.35rem] bg-muted/35" />
+            <div className="h-56 rounded-[1.35rem] bg-muted/35" />
           </div>
         </div>
       </PageMain>
@@ -212,6 +233,16 @@ export default function PreferencesPage() {
     fetcher,
     { revalidateOnFocus: false },
   );
+  const {
+    data: circleData,
+    isLoading: isCircleLoading,
+    error: circleError,
+    mutate: mutateCircle,
+  } = useSWR<CircleUsersResponse>(
+    status === "authenticated" ? "/api/users/stats" : null,
+    fetcher,
+    { revalidateOnFocus: false },
+  );
   const preferences = useMemo(
     () => normalizeGiftPreferences(data?.giftPreferences),
     [data?.giftPreferences],
@@ -219,6 +250,8 @@ export default function PreferencesPage() {
   const [draft, setDraft] = useState<GiftPreferences>(emptyGiftPreferences);
   const [activeSection, setActiveSection] = useState<EditorSection>("likes");
   const [saving, setSaving] = useState(false);
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+  const [editingOwnProfile, setEditingOwnProfile] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
@@ -230,6 +263,20 @@ export default function PreferencesPage() {
 
   const hasChanges = JSON.stringify(draft) !== JSON.stringify(preferences);
   const preferenceCount = countGiftPreferences(draft);
+  const circleUsers = useMemo(() => {
+    if (!data) return circleData?.users ?? [];
+    const currentFromCircle = circleData?.users.find((user) => user.id === data.id);
+    const currentUser: CircleUser = {
+      id: data.id,
+      username: data.username,
+      name: data.name,
+      avatarUrl: data.avatarUrl,
+      giftPreferences: data.giftPreferences,
+      stats: currentFromCircle?.stats ?? { totalItems: data._count?.items ?? 0 },
+    };
+
+    return [currentUser, ...(circleData?.users.filter((user) => user.id !== data.id) ?? [])];
+  }, [circleData?.users, data]);
 
   const updateList = (key: ListPreferenceKey, value: string[]) => {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -270,6 +317,7 @@ export default function PreferencesPage() {
       toast.success(t("Подарочный профиль сохранён"));
       await mutate();
       await mutateCache("/api/users/stats");
+      await mutateCircle();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("Не удалось сохранить предпочтения"));
     } finally {
@@ -277,25 +325,43 @@ export default function PreferencesPage() {
     }
   };
 
-  if (status === "loading" || isLoading) return <PreferencesPageSkeleton />;
+  const toggleProfile = (userId: string) => {
+    setExpandedUserId((current) => (current === userId ? null : userId));
+    setEditingOwnProfile(false);
+  };
+
+  const toggleEditor = () => {
+    if (!data) return;
+    if (editingOwnProfile) {
+      setEditingOwnProfile(false);
+      setExpandedUserId(null);
+      return;
+    }
+    setExpandedUserId(data.id);
+    setEditingOwnProfile(true);
+  };
+
+  if (status === "loading" || isLoading || isCircleLoading) return <PreferencesPageSkeleton />;
 
   return (
     <PageShell>
       <PageMain className="max-w-7xl">
         <div className="space-y-5">
           <PageIntro
-            title={t("Паспорт подарков")}
-            description={t("Соберите подсказки кликами — друзья увидят их прямо рядом с вашим списком желаний.")}
+            title={t("Подарочные профили")}
+            description={t("Загляните в подсказки друзей перед выбором подарка. Свой профиль можно настроить прямо здесь.")}
             actions={
-              <Button
-                type="button"
-                className="w-full gap-2 sm:w-auto"
-                disabled={!hasChanges || saving || Boolean(error)}
-                onClick={handleSubmit}
-              >
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                {saving ? t("Сохраняем") : t("Сохранить")}
-              </Button>
+              <div className="flex items-center gap-3 rounded-xl border border-border/52 bg-[hsl(var(--surface-3))/0.56] px-3.5 py-2.5">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <UsersRound className="h-4 w-4" aria-hidden />
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">
+                    {t("Профилей в круге")}
+                  </p>
+                  <p className="text-sm font-semibold tabular-nums">{circleUsers.length}</p>
+                </div>
+              </div>
             }
           />
 
@@ -307,206 +373,297 @@ export default function PreferencesPage() {
               </Button>
             </div>
           ) : (
-            <div className="grid items-start gap-4 lg:grid-cols-[14rem_minmax(0,1fr)_21rem]">
-              <nav className={cn(uiSurface.contentPanel, "grid gap-1 p-2 lg:sticky lg:top-5")}>
-                <div className="px-3 pb-2 pt-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    {t("Заполнено")}
+            <section className="space-y-4" aria-labelledby="circle-title">
+              <div className="flex flex-col gap-3 px-1 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-primary/78">
+                    {t("Ваш круг")}
                   </p>
-                  <p className="mt-1 text-2xl font-semibold tabular-nums">{preferenceCount}</p>
+                  <h2 id="circle-title" className="mt-1 text-lg font-semibold tracking-tight sm:text-xl">
+                    {t("Что порадует каждого")}
+                  </h2>
                 </div>
-                {editorSections.map((section) => {
-                  const Icon = section.icon;
-                  const active = activeSection === section.id;
-                  return (
-                    <button
-                      key={section.id}
-                      type="button"
-                      onClick={() => setActiveSection(section.id)}
-                      className={cn(
-                        "group flex min-h-12 items-center gap-3 rounded-xl border px-3 text-left transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98]",
-                        active
-                          ? "border-primary/30 bg-primary/11 text-foreground"
-                          : "border-transparent text-muted-foreground hover:bg-accent/60 hover:text-foreground",
-                      )}
-                    >
-                      <Icon className={cn("h-4 w-4 shrink-0", active && "text-primary")} aria-hidden />
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-semibold">{t(section.label)}</span>
-                        <span className="hidden truncate text-[11px] text-muted-foreground xl:block">
-                          {t(section.hint)}
-                        </span>
-                      </span>
-                      <span className="min-w-5 rounded-md bg-[hsl(var(--surface-3))/0.78] px-1.5 py-0.5 text-center text-[10px] font-semibold tabular-nums">
-                        {sectionCounts[section.id]}
-                      </span>
-                    </button>
-                  );
-                })}
-              </nav>
-
-              <div className="min-w-0">
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={activeSection}
-                    initial={reduceMotion ? false : { opacity: 0, x: 12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: -8 }}
-                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                    className="space-y-4"
-                  >
-                    {activeSection === "likes" ? (
-                      <>
-                        <PreferenceChipPicker
-                          title="Любимые цвета"
-                          description="Выберите оттенки, с которыми сложно промахнуться."
-                          value={draft.favoriteColors}
-                          suggestions={colorSuggestions}
-                          placeholder="Добавить свой цвет"
-                          max={12}
-                          onChange={(value) => updateList("favoriteColors", value)}
-                        />
-                        <PreferenceChipPicker
-                          title="Приятные материалы"
-                          description="Из чего подарок ощущается особенно хорошо."
-                          value={draft.favoriteMaterials}
-                          suggestions={materialSuggestions}
-                          placeholder="Например, кашемир"
-                          max={16}
-                          onChange={(value) => updateList("favoriteMaterials", value)}
-                        />
-                        <PreferenceChipPicker
-                          title="Любимые бренды"
-                          description="Марки и магазины, которым вы уже доверяете."
-                          value={draft.favoriteBrands}
-                          suggestions={brandSuggestions}
-                          placeholder="Добавить бренд или магазин"
-                          max={16}
-                          onChange={(value) => updateList("favoriteBrands", value)}
-                        />
-                        <PreferenceChipPicker
-                          title="Интересы"
-                          description="Темы, вокруг которых можно придумать неожиданный подарок."
-                          value={draft.hobbies}
-                          suggestions={hobbySuggestions}
-                          placeholder="Добавить своё увлечение"
-                          max={20}
-                          onChange={(value) => updateList("hobbies", value)}
-                        />
-                      </>
-                    ) : null}
-
-                    {activeSection === "avoid" ? (
-                      <>
-                        <PreferenceChipPicker
-                          title="Цвета, которые не нравятся"
-                          description="Отметьте оттенки, которых лучше избегать."
-                          value={draft.dislikedColors}
-                          suggestions={colorSuggestions}
-                          placeholder="Добавить нежелательный цвет"
-                          max={12}
-                          warning
-                          onChange={(value) => updateList("dislikedColors", value)}
-                        />
-                        <PreferenceChipPicker
-                          title="Неприятные материалы"
-                          description="Полезно для одежды, украшений и предметов дома."
-                          value={draft.dislikedMaterials}
-                          suggestions={materialSuggestions}
-                          placeholder="Например, синтетика"
-                          max={16}
-                          warning
-                          onChange={(value) => updateList("dislikedMaterials", value)}
-                        />
-                        <PreferenceChipPicker
-                          title="Бренды не для меня"
-                          description="Марки и магазины, которые лучше пропустить."
-                          value={draft.dislikedBrands}
-                          suggestions={brandSuggestions}
-                          placeholder="Добавить бренд или магазин"
-                          max={16}
-                          warning
-                          onChange={(value) => updateList("dislikedBrands", value)}
-                        />
-                        <PreferenceChipPicker
-                          title="Точно не покупать"
-                          description="Самый важный стоп-лист для дарителя."
-                          value={draft.doNotBuy}
-                          suggestions={doNotBuySuggestions}
-                          placeholder="Добавить в стоп-лист"
-                          max={24}
-                          warning
-                          onChange={(value) => updateList("doNotBuy", value)}
-                        />
-                      </>
-                    ) : null}
-
-                    {activeSection === "details" ? (
-                      <>
-                        <PreferenceChipPicker
-                          title="Поводы"
-                          description="Когда особенно приятно получить подарок."
-                          value={draft.occasions}
-                          suggestions={occasionSuggestions}
-                          placeholder="Добавить свой повод"
-                          max={16}
-                          onChange={(value) => updateList("occasions", value)}
-                        />
-                        <QuickTextField
-                          id="sizes"
-                          label="Размеры"
-                          description="Можно выбрать основу и дополнить точными мерками."
-                          value={draft.sizes}
-                          placeholder="Одежда M, обувь 38, кольцо 17"
-                          suggestions={["Одежда XS", "Одежда S", "Одежда M", "Одежда L", "Одежда XL"]}
-                          icon={Ruler}
-                          onChange={(value) => updateText("sizes", value)}
-                        />
-                        <QuickTextField
-                          id="budget"
-                          label="Комфортный бюджет"
-                          description="Ориентир помогает не ставить друзей в неловкое положение."
-                          value={draft.budget}
-                          placeholder="Например, дороже 5000 ₽ лучше обсудить"
-                          suggestions={["До 1000 ₽", "До 3000 ₽", "До 5000 ₽", "Бюджет не важен"]}
-                          icon={CircleDollarSign}
-                          onChange={(value) => updateText("budget", value)}
-                        />
-                        <section className="space-y-3 rounded-2xl border border-border/50 bg-[hsl(var(--surface-2))/0.72] p-4 sm:p-5">
-                          <div>
-                            <Label htmlFor="notes" className="text-base font-semibold tracking-tight">
-                              {t("Личная подсказка")}
-                            </Label>
-                            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                              {t("Аллергии, доставка, упаковка или любая деталь, которую не выразить кнопкой.")}
-                            </p>
-                          </div>
-                          <Textarea
-                            id="notes"
-                            value={draft.notes}
-                            rows={5}
-                            maxLength={1000}
-                            onChange={(event) => updateText("notes", event.target.value)}
-                            placeholder={t("Например: люблю практичные подарки и не люблю сюрпризы с доставкой на работу")}
-                            className="min-h-32 resize-y border-border/56 bg-[hsl(var(--surface-3))/0.6]"
-                          />
-                        </section>
-                      </>
-                    ) : null}
-                  </motion.div>
-                </AnimatePresence>
+                <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+                  {t("Откройте карточку, чтобы посмотреть весь профиль. Ваша карточка всегда идёт первой.")}
+                </p>
               </div>
 
-              <aside className="space-y-4 lg:sticky lg:top-5">
-                <GiftPreferencesSummary userName={t("вам")} preferences={draft} />
-                <div className={cn(uiSurface.contentPanel, "p-4 text-sm text-muted-foreground")}>
-                  <p className="font-semibold text-foreground">{t("Кто это увидит")}</p>
-                  <p className="mt-1.5 leading-relaxed">
-                    {t("Только пользователи, у которых есть доступ к вашим общим подборкам.")}
-                  </p>
+              {circleError ? (
+                <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/7 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                  <span>{t("Не удалось загрузить профили друзей. Ваш профиль по-прежнему доступен.")}</span>
+                  <Button type="button" variant="outline" size="sm" onClick={() => mutateCircle()}>
+                    {t("Повторить")}
+                  </Button>
                 </div>
-              </aside>
-            </div>
+              ) : null}
+
+              <motion.div layout className="grid items-start gap-4 md:grid-cols-2">
+                {circleUsers.map((user, index) => {
+                  const isCurrent = user.id === data?.id;
+                  const isExpanded = expandedUserId === user.id;
+                  const cardPreferences = isCurrent ? draft : user.giftPreferences;
+
+                  return (
+                    <motion.div
+                      layout
+                      key={user.id}
+                      initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: reduceMotion ? 0 : index * 0.055, duration: 0.3 }}
+                      className={cn(isCurrent && "md:col-span-2")}
+                    >
+                      <PreferenceProfileCard
+                        id={user.id}
+                        name={user.name}
+                        username={user.username}
+                        avatarUrl={user.avatarUrl}
+                        preferences={cardPreferences}
+                        wishCount={user.stats?.totalItems}
+                        isCurrent={isCurrent}
+                        expanded={isExpanded}
+                        editing={isCurrent && editingOwnProfile}
+                        onToggle={() => toggleProfile(user.id)}
+                        onEdit={isCurrent ? toggleEditor : undefined}
+                      >
+                        {isCurrent && editingOwnProfile ? (
+                          <div className="space-y-4">
+                            <div className="flex flex-col gap-3 rounded-xl border border-primary/20 bg-primary/7 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
+                                  <Gift className="h-4 w-4" aria-hidden />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-semibold">{t("Настройка вашего профиля")}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {t("Изменения сразу видны в карточке выше")}
+                                  </p>
+                                </div>
+                              </div>
+                              <Button
+                                type="button"
+                                className="w-full gap-2 sm:w-auto"
+                                disabled={!hasChanges || saving}
+                                onClick={handleSubmit}
+                              >
+                                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                {saving ? t("Сохраняем") : t("Сохранить")}
+                              </Button>
+                            </div>
+
+                            <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[12rem_minmax(0,1fr)] xl:grid-cols-[12rem_minmax(0,1fr)_18rem]">
+                              <nav className={cn(uiSurface.contentPanel, "grid min-w-0 gap-1 p-2 lg:sticky lg:top-5")}>
+                                <div className="px-3 pb-2 pt-2">
+                                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                                    {t("Заполнено")}
+                                  </p>
+                                  <p className="mt-1 text-2xl font-semibold tabular-nums">{preferenceCount}</p>
+                                </div>
+                                {editorSections.map((section) => {
+                                  const Icon = section.icon;
+                                  const active = activeSection === section.id;
+                                  return (
+                                    <button
+                                      key={section.id}
+                                      type="button"
+                                      onClick={() => setActiveSection(section.id)}
+                                      className={cn(
+                                        "group flex min-h-12 min-w-0 items-center gap-3 rounded-xl border px-3 text-left transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98]",
+                                        active
+                                          ? "border-primary/30 bg-primary/11 text-foreground"
+                                          : "border-transparent text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+                                      )}
+                                    >
+                                      <Icon className={cn("h-4 w-4 shrink-0", active && "text-primary")} aria-hidden />
+                                      <span className="min-w-0 flex-1">
+                                        <span className="block text-sm font-semibold">{t(section.label)}</span>
+                                        <span className="hidden truncate text-[11px] text-muted-foreground xl:block">
+                                          {t(section.hint)}
+                                        </span>
+                                      </span>
+                                      <span className="min-w-5 rounded-md bg-[hsl(var(--surface-3))/0.78] px-1.5 py-0.5 text-center text-[10px] font-semibold tabular-nums">
+                                        {sectionCounts[section.id]}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                              </nav>
+
+                              <div className="min-w-0">
+                                <AnimatePresence mode="wait" initial={false}>
+                                  <motion.div
+                                    key={activeSection}
+                                    initial={reduceMotion ? false : { opacity: 0, x: 12 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: -8 }}
+                                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                                    className="min-w-0 space-y-4"
+                                  >
+                                    {activeSection === "likes" ? (
+                                      <>
+                                        <PreferenceChipPicker
+                                          title="Любимые цвета"
+                                          description="Выберите оттенки, с которыми сложно промахнуться."
+                                          value={draft.favoriteColors}
+                                          suggestions={colorSuggestions}
+                                          placeholder="Добавить свой цвет"
+                                          max={12}
+                                          onChange={(value) => updateList("favoriteColors", value)}
+                                        />
+                                        <PreferenceChipPicker
+                                          title="Приятные материалы"
+                                          description="Из чего подарок ощущается особенно хорошо."
+                                          value={draft.favoriteMaterials}
+                                          suggestions={materialSuggestions}
+                                          placeholder="Например, кашемир"
+                                          max={16}
+                                          onChange={(value) => updateList("favoriteMaterials", value)}
+                                        />
+                                        <PreferenceChipPicker
+                                          title="Любимые бренды"
+                                          description="Марки и магазины, которым вы уже доверяете."
+                                          value={draft.favoriteBrands}
+                                          suggestions={brandSuggestions}
+                                          placeholder="Добавить бренд или магазин"
+                                          max={16}
+                                          onChange={(value) => updateList("favoriteBrands", value)}
+                                        />
+                                        <PreferenceChipPicker
+                                          title="Интересы"
+                                          description="Темы, вокруг которых можно придумать неожиданный подарок."
+                                          value={draft.hobbies}
+                                          suggestions={hobbySuggestions}
+                                          placeholder="Добавить своё увлечение"
+                                          max={20}
+                                          onChange={(value) => updateList("hobbies", value)}
+                                        />
+                                      </>
+                                    ) : null}
+
+                                    {activeSection === "avoid" ? (
+                                      <>
+                                        <PreferenceChipPicker
+                                          title="Цвета, которые не нравятся"
+                                          description="Отметьте оттенки, которых лучше избегать."
+                                          value={draft.dislikedColors}
+                                          suggestions={colorSuggestions}
+                                          placeholder="Добавить нежелательный цвет"
+                                          max={12}
+                                          warning
+                                          onChange={(value) => updateList("dislikedColors", value)}
+                                        />
+                                        <PreferenceChipPicker
+                                          title="Неприятные материалы"
+                                          description="Полезно для одежды, украшений и предметов дома."
+                                          value={draft.dislikedMaterials}
+                                          suggestions={materialSuggestions}
+                                          placeholder="Например, синтетика"
+                                          max={16}
+                                          warning
+                                          onChange={(value) => updateList("dislikedMaterials", value)}
+                                        />
+                                        <PreferenceChipPicker
+                                          title="Бренды не для меня"
+                                          description="Марки и магазины, которые лучше пропустить."
+                                          value={draft.dislikedBrands}
+                                          suggestions={brandSuggestions}
+                                          placeholder="Добавить бренд или магазин"
+                                          max={16}
+                                          warning
+                                          onChange={(value) => updateList("dislikedBrands", value)}
+                                        />
+                                        <PreferenceChipPicker
+                                          title="Точно не покупать"
+                                          description="Самый важный стоп-лист для дарителя."
+                                          value={draft.doNotBuy}
+                                          suggestions={doNotBuySuggestions}
+                                          placeholder="Добавить в стоп-лист"
+                                          max={24}
+                                          warning
+                                          onChange={(value) => updateList("doNotBuy", value)}
+                                        />
+                                      </>
+                                    ) : null}
+
+                                    {activeSection === "details" ? (
+                                      <>
+                                        <PreferenceChipPicker
+                                          title="Поводы"
+                                          description="Когда особенно приятно получить подарок."
+                                          value={draft.occasions}
+                                          suggestions={occasionSuggestions}
+                                          placeholder="Добавить свой повод"
+                                          max={16}
+                                          onChange={(value) => updateList("occasions", value)}
+                                        />
+                                        <QuickTextField
+                                          id="sizes"
+                                          label="Размеры"
+                                          description="Можно выбрать основу и дополнить точными мерками."
+                                          value={draft.sizes}
+                                          placeholder="Одежда M, обувь 38, кольцо 17"
+                                          suggestions={["Одежда XS", "Одежда S", "Одежда M", "Одежда L", "Одежда XL"]}
+                                          icon={Ruler}
+                                          onChange={(value) => updateText("sizes", value)}
+                                        />
+                                        <QuickTextField
+                                          id="budget"
+                                          label="Комфортный бюджет"
+                                          description="Ориентир помогает не ставить друзей в неловкое положение."
+                                          value={draft.budget}
+                                          placeholder="Например, дороже 5000 ₽ лучше обсудить"
+                                          suggestions={["До 1000 ₽", "До 3000 ₽", "До 5000 ₽", "Бюджет не важен"]}
+                                          icon={CircleDollarSign}
+                                          onChange={(value) => updateText("budget", value)}
+                                        />
+                                        <section className="space-y-3 rounded-2xl border border-border/50 bg-[hsl(var(--surface-2))/0.72] p-4 sm:p-5">
+                                          <div>
+                                            <Label htmlFor="notes" className="text-base font-semibold tracking-tight">
+                                              {t("Личная подсказка")}
+                                            </Label>
+                                            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                                              {t("Аллергии, доставка, упаковка или любая деталь, которую не выразить кнопкой.")}
+                                            </p>
+                                          </div>
+                                          <Textarea
+                                            id="notes"
+                                            value={draft.notes}
+                                            rows={5}
+                                            maxLength={1000}
+                                            onChange={(event) => updateText("notes", event.target.value)}
+                                            placeholder={t("Например: люблю практичные подарки и не люблю сюрпризы с доставкой на работу")}
+                                            className="min-h-32 resize-y border-border/56 bg-[hsl(var(--surface-3))/0.6]"
+                                          />
+                                        </section>
+                                      </>
+                                    ) : null}
+                                  </motion.div>
+                                </AnimatePresence>
+                              </div>
+
+                              <aside className="min-w-0 space-y-4 lg:col-span-2 xl:col-span-1 xl:sticky xl:top-5">
+                                <GiftPreferencesSummary userName={t("вам")} preferences={draft} />
+                                <div className={cn(uiSurface.contentPanel, "p-4 text-sm text-muted-foreground")}>
+                                  <p className="font-semibold text-foreground">{t("Кто это увидит")}</p>
+                                  <p className="mt-1.5 leading-relaxed">
+                                    {t("Только пользователи, у которых есть доступ к вашим общим подборкам.")}
+                                  </p>
+                                </div>
+                              </aside>
+                            </div>
+                          </div>
+                        ) : (
+                          <GiftPreferencesSummary
+                            userName={isCurrent ? t("вам") : user.name}
+                            preferences={cardPreferences}
+                            embedded
+                          />
+                        )}
+                      </PreferenceProfileCard>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            </section>
           )}
         </div>
       </PageMain>
