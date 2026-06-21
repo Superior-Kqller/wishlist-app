@@ -25,7 +25,7 @@ RUN mkdir -p /app/public/uploads/avatars && \
 RUN NEXTAUTH_SECRET="build-secret-placeholder-minimum-32-chars" NEXTAUTH_URL="http://localhost:3000" npm run build
 
 RUN mkdir /prisma-cli && cd /prisma-cli && \
-    echo '{"dependencies":{"prisma":"'$(node -e "console.log(require('/app/node_modules/prisma/package.json').version)")'"}}'> package.json && \
+    echo '{"dependencies":{"prisma":"'$(node -e "console.log(require('/app/node_modules/prisma/package.json').version)")'"},"overrides":{"@hono/node-server":"^1.19.13"}}'> package.json && \
     npm install --production 2>/dev/null
 
 # --- Runner ---
@@ -83,6 +83,9 @@ COPY --from=builder /app/node_modules/debug ./node_modules/debug
 COPY --from=builder /app/node_modules/ms ./node_modules/ms
 
 RUN node -e "require('@prisma/client'); require('@prisma/adapter-pg'); require('pg'); require('bcryptjs'); require('ioredis'); require('dotenv');"
+
+RUN node ./node_modules/prisma/build/index.js --version && \
+    rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 # Copy prisma.config.ts for prisma migrate deploy at runtime
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts

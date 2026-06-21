@@ -56,7 +56,7 @@ if [ "${RUN_MIGRATIONS_ON_START:-1}" = "1" ]; then
 
   echo ""
   echo "🔄 Applying database migrations..."
-  npx prisma migrate deploy --schema=./prisma/schema.prisma
+  node ./node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma
   echo "   ✓ Migrations applied"
 
   echo ""
