@@ -5,21 +5,19 @@ export function filterAndSortWishlistItems(
   options: {
     sortBy: string;
     showPurchased: boolean;
-    effectiveSelectedTags: string[];
+    effectiveSelectedCategories: string[];
   },
 ): WishlistItem[] {
-  const { sortBy, showPurchased, effectiveSelectedTags } = options;
+  const { sortBy, showPurchased, effectiveSelectedCategories } = options;
   let filtered = [...source];
 
   if (!showPurchased) {
     filtered = filtered.filter((item) => !item.purchased && item.status !== "PURCHASED");
   }
 
-  if (effectiveSelectedTags.length > 0) {
+  if (effectiveSelectedCategories.length > 0) {
     filtered = filtered.filter((item) =>
-      effectiveSelectedTags.some((tagId) =>
-        item.tags.some((t) => t.id === tagId),
-      ),
+      Boolean(item.category && effectiveSelectedCategories.includes(item.category)),
     );
   }
 

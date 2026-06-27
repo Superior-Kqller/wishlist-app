@@ -22,6 +22,15 @@ interface NotifyItemCreatedInput {
   actorName: string;
 }
 
+interface NotifyCommentCreatedInput {
+  itemId: string;
+  itemTitle: string;
+  actorUserId: string;
+  actorName: string;
+  commentText: string;
+  recipientUserIds: string[];
+}
+
 function formatEventMessage(title: string, lines: string[]): string {
   return [title, ...lines].join("\n");
 }
@@ -37,6 +46,19 @@ function formatPurchasedMessage(actorName: string, itemTitle: string): string {
   return formatEventMessage("✅ Подарок куплен", [
     `👤 ${actorName}`,
     `📌 ${itemTitle}`,
+  ]);
+}
+
+function formatCommentCreatedMessage(input: NotifyCommentCreatedInput): string {
+  const text =
+    input.commentText.length > 240
+      ? `${input.commentText.slice(0, 237).trimEnd()}...`
+      : input.commentText;
+
+  return formatEventMessage("💬 Новый комментарий", [
+    `👤 ${input.actorName}`,
+    `📌 ${input.itemTitle}`,
+    `💭 ${text}`,
   ]);
 }
 
@@ -78,6 +100,24 @@ export async function notifyItemCreated(input: NotifyItemCreatedInput): Promise<
     await sendTelegramToConfiguredChats(formatItemCreatedMessage(input));
   } catch (error) {
     sanitizeError("Telegram item created notification send error", error, {
+      itemId: input.itemId,
+      actorUserId: input.actorUserId,
+    });
+  }
+}
+
+export async function notifyCommentCreated(input: NotifyCommentCreatedInput): Promise<void> {
+  try {
+    const text = formatCommentCreatedMessage(input);
+    const recipientUserIds = [...new Set(input.recipientUserIds)].filter(
+      (userId) => userId !== input.actorUserId,
+    );
+
+    for (const userId of recipientUserIds) {
+      await sendTelegramToUser(userId, text);
+    }
+  } catch (error) {
+    sanitizeError("Telegram comment notification send error", error, {
       itemId: input.itemId,
       actorUserId: input.actorUserId,
     });

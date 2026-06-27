@@ -13,7 +13,7 @@ type SyncParams = {
   sortBy: string;
   viewMode: "grid" | "table";
   showPurchased: boolean;
-  selectedTags: string[];
+  selectedCategories: string[];
   listIdParam: string | null;
   currentUserId: string | undefined;
   allowedListIdsForFilters: Set<string>;
@@ -28,7 +28,7 @@ export function useWishlistUrlSync({
   sortBy,
   viewMode,
   showPurchased,
-  selectedTags,
+  selectedCategories,
   listIdParam,
   currentUserId,
   allowedListIdsForFilters,
@@ -43,7 +43,7 @@ export function useWishlistUrlSync({
         sort: sortBy !== "newest" ? sortBy : null,
         view: viewMode === "table" ? "table" : null,
         purchased: showPurchased ? "show" : null,
-        tags: selectedTags.length > 0 ? selectedTags.join(",") : null,
+        categories: selectedCategories.length > 0 ? selectedCategories.join(",") : null,
         ...overrides,
       };
       for (const [k, v] of Object.entries(vals)) {
@@ -59,7 +59,7 @@ export function useWishlistUrlSync({
       sortBy,
       viewMode,
       showPurchased,
-      selectedTags,
+      selectedCategories,
       replace,
     ],
   );
@@ -82,7 +82,7 @@ export function useWishlistUrlSync({
       return;
     }
     syncFiltersToUrl();
-  }, [search, sortBy, viewMode, showPurchased, selectedTags]); // eslint-disable-line react-hooks/exhaustive-deps -- только локальные фильтры, не весь syncFiltersToUrl
+  }, [search, sortBy, viewMode, showPurchased, selectedCategories]); // eslint-disable-line react-hooks/exhaustive-deps -- только локальные фильтры, не весь syncFiltersToUrl
 
   useEffect(() => {
     if (!selectedListId || !currentUserId) return;

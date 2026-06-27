@@ -16,7 +16,7 @@ import {
   WishlistSearchInput,
   WishlistToolbarControls,
 } from "@/components/SearchAndFilter";
-import { TagFilter } from "@/components/TagFilter";
+import { CategoryFilter } from "@/components/CategoryFilter";
 import { CombinedFilter } from "@/components/CombinedFilter";
 import { FiltersDrawer } from "@/components/FiltersDrawer";
 import {
@@ -27,11 +27,11 @@ import { uiState, uiSurface } from "@/lib/ui-contract";
 import { getCardWord, getItemWord } from "@/lib/i18n";
 import type {
   ListWithMeta,
-  Tag,
   UserWithStats,
   WishlistItem,
 } from "@/types";
 import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
+import type { ProductCategoryOption } from "@/lib/categories";
 
 type WishlistWorkspaceProps = {
   search: string;
@@ -51,10 +51,10 @@ type WishlistWorkspaceProps = {
   onListChange: (listId: string | null) => void;
   onCreateList: () => void;
   onEditSelectedList?: () => void;
-  tagsForFilters: Tag[];
-  effectiveSelectedTags: string[];
-  onToggleTag: (tagId: string) => void;
-  onClearTags: () => void;
+  categoriesForFilters: ProductCategoryOption[];
+  effectiveSelectedCategories: string[];
+  onToggleCategory: (categoryId: string) => void;
+  onClearCategories: () => void;
   onAddItem: () => void;
   onExport: (format: "csv" | "json") => void;
   onImport: () => void;
@@ -107,10 +107,10 @@ export function WishlistWorkspace({
   onListChange,
   onCreateList,
   onEditSelectedList,
-  tagsForFilters,
-  effectiveSelectedTags,
-  onToggleTag,
-  onClearTags,
+  categoriesForFilters,
+  effectiveSelectedCategories,
+  onToggleCategory,
+  onClearCategories,
   onAddItem,
   onExport,
   onImport,
@@ -333,11 +333,11 @@ export function WishlistWorkspace({
             </div>
           </div>
 
-          <TagFilter
-            tags={tagsForFilters}
-            selectedTags={effectiveSelectedTags}
-            onToggleTag={onToggleTag}
-            onClearTags={onClearTags}
+          <CategoryFilter
+            categories={categoriesForFilters}
+            selectedCategories={effectiveSelectedCategories}
+            onToggleCategory={onToggleCategory}
+            onClearCategories={onClearCategories}
           />
         </div>
 
@@ -357,10 +357,10 @@ export function WishlistWorkspace({
           onSortChange={onSortChange}
           showPurchased={showPurchased}
           onTogglePurchased={onTogglePurchasedVisibility}
-          tags={tagsForFilters}
-          selectedTags={effectiveSelectedTags}
-          onToggleTag={onToggleTag}
-          onClearTags={onClearTags}
+          categories={categoriesForFilters}
+          selectedCategories={effectiveSelectedCategories}
+          onToggleCategory={onToggleCategory}
+          onClearCategories={onClearCategories}
         />
       </div>
 

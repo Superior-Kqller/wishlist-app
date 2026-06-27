@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { canUserSeeItem } from "@/lib/list-utils";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
+import { notifyCommentCreated } from "@/lib/telegram/notifications";
 import { z } from "zod";
 
 const createCommentSchema = z.object({
@@ -71,6 +72,38 @@ export async function POST(
       },
       include: { user: { select: { id: true, name: true, avatarUrl: true } } },
     });
+
+    const item = await prisma.item.findUnique({
+      where: { id: itemId },
+      select: {
+        id: true,
+        title: true,
+        userId: true,
+        list: {
+          select: {
+            userId: true,
+            viewers: { select: { userId: true } },
+          },
+        },
+      },
+    });
+
+    if (item) {
+      const ownerUserId = item.list?.userId ?? item.userId;
+      const recipientUserIds = [
+        ownerUserId,
+        ...(item.list?.viewers.map((viewer) => viewer.userId) ?? []),
+      ];
+
+      await notifyCommentCreated({
+        itemId: item.id,
+        itemTitle: item.title,
+        actorUserId: currentUserId,
+        actorName: comment.user.name,
+        commentText: comment.text,
+        recipientUserIds,
+      });
+    }
 
     return NextResponse.json(comment, { status: 201 });
   } catch (err) {

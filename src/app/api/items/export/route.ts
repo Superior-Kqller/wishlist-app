@@ -27,7 +27,6 @@ export async function GET(req: NextRequest) {
       userId,
       listId: { in: visibleListIds },
     },
-    include: { tags: true },
     orderBy: { createdAt: "desc" },
   });
 
@@ -40,7 +39,7 @@ export async function GET(req: NextRequest) {
       price: item.price,
       currency: item.currency,
       priority: item.priority,
-      tags: item.tags.map((t) => t.name).join(", "),
+      category: item.category ?? "",
       notes: item.notes || "",
       purchased: item.purchased,
       createdAt: item.createdAt.toISOString(),
@@ -56,7 +55,7 @@ export async function GET(req: NextRequest) {
 
   // CSV
   const BOM = "\uFEFF";
-  const header = "Название,URL,Ориентировочная цена,Валюта,Приоритет,Теги,Заметки,Куплено,Дата создания";
+  const header = "Название,URL,Ориентировочная цена,Валюта,Приоритет,Категория,Заметки,Куплено,Дата создания";
 
   const escapeCSV = (val: string) => {
     if (val.includes(",") || val.includes('"') || val.includes("\n")) {
@@ -72,7 +71,7 @@ export async function GET(req: NextRequest) {
       item.price?.toString() || "",
       item.currency,
       item.priority.toString(),
-      escapeCSV(item.tags.map((t) => t.name).join("; ")),
+      escapeCSV(item.category ?? ""),
       escapeCSV(item.notes || ""),
       item.purchased ? "Да" : "Нет",
       item.createdAt.toISOString(),

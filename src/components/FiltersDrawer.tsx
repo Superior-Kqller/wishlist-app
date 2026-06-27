@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { UserFilter } from "@/components/UserFilter";
 import { ListFilter } from "@/components/ListFilter";
-import { TagFilter } from "@/components/TagFilter";
+import { CategoryFilter } from "@/components/CategoryFilter";
 import {
   Select,
   SelectContent,
@@ -20,9 +20,10 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { SlidersHorizontal, Eye, EyeOff } from "lucide-react";
-import type { UserWithStats, ListWithMeta, Tag } from "@/types";
+import type { UserWithStats, ListWithMeta } from "@/types";
 import { filterListsBySelectedUser } from "@/lib/list-filter-client";
 import { useI18n } from "@/components/i18n/language-provider";
+import type { ProductCategoryOption } from "@/lib/categories";
 
 interface FiltersDrawerProps {
   open: boolean;
@@ -40,10 +41,10 @@ interface FiltersDrawerProps {
   onSortChange: (value: string) => void;
   showPurchased: boolean;
   onTogglePurchased: () => void;
-  tags: Tag[];
-  selectedTags: string[];
-  onToggleTag: (tagId: string) => void;
-  onClearTags: () => void;
+  categories: ProductCategoryOption[];
+  selectedCategories: string[];
+  onToggleCategory: (categoryId: string) => void;
+  onClearCategories: () => void;
 }
 
 export function FiltersDrawer({
@@ -62,10 +63,10 @@ export function FiltersDrawer({
   onSortChange,
   showPurchased,
   onTogglePurchased,
-  tags,
-  selectedTags,
-  onToggleTag,
-  onClearTags,
+  categories,
+  selectedCategories,
+  onToggleCategory,
+  onClearCategories,
 }: FiltersDrawerProps) {
   const { t } = useI18n();
   const listsForPicker = useMemo(() => {
@@ -140,14 +141,14 @@ export function FiltersDrawer({
               {showPurchased ? t("Показаны купленные") : t("Скрыты купленные")}
             </Button>
           </div>
-          {tags.length > 0 && (
+          {categories.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">{t("Теги")}</Label>
-              <TagFilter
-                tags={tags}
-                selectedTags={selectedTags}
-                onToggleTag={onToggleTag}
-                onClearTags={onClearTags}
+              <Label className="text-xs text-muted-foreground">{t("Категории")}</Label>
+              <CategoryFilter
+                categories={categories}
+                selectedCategories={selectedCategories}
+                onToggleCategory={onToggleCategory}
+                onClearCategories={onClearCategories}
               />
             </div>
           )}

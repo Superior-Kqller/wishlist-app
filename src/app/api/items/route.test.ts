@@ -4,7 +4,6 @@ const mockRateLimit = vi.fn();
 const mockGetSessionUserIdVerified = vi.fn();
 const mockFindUniqueList = vi.fn();
 const mockItemCreate = vi.fn();
-const mockTagUpsert = vi.fn();
 const mockNotifyItemCreated = vi.fn();
 
 vi.mock("@/lib/rate-limit", () => ({
@@ -28,9 +27,6 @@ vi.mock("@/lib/prisma", () => ({
     list: {
       findUnique: mockFindUniqueList,
     },
-    tag: {
-      upsert: mockTagUpsert,
-    },
   },
 }));
 
@@ -49,7 +45,6 @@ describe("POST /api/items", () => {
     mockRateLimit.mockResolvedValue(null);
     mockGetSessionUserIdVerified.mockResolvedValue("user-1");
     mockFindUniqueList.mockResolvedValue({ userId: "user-1" });
-    mockTagUpsert.mockResolvedValue({ id: "tag-1" });
     mockItemCreate.mockResolvedValue({
       id: "item-1",
       title: "Книга",
@@ -69,7 +64,7 @@ describe("POST /api/items", () => {
       user: { id: "user-1", name: "Аня", avatarUrl: null },
       listId: "list-1",
       list: { userId: "user-1" },
-      tags: [],
+      category: "books",
       comments: [],
       createdAt: new Date("2026-06-15T12:00:00.000Z"),
       updatedAt: new Date("2026-06-15T12:00:00.000Z"),

@@ -118,27 +118,3 @@ export function priorityBorderClass(priority: number): string {
   };
   return "border-l-4 " + (borders[priority] || borders[3]);
 }
-
-/** Палитра цветов для тегов (хорошо читаются в светлой и тёмной теме) */
-const TAG_PALETTE = [
-  "hsl(var(--tag-1))",
-  "hsl(var(--tag-2))",
-  "hsl(var(--tag-3))",
-  "hsl(var(--tag-4))",
-  "hsl(var(--tag-5))",
-  "hsl(var(--tag-6))",
-  "hsl(var(--tag-7))",
-  "hsl(var(--tag-8))",
-  "hsl(var(--tag-9))",
-  "hsl(var(--tag-10))",
-];
-
-/** Цвет тега по имени (детерминированно, один тег — один цвет) */
-export function getTagColor(tagName: string): string {
-  let hash = 0;
-  for (let i = 0; i < tagName.length; i++) {
-    hash = (hash << 5) - hash + tagName.charCodeAt(i);
-    hash |= 0;
-  }
-  return TAG_PALETTE[Math.abs(hash) % TAG_PALETTE.length];
-}

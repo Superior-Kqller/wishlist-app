@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 export const giftPreferencesSchema = z.object({
+  favoriteCategories: z.array(z.string().trim().min(1).max(80)).max(12).default([]),
+  dislikedCategories: z.array(z.string().trim().min(1).max(80)).max(12).default([]),
   favoriteColors: z.array(z.string().trim().min(1).max(40)).max(12).default([]),
   dislikedColors: z.array(z.string().trim().min(1).max(40)).max(12).default([]),
   sizes: z.string().trim().max(500).default(""),
@@ -18,6 +20,8 @@ export const giftPreferencesSchema = z.object({
 export type GiftPreferences = z.infer<typeof giftPreferencesSchema>;
 
 export const emptyGiftPreferences: GiftPreferences = {
+  favoriteCategories: [],
+  dislikedCategories: [],
   favoriteColors: [],
   dislikedColors: [],
   sizes: "",
@@ -58,7 +62,9 @@ export function joinPreferenceList(value: string[]): string {
 export function countGiftPreferences(value: GiftPreferences): number {
   return (
     value.favoriteColors.length +
+    value.favoriteCategories.length +
     value.dislikedColors.length +
+    value.dislikedCategories.length +
     value.favoriteMaterials.length +
     value.dislikedMaterials.length +
     value.favoriteBrands.length +

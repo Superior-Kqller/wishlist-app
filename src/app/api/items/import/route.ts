@@ -4,7 +4,7 @@ import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
-import { getTagColor } from "@/lib/utils";
+import { normalizeProductCategory } from "@/lib/categories";
 
 const importItemSchema = z.object({
   title: z.string().trim().min(1).max(500),
@@ -13,7 +13,7 @@ const importItemSchema = z.object({
   currency: z.string().trim().min(1).max(10).default("RUB"),
   priority: z.number().int().min(1).max(5).default(3),
   images: z.array(z.string().url()).max(1).default([]),
-  tags: z.union([z.string(), z.array(z.string())]).optional(),
+  category: z.string().trim().max(80).nullable().optional(),
   notes: z.string().max(2000).nullable().optional(),
   purchased: z.boolean().default(false),
   createdAt: z.string().datetime().optional(),
@@ -27,15 +27,6 @@ const importPayloadSchema = z.union([
     items: z.array(importItemSchema).min(1).max(500),
   }),
 ]);
-
-function normalizeTags(tags: string | string[] | undefined): string[] {
-  const rawTags = Array.isArray(tags) ? tags : (tags ?? "").split(/[;,]/);
-  return [...new Set(
-    rawTags
-      .map((tag) => tag.trim().toLowerCase())
-      .filter(Boolean),
-  )].slice(0, 20);
-}
 
 function parseDate(value: string | undefined): Date | undefined {
   if (!value) return undefined;
@@ -72,16 +63,6 @@ export async function POST(req: NextRequest) {
     }
 
     for (const item of items) {
-      const tagConnections = await Promise.all(
-        normalizeTags(item.tags).map(async (tagName) => {
-          const tag = await prisma.tag.upsert({
-            where: { name: tagName },
-            update: {},
-            create: { name: tagName, color: getTagColor(tagName) },
-          });
-          return { id: tag.id };
-        }),
-      );
       const createdAt = parseDate(item.createdAt);
       const purchasedAt = item.purchased
         ? parseDate(item.purchasedAt) ?? createdAt ?? new Date()
@@ -96,13 +77,13 @@ export async function POST(req: NextRequest) {
           priority: item.priority,
           images: item.images,
           notes: item.notes || null,
+          category: normalizeProductCategory(item.category),
           purchased: item.purchased,
           purchasedAt,
           status: item.purchased ? "PURCHASED" : "AVAILABLE",
           userId,
           listId,
           ...(createdAt ? { createdAt } : {}),
-          tags: { connect: tagConnections },
         },
       });
     }

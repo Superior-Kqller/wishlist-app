@@ -25,7 +25,6 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { BulkActionBar } from "@/components/BulkActionBar";
 import {
   WishlistItem,
-  Tag,
   CreateItemPayload,
   UpdateItemPayload,
   ParsedProductResponse,
@@ -45,6 +44,7 @@ import { useInfiniteWishlistItems } from "@/hooks/use-infinite-wishlist-items";
 import { useWishlistUrlSync } from "@/hooks/use-wishlist-url-sync";
 import { useWishlistAddUrlDeepLink } from "@/hooks/use-wishlist-add-url-deeplink";
 import { useI18n } from "@/components/i18n/language-provider";
+import { PRODUCT_CATEGORIES } from "@/lib/categories";
 
 function HomePageContent() {
   const { t } = useI18n();
@@ -86,9 +86,9 @@ function HomePageContent() {
   const viewParamValue: WishlistViewMode =
     searchParams.get("view") === "table" ? "table" : "grid";
   const [showPurchased, setShowPurchased] = useState(() => searchParams.get("purchased") === "show");
-  const [selectedTags, setSelectedTags] = useState<string[]>(() => {
-    const tagsParam = searchParams.get("tags");
-    return tagsParam ? tagsParam.split(",").filter(Boolean) : [];
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
+    const categoriesParam = searchParams.get("categories");
+    return categoriesParam ? categoriesParam.split(",").filter(Boolean) : [];
   });
 
   useEffect(() => {
@@ -131,24 +131,6 @@ function HomePageContent() {
     normalizedSelectedUserId,
     selectedListId,
     debouncedSearch,
-  );
-  const tagsFromItems = useMemo(() => {
-    const byId = new Map<string, Tag>();
-    items.forEach((item) => {
-      item.tags?.forEach((t) => {
-        if (!byId.has(t.id)) byId.set(t.id, t);
-      });
-    });
-    return Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name));
-  }, [items]);
-  const { data: tags } = useSWR<Tag[]>(
-    "/api/tags",
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      dedupingInterval: 5000, // Теги меняются реже, можно кэшировать дольше
-    }
   );
   const { data: listsData, mutate: mutateLists } = useSWR<ListWithMeta[]>(
     "/api/lists",
@@ -251,7 +233,6 @@ function HomePageContent() {
         }
         toast.success(`${t("Импортировано желаний")}: ${body.imported}`);
         mutateItems();
-        mutate("/api/tags");
         mutate("/api/users/stats");
       } catch (err) {
         toast.error(
@@ -305,7 +286,7 @@ function HomePageContent() {
     sortBy,
     viewMode,
     showPurchased,
-    selectedTags,
+    selectedCategories,
     listIdParam,
     currentUserId,
     allowedListIdsForFilters,
@@ -333,23 +314,19 @@ function HomePageContent() {
     });
   }, [router, searchParams]);
 
-  const tagsForFilters = useMemo(
-    () => (tags && tags.length > 0 ? tags : tagsFromItems),
-    [tags, tagsFromItems]
-  );
-  const effectiveSelectedTags = useMemo(() => {
-    const availableTagIds = new Set(tagsForFilters.map((t) => t.id));
-    return selectedTags.filter((id) => availableTagIds.has(id));
-  }, [selectedTags, tagsForFilters]);
+  const effectiveSelectedCategories = useMemo(() => {
+    const availableCategoryIds = new Set<string>(PRODUCT_CATEGORIES.map((category) => category.id));
+    return selectedCategories.filter((id) => availableCategoryIds.has(id));
+  }, [selectedCategories]);
 
   const filteredItems = useMemo(
     () =>
       filterAndSortWishlistItems(items, {
         sortBy,
         showPurchased,
-        effectiveSelectedTags,
+        effectiveSelectedCategories,
       }),
-    [items, sortBy, showPurchased, effectiveSelectedTags],
+    [items, sortBy, showPurchased, effectiveSelectedCategories],
   );
 
   const selectedListName = useMemo(
@@ -391,14 +368,14 @@ function HomePageContent() {
         onRemove: () => setShowPurchased(false),
       });
     }
-    effectiveSelectedTags.forEach((tagId) => {
-      const tag = tagsForFilters.find((t) => t.id === tagId);
-      if (!tag) return;
+    effectiveSelectedCategories.forEach((categoryId) => {
+      const category = PRODUCT_CATEGORIES.find((item) => item.id === categoryId);
+      if (!category) return;
       chips.push({
-        key: `tag-${tagId}`,
-        label: `${t("Тег")}: ${tag.name}`,
+        key: `category-${categoryId}`,
+        label: `${t("Категория")}: ${category.label}`,
         onRemove: () => {
-          setSelectedTags((prev) => prev.filter((id) => id !== tagId));
+          setSelectedCategories((prev) => prev.filter((id) => id !== categoryId));
         },
       });
     });
@@ -409,8 +386,7 @@ function HomePageContent() {
     normalizedSelectedUserId,
     usersWithStats,
     showPurchased,
-    effectiveSelectedTags,
-    tagsForFilters,
+    effectiveSelectedCategories,
     syncFiltersToUrl,
     t,
   ]);
@@ -430,7 +406,6 @@ function HomePageContent() {
     }
     toast.success(t("Добавлено в список!"));
     mutateItems();
-    mutate("/api/tags");
   }, [mutateItems, t]);
 
   const handleUpdateItem = useCallback(
@@ -447,7 +422,6 @@ function HomePageContent() {
       }
       toast.success(t("Сохранено!"));
       mutateItems();
-      mutate("/api/tags");
       setEditingItem(null);
     },
     [editingItem, mutateItems, t],
@@ -601,13 +575,13 @@ function HomePageContent() {
     setSortBy("newest");
     setViewMode("grid");
     setShowPurchased(false);
-    setSelectedTags([]);
+    setSelectedCategories([]);
     router.replace("/", { scroll: false });
   }, [router]);
 
-  const handleToggleTag = useCallback((tagId: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
+  const handleToggleCategory = useCallback((categoryId: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId]
     );
   }, []);
 
@@ -661,10 +635,10 @@ function HomePageContent() {
                 }
               : undefined
           }
-          tagsForFilters={tagsForFilters}
-          effectiveSelectedTags={effectiveSelectedTags}
-          onToggleTag={handleToggleTag}
-          onClearTags={() => setSelectedTags([])}
+          categoriesForFilters={PRODUCT_CATEGORIES}
+          effectiveSelectedCategories={effectiveSelectedCategories}
+          onToggleCategory={handleToggleCategory}
+          onClearCategories={() => setSelectedCategories([])}
           onAddItem={handleOpenAddItem}
           onExport={handleExport}
           onImport={handleImport}
@@ -734,7 +708,6 @@ function HomePageContent() {
         }}
         onSave={handleCreateItem}
         initialData={parsedData || undefined}
-        existingTags={tags || []}
         existingLists={ownedListsForCreate}
         autoFillFromUrlOnce={addDialogAutoFill}
         defaultListId={defaultListIdForCreate}
@@ -747,7 +720,6 @@ function HomePageContent() {
         onOpenChange={(open) => !open && setEditingItem(null)}
         item={editingItem}
         onSave={handleUpdateItem}
-        existingTags={tags || []}
         existingLists={lists}
       />
 

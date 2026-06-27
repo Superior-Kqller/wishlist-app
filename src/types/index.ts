@@ -21,7 +21,7 @@ export interface WishlistItem {
   listId: string | null;
   user?: { id: string; name: string; avatarUrl?: string | null };
   claimedByUser?: { id: string; name: string; avatarUrl?: string | null } | null;
-  tags: Tag[];
+  category: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -48,12 +48,6 @@ export interface ItemComment {
   user: { id: string; name: string; avatarUrl?: string | null };
 }
 
-export interface Tag {
-  id: string;
-  name: string;
-  color: string;
-}
-
 export interface ItemsPage {
   items: WishlistItem[];
   pagination: {
@@ -72,7 +66,7 @@ export interface CreateItemPayload {
   notes?: string;
   /** Не более одного URL изображения */
   images?: string[];
-  tags?: string[]; // tag names
+  category?: string | null;
   listId?: string | null;
 }
 

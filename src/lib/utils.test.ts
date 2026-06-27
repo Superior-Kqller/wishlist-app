@@ -5,7 +5,6 @@ import {
   formatStatsUnpurchasedSummary,
   priorityColor,
   priorityBorderClass,
-  getTagColor,
   sortCurrencyTotalsEntries,
   statsHasPurchasedPrices,
 } from "./utils";
@@ -136,20 +135,5 @@ describe("priorityColor", () => {
 describe("priorityBorderClass", () => {
   it("содержит border-l-4", () => {
     expect(priorityBorderClass(1)).toContain("border-l-4");
-  });
-});
-
-describe("getTagColor", () => {
-  it("возвращает одинаковый цвет для одного тега", () => {
-    expect(getTagColor("test")).toBe(getTagColor("test"));
-  });
-
-  it("возвращает разные цвета для разных тегов (в большинстве случаев)", () => {
-    const colors = new Set(["alpha", "beta", "gamma", "delta", "epsilon"].map(getTagColor));
-    expect(colors.size).toBeGreaterThan(1);
-  });
-
-  it("возвращает цвет из CSS-палитры тегов", () => {
-    expect(getTagColor("anything")).toMatch(/^hsl\(var\(--tag-\d+\)\)$/);
   });
 });

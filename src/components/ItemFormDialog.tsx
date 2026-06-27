@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -25,7 +24,6 @@ import {
   WishlistItem,
   CreateItemPayload,
   UpdateItemPayload,
-  Tag,
   ListWithMeta,
 } from "@/types";
 import { getPriorityLabel, getPriorityShortLabel } from "@/lib/priority-labels";
@@ -35,11 +33,12 @@ import {
   priorityDotClassByPriority,
   type WishlistPriority,
 } from "@/lib/priority-styles";
-import { cn, getTagColor } from "@/lib/utils";
-import { AlertTriangle, Loader2, Plus, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { AlertTriangle, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 import { useI18n } from "@/components/i18n/language-provider";
+import { PRODUCT_CATEGORIES } from "@/lib/categories";
 
 interface ItemFormDialogProps {
   open: boolean;
@@ -47,7 +46,6 @@ interface ItemFormDialogProps {
   item?: WishlistItem | null;
   onSave: (data: CreateItemPayload | UpdateItemPayload) => Promise<void>;
   initialData?: Partial<CreateItemPayload>;
-  existingTags?: Tag[];
   existingLists?: ListWithMeta[];
   /** Один раз при открытии вызвать парсинг по полю URL (для bookmarklet с fill=1) */
   autoFillFromUrlOnce?: boolean;
@@ -76,7 +74,6 @@ export function ItemFormDialog({
   item,
   onSave,
   initialData,
-  existingTags = [],
   existingLists = [],
   autoFillFromUrlOnce = false,
   defaultListId = null,
@@ -89,10 +86,9 @@ export function ItemFormDialog({
   const [currency, setCurrency] = useState("RUB");
   const [priority, setPriority] = useState(3);
   const [listId, setListId] = useState<string | null>(null);
+  const [category, setCategory] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [tagInput, setTagInput] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [parsingUrl, setParsingUrl] = useState(false);
   const autoFillOnceDoneRef = useRef(false);
@@ -106,10 +102,9 @@ export function ItemFormDialog({
     setCurrency("RUB");
     setPriority(3);
     setListId(listPickerRequired ? defaultListId ?? null : null);
+    setCategory(null);
     setNotes("");
     setImageUrl("");
-    setTagInput("");
-    setTags([]);
   }, [listPickerRequired, defaultListId]);
 
   useEffect(() => {
@@ -120,9 +115,9 @@ export function ItemFormDialog({
       setCurrency(item.currency);
       setPriority(item.priority);
       setListId(item.listId ?? null);
+      setCategory(item.category);
       setNotes(item.notes || "");
       setImageUrl(item.images?.[0] ?? "");
-      setTags(item.tags.map((t) => t.name));
     } else if (initialData) {
       setTitle(initialData.title || "");
       setUrl(initialData.url || "");
@@ -130,9 +125,9 @@ export function ItemFormDialog({
       setCurrency(initialData.currency || "RUB");
       setPriority(initialData.priority || 3);
       setListId(initialData.listId ?? defaultListId ?? null);
+      setCategory(initialData.category ?? null);
       setNotes(initialData.notes || "");
       setImageUrl(initialData.images?.[0] ?? "");
-      setTags(initialData.tags || []);
     } else {
       resetForm();
     }
@@ -143,18 +138,6 @@ export function ItemFormDialog({
       autoFillOnceDoneRef.current = false;
     }
   }, [open]);
-
-  function addTag() {
-    const tag = tagInput.trim().toLowerCase();
-    if (tag && !tags.includes(tag)) {
-      setTags([...tags, tag]);
-    }
-    setTagInput("");
-  }
-
-  function removeTag(tag: string) {
-    setTags(tags.filter((t) => t !== tag));
-  }
 
   const handleFillFromUrl = useCallback(async () => {
     const u = url.trim();
@@ -248,8 +231,6 @@ export function ItemFormDialog({
     try {
       if (item) {
         const nextListId = effectiveListId ?? null;
-        const nextTags = tags;
-        const currentTags = item.tags.map((tag) => tag.name);
         const data: UpdateItemPayload = {};
 
         if (nextTitle !== item.title) data.title = nextTitle;
@@ -258,9 +239,9 @@ export function ItemFormDialog({
         if (currency !== item.currency) data.currency = currency;
         if (priority !== item.priority) data.priority = priority;
         if (nextListId !== (item.listId ?? null)) data.listId = nextListId;
+        if (category !== (item.category ?? null)) data.category = category;
         if (nextNotes !== (item.notes ?? "")) data.notes = nextNotes || null;
         if (!areStringArraysEqual(nextImages, item.images)) data.images = nextImages;
-        if (!areStringArraysEqual(nextTags, currentTags)) data.tags = nextTags;
 
         if (Object.keys(data).length === 0) {
           toast.info(t("Нет изменений для сохранения"));
@@ -276,9 +257,9 @@ export function ItemFormDialog({
           currency,
           priority,
           listId: effectiveListId || undefined,
+          category,
           notes: nextNotes || undefined,
           images: nextImages,
-          tags,
         });
       }
       onOpenChange(false);
@@ -533,74 +514,23 @@ export function ItemFormDialog({
               </div>
 
               <div className="space-y-2">
-                <Label>{t("Теги")}</Label>
-                {existingTags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    <span className="w-full text-xs text-muted-foreground">{t("Выберите из существующих:")}</span>
-                    {existingTags.map((tag) => {
-                      const selected = tags.includes(tag.name);
-                      const color = tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
-                      return (
-                        <button
-                          key={tag.id}
-                          type="button"
-                          onClick={() => (selected ? removeTag(tag.name) : setTags([...tags, tag.name]))}
-                          aria-pressed={selected}
-                          aria-label={`${selected ? t("Убрать тег") : t("Добавить тег")}: ${tag.name}`}
-                          className="min-h-[44px] rounded-full transition-transform active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        >
-                          <Badge
-                            variant={selected ? "default" : "outline"}
-                            className="min-h-[36px] cursor-pointer px-3"
-                            style={selected ? { backgroundColor: color, borderColor: color } : { borderColor: color, color }}
-                          >
-                            {tag.name}
-                          </Badge>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-                {tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    <span className="w-full text-xs text-muted-foreground">{t("Выбранные:")}</span>
-                    {tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="gap-1">
-                        {tag}
-                        <button
-                          type="button"
-                          onClick={() => removeTag(tag)}
-                          aria-label={`${t("Убрать тег")}: ${tag}`}
-                          className="-mr-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
+                <Label>{t("Категория")}</Label>
+                <Select value={category ?? "none"} onValueChange={(value) => setCategory(value === "none" ? null : value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("Выберите категорию")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{t("Без категории")}</SelectItem>
+                    {PRODUCT_CATEGORIES.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        {option.icon} {language === "en" ? option.labelEn : option.label}
+                      </SelectItem>
                     ))}
-                  </div>
-                )}
-                <div className="flex gap-2">
-                  <Input
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    placeholder={t("Новый тег (Enter)")}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addTag();
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={addTag}
-                    title={t("Добавить тег")}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  {t("Категории связаны с подарочными предпочтениями и помогают быстрее понять, что человеку интересно.")}
+                </p>
               </div>
             </aside>
           </div>

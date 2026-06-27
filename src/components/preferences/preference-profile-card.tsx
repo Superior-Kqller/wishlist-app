@@ -115,11 +115,13 @@ export function PreferenceProfileCard({
   const preferenceCount = countGiftPreferences(preferences);
   const progress = Math.min(100, Math.round((preferenceCount / 12) * 100));
   const likes = [
+    ...preferences.favoriteCategories,
     ...preferences.favoriteBrands,
     ...preferences.favoriteMaterials,
     ...preferences.hobbies,
   ];
   const avoid = [
+    ...preferences.dislikedCategories,
     ...preferences.doNotBuy,
     ...preferences.dislikedBrands,
     ...preferences.dislikedMaterials,

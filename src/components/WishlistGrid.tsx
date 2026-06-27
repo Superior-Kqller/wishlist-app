@@ -110,9 +110,8 @@ export function WishlistGrid({
             <TableRow>
               <TableHead>{t("Товар")}</TableHead>
               <TableHead>{t("Владелец")}</TableHead>
-              <TableHead>{t("Статус")}</TableHead>
               <TableHead className="text-right">{t("Ориентировочная стоимость")}</TableHead>
-              <TableHead>{t("Теги")}</TableHead>
+              <TableHead>{t("Категория")}</TableHead>
               <TableHead className="text-right">{t("Действия")}</TableHead>
             </TableRow>
           </TableHeader>

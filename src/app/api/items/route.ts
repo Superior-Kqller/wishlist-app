@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-import { getTagColor } from "@/lib/utils";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { canUserSeeList, getVisibleListIdsForUser } from "@/lib/list-utils";
 import { canSeeClaimerIdentity } from "@/lib/access-policy";
 import { itemResponseWithoutList } from "@/lib/item-json";
 import { notifyItemCreated } from "@/lib/telegram/notifications";
+import { normalizeProductCategory } from "@/lib/categories";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 
@@ -19,7 +19,7 @@ const createItemSchema = z.object({
   priority: z.number().min(1).max(5).default(3),
   images: z.array(z.string().url()).max(1).default([]),
   notes: z.string().max(2000).optional(),
-  tags: z.array(z.string()).default([]),
+  category: z.string().trim().max(80).nullable().optional(),
   listId: z.string().trim().nullable().optional(),
 });
 
@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
       OR: [
         { title: { contains: search, mode: "insensitive" } },
         { notes: { contains: search, mode: "insensitive" } },
-        { tags: { some: { name: { contains: search, mode: "insensitive" } } } },
+        { category: { contains: search, mode: "insensitive" } },
       ],
     });
   }
@@ -138,7 +138,6 @@ export async function GET(req: NextRequest) {
   const items = await prisma.item.findMany({
     where,
     include: {
-      tags: true,
       user: { select: { id: true, name: true, avatarUrl: true } },
       claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
       list: { select: { userId: true } },
@@ -190,19 +189,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const data = createItemSchema.parse(body);
 
-    // Handle tags: upsert to avoid race conditions
-    const tagConnections = await Promise.all(
-      data.tags.map(async (tagName) => {
-        const normalizedName = tagName.trim().toLowerCase();
-        const tag = await prisma.tag.upsert({
-          where: { name: normalizedName },
-          update: {},
-          create: { name: normalizedName, color: getTagColor(normalizedName) },
-        });
-        return { id: tag.id };
-      })
-    );
-
     const listId: string | null = data.listId ?? null;
     if (listId) {
       const list = await prisma.list.findUnique({ where: { id: listId }, select: { userId: true } });
@@ -220,13 +206,12 @@ export async function POST(req: NextRequest) {
         priority: data.priority,
         images: data.images,
         notes: data.notes || null,
+        category: normalizeProductCategory(data.category),
         status: "AVAILABLE",
         userId,
         listId,
-        tags: { connect: tagConnections },
       },
       include: {
-        tags: true,
         user: { select: { id: true, name: true, avatarUrl: true } },
         claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
         list: { select: { userId: true } },

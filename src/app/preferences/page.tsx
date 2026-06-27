@@ -38,6 +38,7 @@ import {
   emptyGiftPreferences,
   normalizeGiftPreferences,
 } from "@/lib/preferences";
+import { PRODUCT_CATEGORIES } from "@/lib/categories";
 
 type PreferencesUser = {
   id: string;
@@ -91,6 +92,10 @@ const materialSuggestions: PreferenceSuggestion[] = [
   "Керамика",
   "Дерево",
 ].map((label) => ({ label }));
+
+const categorySuggestions: PreferenceSuggestion[] = PRODUCT_CATEGORIES.map((category) => ({
+  label: category.label,
+}));
 
 const brandSuggestions: PreferenceSuggestion[] = [
   "Apple",
@@ -288,11 +293,13 @@ export default function PreferencesPage() {
 
   const sectionCounts: Record<EditorSection, number> = {
     likes:
+      draft.favoriteCategories.length +
       draft.favoriteColors.length +
       draft.favoriteMaterials.length +
       draft.favoriteBrands.length +
       draft.hobbies.length,
     avoid:
+      draft.dislikedCategories.length +
       draft.dislikedColors.length +
       draft.dislikedMaterials.length +
       draft.dislikedBrands.length +
@@ -501,6 +508,15 @@ export default function PreferencesPage() {
                                     {activeSection === "likes" ? (
                                       <>
                                         <PreferenceChipPicker
+                                          title="Категории товаров"
+                                          description="Какие типы подарков вам чаще всего интересны."
+                                          value={draft.favoriteCategories}
+                                          suggestions={categorySuggestions}
+                                          placeholder="Добавить категорию"
+                                          max={12}
+                                          onChange={(value) => updateList("favoriteCategories", value)}
+                                        />
+                                        <PreferenceChipPicker
                                           title="Любимые цвета"
                                           description="Выберите оттенки, с которыми сложно промахнуться."
                                           value={draft.favoriteColors}
@@ -541,6 +557,16 @@ export default function PreferencesPage() {
 
                                     {activeSection === "avoid" ? (
                                       <>
+                                        <PreferenceChipPicker
+                                          title="Категории не для меня"
+                                          description="Типы товаров, которые лучше не выбирать."
+                                          value={draft.dislikedCategories}
+                                          suggestions={categorySuggestions}
+                                          placeholder="Добавить нежелательную категорию"
+                                          max={12}
+                                          warning
+                                          onChange={(value) => updateList("dislikedCategories", value)}
+                                        />
                                         <PreferenceChipPicker
                                           title="Цвета, которые не нравятся"
                                           description="Отметьте оттенки, которых лучше избегать."

@@ -99,4 +99,49 @@ describe("telegram notifications", () => {
       text: "🎁 Новый подарок\n👤 Аня\n📌 Книга",
     });
   });
+
+  it("sends comment notifications to deduplicated recipients except the author", async () => {
+    mockFindUnique.mockImplementation(async ({ where }: { where: { id: string } }) => {
+      if (where.id === "owner-1") {
+        return {
+          telegramId: "111",
+          telegramConfirmedAt: new Date("2026-06-15T12:00:00.000Z"),
+          telegramNotificationsEnabled: true,
+        };
+      }
+      if (where.id === "viewer-1") {
+        return {
+          telegramId: "222",
+          telegramConfirmedAt: new Date("2026-06-15T12:00:00.000Z"),
+          telegramNotificationsEnabled: true,
+        };
+      }
+      return {
+        telegramId: "333",
+        telegramConfirmedAt: new Date("2026-06-15T12:00:00.000Z"),
+        telegramNotificationsEnabled: true,
+      };
+    });
+
+    const { notifyCommentCreated } = await import("./notifications");
+
+    await notifyCommentCreated({
+      itemId: "item-1",
+      itemTitle: "Книга",
+      actorUserId: "actor-1",
+      actorName: "Аня",
+      commentText: "Отличный вариант",
+      recipientUserIds: ["owner-1", "viewer-1", "owner-1", "actor-1"],
+    });
+
+    expect(mockSendTelegramMessage).toHaveBeenCalledTimes(2);
+    expect(mockSendTelegramMessage).toHaveBeenCalledWith({
+      chatId: "111",
+      text: "💬 Новый комментарий\n👤 Аня\n📌 Книга\n💭 Отличный вариант",
+    });
+    expect(mockSendTelegramMessage).toHaveBeenCalledWith({
+      chatId: "222",
+      text: "💬 Новый комментарий\n👤 Аня\n📌 Книга\n💭 Отличный вариант",
+    });
+  });
 });

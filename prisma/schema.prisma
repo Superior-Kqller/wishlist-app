@@ -86,7 +86,7 @@ model Item {
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   listId      String?
   list        List?         @relation(fields: [listId], references: [id], onDelete: SetNull)
-  tags        Tag[]
+  category    String?
   comments    ItemComment[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -99,6 +99,7 @@ model Item {
   @@index([userId, createdAt])
   @@index([status])
   @@index([claimedByUserId])
+  @@index([category])
 }
 
 model ItemComment {
@@ -112,13 +113,4 @@ model ItemComment {
 
   @@index([itemId])
   @@index([userId])
-}
-
-model Tag {
-  id    String @id @default(cuid())
-  name  String @unique
-  color String @default("#6366f1")
-  items Item[]
-
-  @@index([name])
 }

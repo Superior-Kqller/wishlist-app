@@ -64,12 +64,14 @@ export function GiftPreferencesSummary({
   const preferences = normalizeGiftPreferences(rawPreferences);
   const preferenceCount = countGiftPreferences(preferences);
   const likes = [
+    ...preferences.favoriteCategories,
     ...preferences.favoriteColors,
     ...preferences.favoriteMaterials,
     ...preferences.favoriteBrands,
     ...preferences.hobbies,
   ];
   const avoid = [
+    ...preferences.dislikedCategories,
     ...preferences.dislikedColors,
     ...preferences.dislikedMaterials,
     ...preferences.dislikedBrands,

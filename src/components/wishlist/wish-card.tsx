@@ -14,12 +14,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WishlistItem } from "@/types";
-import { cn, formatPrice, getTagColor } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import { PriorityBadgeOverlay } from "./priority-badge";
 import { IconButton } from "@/components/ui/icon-button";
-import { StatusBadge } from "@/components/wishlist/status-badge";
 import { useI18n } from "@/components/i18n/language-provider";
+import { getProductCategoryIcon, getProductCategoryLabel } from "@/lib/categories";
 
 export interface WishCardProps {
   item: WishlistItem;
@@ -95,8 +95,8 @@ export const WishCard = memo(function WishCard({
 
   const showImage = Boolean(imageUrl && !imageError);
 
-  const visibleTags = item.tags.slice(0, 3);
-  const hiddenTagCount = Math.max(0, item.tags.length - visibleTags.length);
+  const categoryLabel = getProductCategoryLabel(item.category, language);
+  const categoryIcon = getProductCategoryIcon(item.category);
 
   return (
       <Card
@@ -218,50 +218,20 @@ export const WishCard = memo(function WishCard({
             ) : (
               <span className="min-w-0" aria-hidden />
             )}
-            <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-1">
-              <span data-testid="wishlist-card-v2-status" className="min-w-0">
-                <StatusBadge
-                  status={item.status}
-                  className={cn(
-                    cardMetaChipClass,
-                    "bg-[hsl(var(--surface-2))/0.72] [&_svg]:h-3 [&_svg]:w-3 [&_svg]:shrink-0",
-                    item.status === "PURCHASED" && "border-success/65 text-success",
-                    (item.status === "AVAILABLE" || item.status === "CLAIMED") && "border-info/65 text-info"
-                  )}
-                />
-              </span>
-            </div>
           </div>
 
-          {visibleTags.length > 0 ? (
+          {item.category ? (
             <div className="flex min-h-5 flex-wrap items-center gap-1">
-              {visibleTags.map((tag) => {
-                const color =
-                  tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
-                return (
-                  <span
-                    key={tag.id}
-                    data-testid="wishlist-card-v2-tag"
-                    className={cn(cardMetaChipClass, "max-w-[7.5rem] truncate")}
-                    style={{ borderColor: color, color }}
-                  >
-                    {tag.name}
-                  </span>
-                );
-              })}
-              {hiddenTagCount > 0 ? (
-                <span
-                  className={cn(
-                    cardMetaChipClass,
-                    "border-border/45 text-muted-foreground"
-                  )}
-                >
-                  +{hiddenTagCount}
-                </span>
-              ) : null}
+              <span
+                data-testid="wishlist-card-v2-category"
+                className={cn(cardMetaChipClass, "max-w-[10rem] truncate border-primary/32 text-foreground/82")}
+              >
+                <span aria-hidden className="mr-1">{categoryIcon}</span>
+                {categoryLabel}
+              </span>
             </div>
           ) : (
-            <span className="sr-only">{t("Без тегов")}</span>
+            <span className="sr-only">{t("Без категории")}</span>
           )}
         </CardHeader>
 

@@ -18,9 +18,9 @@ function item(partial: Partial<WishlistItem> & Pick<WishlistItem, "id">): Wishli
     claimedAt: null,
     userId: "u1",
     listId: null,
+    category: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    tags: [],
     user: { id: "u1", name: "U", avatarUrl: null },
     claimedByUser: null,
     ...partial,
@@ -34,7 +34,7 @@ describe("filterAndSortWishlistItems", () => {
     const out = filterAndSortWishlistItems([a, b], {
       sortBy: "newest",
       showPurchased: false,
-      effectiveSelectedTags: [],
+      effectiveSelectedCategories: [],
     });
     expect(out.map((x) => x.id)).toEqual(["1"]);
   });
@@ -46,31 +46,38 @@ describe("filterAndSortWishlistItems", () => {
     const out = filterAndSortWishlistItems([available, purchasedByStatus], {
       sortBy: "newest",
       showPurchased: false,
-      effectiveSelectedTags: [],
+      effectiveSelectedCategories: [],
     });
 
     expect(out.map((x) => x.id)).toEqual(["1"]);
   });
 
-  it("фильтрует по тегам и сортирует по приоритету", () => {
-    const t1 = { id: "tag1", name: "a", color: "#000" };
+  it("фильтрует по категориям и сортирует по приоритету", () => {
     const low = item({
       id: "1",
       priority: 1,
-      tags: [t1],
+      category: "electronics",
       createdAt: "2020-01-01T00:00:00.000Z",
     });
     const high = item({
       id: "2",
       priority: 5,
-      tags: [t1],
+      category: "electronics",
       createdAt: "2019-01-01T00:00:00.000Z",
     });
-    const out = filterAndSortWishlistItems([low, high], {
+    const other = item({
+      id: "3",
+      priority: 5,
+      category: "books",
+      createdAt: "2018-01-01T00:00:00.000Z",
+    });
+
+    const out = filterAndSortWishlistItems([low, high, other], {
       sortBy: "priority-high",
       showPurchased: true,
-      effectiveSelectedTags: ["tag1"],
+      effectiveSelectedCategories: ["electronics"],
     });
+
     expect(out.map((x) => x.id)).toEqual(["2", "1"]);
   });
 });

@@ -23,10 +23,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PriorityBadge } from "@/components/PriorityBadge";
 import { UserAvatar } from "@/components/UserAvatar";
-import { StatusBadge } from "@/components/wishlist/status-badge";
-import { formatPrice, getTagColor, cn } from "@/lib/utils";
+import { formatPrice, cn } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
+import { getProductCategoryIcon, getProductCategoryLabel } from "@/lib/categories";
 
 type ItemMetaSectionProps = {
   item: WishlistItem;
@@ -50,6 +50,8 @@ export function ItemMetaSection({
   const actionButtonClass =
     "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-border/54 bg-[hsl(var(--surface-3))/0.58] px-3 text-foreground backdrop-blur-[8px] hover:border-border/76 hover:bg-accent sm:h-10 sm:min-h-10 sm:w-auto";
   const hasLongNotes = Boolean(item.notes && item.notes.length > 180);
+  const categoryLabel = getProductCategoryLabel(item.category, language);
+  const categoryIcon = getProductCategoryIcon(item.category);
 
   useEffect(() => {
     setShowFullNotes(false);
@@ -73,7 +75,6 @@ export function ItemMetaSection({
                 {formatPrice(item.price, item.currency, language)}
               </p>
             ) : null}
-            <StatusBadge status={item.status} className="text-[11px] opacity-85" />
             <PriorityBadge priority={item.priority} className="text-[11px] opacity-85" />
           </div>
         </div>
@@ -113,22 +114,12 @@ export function ItemMetaSection({
         </div>
       ) : null}
 
-      {item.tags.length > 0 ? (
+      {item.category ? (
         <div className="flex flex-wrap gap-1.5">
-          {item.tags.map((tag) => {
-            const color =
-              tag.color === "#6366f1" ? getTagColor(tag.name) : tag.color;
-            return (
-              <Badge
-                key={tag.id}
-                variant="outline"
-                className="px-1.5 py-0.5 text-[11px] opacity-90"
-                style={{ borderColor: color, color }}
-              >
-                {tag.name}
-              </Badge>
-            );
-          })}
+          <Badge variant="outline" className="gap-1.5 px-2 py-1 text-xs opacity-90">
+            <span aria-hidden>{categoryIcon}</span>
+            {categoryLabel}
+          </Badge>
         </div>
       ) : null}
 

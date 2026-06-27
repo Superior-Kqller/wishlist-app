@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-import { getTagColor } from "@/lib/utils";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { canUserSeeItem } from "@/lib/list-utils";
@@ -15,6 +14,7 @@ import {
 } from "@/lib/item-status";
 import { notifyStatusTransition } from "@/lib/telegram/notifications";
 import { itemResponseWithoutList } from "@/lib/item-json";
+import { normalizeProductCategory } from "@/lib/categories";
 
 const updateItemSchema = z.object({
   title: z.string().min(1).max(500).optional(),
@@ -26,7 +26,7 @@ const updateItemSchema = z.object({
   notes: z.string().max(2000).optional().or(z.null()),
   purchased: z.boolean().optional(),
   status: z.enum(["AVAILABLE", "PURCHASED"]).optional(),
-  tags: z.array(z.string()).optional(),
+  category: z.string().trim().max(80).nullable().optional(),
   listId: z.string().trim().nullable().optional(),
 });
 
@@ -74,7 +74,6 @@ export async function GET(
   const item = await prisma.item.findFirst({
     where: { id },
     include: {
-      tags: true,
       user: { select: { id: true, name: true, avatarUrl: true } },
       claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
       list: { select: { userId: true } },
@@ -112,7 +111,6 @@ export async function PATCH(
   const existing = await prisma.item.findFirst({
     where: { id },
     include: {
-      tags: true,
       list: { select: { userId: true, viewers: { select: { userId: true } } } },
     },
   });
@@ -147,7 +145,7 @@ export async function PATCH(
       data.priority !== undefined ||
       data.images !== undefined ||
       data.notes !== undefined ||
-      data.tags !== undefined ||
+      data.category !== undefined ||
       data.listId !== undefined;
     const hasNonStatusFields = hasOwnerOnlyFields || data.purchased !== undefined;
 
@@ -169,6 +167,9 @@ export async function PATCH(
     if (data.priority !== undefined) updateData.priority = data.priority;
     if (data.images !== undefined) updateData.images = data.images;
     if (data.notes !== undefined) updateData.notes = data.notes || null;
+    if (data.category !== undefined) {
+      updateData.category = normalizeProductCategory(data.category);
+    }
 
     if (data.purchased !== undefined) {
       if (!isOwner) {
@@ -231,7 +232,6 @@ export async function PATCH(
         return tx.item.findUnique({
           where: { id },
           include: {
-            tags: true,
             user: { select: { id: true, name: true, avatarUrl: true } },
             claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
             list: { select: { userId: true } },
@@ -274,30 +274,10 @@ export async function PATCH(
       updateData.listId = data.listId || null;
     }
 
-    if (data.tags !== undefined) {
-      const tagConnections = await Promise.all(
-        data.tags.map(async (tagName) => {
-          const normalizedName = tagName.trim().toLowerCase();
-          const tag = await prisma.tag.upsert({
-            where: { name: normalizedName },
-            update: {},
-            create: { name: normalizedName, color: getTagColor(normalizedName) },
-          });
-          return { id: tag.id };
-        })
-      );
-
-      updateData.tags = {
-        set: [],
-        connect: tagConnections,
-      };
-    }
-
     const item = await prisma.item.update({
       where: { id },
       data: updateData,
       include: {
-        tags: true,
         user: { select: { id: true, name: true, avatarUrl: true } },
         claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
         list: { select: { userId: true } },
