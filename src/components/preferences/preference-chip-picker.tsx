@@ -98,7 +98,7 @@ export function PreferenceChipPicker({
                   aria-hidden
                 />
               ) : null}
-              {suggestion.label}
+              {t(suggestion.label)}
               {active ? <Check className="h-3.5 w-3.5" aria-hidden /> : null}
             </button>
           );
@@ -153,9 +153,9 @@ export function PreferenceChipPicker({
                       ? "border-destructive/32 bg-destructive/8 text-destructive"
                       : "border-primary/28 bg-primary/9 text-foreground/88",
                   )}
-                  aria-label={`${t("Убрать")}: ${item}`}
+                  aria-label={`${t("Убрать")}: ${t(item)}`}
                 >
-                  <span className="truncate">{item}</span>
+                  <span className="truncate">{t(item)}</span>
                   <X className="h-3 w-3 shrink-0" aria-hidden />
                 </motion.button>
               ))}

@@ -195,7 +195,7 @@ function QuickTextField({
                 : "border-border/52 bg-[hsl(var(--surface-3))/0.5] text-muted-foreground hover:bg-accent hover:text-foreground",
             )}
           >
-            {suggestion}
+            {t(suggestion)}
           </button>
         ))}
       </div>

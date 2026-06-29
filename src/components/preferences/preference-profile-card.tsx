@@ -79,7 +79,7 @@ function PreviewGroup({
                   : "border-border/55 bg-[hsl(var(--surface-3))/0.58] text-foreground/82",
               )}
             >
-              {value}
+              {t(value)}
             </span>
           ))}
           {values.length > 4 ? (
@@ -226,7 +226,7 @@ export function PreferenceProfileCard({
                   {preferences.favoriteColors.slice(0, 5).map((color) => (
                     <span
                       key={color}
-                      title={color}
+                      title={t(color)}
                       className="size-5 rounded-full border-2 border-[hsl(var(--surface-2))]"
                       style={{ backgroundColor: colorValues[color.toLocaleLowerCase("ru-RU")] ?? "#77777f" }}
                     />

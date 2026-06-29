@@ -35,6 +35,8 @@ function PreferenceBadges({
   values: string[];
   warning?: boolean;
 }) {
+  const { t } = useI18n();
+
   return (
     <div className="flex flex-wrap gap-1.5">
       {values.map((value) => (
@@ -46,7 +48,7 @@ function PreferenceBadges({
             warning && "border-destructive/30 bg-destructive/8 text-destructive",
           )}
         >
-          {value}
+          {t(value)}
         </Badge>
       ))}
     </div>
@@ -173,13 +175,13 @@ export function GiftPreferencesSummary({
                   {preferences.sizes ? (
                     <p className="flex gap-2 text-foreground/82">
                       <Ruler className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-                      <span>{preferences.sizes}</span>
+                      <span>{t(preferences.sizes)}</span>
                     </p>
                   ) : null}
                   {preferences.budget ? (
                     <p className="flex gap-2 text-foreground/82">
                       <CircleDollarSign className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-                      <span>{preferences.budget}</span>
+                      <span>{t(preferences.budget)}</span>
                     </p>
                   ) : null}
                   {preferences.occasions.length > 0 ? (
