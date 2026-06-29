@@ -17,7 +17,6 @@ import { uiSurface } from "@/lib/ui-contract";
 export type DashboardSummaryData = {
   total: number;
   available: number;
-  claimed: number;
   purchased: number;
   totalValue: number;
 };

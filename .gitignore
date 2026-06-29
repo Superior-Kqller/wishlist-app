@@ -9,6 +9,9 @@ node_modules/.vite/
 !.env.example
 *.tsbuildinfo
 next-env.d.ts
+.tmp*
+*.pid
+output/
 dist/
 coverage/
 npm-debug.log*

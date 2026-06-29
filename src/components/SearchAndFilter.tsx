@@ -52,7 +52,6 @@ interface WishlistToolbarControlsProps {
   onTogglePurchased: () => void;
   selectionMode: boolean;
   onToggleSelection: () => void;
-  /** Скрыть кнопку «Выбрать» (для устаревшей обёртки SearchAndFilter) */
   showSelectionButton?: boolean;
   className?: string;
 }
@@ -122,38 +121,6 @@ export function WishlistToolbarControls({
           </span>
         </Button>
       ) : null}
-    </div>
-  );
-}
-
-/** @deprecated Используйте WishlistSearchInput + WishlistToolbarControls в разметке страницы */
-export function SearchAndFilter({
-  search,
-  onSearchChange,
-  sortBy,
-  onSortChange,
-  showPurchased,
-  onTogglePurchased,
-}: {
-  search: string;
-  onSearchChange: (value: string) => void;
-  sortBy: string;
-  onSortChange: (value: string) => void;
-  showPurchased: boolean;
-  onTogglePurchased: () => void;
-}) {
-  return (
-    <div className="flex flex-row gap-2 sm:gap-2.5">
-      <WishlistSearchInput search={search} onSearchChange={onSearchChange} />
-      <WishlistToolbarControls
-        sortBy={sortBy}
-        onSortChange={onSortChange}
-        showPurchased={showPurchased}
-        onTogglePurchased={onTogglePurchased}
-        selectionMode={false}
-        onToggleSelection={() => {}}
-        showSelectionButton={false}
-      />
     </div>
   );
 }

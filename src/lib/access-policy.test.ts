@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  canClaimItem,
   canSeeClaimerIdentity,
-  canUnclaimItem,
   canViewList,
 } from "./access-policy";
 
@@ -33,52 +31,6 @@ describe("access-policy list visibility", () => {
         actorUserId: "u3",
         ownerUserId: "u1",
         viewerUserIds: ["u2"],
-      })
-    ).toBe(false);
-  });
-});
-
-describe("access-policy claim", () => {
-  it("запрещает claim", () => {
-    expect(
-      canClaimItem({
-        actorUserId: "u2",
-        ownerUserId: "u1",
-        claimerUserId: null,
-        isVisibleToActor: true,
-        status: "AVAILABLE",
-      })
-    ).toBe(false);
-
-    expect(
-      canClaimItem({
-        actorUserId: "u2",
-        ownerUserId: "u1",
-        claimerUserId: null,
-        isVisibleToActor: false,
-        status: "AVAILABLE",
-      })
-    ).toBe(false);
-  });
-
-  it("запрещает unclaim как отдельную функцию", () => {
-    expect(
-      canUnclaimItem({
-        actorUserId: "u1",
-        ownerUserId: "u1",
-        claimerUserId: "u2",
-        isVisibleToActor: true,
-        status: "CLAIMED",
-      })
-    ).toBe(false);
-
-    expect(
-      canUnclaimItem({
-        actorUserId: "u3",
-        ownerUserId: "u1",
-        claimerUserId: "u2",
-        isVisibleToActor: true,
-        status: "CLAIMED",
       })
     ).toBe(false);
   });

@@ -66,7 +66,7 @@ function formatAvailableItems(
 }
 
 function buildMyItemsMarkup(
-  items: Array<{ id: string; title: string; status: ItemStatus; claimedByUserId: string | null; ownerUserId: string }>,
+  items: Array<{ id: string; title: string; status: ItemStatus; ownerUserId: string }>,
   actorUserId: string
 ): { inline_keyboard: Array<Array<{ text: string; callback_data: string }>> } {
   const rows: Array<Array<{ text: string; callback_data: string }>> = [];
@@ -119,7 +119,6 @@ async function handleMyItems(actorUserId: string, chatId: string): Promise<void>
       id: true,
       title: true,
       status: true,
-      claimedByUserId: true,
       userId: true,
     },
   });
@@ -132,7 +131,6 @@ async function handleMyItems(actorUserId: string, chatId: string): Promise<void>
         id: item.id,
         title: item.title,
         status: item.status,
-        claimedByUserId: item.claimedByUserId,
         ownerUserId: item.userId,
       })),
       actorUserId
@@ -210,10 +208,6 @@ async function transitionItemStatusViaTelegram(params: {
     return { ok: false, message: "Нет доступа к товару" };
   }
 
-  if (params.nextStatus === "CLAIMED" || params.nextStatus === "AVAILABLE") {
-    return { ok: false, message: "Бронирование отключено" };
-  }
-
   if (
     !canTransitionStatus(existing.status, params.nextStatus, {
       actorUserId: params.actorUserId,
@@ -227,8 +221,6 @@ async function transitionItemStatusViaTelegram(params: {
   const now = new Date();
   const updateData: {
     status: ItemStatus;
-    claimedByUserId?: string | null;
-    claimedAt?: Date | null;
     purchased?: boolean;
     purchasedAt?: Date | null;
   } = {
@@ -245,7 +237,7 @@ async function transitionItemStatusViaTelegram(params: {
       where: {
         id: params.itemId,
         status: existing.status,
-        claimedByUserId: existing.status === "CLAIMED" ? existing.claimedByUserId : existing.claimedByUserId,
+        claimedByUserId: existing.claimedByUserId,
       },
       data: updateData,
     });
@@ -305,15 +297,6 @@ async function handleCallback(actorUserId: string, callback: TelegramCallbackQue
   const [action, itemId] = data.split(":");
   if (!itemId) {
     await answerTelegramCallback({ callbackQueryId: callback.id, text: "Неизвестная команда", showAlert: true });
-    return;
-  }
-
-  if (action === "claim" || action === "unclaim") {
-    await answerTelegramCallback({
-      callbackQueryId: callback.id,
-      text: "Бронирование отключено",
-      showAlert: true,
-    });
     return;
   }
 
