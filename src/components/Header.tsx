@@ -23,7 +23,6 @@ import {
 } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
 import { useI18n } from "@/components/i18n/language-provider";
-import { cn } from "@/lib/utils";
 import { useHeaderActions } from "@/lib/header-actions";
 
 export function Header() {
@@ -51,22 +50,12 @@ export function Header() {
     router.push("/?add=1");
   };
 
-  const navItems = [
-    { label: t("Главная"), href: "/", icon: Home },
-    { label: t("Статистика"), href: "/stats", icon: BarChart3 },
-    { label: t("Предпочтения"), href: "/preferences", icon: SlidersHorizontal },
-    { label: t("Настройки"), href: "/settings", icon: Settings },
-    ...(isAdmin
-      ? [{ label: t("Админка"), href: "/admin", icon: Shield }]
-      : []),
-  ];
-
   if (isLoginPage) return null;
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-[hsl(var(--surface-2)/0.94)] elevation-header backdrop-blur-xl lg:hidden">
       <div className="pt-[env(safe-area-inset-top,0px)]">
-        <div className="container mx-auto flex flex-col px-3 sm:px-4">
+        <div className="container mx-auto px-3 sm:px-4">
           <div className="flex min-h-[56px] items-center gap-3">
             <button
               onClick={() => router.push("/")}
@@ -142,35 +131,6 @@ export function Header() {
               </DropdownMenu>
             </div>
           </div>
-
-          <nav
-            className="-mx-3 flex gap-2 overflow-x-auto px-3 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-4 sm:px-4"
-            aria-label={t("Разделы")}
-          >
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const active = pathname === item.href;
-
-              return (
-                <Button
-                  key={item.href}
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "h-9 shrink-0 rounded-full border border-transparent px-3 text-xs font-semibold transition-all active:scale-[0.98]",
-                    active
-                      ? "border-primary/25 bg-primary/12 text-primary shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]"
-                      : "bg-[hsl(var(--surface-3))/0.42] text-muted-foreground hover:bg-accent/60 hover:text-foreground",
-                  )}
-                  aria-current={active ? "page" : undefined}
-                  onClick={() => router.push(item.href)}
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </Button>
-              );
-            })}
-          </nav>
         </div>
       </div>
     </header>
