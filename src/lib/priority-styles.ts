@@ -24,9 +24,9 @@ export const priorityBadgeToneByPriority: Record<WishlistPriority, string> = {
 };
 
 export const priorityOverlayToneByPriority: Record<WishlistPriority, string> = {
-  1: "border-[hsl(var(--priority-1)/0.42)] bg-[hsl(var(--surface-1)/0.76)] text-foreground shadow-sm",
-  2: "border-[hsl(var(--priority-2)/0.45)] bg-[hsl(var(--surface-1)/0.76)] text-foreground shadow-sm",
-  3: "border-[hsl(var(--priority-3)/0.5)] bg-[hsl(var(--surface-1)/0.78)] text-foreground shadow-sm",
-  4: "border-[hsl(var(--priority-4)/0.52)] bg-[hsl(var(--surface-1)/0.78)] text-foreground shadow-sm",
-  5: "border-[hsl(var(--priority-5)/0.56)] bg-[hsl(var(--surface-1)/0.8)] text-foreground shadow-sm",
+  1: "border-[hsl(var(--priority-1)/0.68)] bg-[hsl(var(--priority-1)/0.24)] text-foreground shadow-[0_12px_28px_hsl(var(--priority-1)/0.18)]",
+  2: "border-[hsl(var(--priority-2)/0.72)] bg-[hsl(var(--priority-2)/0.24)] text-foreground shadow-[0_12px_28px_hsl(var(--priority-2)/0.2)]",
+  3: "border-[hsl(var(--priority-3)/0.76)] bg-[hsl(var(--priority-3)/0.26)] text-foreground shadow-[0_12px_28px_hsl(var(--priority-3)/0.22)]",
+  4: "border-[hsl(var(--priority-4)/0.8)] bg-[hsl(var(--priority-4)/0.28)] text-foreground shadow-[0_12px_28px_hsl(var(--priority-4)/0.24)]",
+  5: "border-[hsl(var(--priority-5)/0.84)] bg-[hsl(var(--priority-5)/0.3)] text-foreground shadow-[0_12px_28px_hsl(var(--priority-5)/0.26)]",
 };
