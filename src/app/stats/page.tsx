@@ -357,7 +357,7 @@ export default function StatsPage() {
 
   return (
     <PageShell>
-      <PageMain className="max-w-6xl">
+      <PageMain className="max-w-7xl">
         <div className="space-y-6">
           <PageIntro
             title={t("Статистика")}
@@ -371,74 +371,99 @@ export default function StatsPage() {
               description={t("Статистика появится, когда в общих списках будут товары.")}
             />
           ) : (
-            <>
-              <StatsOverview summary={summary} />
-              <div className="max-w-3xl">
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
+              <div className="min-w-0 space-y-4">
+                <StatsOverview summary={summary} />
+
+                <section className={cn(uiSurface.contentPanel, "p-3 sm:p-4")}>
+                  <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <h2 className="text-sm font-semibold text-foreground">
+                        {t("Участники")}
+                      </h2>
+                      <p className="mt-0.5 max-w-[62ch] text-xs text-muted-foreground">
+                        {t("Личные итоги по товарам, активным желаниям и уже закрытым покупкам")}
+                      </p>
+                    </div>
+                    <span className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-primary/24 bg-primary/12 px-2.5 py-1 text-xs font-semibold text-primary-foreground tabular-nums">
+                      <Users className="h-3.5 w-3.5" aria-hidden />
+                      {users.length}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
+                    {users.map((user) => (
+                      <Card
+                        key={user.id}
+                        className={cn(
+                          uiSurface.interactiveCard,
+                          "h-full border-border/58 bg-[linear-gradient(180deg,hsl(var(--surface-2))/0.92,hsl(var(--surface-3))/0.68)]",
+                        )}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-3">
+                            <UserAvatar
+                              avatarUrl={user.avatarUrl || undefined}
+                              name={user.name}
+                              userId={user.id}
+                              size="lg"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <CardTitle className="truncate text-lg">
+                                {user.name}
+                              </CardTitle>
+                              <p className="truncate text-sm text-muted-foreground">
+                                @{user.username}
+                              </p>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="grid grid-cols-2 gap-2.5 text-sm">
+                            <div className="rounded-lg border border-border/38 bg-[hsl(var(--surface-2))/0.58] p-2.5">
+                              <p className="text-xs text-muted-foreground">
+                                {t("Всего товаров")}
+                              </p>
+                              <p className="mt-1 text-lg font-semibold tabular-nums">
+                                {user.stats.totalItems}
+                              </p>
+                            </div>
+                            <div className="rounded-lg border border-border/38 bg-[hsl(var(--surface-2))/0.58] p-2.5">
+                              <p className="text-xs text-muted-foreground">
+                                {t("Не куплено")}
+                              </p>
+                              <p className="mt-1 text-lg font-semibold tabular-nums">
+                                {user.stats.unpurchasedItems}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="border-t border-border/70 pt-3">
+                            <p className="mb-1 text-xs text-muted-foreground">
+                              {t("Ориентировочная стоимость")}
+                            </p>
+                            <StatsWishlistValueBlock stats={user.stats} />
+                          </div>
+
+                          {statsHasPurchasedPrices(user.stats) && (
+                            <div className="border-t border-border/70 pt-2">
+                              <p className="mb-1 text-xs text-muted-foreground">
+                                {t("Отмечено купленным")}
+                              </p>
+                              <StatsPurchasedValueBlock stats={user.stats} />
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </section>
+              </div>
+
+              <div className="min-w-0 xl:sticky xl:top-6 xl:self-start">
                 <RecentActivityPanel items={recentItemsData?.items ?? []} />
               </div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {users.map((user) => (
-                  <Card
-                    key={user.id}
-                    className={cn(
-                      uiSurface.interactiveCard,
-                      "h-full border-border/58 bg-[linear-gradient(180deg,hsl(var(--surface-2))/0.92,hsl(var(--surface-3))/0.68)]",
-                    )}
-                  >
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <UserAvatar
-                          avatarUrl={user.avatarUrl || undefined}
-                          name={user.name}
-                          userId={user.id}
-                          size="lg"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="text-lg truncate">
-                            {user.name}
-                          </CardTitle>
-                          <p className="text-sm text-muted-foreground truncate">
-                            @{user.username}
-                          </p>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div className="rounded-lg bg-[hsl(var(--surface-2))/0.58] p-2.5">
-                          <p className="text-muted-foreground">{t("Всего товаров")}</p>
-                          <p className="text-lg font-semibold">
-                            {user.stats.totalItems}
-                          </p>
-                        </div>
-                        <div className="rounded-lg bg-[hsl(var(--surface-2))/0.58] p-2.5">
-                          <p className="text-muted-foreground">{t("Не куплено")}</p>
-                          <p className="text-lg font-semibold">
-                            {user.stats.unpurchasedItems}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="pt-3 border-t border-border/70">
-                        <p className="text-xs text-muted-foreground mb-1">
-                          {t("Ориентировочная стоимость")}
-                        </p>
-                        <StatsWishlistValueBlock stats={user.stats} />
-                      </div>
-
-                      {statsHasPurchasedPrices(user.stats) && (
-                        <div className="pt-2 border-t border-border/70">
-                          <p className="text-xs text-muted-foreground mb-1">
-                            {t("Отмечено купленным")}
-                          </p>
-                          <StatsPurchasedValueBlock stats={user.stats} />
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </>
+            </div>
           )}
 
           {/* Version info */}
