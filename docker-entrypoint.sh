@@ -48,10 +48,61 @@ chmod -R 775 /app/public/uploads/avatars
 chown -R nextjs:nodejs /app/public/uploads || true
 echo "   ✓ Upload directories ready"
 
+PGLITE_PID=""
+APP_PID=""
+if [ "${DATABASE_PROVIDER:-postgresql}" = "pglite" ]; then
+  PGLITE_DATA_DIR="${PGLITE_DATA_DIR:-/app/data/pglite}"
+  PGLITE_HOST="${PGLITE_HOST:-127.0.0.1}"
+  PGLITE_PORT="${PGLITE_PORT:-5432}"
+  PGLITE_MAX_CONNECTIONS="${PGLITE_MAX_CONNECTIONS:-8}"
+  DATABASE_URL="postgresql://postgres:postgres@${PGLITE_HOST}:${PGLITE_PORT}/postgres"
+  export DATABASE_URL
+
+  echo ""
+  echo "🧩 Starting embedded PGlite..."
+  mkdir -p "$PGLITE_DATA_DIR"
+  chown -R nextjs:nodejs "$(dirname "$PGLITE_DATA_DIR")"
+  su-exec nextjs node ./node_modules/@electric-sql/pglite-socket/dist/scripts/server.js \
+    --db="$PGLITE_DATA_DIR" \
+    --host="$PGLITE_HOST" \
+    --port="$PGLITE_PORT" \
+    --max-connections="$PGLITE_MAX_CONNECTIONS" &
+  PGLITE_PID="$!"
+
+  cleanup_embedded_services() {
+    if [ -n "$APP_PID" ] && kill -0 "$APP_PID" 2>/dev/null; then
+      kill "$APP_PID" 2>/dev/null || true
+      wait "$APP_PID" 2>/dev/null || true
+    fi
+    if [ -n "$PGLITE_PID" ] && kill -0 "$PGLITE_PID" 2>/dev/null; then
+      kill "$PGLITE_PID" 2>/dev/null || true
+      wait "$PGLITE_PID" 2>/dev/null || true
+    fi
+  }
+  trap cleanup_embedded_services EXIT INT TERM
+
+  echo "⏳ Waiting for embedded database..."
+  PGLITE_READY=0
+  for _i in $(seq 1 30); do
+    if node -e "const { Client } = require('pg'); const client = new Client({ connectionString: process.env.DATABASE_URL }); client.connect().then(() => client.query('select 1')).then(() => client.end()).then(() => process.exit(0)).catch(() => process.exit(1));" >/dev/null 2>&1; then
+      echo "   ✓ Embedded PGlite ready"
+      PGLITE_READY=1
+      break
+    fi
+    sleep 1
+  done
+  if [ "$PGLITE_READY" != "1" ]; then
+    echo "   ✗ Embedded PGlite did not become ready"
+    exit 1
+  fi
+fi
+
 if [ "${RUN_MIGRATIONS_ON_START:-1}" = "1" ]; then
   echo ""
   echo "⏳ Waiting for database..."
-  sleep 3
+  if [ "${DATABASE_PROVIDER:-postgresql}" != "pglite" ]; then
+    sleep 3
+  fi
   echo "   ✓ Database connection established"
 
   echo ""
@@ -74,4 +125,10 @@ printf '%s\n' \
   "────────────────────────────────────────────" \
   ""
 
-exec su-exec nextjs "$@"
+if [ "${DATABASE_PROVIDER:-postgresql}" = "pglite" ]; then
+  su-exec nextjs "$@" &
+  APP_PID="$!"
+  wait "$APP_PID"
+else
+  exec su-exec nextjs "$@"
+fi

@@ -17,6 +17,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@electric-sql/pglite-socket": "^0.2.6",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@radix-ui/react-dialog": "^1.1.17",

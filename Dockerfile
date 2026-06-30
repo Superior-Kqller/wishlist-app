@@ -54,7 +54,7 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
-# Copy runtime deps for entrypoint/seed: adapter-pg, pg, bcryptjs, dotenv
+# Copy runtime deps for entrypoint/seed: adapter-pg, pg, PGlite, bcryptjs, dotenv
 COPY --from=builder /app/node_modules/@prisma/adapter-pg ./node_modules/@prisma/adapter-pg
 COPY --from=builder /app/node_modules/pg ./node_modules/pg
 COPY --from=builder /app/node_modules/pg-types ./node_modules/pg-types
@@ -70,6 +70,7 @@ COPY --from=builder /app/node_modules/postgres-interval ./node_modules/postgres-
 COPY --from=builder /app/node_modules/pg-int8 ./node_modules/pg-int8
 COPY --from=builder /app/node_modules/split2 ./node_modules/split2
 COPY --from=builder /app/node_modules/@prisma/driver-adapter-utils ./node_modules/@prisma/driver-adapter-utils
+COPY --from=builder /app/node_modules/@electric-sql ./node_modules/@electric-sql
 COPY --from=builder /app/node_modules/bcryptjs ./node_modules/bcryptjs
 COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
 COPY --from=builder /app/node_modules/ioredis ./node_modules/ioredis
@@ -82,7 +83,7 @@ COPY --from=builder /app/node_modules/standard-as-callback ./node_modules/standa
 COPY --from=builder /app/node_modules/debug ./node_modules/debug
 COPY --from=builder /app/node_modules/ms ./node_modules/ms
 
-RUN node -e "require('@prisma/client'); require('@prisma/adapter-pg'); require('pg'); require('bcryptjs'); require('ioredis'); require('dotenv');"
+RUN node -e "require('@prisma/client'); require('@prisma/adapter-pg'); require('pg'); require('@electric-sql/pglite-socket'); require('bcryptjs'); require('ioredis'); require('dotenv');"
 
 RUN node ./node_modules/prisma/build/index.js --version && \
     rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx

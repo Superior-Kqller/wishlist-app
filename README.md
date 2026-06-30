@@ -28,7 +28,7 @@ A self-hosted wishlist app for families, friends, and small teams. Add gift idea
 
 ## Stack
 
-Next.js, React, TypeScript, Prisma, PostgreSQL, NextAuth, Tailwind CSS, Radix UI, optional Valkey/Redis, Docker Compose.
+Next.js, React, TypeScript, Prisma, PostgreSQL or embedded PGlite, NextAuth, Tailwind CSS, Radix UI, optional Valkey/Redis, Docker Compose.
 
 ## Quick Start
 
@@ -50,6 +50,15 @@ docker compose -f docker-compose.prod.yml up -d
 ```
 
 Open `http://127.0.0.1:4030`.
+
+If you want the database inside the app container without a separate PostgreSQL service, use the PGlite variant:
+
+```bash
+docker compose -f docker-compose.pglite.yml pull
+docker compose -f docker-compose.pglite.yml up -d
+```
+
+In this mode `DB_PASSWORD` is not needed, and database files live in the `pglite-data` Docker volume.
 
 Valkey is optional: without it, rate limiting uses the app process memory. To use a shared Redis/Valkey counter in production, add the override file:
 
@@ -109,6 +118,15 @@ docker compose -f docker-compose.prod.yml up -d
 ```
 
 The app exposes `/api/health` and `/api/version`. PostgreSQL data and uploaded images are stored in Docker volumes; the Valkey socket volume is added only when `docker-compose.valkey.yml` is used.
+
+For the single-container PGlite mode, use:
+
+```bash
+docker compose -f docker-compose.pglite.yml ps
+docker compose -f docker-compose.pglite.yml logs -f wishlist-app
+docker compose -f docker-compose.pglite.yml pull
+docker compose -f docker-compose.pglite.yml up -d
+```
 
 ## Development Commands
 

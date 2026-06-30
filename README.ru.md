@@ -26,7 +26,7 @@ Self-hosted приложение для личных и общих списко�
 
 ## Стек
 
-Next.js, React, TypeScript, Prisma, PostgreSQL, NextAuth, Tailwind CSS, Radix UI, опциональный Valkey/Redis, Docker Compose.
+Next.js, React, TypeScript, Prisma, PostgreSQL или встроенный PGlite, NextAuth, Tailwind CSS, Radix UI, опциональный Valkey/Redis, Docker Compose.
 
 ## Быстрый запуск
 
@@ -48,6 +48,15 @@ docker compose -f docker-compose.prod.yml up -d
 ```
 
 Откройте `http://127.0.0.1:4030`.
+
+Если нужна БД прямо в контейнере приложения без отдельного PostgreSQL-сервиса, используйте PGlite-вариант:
+
+```bash
+docker compose -f docker-compose.pglite.yml pull
+docker compose -f docker-compose.pglite.yml up -d
+```
+
+В этом режиме `DB_PASSWORD` не нужен, а данные БД хранятся в Docker volume `pglite-data`.
 
 Valkey не обязателен: без него rate limiting работает в памяти процесса. Если нужен общий Redis/Valkey-счетчик лимитов, запускайте production с дополнительным compose-файлом:
 
@@ -114,6 +123,15 @@ docker compose -f docker-compose.prod.yml up -d
 ```
 
 Healthcheck доступен на `/api/health`, версия приложения — на `/api/version`. База и загруженные изображения хранятся в Docker volumes; socket Valkey добавляется только при запуске с `docker-compose.valkey.yml`.
+
+Для одно-контейнерного режима с PGlite используйте:
+
+```bash
+docker compose -f docker-compose.pglite.yml ps
+docker compose -f docker-compose.pglite.yml logs -f wishlist-app
+docker compose -f docker-compose.pglite.yml pull
+docker compose -f docker-compose.pglite.yml up -d
+```
 
 ## Команды разработки
 
