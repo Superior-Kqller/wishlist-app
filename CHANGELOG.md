@@ -7,6 +7,15 @@
 
 ## [Unreleased]
 
+### Добавлено
+
+- **Опциональный Valkey** — добавлен `docker-compose.valkey.yml`, который подключает Valkey к production-запуску только при явном использовании override-файла.
+- **Локальная инфраструктура** — добавлен `docker-compose.dev.yml` для быстрого запуска PostgreSQL и опционального Valkey через профиль `cache`.
+
+### Изменено
+
+- **Production Docker Compose** — `docker-compose.prod.yml` больше не требует Valkey; без `REDIS_URL` приложение использует in-memory rate limiting.
+
 ## [1.8.9] — 2026-06-19
 
 ### Добавлено

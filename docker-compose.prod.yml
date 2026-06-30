@@ -19,27 +19,6 @@ services:
     networks:
       - proxy
 
-  wishlist-valkey:
-    image: valkey/valkey:9.1.0-alpine
-    container_name: wishlist-valkey
-    restart: unless-stopped
-    command: >
-      valkey-server
-      --maxmemory 64mb
-      --maxmemory-policy allkeys-lru
-      --port 0
-      --unixsocket /run/valkey/valkey.sock
-      --unixsocketperm 777
-    healthcheck:
-      test: ["CMD", "valkey-cli", "-s", "/run/valkey/valkey.sock", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 3
-    volumes:
-      - valkey-socket:/run/valkey
-    networks:
-      - proxy
-
   wishlist-app:
     image: ${WISHLIST_APP_IMAGE:-ghcr.io/superior-kqller/wishlist-app:latest}
     container_name: wishlist-app
@@ -54,11 +33,8 @@ services:
     depends_on:
       wishlist-db:
         condition: service_healthy
-      wishlist-valkey:
-        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://wishlist:${DB_PASSWORD}@wishlist-db:5432/wishlist
-      REDIS_URL: /run/valkey/valkey.sock
     healthcheck:
       test:
         [
@@ -73,7 +49,6 @@ services:
       retries: 3
     volumes:
       - uploads-data:/app/public/uploads
-      - valkey-socket:/run/valkey:ro
     networks:
       - proxy
 
@@ -85,4 +60,3 @@ networks:
 volumes:
   postgres18-data:
   uploads-data:
-  valkey-socket:

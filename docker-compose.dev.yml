@@ -1,0 +1,39 @@
+services:
+  wishlist-dev-db:
+    image: postgres:18.4-alpine
+    container_name: wishlist-dev-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wishlist
+      POSTGRES_USER: wishlist
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-wishlist}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres18-dev-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wishlist"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  wishlist-dev-valkey:
+    image: valkey/valkey:9.1.0-alpine
+    container_name: wishlist-dev-valkey
+    restart: unless-stopped
+    profiles:
+      - cache
+    command: >
+      valkey-server
+      --maxmemory 64mb
+      --maxmemory-policy allkeys-lru
+    ports:
+      - "${VALKEY_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  postgres18-dev-data:

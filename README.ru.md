@@ -26,7 +26,7 @@ Self-hosted приложение для личных и общих списко�
 
 ## Стек
 
-Next.js, React, TypeScript, Prisma, PostgreSQL, NextAuth, Tailwind CSS, Radix UI, Valkey/Redis, Docker Compose.
+Next.js, React, TypeScript, Prisma, PostgreSQL, NextAuth, Tailwind CSS, Radix UI, опциональный Valkey/Redis, Docker Compose.
 
 ## Быстрый запуск
 
@@ -49,6 +49,12 @@ docker compose -f docker-compose.prod.yml up -d
 
 Откройте `http://127.0.0.1:4030`.
 
+Valkey не обязателен: без него rate limiting работает в памяти процесса. Если нужен общий Redis/Valkey-счетчик лимитов, запускайте production с дополнительным compose-файлом:
+
+```bash
+docker compose -f docker-compose.prod.yml -f docker-compose.valkey.yml up -d
+```
+
 ## Локальная разработка
 
 Нужны Node.js 22, npm и PostgreSQL.
@@ -63,6 +69,20 @@ npm run dev
 
 Для локального запуска укажите в `.env` локальный `DATABASE_URL`, `NEXTAUTH_URL=http://localhost:3000` и `DISABLE_PWA=1`.
 
+Чтобы быстро поднять только инфраструктуру для разработки:
+
+```bash
+docker compose -f docker-compose.dev.yml up -d
+```
+
+По умолчанию это только PostgreSQL на `localhost:5432`. Если нужен локальный Valkey:
+
+```bash
+docker compose -f docker-compose.dev.yml --profile cache up -d
+```
+
+Тогда для приложения вне Docker можно указать `REDIS_URL=redis://localhost:6379`.
+
 ## Настройка
 
 Источник правды по переменным окружения — [.env.example](.env.example). Там же описаны:
@@ -71,7 +91,7 @@ npm run dev
 - локальная разработка;
 - Telegram-бот и webhook;
 - reverse proxy;
-- Redis/Valkey;
+- опциональный Redis/Valkey;
 - seed-пользователи.
 
 Минимум для production:
@@ -93,7 +113,7 @@ docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-Healthcheck доступен на `/api/health`, версия приложения — на `/api/version`. База, загруженные изображения и socket Valkey хранятся в Docker volumes.
+Healthcheck доступен на `/api/health`, версия приложения — на `/api/version`. База и загруженные изображения хранятся в Docker volumes; socket Valkey добавляется только при запуске с `docker-compose.valkey.yml`.
 
 ## Команды разработки
 

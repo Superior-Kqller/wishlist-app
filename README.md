@@ -28,7 +28,7 @@ A self-hosted wishlist app for families, friends, and small teams. Add gift idea
 
 ## Stack
 
-Next.js, React, TypeScript, Prisma, PostgreSQL, NextAuth, Tailwind CSS, Radix UI, Valkey/Redis, Docker Compose.
+Next.js, React, TypeScript, Prisma, PostgreSQL, NextAuth, Tailwind CSS, Radix UI, optional Valkey/Redis, Docker Compose.
 
 ## Quick Start
 
@@ -51,6 +51,12 @@ docker compose -f docker-compose.prod.yml up -d
 
 Open `http://127.0.0.1:4030`.
 
+Valkey is optional: without it, rate limiting uses the app process memory. To use a shared Redis/Valkey counter in production, add the override file:
+
+```bash
+docker compose -f docker-compose.prod.yml -f docker-compose.valkey.yml up -d
+```
+
 ## Local Development
 
 Requirements: Node.js 22, npm, and PostgreSQL.
@@ -64,6 +70,20 @@ npm run dev
 ```
 
 For local development, use a local `DATABASE_URL`, `NEXTAUTH_URL=http://localhost:3000`, and `DISABLE_PWA=1` in `.env`.
+
+To start only local development infrastructure:
+
+```bash
+docker compose -f docker-compose.dev.yml up -d
+```
+
+By default, this starts PostgreSQL on `localhost:5432`. Add local Valkey when needed:
+
+```bash
+docker compose -f docker-compose.dev.yml --profile cache up -d
+```
+
+Then set `REDIS_URL=redis://localhost:6379` for the app running outside Docker.
 
 ## Configuration
 
@@ -88,7 +108,7 @@ docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-The app exposes `/api/health` and `/api/version`. PostgreSQL data, uploaded images, and Valkey socket data are stored in Docker volumes.
+The app exposes `/api/health` and `/api/version`. PostgreSQL data and uploaded images are stored in Docker volumes; the Valkey socket volume is added only when `docker-compose.valkey.yml` is used.
 
 ## Development Commands
 
