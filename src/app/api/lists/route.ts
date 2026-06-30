@@ -11,6 +11,15 @@ const createListSchema = z.object({
   viewerIds: z.array(z.string().trim()).default([]),
 });
 
+const activeListItemCount = {
+  items: {
+    where: {
+      purchased: false,
+      status: { not: "PURCHASED" as const },
+    },
+  },
+};
+
 // GET /api/lists — подборки, которые текущий пользователь может видеть (владелец или в ListViewer)
 export async function GET(req: NextRequest) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.read);
@@ -27,7 +36,7 @@ export async function GET(req: NextRequest) {
         OR: [{ userId: currentUserId }, { viewers: { some: { userId: currentUserId } } }],
       },
       include: {
-        _count: { select: { items: true } },
+        _count: { select: activeListItemCount },
         viewers: { select: { userId: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -95,7 +104,7 @@ export async function POST(req: NextRequest) {
         },
       },
       include: {
-        _count: { select: { items: true } },
+        _count: { select: activeListItemCount },
         viewers: { select: { userId: true } },
       },
     });

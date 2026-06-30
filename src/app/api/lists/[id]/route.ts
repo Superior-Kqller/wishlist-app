@@ -12,6 +12,15 @@ const updateListSchema = z.object({
   viewerIds: z.array(z.string().trim()).optional(),
 });
 
+const activeListItemCount = {
+  items: {
+    where: {
+      purchased: false,
+      status: { not: "PURCHASED" as const },
+    },
+  },
+};
+
 // GET /api/lists/[id] — одна подборка (если пользователь имеет доступ)
 export async function GET(
   req: NextRequest,
@@ -33,7 +42,7 @@ export async function GET(
       OR: [{ userId: currentUserId }, { viewers: { some: { userId: currentUserId } } }],
     },
     include: {
-      _count: { select: { items: true } },
+      _count: { select: activeListItemCount },
       viewers: { select: { userId: true } },
     },
   });
@@ -120,7 +129,7 @@ export async function PATCH(
         where: { id },
         data: updateData,
         include: {
-          _count: { select: { items: true } },
+          _count: { select: activeListItemCount },
           viewers: { select: { userId: true } },
         },
       });
