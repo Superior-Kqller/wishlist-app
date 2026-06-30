@@ -103,7 +103,7 @@ export const WishCard = memo(function WishCard({
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "group/card flex flex-col self-start overflow-hidden rounded-2xl border-border/50 bg-[hsl(var(--surface-2))/0.88] shadow-[0_16px_40px_rgba(0,0,0,0.24),inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-md max-sm:rounded-xl",
+          "group/card flex h-full flex-col overflow-hidden rounded-2xl border-border/50 bg-[hsl(var(--surface-2))/0.88] shadow-[0_16px_40px_rgba(0,0,0,0.24),inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-md max-sm:rounded-xl",
           isBought && "opacity-85 saturate-[0.82]",
           isCardInteractive &&
             "cursor-pointer transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-1 hover:border-primary/34 hover:shadow-[0_22px_52px_rgba(0,0,0,0.28),0_0_0_1px_hsl(var(--primary)/0.12)] focus-visible:border-primary/45",
@@ -118,7 +118,7 @@ export const WishCard = memo(function WishCard({
         <div
           data-testid="wishlist-card-v2-media"
           className={cn(
-            "group relative m-1.5 mb-0 aspect-[16/10] shrink-0 overflow-hidden rounded-xl border border-border/34 bg-[radial-gradient(circle_at_50%_32%,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_62%,hsl(var(--background))_100%)] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[linear-gradient(180deg,hsl(var(--background)/0.02)_0%,transparent_56%,hsl(var(--background)/0.2)_100%)] after:content-[''] sm:m-2 sm:mb-0 sm:aspect-[16/10]",
+            "group relative m-1.5 mb-0 min-h-[178px] flex-1 basis-[178px] overflow-hidden rounded-xl border border-border/34 bg-[radial-gradient(circle_at_50%_32%,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_62%,hsl(var(--background))_100%)] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[linear-gradient(180deg,hsl(var(--background)/0.02)_0%,transparent_56%,hsl(var(--background)/0.2)_100%)] after:content-[''] sm:m-2 sm:mb-0 sm:min-h-[190px] sm:basis-[190px]",
           )}
         >
           <PriorityBadgeOverlay priority={item.priority} />
@@ -139,7 +139,7 @@ export const WishCard = memo(function WishCard({
               src={imageUrl!}
               alt={item.title}
               fill
-              className="object-contain p-1.5 transition-transform duration-500 ease-out group-hover/card:scale-[1.045] sm:p-2"
+              className="object-contain p-2 transition-transform duration-500 ease-out group-hover/card:scale-[1.045] sm:p-3"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               unoptimized
               onError={() => setImageError(true)}
@@ -151,13 +151,13 @@ export const WishCard = memo(function WishCard({
           )}
         </div>
 
-        <CardHeader className="space-y-1.5 border-0 bg-transparent p-2.5 sm:p-3">
+        <CardHeader className="relative z-10 mx-1.5 -mt-3 space-y-2 rounded-t-[1.1rem] border border-border/24 border-b-0 bg-[hsl(var(--surface-2))/0.94] p-3 pb-2 shadow-[0_-10px_24px_rgba(0,0,0,0.12),inset_0_1px_0_hsl(var(--foreground)/0.045)] sm:mx-2 sm:-mt-4 sm:p-3.5 sm:pb-2.5">
           <div className="flex min-w-0 items-start justify-between gap-2">
             <div className="min-w-0 flex-1 space-y-1.5">
               <CardTitle
                 data-testid="wishlist-card-v2-title"
                 className={cn(
-                  "line-clamp-2 text-[15px] font-semibold leading-[1.16] text-balance text-foreground sm:text-base",
+                  "min-h-[2.25rem] line-clamp-2 text-[15px] font-semibold leading-[1.16] text-balance text-foreground sm:min-h-[2.35rem] sm:text-base",
                   isBought && "line-through"
                 )}
               >
@@ -227,7 +227,7 @@ export const WishCard = memo(function WishCard({
         {showFooter ? (
           <CardFooter
             data-testid="wishlist-card-v2-footer"
-            className="flex flex-row items-center gap-2 border-t border-border/18 bg-[hsl(var(--surface-1))/0.24] p-2 sm:p-2.5"
+            className="mx-1.5 mb-1.5 flex min-h-[3.75rem] flex-row items-center gap-2 rounded-b-[1.1rem] border border-border/24 border-t-border/18 bg-[hsl(var(--surface-2))/0.94] p-2.5 pt-2 shadow-[inset_0_-1px_0_hsl(var(--foreground)/0.035)] sm:mx-2 sm:mb-2 sm:min-h-16 sm:p-3 sm:pt-2.5"
           >
           {selectionMode ? (
             <p className="text-xs text-muted-foreground">
@@ -240,7 +240,7 @@ export const WishCard = memo(function WishCard({
                 {item.price != null ? (
                   <p
                     data-testid="wishlist-card-v2-price"
-                    className="min-w-0 truncate text-[15px] font-bold leading-none tabular-nums text-foreground sm:text-base"
+                    className="min-w-0 truncate text-[16px] font-bold leading-none tabular-nums text-foreground sm:text-[17px]"
                   >
                     {formatPrice(item.price, item.currency, language)}
                   </p>
@@ -254,7 +254,7 @@ export const WishCard = memo(function WishCard({
                       <Button
                         variant="outline"
                         asChild
-                        className="h-11 min-h-[44px] min-w-0 flex-1 justify-center gap-2 rounded-r-none border-primary/24 bg-primary/9 px-3 text-sm font-semibold shadow-none hover:border-primary/40 hover:bg-primary/15 sm:h-10 sm:min-h-10 sm:flex-none sm:px-4"
+                        className="h-11 min-h-[44px] min-w-0 flex-1 justify-center gap-2 rounded-r-none border-primary/24 bg-primary/9 px-3 text-sm font-semibold shadow-none hover:border-primary/40 hover:bg-primary/15 active:scale-[0.98] sm:h-10 sm:min-h-10 sm:flex-none sm:px-4"
                       >
                         <a
                           href={item.url}
@@ -333,7 +333,7 @@ export const WishCard = memo(function WishCard({
           ) : item.price != null ? (
             <p
               data-testid="wishlist-card-v2-price"
-              className="min-w-0 truncate text-[15px] font-bold leading-none tabular-nums text-foreground sm:text-base"
+              className="min-w-0 truncate text-[16px] font-bold leading-none tabular-nums text-foreground sm:text-[17px]"
             >
               {formatPrice(item.price, item.currency, language)}
             </p>
