@@ -12,10 +12,6 @@ A self-hosted wishlist app for families, friends, and small teams. Add gift idea
   <img src="assets/readme-home-desktop.png" alt="Wishlist desktop catalog with demo data" width="920">
 </p>
 
-<p align="center">
-  <img src="assets/readme-home-mobile.png" alt="Wishlist mobile catalog with demo data" width="320">
-</p>
-
 ## Features
 
 - Personal and shared wishlists

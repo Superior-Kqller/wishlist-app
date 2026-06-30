@@ -10,10 +10,6 @@ Self-hosted приложение для личных и общих списко�
   <img src="assets/readme-home-desktop.png" alt="Каталог Вишлиста на desktop с демо-данными" width="920">
 </p>
 
-<p align="center">
-  <img src="assets/readme-home-mobile.png" alt="Каталог Вишлиста на телефоне с демо-данными" width="320">
-</p>
-
 ## Возможности
 
 - личные и общие вишлисты;
