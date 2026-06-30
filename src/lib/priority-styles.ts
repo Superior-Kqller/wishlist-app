@@ -24,7 +24,7 @@ export const priorityBadgeToneByPriority: Record<WishlistPriority, string> = {
 };
 
 export const priorityOverlayToneByPriority: Record<WishlistPriority, string> = {
-  1: "border-[hsl(var(--priority-1)/0.68)] bg-[hsl(var(--priority-1)/0.24)] text-foreground shadow-[0_12px_28px_hsl(var(--priority-1)/0.18)]",
+  1: "border-white/45 bg-zinc-950/72 text-white shadow-[0_12px_28px_rgba(0,0,0,0.34),inset_0_1px_0_rgba(255,255,255,0.18)]",
   2: "border-[hsl(var(--priority-2)/0.72)] bg-[hsl(var(--priority-2)/0.24)] text-foreground shadow-[0_12px_28px_hsl(var(--priority-2)/0.2)]",
   3: "border-[hsl(var(--priority-3)/0.76)] bg-[hsl(var(--priority-3)/0.26)] text-foreground shadow-[0_12px_28px_hsl(var(--priority-3)/0.22)]",
   4: "border-[hsl(var(--priority-4)/0.8)] bg-[hsl(var(--priority-4)/0.28)] text-foreground shadow-[0_12px_28px_hsl(var(--priority-4)/0.24)]",
