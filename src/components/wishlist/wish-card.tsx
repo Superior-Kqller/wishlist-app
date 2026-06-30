@@ -151,26 +151,64 @@ export const WishCard = memo(function WishCard({
           )}
         </div>
 
-        <CardHeader className="space-y-2 border-0 bg-transparent p-2.5 sm:p-3">
-          <div className="space-y-1.5">
-            <CardTitle
-              data-testid="wishlist-card-v2-title"
-              className={cn(
-                "line-clamp-2 min-h-[2.32em] text-[15px] font-semibold leading-[1.16] text-balance text-foreground sm:text-base",
-                isBought && "line-through"
-              )}
-            >
-              {item.title}
-            </CardTitle>
-            {item.category ? (
-              <div className="flex min-h-5 min-w-0 items-center gap-1 overflow-hidden">
-                <span
-                  data-testid="wishlist-card-v2-category"
-                  className={cn(cardMetaChipClass, "max-w-full truncate border-primary/28 text-foreground/82")}
+        <CardHeader className="space-y-1.5 border-0 bg-transparent p-2.5 sm:p-3">
+          <div className="flex min-w-0 items-start justify-between gap-2">
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <CardTitle
+                data-testid="wishlist-card-v2-title"
+                className={cn(
+                  "line-clamp-2 text-[15px] font-semibold leading-[1.16] text-balance text-foreground sm:text-base",
+                  isBought && "line-through"
+                )}
+              >
+                {item.title}
+              </CardTitle>
+              {item.category ? (
+                <div className="flex min-h-5 min-w-0 items-center gap-1 overflow-hidden">
+                  <span
+                    data-testid="wishlist-card-v2-category"
+                    className={cn(cardMetaChipClass, "max-w-full truncate border-primary/28 text-foreground/82")}
+                  >
+                    <span aria-hidden className="mr-1">{categoryIcon}</span>
+                    {categoryLabel}
+                  </span>
+                </div>
+              ) : null}
+            </div>
+
+            {ownerName ? (
+              <div
+                data-testid="wishlist-card-v2-meta"
+                className="flex max-w-[6.75rem] shrink-0 justify-end pt-0.5"
+              >
+                <div
+                  data-testid="wishlist-card-v2-owner"
+                  className="flex min-w-0 max-w-full items-center gap-1 rounded-full border border-border/28 bg-[hsl(var(--surface-1))/0.42] px-1.5 py-1 text-muted-foreground/82 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]"
                 >
-                  <span aria-hidden className="mr-1">{categoryIcon}</span>
-                  {categoryLabel}
-                </span>
+                  <Avatar className="h-[18px] w-[18px] shrink-0">
+                    {ownerImage && !ownerImageError ? (
+                      <Image
+                        src={ownerImage}
+                        alt={ownerName}
+                        fill
+                        className="object-cover"
+                        sizes="20px"
+                        unoptimized={ownerImage.startsWith("/uploads/")}
+                        onError={() => setOwnerImageError(true)}
+                      />
+                    ) : (
+                      <AvatarFallback
+                        className={cn(
+                          "text-[8px] font-semibold text-primary-foreground",
+                          getAvatarColor(ownerId)
+                        )}
+                      >
+                        {getInitials(ownerName)}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  <span className="min-w-0 truncate text-[10px]">{ownerName}</span>
+                </div>
               </div>
             ) : null}
           </div>
@@ -182,42 +220,6 @@ export const WishCard = memo(function WishCard({
             >
               <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
               {t("Уже куплено")}
-            </div>
-          ) : null}
-
-          {ownerName ? (
-            <div
-              data-testid="wishlist-card-v2-meta"
-              className="flex items-center gap-1.5"
-            >
-              <div
-                data-testid="wishlist-card-v2-owner"
-                className="flex min-w-0 max-w-full shrink items-center gap-1 text-muted-foreground/82 sm:gap-1.5"
-              >
-                <Avatar className="h-5 w-5 shrink-0">
-                  {ownerImage && !ownerImageError ? (
-                    <Image
-                      src={ownerImage}
-                      alt={ownerName}
-                      fill
-                      className="object-cover"
-                      sizes="24px"
-                      unoptimized={ownerImage.startsWith("/uploads/")}
-                      onError={() => setOwnerImageError(true)}
-                    />
-                  ) : (
-                    <AvatarFallback
-                      className={cn(
-                        "text-[9px] font-semibold text-primary-foreground",
-                        getAvatarColor(ownerId)
-                      )}
-                    >
-                      {getInitials(ownerName)}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-                <span className="min-w-0 truncate text-[11px]">{ownerName}</span>
-              </div>
             </div>
           ) : null}
         </CardHeader>
