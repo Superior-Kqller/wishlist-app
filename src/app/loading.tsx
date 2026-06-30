@@ -4,7 +4,7 @@ import { uiSurface } from "@/lib/ui-contract";
 export default function Loading() {
   return (
     <div className="min-h-screen page-bg">
-      <div className="container mx-auto space-y-3 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-5 sm:px-6 sm:py-6 sm:pb-6 xl:px-8">
+      <div className="mx-auto w-full max-w-[112rem] space-y-3 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-5 sm:px-6 sm:py-6 sm:pb-6 xl:px-8 2xl:px-10">
         <div className="grid items-stretch gap-3 sm:gap-5 xl:grid-cols-[minmax(0,2.35fr)_minmax(18rem,0.9fr)]">
           <section className={`${uiSurface.homeSummary} h-full rounded-xl px-3 py-3 sm:rounded-2xl sm:px-5 sm:py-4`}>
             <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
@@ -77,8 +77,8 @@ export default function Loading() {
           </div>
         </section>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 min-[1800px]:grid-cols-6">
+          {Array.from({ length: 12 }).map((_, i) => (
             <Skeleton key={i} className="h-[344px] w-full rounded-xl" />
           ))}
         </div>

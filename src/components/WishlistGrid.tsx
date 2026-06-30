@@ -75,8 +75,8 @@ export function WishlistGrid({
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
-        {Array.from({ length: 8 }).map((_, i) => (
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 min-[1800px]:grid-cols-6">
+        {Array.from({ length: 12 }).map((_, i) => (
           <WishlistCardSkeleton key={i} index={i} />
         ))}
       </div>
@@ -144,7 +144,7 @@ export function WishlistGrid({
       role="region"
       aria-live="polite"
       aria-label={`${t("Список желаний")}: ${items.length} ${getItemWord(language, items.length)}`}
-      className="grid grid-cols-1 items-stretch gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4"
+      className="grid grid-cols-1 items-stretch gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 min-[1800px]:grid-cols-6"
     >
       {items.map((item) => (
         <WishCard

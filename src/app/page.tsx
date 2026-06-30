@@ -603,7 +603,7 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen page-bg">
-      <div className="container mx-auto space-y-2.5 px-2.5 py-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-5 sm:px-6 sm:py-6 sm:pb-6 xl:px-8">
+      <div className="mx-auto w-full max-w-[112rem] space-y-2.5 px-2.5 py-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-5 sm:px-6 sm:py-6 sm:pb-6 xl:px-8 2xl:px-10">
         <WishlistWorkspace
           search={search}
           onSearchChange={setSearch}
