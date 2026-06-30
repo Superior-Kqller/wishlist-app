@@ -48,7 +48,7 @@ export function ItemMetaSection({
   const { language, t } = useI18n();
   const [showFullNotes, setShowFullNotes] = useState(false);
   const actionButtonClass =
-    "h-11 min-h-[44px] w-full shrink-0 justify-center whitespace-nowrap border-border/54 bg-[hsl(var(--surface-3))/0.58] px-3 text-foreground backdrop-blur-[8px] hover:border-border/76 hover:bg-accent sm:h-10 sm:min-h-10 sm:w-auto";
+    "h-11 min-h-[44px] min-w-[8.5rem] flex-1 basis-[8.5rem] shrink justify-center whitespace-nowrap border-border/54 bg-[hsl(var(--surface-3))/0.58] px-3 text-foreground backdrop-blur-[8px] hover:border-border/76 hover:bg-accent sm:h-10 sm:min-h-10 sm:w-auto sm:flex-none sm:basis-auto";
   const hasLongNotes = Boolean(item.notes && item.notes.length > 180);
   const categoryLabel = getProductCategoryLabel(item.category, language);
   const categoryIcon = getProductCategoryIcon(item.category);
@@ -124,11 +124,11 @@ export function ItemMetaSection({
       ) : null}
 
       {(item.url || canManage) && (
-        <div className="grid gap-2 border-t border-border/34 pt-3 sm:flex sm:flex-wrap sm:items-center sm:gap-2">
+        <div className="flex flex-wrap gap-2 border-t border-border/34 pt-3 sm:items-center">
           {item.url ? (
             <Button
               asChild
-              className="h-11 min-h-[44px] w-full shrink-0 justify-center gap-2 px-3 sm:h-10 sm:min-h-10 sm:w-auto"
+              className="h-11 min-h-[44px] min-w-[8.5rem] flex-1 basis-[8.5rem] shrink justify-center gap-2 px-3 sm:h-10 sm:min-h-10 sm:w-auto sm:flex-none sm:basis-auto"
             >
               <a href={item.url} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-4 w-4 shrink-0" />

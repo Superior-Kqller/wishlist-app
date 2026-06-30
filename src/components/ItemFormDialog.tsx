@@ -313,19 +313,19 @@ export function ItemFormDialog({
                     {t("Вставьте URL страницы товара и нажмите «Заполнить» — подтянем название, цену, изображения и краткое описание, где это доступно.")}
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
                   <Input
                     id="url"
                     type="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="https://..."
-                    className="sm:flex-1"
+                    className="min-w-0"
                   />
                   <Button
                     type="button"
                     variant="secondary"
-                    className="shrink-0 sm:w-auto"
+                    className="shrink-0 px-3"
                     disabled={parsingUrl || !url.trim() || isEdit}
                     onClick={handleFillFromUrl}
                     title={
@@ -468,7 +468,7 @@ export function ItemFormDialog({
                   role="group"
                   aria-label={t("Приоритет")}
                   data-testid="priority-select-dialog"
-                  className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1"
+                  className="grid grid-cols-2 gap-2 lg:grid-cols-1"
                 >
                   {PRIORITY_OPTIONS.map((value) => {
                     const isSelected = selectedPriority === value;
@@ -483,7 +483,7 @@ export function ItemFormDialog({
                         aria-label={`${t("Приоритет")} ${value}: ${label}`}
                         onClick={() => setPriority(value)}
                         className={cn(
-                          "flex min-h-[46px] items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                          "flex min-h-[44px] items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-xs font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:text-sm",
                           isSelected
                             ? priorityBadgeToneByPriority[value]
                             : "border-border/50 bg-[hsl(var(--surface-2))/0.58] text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -496,14 +496,14 @@ export function ItemFormDialog({
                             priorityDotClassByPriority[value],
                           )}
                         />
-                        <span className="min-w-0">
+                        <span className="min-w-0 flex-1">
                           <span className="block truncate">{label}</span>
-                          <span className="block text-xs font-medium text-muted-foreground/82">
+                          <span className="block truncate text-[11px] font-medium text-muted-foreground/82 sm:text-xs">
                             {t("Уровень")} {value} · {shortLabel}
                           </span>
                         </span>
                         {isSelected ? (
-                          <span className="ml-auto shrink-0 text-xs text-muted-foreground">
+                          <span className="hidden shrink-0 text-xs text-muted-foreground sm:inline">
                             {t("Выбрано")}
                           </span>
                         ) : null}
@@ -535,7 +535,7 @@ export function ItemFormDialog({
             </aside>
           </div>
 
-          <DialogFooter className="border-t border-border/34 bg-[hsl(var(--surface-2))/0.72] px-4 py-3 sm:px-5">
+          <DialogFooter className="grid grid-cols-2 border-t border-border/34 bg-[hsl(var(--surface-2))/0.72] px-4 py-3 sm:flex sm:px-5">
             <Button
               type="button"
               variant="outline"
