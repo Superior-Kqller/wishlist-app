@@ -37,7 +37,7 @@ export interface WishCardProps {
 }
 
 const cardMetaChipClass =
-  "inline-flex h-5 max-w-full items-center rounded-full border bg-[hsl(var(--surface-2))/0.72] px-1.5 py-0 text-[10px] font-medium leading-none shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-sm";
+  "inline-flex h-6 max-w-full items-center rounded-full border bg-[hsl(var(--surface-2))/0.72] px-2 py-0 text-[11px] font-medium leading-none shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-sm";
 
 export const WishCard = memo(function WishCard({
   item,
@@ -165,7 +165,7 @@ export const WishCard = memo(function WishCard({
           {item.category || ownerName ? (
             <div
               data-testid="wishlist-card-v2-meta"
-              className="flex min-h-5 min-w-0 flex-wrap items-center gap-1.5 overflow-hidden"
+              className="flex min-h-6 min-w-0 flex-wrap items-center gap-1.5 overflow-hidden"
             >
               {item.category ? (
                 <span
@@ -180,23 +180,23 @@ export const WishCard = memo(function WishCard({
               {ownerName ? (
                 <span
                   data-testid="wishlist-card-v2-owner"
-                  className="inline-flex h-5 max-w-full min-w-0 items-center gap-1 rounded-full border border-border/28 bg-[hsl(var(--surface-1))/0.42] px-1.5 text-muted-foreground/82 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]"
+                  className="inline-flex h-6 max-w-full min-w-0 items-center gap-1.5 rounded-full border border-border/28 bg-[hsl(var(--surface-1))/0.42] px-2 text-muted-foreground/82 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]"
                 >
-                  <Avatar className="h-[16px] w-[16px] shrink-0">
+                  <Avatar className="h-[18px] w-[18px] shrink-0">
                     {ownerImage && !ownerImageError ? (
                       <Image
                         src={ownerImage}
                         alt={ownerName}
                         fill
                         className="object-cover"
-                        sizes="18px"
+                        sizes="20px"
                         unoptimized={ownerImage.startsWith("/uploads/")}
                         onError={() => setOwnerImageError(true)}
                       />
                     ) : (
                       <AvatarFallback
                         className={cn(
-                          "text-[7px] font-semibold text-primary-foreground",
+                          "text-[8px] font-semibold text-primary-foreground",
                           getAvatarColor(ownerId)
                         )}
                       >
@@ -204,7 +204,7 @@ export const WishCard = memo(function WishCard({
                       </AvatarFallback>
                     )}
                   </Avatar>
-                  <span className="min-w-0 truncate text-[10px]">{ownerName}</span>
+                  <span className="min-w-0 truncate text-[11px]">{ownerName}</span>
                 </span>
               ) : null}
             </div>

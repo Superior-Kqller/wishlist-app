@@ -20,8 +20,8 @@ export function WishlistCardSkeleton({ index = 0 }: WishlistCardSkeletonProps) {
           <div className="h-4 w-4/5 rounded skeleton-shimmer" />
           <div className="h-4 w-3/5 rounded skeleton-shimmer" />
           <div className="flex gap-1">
-            <div className="h-5 w-12 rounded skeleton-shimmer" />
-            <div className="h-5 w-14 rounded skeleton-shimmer" />
+            <div className="h-6 w-16 rounded skeleton-shimmer" />
+            <div className="h-6 w-16 rounded skeleton-shimmer" />
           </div>
         </div>
         <div className="mt-auto flex min-h-[3.5rem] items-center justify-between gap-2 border-t border-border/18 bg-[hsl(var(--surface-1))/0.24] p-2.5 sm:min-h-[3.75rem] sm:p-3">

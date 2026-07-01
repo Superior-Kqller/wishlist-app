@@ -23,7 +23,8 @@ import {
   WishlistViewToggle,
   type WishlistViewMode,
 } from "@/components/wishlist/wishlist-view-toggle";
-import { uiState, uiSurface } from "@/lib/ui-contract";
+import { uiSurface } from "@/lib/ui-contract";
+import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
 import { getCardWord, getItemWord } from "@/lib/i18n";
 import type {
   ListWithMeta,
@@ -240,7 +241,7 @@ export function WishlistWorkspace({
         </div>
 
         <div className="hidden min-w-0 w-full flex-col gap-3 sm:flex">
-          <div className="flex min-w-0 items-center justify-between gap-3 border-b border-border/28 pb-3">
+          <div className="flex min-w-0 items-center border-b border-border/28 pb-3">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/68">
                 {t("Каталог желаний")}
@@ -249,51 +250,6 @@ export function WishlistWorkspace({
                 {visibleItemLabel}
                 {hasActiveFilters ? ` · ${activeFilterCount} ${t("Фильтры").toLowerCase()}` : ""}
               </p>
-            </div>
-            <div className="flex shrink-0 items-center gap-1.5">
-              <WishlistViewToggle
-                value={viewMode}
-                onValueChange={onViewModeChange}
-                className="hidden opacity-86 lg:inline-flex"
-              />
-              <Button
-                type="button"
-                variant={selectionMode ? "secondary" : "outline"}
-                size="sm"
-                className={selectionMode ? uiState.selectionActive : `${uiState.selectionIdle} text-muted-foreground`}
-                onClick={onToggleSelectionMode}
-              >
-                <CheckSquare className="h-4 w-4 shrink-0" />
-                {selectionMode ? t("Режим выбора") : t("Выбрать")}
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button type="button" variant="outline" size="sm" className="h-9 gap-2 border-border/60 bg-[hsl(var(--surface-3))/0.62] text-muted-foreground hover:text-foreground">
-                    <Download className="h-4 w-4" />
-                    {t("Данные")}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-44">
-                  <DropdownMenuItem onClick={onImport} disabled={isImporting}>
-                    {isImporting ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Upload className="mr-2 h-4 w-4" />
-                    )}
-                    {t("Импорт JSON")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onExport("csv")}>
-                    {t("Экспорт CSV")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onExport("json")}>
-                    {t("Экспорт JSON")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button type="button" size="sm" className="h-9 gap-2 px-3.5 shadow-[var(--shadow-brand-action)]" onClick={onAddItem}>
-                <Plus className="h-4 w-4" />
-                {t("Добавить товар")}
-              </Button>
             </div>
           </div>
 
@@ -330,6 +286,66 @@ export function WishlistWorkspace({
                 onToggleSelection={onToggleSelectionMode}
                 showSelectionButton={false}
               />
+              <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                <WishlistViewToggle
+                  value={viewMode}
+                  onValueChange={onViewModeChange}
+                  className="hidden lg:inline-flex"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className={`${filterBarTriggerClass} gap-2 px-3 text-muted-foreground hover:text-foreground ${
+                    selectionMode
+                      ? "border-primary/45 bg-[hsl(var(--surface-4))/0.86] text-foreground"
+                      : ""
+                  }`}
+                  onClick={onToggleSelectionMode}
+                >
+                  <CheckSquare className="h-4 w-4 shrink-0" />
+                  {selectionMode ? t("Режим выбора") : t("Выбрать")}
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className={`${filterBarTriggerClass} gap-2 px-3 text-muted-foreground hover:text-foreground`}
+                    >
+                      <Download className="h-4 w-4" />
+                      {t("Данные")}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-44">
+                    <DropdownMenuItem onClick={onImport} disabled={isImporting}>
+                      {isImporting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="mr-2 h-4 w-4" />
+                      )}
+                      {t("Импорт JSON")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onExport("csv")}>
+                      {t("Экспорт CSV")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onExport("json")}>
+                      {t("Экспорт JSON")}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className={`${filterBarTriggerClass} gap-2 px-3 text-foreground`}
+                  onClick={onAddItem}
+                >
+                  <Plus className="h-4 w-4" />
+                  {t("Добавить товар")}
+                </Button>
+              </div>
             </div>
           </div>
 
