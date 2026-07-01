@@ -16,7 +16,7 @@ export function WishlistCardSkeleton({ index = 0 }: WishlistCardSkeletonProps) {
     >
       <Card className="flex h-full flex-col overflow-hidden border-border/65 bg-[hsl(var(--surface-2))] elevation-interactive-card">
         <div className="min-h-[178px] flex-1 basis-[178px] skeleton-shimmer sm:min-h-[190px] sm:basis-[190px]" />
-        <div className="relative z-10 mx-1.5 -mt-3 space-y-2 rounded-t-[1.1rem] border border-border/24 border-b-0 bg-[hsl(var(--surface-2))/0.94] p-3 pb-2 sm:mx-2 sm:-mt-4 sm:p-3.5 sm:pb-2.5">
+        <div className="space-y-2 p-3 pb-2 sm:p-3.5 sm:pb-2.5">
           <div className="h-4 w-4/5 rounded skeleton-shimmer" />
           <div className="h-4 w-3/5 rounded skeleton-shimmer" />
           <div className="flex gap-1">
@@ -24,7 +24,7 @@ export function WishlistCardSkeleton({ index = 0 }: WishlistCardSkeletonProps) {
             <div className="h-5 w-14 rounded skeleton-shimmer" />
           </div>
         </div>
-        <div className="mx-1.5 mb-1.5 flex min-h-[3.75rem] items-center justify-between gap-2 rounded-b-[1.1rem] border border-border/24 border-t-border/18 bg-[hsl(var(--surface-2))/0.94] p-2.5 pt-2 sm:mx-2 sm:mb-2 sm:min-h-16 sm:p-3 sm:pt-2.5">
+        <div className="mt-auto flex min-h-[3.5rem] items-center justify-between gap-2 border-t border-border/18 bg-[hsl(var(--surface-1))/0.24] p-2.5 sm:min-h-[3.75rem] sm:p-3">
           <div className="h-5 w-20 rounded skeleton-shimmer" />
           <div className="h-10 w-28 rounded skeleton-shimmer" />
         </div>

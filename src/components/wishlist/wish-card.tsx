@@ -151,55 +151,52 @@ export const WishCard = memo(function WishCard({
           )}
         </div>
 
-        <CardHeader className="relative z-10 mx-1.5 -mt-3 space-y-2 rounded-t-[1.1rem] border border-border/24 border-b-0 bg-[hsl(var(--surface-2))/0.94] p-3 pb-2 shadow-[0_-10px_24px_rgba(0,0,0,0.12),inset_0_1px_0_hsl(var(--foreground)/0.045)] sm:mx-2 sm:-mt-4 sm:p-3.5 sm:pb-2.5">
-          <div className="flex min-w-0 items-start justify-between gap-2">
-            <div className="min-w-0 flex-1 space-y-1.5">
-              <CardTitle
-                data-testid="wishlist-card-v2-title"
-                className={cn(
-                  "min-h-[2.25rem] line-clamp-2 text-[15px] font-semibold leading-[1.16] text-balance text-foreground sm:min-h-[2.35rem] sm:text-base",
-                  isBought && "line-through"
-                )}
-              >
-                {item.title}
-              </CardTitle>
-              {item.category ? (
-                <div className="flex min-h-5 min-w-0 items-center gap-1 overflow-hidden">
-                  <span
-                    data-testid="wishlist-card-v2-category"
-                    className={cn(cardMetaChipClass, "max-w-full truncate border-primary/28 text-foreground/82")}
-                  >
-                    <span aria-hidden className="mr-1">{categoryIcon}</span>
-                    {categoryLabel}
-                  </span>
-                </div>
-              ) : null}
-            </div>
+        <CardHeader className="space-y-2 border-0 bg-transparent p-3 pb-2 sm:p-3.5 sm:pb-2.5">
+          <CardTitle
+            data-testid="wishlist-card-v2-title"
+            className={cn(
+              "min-h-[2.25rem] line-clamp-2 text-[15px] font-semibold leading-[1.16] text-balance text-foreground sm:min-h-[2.35rem] sm:text-base",
+              isBought && "line-through"
+            )}
+          >
+            {item.title}
+          </CardTitle>
 
-            {ownerName ? (
-              <div
-                data-testid="wishlist-card-v2-meta"
-                className="flex max-w-[6.75rem] shrink-0 justify-end pt-0.5"
-              >
-                <div
-                  data-testid="wishlist-card-v2-owner"
-                  className="flex min-w-0 max-w-full items-center gap-1 rounded-full border border-border/28 bg-[hsl(var(--surface-1))/0.42] px-1.5 py-1 text-muted-foreground/82 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]"
+          {item.category || ownerName ? (
+            <div
+              data-testid="wishlist-card-v2-meta"
+              className="flex min-h-5 min-w-0 flex-wrap items-center gap-1.5 overflow-hidden"
+            >
+              {item.category ? (
+                <span
+                  data-testid="wishlist-card-v2-category"
+                  className={cn(cardMetaChipClass, "max-w-full truncate border-primary/28 text-foreground/82")}
                 >
-                  <Avatar className="h-[18px] w-[18px] shrink-0">
+                  <span aria-hidden className="mr-1">{categoryIcon}</span>
+                  {categoryLabel}
+                </span>
+              ) : null}
+
+              {ownerName ? (
+                <span
+                  data-testid="wishlist-card-v2-owner"
+                  className="inline-flex h-5 max-w-full min-w-0 items-center gap-1 rounded-full border border-border/28 bg-[hsl(var(--surface-1))/0.42] px-1.5 text-muted-foreground/82 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]"
+                >
+                  <Avatar className="h-[16px] w-[16px] shrink-0">
                     {ownerImage && !ownerImageError ? (
                       <Image
                         src={ownerImage}
                         alt={ownerName}
                         fill
                         className="object-cover"
-                        sizes="20px"
+                        sizes="18px"
                         unoptimized={ownerImage.startsWith("/uploads/")}
                         onError={() => setOwnerImageError(true)}
                       />
                     ) : (
                       <AvatarFallback
                         className={cn(
-                          "text-[8px] font-semibold text-primary-foreground",
+                          "text-[7px] font-semibold text-primary-foreground",
                           getAvatarColor(ownerId)
                         )}
                       >
@@ -208,10 +205,10 @@ export const WishCard = memo(function WishCard({
                     )}
                   </Avatar>
                   <span className="min-w-0 truncate text-[10px]">{ownerName}</span>
-                </div>
-              </div>
-            ) : null}
-          </div>
+                </span>
+              ) : null}
+            </div>
+          ) : null}
 
           {isBought ? (
             <div
@@ -227,7 +224,7 @@ export const WishCard = memo(function WishCard({
         {showFooter ? (
           <CardFooter
             data-testid="wishlist-card-v2-footer"
-            className="mx-1.5 mb-1.5 flex min-h-[3.75rem] flex-row items-center gap-2 rounded-b-[1.1rem] border border-border/24 border-t-border/18 bg-[hsl(var(--surface-2))/0.94] p-2.5 pt-2 shadow-[inset_0_-1px_0_hsl(var(--foreground)/0.035)] sm:mx-2 sm:mb-2 sm:min-h-16 sm:p-3 sm:pt-2.5"
+            className="mt-auto flex min-h-[3.5rem] flex-row items-center gap-2 border-t border-border/18 bg-[hsl(var(--surface-1))/0.24] p-2.5 sm:min-h-[3.75rem] sm:p-3"
           >
           {selectionMode ? (
             <p className="text-xs text-muted-foreground">
@@ -236,7 +233,7 @@ export const WishCard = memo(function WishCard({
           ) : null}
           {item.url || canManage ? (
             <TooltipProvider delayDuration={450} skipDelayDuration={200}>
-              <div className="flex w-full flex-row items-center justify-between gap-2">
+              <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
                 {item.price != null ? (
                   <p
                     data-testid="wishlist-card-v2-price"
