@@ -80,9 +80,9 @@ export function PasswordForm({ userId }: PasswordFormProps) {
   };
 
   return (
-    <div className={cn(uiSurface.contentPanel, "p-5 sm:p-6")}>
-      <h2 className="text-lg font-semibold mb-4">{t("Изменить пароль")}</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className={cn(uiSurface.contentPanel, "p-4 sm:p-5")}>
+      <h2 className="mb-3 text-lg font-semibold">{t("Изменить пароль")}</h2>
+      <form onSubmit={handleSubmit} className="space-y-3.5">
         <div className="space-y-2">
           <Label htmlFor="currentPassword">{t("Текущий пароль")} *</Label>
           <Input

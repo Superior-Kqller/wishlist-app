@@ -116,12 +116,12 @@ export function ProfileForm({
 
   return (
     <>
-      <div className={cn(uiSurface.contentPanel, "p-5 sm:p-6")}>
-        <h2 className="text-lg font-semibold mb-4">{t("Профиль")}</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <div className={cn(uiSurface.contentPanel, "p-4 sm:p-5")}>
+        <h2 className="mb-3 text-lg font-semibold">{t("Профиль")}</h2>
+        <form onSubmit={handleSubmit} className="space-y-3.5">
           <div className="space-y-2">
             <Label>{t("Аватар")}</Label>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 rounded-xl border border-border/30 bg-[hsl(var(--surface-3))/0.24] p-3">
               <UserAvatar
                 avatarUrl={avatarUrl || undefined}
                 name={name}
@@ -139,31 +139,33 @@ export function ProfileForm({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="username">{t("Логин")}</Label>
-            <Input
-              id="username"
-              value={initialUsername}
-              disabled
-              className="bg-muted"
-            />
-            <p className="text-xs text-muted-foreground">
-              {t("Логин нельзя изменить")}
-            </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="username">{t("Логин")}</Label>
+              <Input
+                id="username"
+                value={initialUsername}
+                disabled
+                className="bg-muted"
+              />
+              <p className="text-xs text-muted-foreground">
+                {t("Логин нельзя изменить")}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="name">{t("Имя")} *</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={t("Ваше имя")}
+                required
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="name">{t("Имя")} *</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t("Ваше имя")}
-              required
-            />
-          </div>
-
-          <div className="space-y-3 border-t border-border pt-4">
+          <div className="space-y-3 border-t border-border/35 pt-3.5">
             <div className="space-y-2">
               <Label htmlFor="telegramId">Telegram ID</Label>
               <Input

@@ -118,7 +118,7 @@ export const WishCard = memo(function WishCard({
         <div
           data-testid="wishlist-card-v2-media"
           className={cn(
-            "group relative m-1.5 mb-0 min-h-[178px] flex-1 basis-[178px] overflow-hidden rounded-xl border border-border/34 bg-[radial-gradient(circle_at_50%_32%,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_62%,hsl(var(--background))_100%)] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[linear-gradient(180deg,hsl(var(--background)/0.02)_0%,transparent_56%,hsl(var(--background)/0.2)_100%)] after:content-[''] sm:m-2 sm:mb-0 sm:min-h-[190px] sm:basis-[190px]",
+            "group relative m-1.5 mb-0 min-h-[178px] flex-1 basis-[178px] overflow-hidden rounded-xl border border-border/34 bg-[radial-gradient(circle_at_50%_32%,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_62%,hsl(var(--background))_100%)] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[linear-gradient(180deg,hsl(var(--background)/0.02)_0%,transparent_56%,hsl(var(--background)/0.2)_100%)] after:content-[''] sm:m-2 sm:mb-0 sm:min-h-[196px] sm:basis-[196px] 2xl:min-h-[220px] 2xl:basis-[220px]",
           )}
         >
           <PriorityBadgeOverlay priority={item.priority} />
@@ -155,7 +155,7 @@ export const WishCard = memo(function WishCard({
           <CardTitle
             data-testid="wishlist-card-v2-title"
             className={cn(
-              "min-h-[2.25rem] line-clamp-2 text-[15px] font-semibold leading-[1.16] text-balance text-foreground sm:min-h-[2.35rem] sm:text-base",
+              "min-h-[2.25rem] line-clamp-2 text-[15px] font-semibold leading-[1.16] text-balance text-foreground sm:min-h-[2.35rem] sm:text-base 2xl:text-[17px]",
               isBought && "line-through"
             )}
           >
@@ -237,7 +237,7 @@ export const WishCard = memo(function WishCard({
                 {item.price != null ? (
                   <p
                     data-testid="wishlist-card-v2-price"
-                    className="min-w-0 truncate text-[16px] font-bold leading-none tabular-nums text-foreground sm:text-[17px]"
+                    className="min-w-0 truncate text-[16px] font-bold leading-none tabular-nums text-foreground sm:text-[17px] 2xl:text-[18px]"
                   >
                     {formatPrice(item.price, item.currency, language)}
                   </p>
@@ -330,7 +330,7 @@ export const WishCard = memo(function WishCard({
           ) : item.price != null ? (
             <p
               data-testid="wishlist-card-v2-price"
-              className="min-w-0 truncate text-[16px] font-bold leading-none tabular-nums text-foreground sm:text-[17px]"
+              className="min-w-0 truncate text-[16px] font-bold leading-none tabular-nums text-foreground sm:text-[17px] 2xl:text-[18px]"
             >
               {formatPrice(item.price, item.currency, language)}
             </p>

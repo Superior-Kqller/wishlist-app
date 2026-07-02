@@ -17,13 +17,13 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { useColorTheme } from "@/components/theme/color-theme-provider";
 import { colorThemes } from "@/lib/themes";
 
-function ThemeAccentSection() {
+function ThemeAccentSection({ className }: { className?: string }) {
   const { t } = useI18n();
   const { colorTheme, setColorTheme } = useColorTheme();
 
   return (
-    <section className={cn(uiSurface.contentPanel, "p-5 sm:p-6")}>
-      <div className="mb-4 flex items-start gap-3">
+    <section className={cn(uiSurface.contentPanel, "p-4 sm:p-5", className)}>
+      <div className="mb-3 flex items-start gap-3">
         <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary">
           <Palette className="h-4 w-4" aria-hidden />
         </span>
@@ -35,7 +35,7 @@ function ThemeAccentSection() {
         </div>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
         {colorThemes.map((theme) => {
           const selected = colorTheme === theme.value;
 
@@ -46,7 +46,7 @@ function ThemeAccentSection() {
               aria-pressed={selected}
               onClick={() => setColorTheme(theme.value)}
               className={cn(
-                "group flex min-h-[6.75rem] flex-col justify-between rounded-xl border p-3 text-left transition-[border-color,background-color,transform,box-shadow] duration-200 active:scale-[0.99]",
+                "group flex min-h-[5.75rem] flex-col justify-between rounded-xl border p-3 text-left transition-[border-color,background-color,transform,box-shadow] duration-200 active:scale-[0.99]",
                 selected
                   ? "border-primary/50 bg-primary/12 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045),0_12px_26px_hsl(var(--primary)/0.08)]"
                   : "border-border/56 bg-[hsl(var(--surface-3))/0.42] hover:border-primary/28 hover:bg-[hsl(var(--surface-3))/0.58]",
@@ -136,50 +136,55 @@ export default function SettingsPage() {
 
   return (
     <PageShell>
-      <PageMain className="max-w-2xl">
-        <div className="space-y-6">
+      <PageMain className="max-w-6xl">
+        <div className="space-y-4">
           <PageIntro
             title={t("Настройки")}
             description={t("Управление вашим профилем и паролем")}
+            className="py-3 sm:px-5"
           />
 
-          <div className="space-y-6">
-            <ThemeAccentSection />
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(21rem,0.9fr)] xl:items-start">
+            <div className="space-y-4">
+              <ThemeAccentSection />
 
-            <ProfileForm
-              key={`profile-${refreshKey}`}
-              initialName={user.name}
-              initialUsername={user.username}
-              initialAvatarUrl={user.avatarUrl}
-              initialTelegramId={user.telegramId}
-              initialTelegramLinkStatus={user.telegramLinkStatus}
-              initialTelegramNotificationsEnabled={Boolean(user.telegramNotificationsEnabled)}
-              userId={user.id}
-              onSuccess={handleSuccess}
-            />
+              <ProfileForm
+                key={`profile-${refreshKey}`}
+                initialName={user.name}
+                initialUsername={user.username}
+                initialAvatarUrl={user.avatarUrl}
+                initialTelegramId={user.telegramId}
+                initialTelegramLinkStatus={user.telegramLinkStatus}
+                initialTelegramNotificationsEnabled={Boolean(user.telegramNotificationsEnabled)}
+                userId={user.id}
+                onSuccess={handleSuccess}
+              />
+            </div>
 
-            <PasswordForm key={`password-${refreshKey}`} userId={user.id} />
+            <div className="space-y-4">
+              <PasswordForm key={`password-${refreshKey}`} userId={user.id} />
 
-            <div className={cn(uiSurface.contentPanel, "p-5 sm:p-6")}>
-              <h3 className="font-medium mb-2">{t("Информация")}</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">{t("Роль:")}</span>
-                  <Badge
-                    variant={user.role === "ADMIN" ? "default" : "outline"}
-                  >
-                    {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">{t("Создан:")}</span>
-                  <span>
-                    {new Date(user.createdAt).toLocaleDateString(locale, {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
-                  </span>
+              <div className={cn(uiSurface.contentPanel, "p-4 sm:p-5")}>
+                <h3 className="mb-3 font-medium">{t("Информация")}</h3>
+                <div className="grid gap-2 text-sm sm:grid-cols-2 xl:grid-cols-1">
+                  <div className="flex items-center justify-between rounded-lg border border-border/28 bg-[hsl(var(--surface-3))/0.28] px-3 py-2">
+                    <span className="text-muted-foreground">{t("Роль:")}</span>
+                    <Badge
+                      variant={user.role === "ADMIN" ? "default" : "outline"}
+                    >
+                      {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg border border-border/28 bg-[hsl(var(--surface-3))/0.28] px-3 py-2">
+                    <span className="text-muted-foreground">{t("Создан:")}</span>
+                    <span>
+                      {new Date(user.createdAt).toLocaleDateString(locale, {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

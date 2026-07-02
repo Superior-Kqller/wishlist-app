@@ -276,15 +276,15 @@ export function ItemFormDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-4xl"
+        className="sm:max-w-5xl xl:max-w-[68rem]"
         bodyClassName="gap-0 overflow-y-auto p-0"
       >
-        <div className="border-b border-border/34 bg-[hsl(var(--surface-2))/0.72] px-4 py-4 sm:px-5">
+        <div className="border-b border-border/34 bg-[hsl(var(--surface-2))/0.72] px-4 py-3 sm:px-5">
           <DialogHeader className="space-y-1 pr-10 sm:pr-12">
-            <DialogTitle className="text-xl leading-tight sm:text-2xl">
+            <DialogTitle className="text-xl leading-tight">
               {isEdit ? t("Редактировать") : t("Добавить товар")}
             </DialogTitle>
-            <DialogDescription className="max-w-2xl text-sm leading-relaxed">
+            <DialogDescription className="max-w-3xl text-sm leading-snug">
               {isEdit
                 ? t("Измените данные и сохраните")
                 : t("По ссылке / Вручную: ссылка необязательна, можно заполнить карточку самому или подтянуть данные со страницы товара.")}
@@ -293,8 +293,8 @@ export function ItemFormDialog({
         </div>
 
         <form onSubmit={handleSubmit} className="min-h-0">
-          <div className="grid min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.78fr)]">
-            <div className="space-y-4 px-4 py-4 sm:px-5 sm:py-5">
+          <div className="grid min-h-0 lg:grid-cols-[minmax(0,0.95fr)_minmax(19rem,0.72fr)]">
+            <div className="space-y-3.5 px-4 py-4 sm:px-5">
               <div className="space-y-2">
                 <Label htmlFor="title">{t("Название")} *</Label>
                 <Input
@@ -309,7 +309,7 @@ export function ItemFormDialog({
               <div className="space-y-2 rounded-xl border border-border/34 bg-[hsl(var(--surface-3))/0.28] p-3">
                 <div className="space-y-1">
                   <Label htmlFor="url">{t("Ссылка (необязательно)")}</Label>
-                  <p className="text-xs leading-relaxed text-muted-foreground">
+                  <p className="text-xs leading-snug text-muted-foreground">
                     {t("Вставьте URL страницы товара и нажмите «Заполнить» — подтянем название, цену, изображения и краткое описание, где это доступно.")}
                   </p>
                 </div>
@@ -342,42 +342,62 @@ export function ItemFormDialog({
                 </div>
               </div>
 
-              {existingLists.length > 0 && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {existingLists.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>{t("Подборка")}{listPickerRequired ? " *" : ""}</Label>
+                    <Select
+                      value={
+                        listPickerRequired
+                          ? (listId || defaultListId || existingLists[0]?.id || "")
+                          : (listId ?? "none")
+                      }
+                      onValueChange={(v) => setListId(v === "none" ? null : v)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={
+                            listPickerRequired ? t("Выберите подборку") : t("Без подборки")
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {!listPickerRequired && (
+                          <SelectItem value="none">{t("Без подборки")}</SelectItem>
+                        )}
+                        {existingLists.map((list) => (
+                          <SelectItem key={list.id} value={list.id}>
+                            {list.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 <div className="space-y-2">
-                  <Label>{t("Подборка")}{listPickerRequired ? " *" : ""}</Label>
-                  <Select
-                    value={
-                      listPickerRequired
-                        ? (listId || defaultListId || existingLists[0]?.id || "")
-                        : (listId ?? "none")
-                    }
-                    onValueChange={(v) => setListId(v === "none" ? null : v)}
-                  >
+                  <Label>{t("Категория")}</Label>
+                  <Select value={category ?? "none"} onValueChange={(value) => setCategory(value === "none" ? null : value)}>
                     <SelectTrigger>
-                      <SelectValue
-                        placeholder={
-                          listPickerRequired ? t("Выберите подборку") : t("Без подборки")
-                        }
-                      />
+                      <SelectValue placeholder={t("Выберите категорию")} />
                     </SelectTrigger>
                     <SelectContent>
-                      {!listPickerRequired && (
-                        <SelectItem value="none">{t("Без подборки")}</SelectItem>
-                      )}
-                      {existingLists.map((list) => (
-                        <SelectItem key={list.id} value={list.id}>
-                          {list.name}
+                      <SelectItem value="none">{t("Без категории")}</SelectItem>
+                      {PRODUCT_CATEGORIES.map((option) => (
+                        <SelectItem key={option.id} value={option.id}>
+                          {option.icon} {language === "en" ? option.labelEn : option.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  {!listPickerRequired && !listId && (
-                    <p className="flex items-start gap-1.5 rounded-lg border border-warning/24 bg-warning/8 px-2.5 py-2 text-xs text-warning">
-                      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                      {t("Товар без подборки будет скрыт. Привяжите его к подборке, чтобы он стал виден.")}
-                    </p>
-                  )}
                 </div>
+              </div>
+
+              {existingLists.length > 0 && !listPickerRequired && !listId && (
+                <p className="flex items-start gap-1.5 rounded-lg border border-warning/24 bg-warning/8 px-2.5 py-2 text-xs text-warning">
+                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                  {t("Товар без подборки будет скрыт. Привяжите его к подборке, чтобы он стал виден.")}
+                </p>
               )}
 
               <div className="space-y-2">
@@ -387,16 +407,16 @@ export function ItemFormDialog({
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder={t("Дополнительная информация...")}
-                  rows={5}
-                  className="min-h-28 resize-y"
+                  rows={4}
+                  className="min-h-24 resize-y"
                 />
               </div>
             </div>
 
-            <aside className="space-y-4 border-t border-border/34 bg-[hsl(var(--surface-1))/0.24] px-4 py-4 sm:px-5 sm:py-5 lg:border-l lg:border-t-0">
+            <aside className="space-y-3.5 border-t border-border/34 bg-[hsl(var(--surface-1))/0.24] px-4 py-4 sm:px-5 lg:border-l lg:border-t-0">
               <div className="space-y-2">
                 <Label htmlFor="item-image-url">{t("Изображение")}</Label>
-                <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-border/38 bg-[hsl(var(--surface-2))/0.72] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+                <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border/38 bg-[hsl(var(--surface-2))/0.72] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
                   {imageUrl.trim() ? (
                     <>
                       <Image
@@ -468,7 +488,7 @@ export function ItemFormDialog({
                   role="group"
                   aria-label={t("Приоритет")}
                   data-testid="priority-select-dialog"
-                  className="grid grid-cols-2 gap-2 lg:grid-cols-1"
+                  className="grid grid-cols-2 gap-2"
                 >
                   {PRIORITY_OPTIONS.map((value) => {
                     const isSelected = selectedPriority === value;
@@ -483,7 +503,7 @@ export function ItemFormDialog({
                         aria-label={`${t("Приоритет")} ${value}: ${label}`}
                         onClick={() => setPriority(value)}
                         className={cn(
-                          "flex min-h-[44px] items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-xs font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:text-sm",
+                          "flex min-h-[44px] items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-xs font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                           isSelected
                             ? priorityBadgeToneByPriority[value]
                             : "border-border/50 bg-[hsl(var(--surface-2))/0.58] text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -513,25 +533,6 @@ export function ItemFormDialog({
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>{t("Категория")}</Label>
-                <Select value={category ?? "none"} onValueChange={(value) => setCategory(value === "none" ? null : value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("Выберите категорию")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">{t("Без категории")}</SelectItem>
-                    {PRODUCT_CATEGORIES.map((option) => (
-                      <SelectItem key={option.id} value={option.id}>
-                        {option.icon} {language === "en" ? option.labelEn : option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs leading-relaxed text-muted-foreground">
-                  {t("Категории связаны с подарочными предпочтениями и помогают быстрее понять, что человеку интересно.")}
-                </p>
-              </div>
             </aside>
           </div>
 

@@ -33,7 +33,7 @@ export function AddItemCard({ onAdd, disabled, disabledHint }: AddItemCardProps)
       onKeyDown={disabled ? undefined : onKeyDown}
       title={disabled ? disabledHint : undefined}
       className={cn(
-        "flex min-h-[132px] flex-col items-center justify-center gap-3 border-dashed p-4 text-center sm:min-h-[220px] sm:gap-4",
+        "flex min-h-[132px] flex-col items-center justify-center gap-3 border-dashed p-4 text-center sm:min-h-[236px] sm:gap-4 2xl:min-h-[264px]",
         uiSurface.contentPanel,
         "bg-[linear-gradient(135deg,hsl(var(--surface-2))/0.72,hsl(var(--surface-3))/0.52)]",
         disabled

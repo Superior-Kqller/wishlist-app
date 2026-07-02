@@ -25,7 +25,7 @@ import {
 } from "@/components/wishlist/wishlist-view-toggle";
 import { uiSurface } from "@/lib/ui-contract";
 import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
-import { getCardWord, getItemWord } from "@/lib/i18n";
+import { getCardWord } from "@/lib/i18n";
 import type {
   ListWithMeta,
   UserWithStats,
@@ -146,8 +146,6 @@ export function WishlistWorkspace({
   setSize,
 }: WishlistWorkspaceProps) {
   const { language, t } = useI18n();
-  const visibleItemCount = filteredItems.length;
-  const visibleItemLabel = `${visibleItemCount} ${getItemWord(language, visibleItemCount)}`;
 
   return (
     <>
@@ -240,58 +238,58 @@ export function WishlistWorkspace({
           </DropdownMenu>
         </div>
 
-        <div className="hidden min-w-0 w-full flex-col gap-3 sm:flex">
-          <div className="flex min-w-0 items-center border-b border-border/28 pb-3">
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/68">
-                {t("Каталог желаний")}
-              </p>
-              <p className="mt-0.5 text-sm font-medium text-foreground/90">
-                {visibleItemLabel}
-                {hasActiveFilters ? ` · ${activeFilterCount} ${t("Фильтры").toLowerCase()}` : ""}
-              </p>
-            </div>
-          </div>
-
-          <div className="relative grid min-w-0 gap-2.5 rounded-xl border border-border/30 bg-[hsl(var(--surface-3))/0.24] p-2.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)] xl:grid-cols-[minmax(18rem,1fr)_auto] xl:items-start xl:gap-x-5 xl:gap-y-2">
+        <div className="hidden min-w-0 w-full flex-col gap-2.5 sm:flex">
+          <div className="relative rounded-xl border border-border/30 bg-[hsl(var(--surface-3))/0.24] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
             <div className="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-primary/22 to-transparent" />
-            <div className="min-w-0 xl:order-1">
+            <div className="grid min-w-0 gap-2 xl:grid-cols-[minmax(24rem,1fr)_auto] xl:items-center">
               <WishlistSearchInput
                 search={search}
                 onSearchChange={onSearchChange}
                 className="min-w-0"
               />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className={`${filterBarTriggerClass} h-12 gap-2 px-4 text-foreground`}
+                onClick={onAddItem}
+              >
+                <Plus className="h-4 w-4" />
+                {t("Добавить товар")}
+              </Button>
             </div>
 
-            <div className="flex min-w-0 flex-wrap items-center justify-start gap-1.5 xl:order-3 xl:col-span-2">
-              {currentUserId && usersWithStats.length > 0 ? (
-                <CombinedFilter
-                  currentUserId={currentUserId}
-                  users={usersWithStats}
-                  lists={lists}
-                  selectedUserId={normalizedSelectedUserId}
-                  selectedListId={selectedListId}
-                  onUserChange={onUserChange}
-                  onListChange={onListChange}
-                  onCreateList={onCreateList}
-                  onEditList={onEditSelectedList}
-                />
-              ) : null}
-              <WishlistToolbarControls
-                sortBy={sortBy}
-                onSortChange={onSortChange}
-                showPurchased={showPurchased}
-                onTogglePurchased={onTogglePurchasedVisibility}
-                selectionMode={selectionMode}
-                onToggleSelection={onToggleSelectionMode}
-                showSelectionButton={false}
-              />
+            <div className="mt-2.5 flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border/24 pt-2.5">
               <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                {currentUserId && usersWithStats.length > 0 ? (
+                  <CombinedFilter
+                    currentUserId={currentUserId}
+                    users={usersWithStats}
+                    lists={lists}
+                    selectedUserId={normalizedSelectedUserId}
+                    selectedListId={selectedListId}
+                    onUserChange={onUserChange}
+                    onListChange={onListChange}
+                    onCreateList={onCreateList}
+                    onEditList={onEditSelectedList}
+                  />
+                ) : null}
+                <WishlistToolbarControls
+                  sortBy={sortBy}
+                  onSortChange={onSortChange}
+                  showPurchased={showPurchased}
+                  onTogglePurchased={onTogglePurchasedVisibility}
+                  selectionMode={selectionMode}
+                  onToggleSelection={onToggleSelectionMode}
+                  showSelectionButton={false}
+                />
                 <WishlistViewToggle
                   value={viewMode}
                   onValueChange={onViewModeChange}
                   className="hidden lg:inline-flex"
                 />
+              </div>
+              <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                 <Button
                   type="button"
                   variant="outline"
@@ -314,9 +312,9 @@ export function WishlistWorkspace({
                       size="sm"
                       className={`${filterBarTriggerClass} gap-2 px-3 text-muted-foreground hover:text-foreground`}
                     >
-                      <Download className="h-4 w-4" />
-                      {t("Данные")}
-                    </Button>
+                  <Download className="h-4 w-4" />
+                  {t("Данные")}
+                </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44">
                     <DropdownMenuItem onClick={onImport} disabled={isImporting}>
@@ -335,16 +333,6 @@ export function WishlistWorkspace({
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className={`${filterBarTriggerClass} gap-2 px-3 text-foreground`}
-                  onClick={onAddItem}
-                >
-                  <Plus className="h-4 w-4" />
-                  {t("Добавить товар")}
-                </Button>
               </div>
             </div>
           </div>
