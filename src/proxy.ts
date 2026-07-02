@@ -45,8 +45,7 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: [
-    // Исключаем PWA (service worker, precache) и статику, иначе middleware ломает установку/обновление SW
-    "/((?!login|api/auth|api/health|api/integrations/telegram/webhook|_next|assets|favicon.ico|sw\\.js|workbox-[a-f0-9]+\\.js|swe-worker-[a-f0-9]+\\.js|manifest\\.webmanifest).*)",
-  ],
+  // Protect only real app pages. Unknown paths should reach App Router's
+  // not-found handler instead of being turned into a login page with 200.
+  matcher: ["/", "/admin", "/preferences", "/settings", "/stats"],
 };
