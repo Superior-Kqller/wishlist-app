@@ -16,17 +16,26 @@ import {
 const colorValues: Record<string, string> = {
   "розовый": "#e7a6b8",
   "красный": "#c75b64",
+  "бордовый": "#8f3e4b",
   "оранжевый": "#d78a4d",
   "жёлтый": "#d8b84a",
   "желтый": "#d8b84a",
   "зелёный": "#6f9b76",
   "зеленый": "#6f9b76",
+  "хаки": "#7b7d57",
+  "мятный": "#8bbfaf",
   "голубой": "#77aabd",
   "синий": "#56789f",
   "фиолетовый": "#8c729c",
+  "лавандовый": "#b5a6cf",
   "белый": "#ece9e1",
+  "молочный": "#f1eadc",
   "бежевый": "#cdbb9f",
+  "коричневый": "#80604d",
   "серый": "#8c9097",
+  "графитовый": "#454a52",
+  "серебристый": "#b8bdc4",
+  "деним": "#4f6787",
   "чёрный": "#292a2e",
   "черный": "#292a2e",
 };
@@ -52,44 +61,45 @@ function PreviewGroup({
   values,
   emptyLabel,
   warning = false,
+  colorDots = false,
 }: {
   icon: typeof Heart;
   label: string;
   values: string[];
   emptyLabel: string;
   warning?: boolean;
+  colorDots?: boolean;
 }) {
   const { t } = useI18n();
+  const visibleValues = values.slice(0, 3);
 
   return (
-    <div className="min-w-0 space-y-2">
-      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-        <Icon className={cn("h-3.5 w-3.5", warning ? "text-destructive" : "text-primary")} aria-hidden />
-        {t(label)}
-      </div>
+    <div className="grid min-w-0 grid-cols-[1rem_minmax(4.7rem,0.72fr)_minmax(0,1.35fr)] items-center gap-2 rounded-lg border border-border/28 bg-[hsl(var(--surface-3))/0.35] px-2.5 py-2">
+      <Icon className={cn("h-3.5 w-3.5", warning ? "text-destructive" : "text-primary")} aria-hidden />
+      <span className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{t(label)}</span>
       {values.length > 0 ? (
-        <div className="flex flex-wrap gap-1.5">
-          {values.slice(0, 4).map((value) => (
-            <span
-              key={value}
-              className={cn(
-                "max-w-full truncate rounded-lg border px-2 py-1 text-xs font-medium",
-                warning
-                  ? "border-destructive/24 bg-destructive/7 text-destructive"
-                  : "border-border/55 bg-[hsl(var(--surface-3))/0.58] text-foreground/82",
-              )}
-            >
-              {t(value)}
+        <div className="min-w-0 truncate text-sm font-medium text-foreground/86">
+          {visibleValues.map((value, index) => (
+            <span key={value} className="inline-flex max-w-full items-center gap-1">
+              {colorDots ? (
+                <span
+                  className="size-2.5 shrink-0 rounded-full border border-foreground/15"
+                  style={{ backgroundColor: colorValues[value.toLocaleLowerCase("ru-RU")] ?? "#77777f" }}
+                  aria-hidden
+                />
+              ) : null}
+              <span className="truncate">{t(value)}</span>
+              {index < visibleValues.length - 1 ? <span className="text-muted-foreground/55">·</span> : null}
             </span>
           ))}
-          {values.length > 4 ? (
-            <span className="rounded-lg border border-border/45 px-2 py-1 text-xs text-muted-foreground">
-              +{values.length - 4}
+          {values.length > visibleValues.length ? (
+            <span className="ml-1 rounded-md border border-border/42 px-1.5 py-0.5 text-[11px] text-muted-foreground">
+              +{values.length - visibleValues.length}
             </span>
           ) : null}
         </div>
       ) : (
-        <p className="text-xs leading-relaxed text-muted-foreground/72">{t(emptyLabel)}</p>
+        <p className="min-w-0 truncate text-sm text-muted-foreground/72">{t(emptyLabel)}</p>
       )}
     </div>
   );
@@ -114,18 +124,8 @@ export function PreferenceProfileCard({
   const preferences = normalizeGiftPreferences(rawPreferences);
   const preferenceCount = countGiftPreferences(preferences);
   const progress = Math.min(100, Math.round((preferenceCount / 12) * 100));
-  const likes = [
-    ...preferences.favoriteCategories,
-    ...preferences.favoriteBrands,
-    ...preferences.favoriteMaterials,
-    ...preferences.hobbies,
-  ];
-  const avoid = [
-    ...preferences.dislikedCategories,
-    ...preferences.doNotBuy,
-    ...preferences.dislikedBrands,
-    ...preferences.dislikedMaterials,
-  ];
+  const likedCategories = [...preferences.favoriteCategories, ...preferences.hobbies];
+  const avoid = [...preferences.dislikedBrands, ...preferences.dislikedColors, ...preferences.doNotBuy];
   const details = [preferences.sizes, preferences.budget, ...preferences.occasions].filter(Boolean);
 
   return (
@@ -207,13 +207,8 @@ export function PreferenceProfileCard({
           </div>
         </div>
 
-        <div
-          className={cn(
-            "mt-5 grid gap-4",
-            isCurrent ? "sm:grid-cols-[0.8fr_1fr_1fr]" : "sm:grid-cols-2",
-          )}
-        >
-          <div className={cn("min-w-0 space-y-2", !isCurrent && "sm:col-span-2")}>
+        <div className="mt-5 grid gap-4">
+          <div className="min-w-0 space-y-2">
             <div className="flex items-end justify-between gap-2">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
@@ -253,9 +248,22 @@ export function PreferenceProfileCard({
 
           <PreviewGroup
             icon={Heart}
-            label="Понравится"
-            values={likes}
-            emptyLabel="Пока без любимых брендов и интересов"
+            label="Бренды"
+            values={preferences.favoriteBrands}
+            emptyLabel="Бренды не указаны"
+          />
+          <PreviewGroup
+            icon={Sparkles}
+            label="Цвета"
+            values={preferences.favoriteColors}
+            emptyLabel="Цвета не выбраны"
+            colorDots
+          />
+          <PreviewGroup
+            icon={Gift}
+            label="Категории"
+            values={likedCategories}
+            emptyLabel="Категории не указаны"
           />
           <PreviewGroup
             icon={ShieldAlert}
