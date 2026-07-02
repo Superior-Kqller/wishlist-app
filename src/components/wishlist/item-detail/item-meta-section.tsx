@@ -128,7 +128,7 @@ export function ItemMetaSection({
           {item.url ? (
             <Button
               asChild
-              className="h-11 min-h-[44px] min-w-[8.5rem] flex-1 basis-[8.5rem] shrink justify-center gap-2 px-3 sm:h-10 sm:min-h-10 sm:w-auto sm:flex-none sm:basis-auto"
+              className="h-11 min-h-[44px] min-w-[8.5rem] flex-1 basis-[8.5rem] shrink justify-center gap-2 px-3 sm:h-10 sm:min-h-10 sm:flex-none sm:basis-auto"
             >
               <a href={item.url} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-4 w-4 shrink-0" />
@@ -142,7 +142,7 @@ export function ItemMetaSection({
                 <Button
                   variant="outline"
                   size="sm"
-                  className={cn(actionButtonClass, "gap-2 sm:ml-auto")}
+                  className={cn(actionButtonClass, "gap-2")}
                 >
                   <MoreHorizontal className="h-4 w-4 shrink-0" />
                   {t("Действия")}
