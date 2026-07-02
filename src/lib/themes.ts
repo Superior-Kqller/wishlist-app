@@ -18,10 +18,10 @@ export const colorThemes = [
   {
     value: "wine-sky",
     label: "Бордово-голубой",
-    description: "Светлее, контрастнее: винный фон и яркий небесный акцент",
+    description: "Холодный винный фон, ледяной голубой и припылённая роза",
     className: "theme-wine-sky",
     logo: "token",
-    swatches: ["bg-[#b83252]", "bg-[#58d7ff]", "bg-[#232536]"],
+    swatches: ["bg-[#07111D]", "bg-[#A6D2EC]", "bg-[#8B1026]", "bg-[#A65D79]"],
   },
 ] as const;
 

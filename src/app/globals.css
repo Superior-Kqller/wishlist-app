@@ -176,35 +176,35 @@
   }
 
   .theme-wine-sky {
-    --background: 232 24% 10%;
-    --foreground: 216 34% 96%;
+    --background: 213 61% 7%;
+    --foreground: 202 75% 92%;
 
-    --surface-1: 232 24% 10%;
-    --surface-2: 230 22% 14%;
-    --surface-3: 228 20% 18%;
-    --surface-4: 226 18% 24%;
-    --surface-5: 224 16% 31%;
-    --surface-6: 222 14% 38%;
+    --surface-1: 213 61% 7%;
+    --surface-2: 213 55% 10%;
+    --surface-3: 213 48% 12%;
+    --surface-4: 212 41% 16%;
+    --surface-5: 211 38% 22%;
+    --surface-6: 212 35% 28%;
 
     --card: var(--surface-3);
-    --card-foreground: 216 34% 96%;
+    --card-foreground: 202 75% 92%;
 
-    --primary: 194 92% 68%;
-    --primary-foreground: 216 34% 96%;
-    --muted-foreground: 214 24% 78%;
-    --border: 224 20% 35%;
-    --input: 224 20% 35%;
-    --ring: 194 92% 68%;
-    --info: 194 92% 68%;
+    --primary: 202 65% 79%;
+    --primary-foreground: 213 61% 7%;
+    --muted-foreground: 207 28% 74%;
+    --border: 212 34% 26%;
+    --input: 212 34% 26%;
+    --ring: 202 65% 79%;
+    --info: 202 65% 79%;
 
-    --theme-warm: 346 72% 44%;
-    --glass-bg: 230 22% 16% / 0.82;
-    --glass-border: 216 42% 52% / 0.28;
-    --interactive-glow-primary: 194 92% 68% / 0.22;
-    --overlay-backdrop: 232 30% 7% / 0.68;
-    --overlay-image-scrim: 232 30% 7% / 0.52;
-    --shadow-brand-action: 0 10px 24px rgb(11 18 35 / 0.26),
-      0 0 20px hsl(var(--primary) / 0.2);
+    --theme-warm: 349 79% 30%;
+    --glass-bg: 213 48% 12% / 0.84;
+    --glass-border: 202 65% 79% / 0.2;
+    --interactive-glow-primary: 202 65% 79% / 0.14;
+    --overlay-backdrop: 213 61% 7% / 0.72;
+    --overlay-image-scrim: 213 61% 7% / 0.58;
+    --shadow-brand-action: 0 10px 24px rgb(7 17 29 / 0.34),
+      0 0 18px hsl(var(--primary) / 0.13);
   }
 
   * {
