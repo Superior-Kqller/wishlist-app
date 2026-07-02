@@ -35,7 +35,7 @@ function ThemeAccentSection() {
         </div>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid gap-2 sm:grid-cols-3">
         {colorThemes.map((theme) => {
           const selected = colorTheme === theme.value;
 
@@ -46,7 +46,7 @@ function ThemeAccentSection() {
               aria-pressed={selected}
               onClick={() => setColorTheme(theme.value)}
               className={cn(
-                "group flex min-h-[6.25rem] flex-col justify-between rounded-xl border p-3 text-left transition-[border-color,background-color,transform,box-shadow] duration-200 active:scale-[0.99]",
+                "group flex min-h-[6.75rem] flex-col justify-between rounded-xl border p-3 text-left transition-[border-color,background-color,transform,box-shadow] duration-200 active:scale-[0.99]",
                 selected
                   ? "border-primary/50 bg-primary/12 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045),0_12px_26px_hsl(var(--primary)/0.08)]"
                   : "border-border/56 bg-[hsl(var(--surface-3))/0.42] hover:border-primary/28 hover:bg-[hsl(var(--surface-3))/0.58]",
@@ -77,7 +77,7 @@ function ThemeAccentSection() {
                   <span
                     key={swatch}
                     className={cn(
-                      "h-5 flex-1 rounded-md border border-white/10 shadow-[inset_0_1px_0_rgb(255_255_255/0.12)]",
+                      "h-6 flex-1 rounded-md border border-white/10 shadow-[inset_0_1px_0_rgb(255_255_255/0.12)]",
                       swatch,
                     )}
                   />

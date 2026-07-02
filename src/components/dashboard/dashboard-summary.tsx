@@ -97,7 +97,7 @@ export function DashboardSummary({
           <h1 className="min-w-0 flex-1 truncate text-lg font-semibold tracking-tight text-foreground">
             {title}
           </h1>
-          <p className="shrink-0 rounded-xl border border-primary/24 bg-primary/12 px-2.5 py-1 text-sm font-semibold tabular-nums text-primary-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05),0_10px_24px_hsl(var(--primary)/0.08)]">
+          <p className="shrink-0 rounded-xl border border-primary/24 bg-primary/12 px-2.5 py-1 text-sm font-semibold tabular-nums text-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05),0_10px_24px_hsl(var(--primary)/0.08)]">
             {formattedValue}
           </p>
         </div>
@@ -139,7 +139,7 @@ export function DashboardSummary({
             <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
               {t("Общая стоимость")}
             </p>
-            <p className="mt-1 text-2xl font-semibold leading-none tabular-nums text-primary-foreground">
+            <p className="mt-1 text-2xl font-semibold leading-none tabular-nums text-foreground">
               {formattedValue}
             </p>
           </div>

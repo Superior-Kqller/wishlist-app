@@ -385,7 +385,7 @@ export default function StatsPage() {
                         {t("Личные итоги по товарам, активным желаниям и уже закрытым покупкам")}
                       </p>
                     </div>
-                    <span className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-primary/24 bg-primary/12 px-2.5 py-1 text-xs font-semibold text-primary-foreground tabular-nums">
+                    <span className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-primary/24 bg-primary/12 px-2.5 py-1 text-xs font-semibold text-foreground tabular-nums">
                       <Users className="h-3.5 w-3.5" aria-hidden />
                       {users.length}
                     </span>

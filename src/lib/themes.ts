@@ -1,17 +1,27 @@
 export const colorThemes = [
   {
+    value: "classic",
+    label: "Классический",
+    description: "Старая фиолетовая тема и оригинальный знак",
+    className: "theme-classic",
+    logo: "classic",
+    swatches: ["bg-[#8f61e8]", "bg-[#2f1a74]", "bg-[#12101b]"],
+  },
+  {
     value: "graphite",
     label: "Графитовый",
     description: "Спокойная тёмная основа с прохладным акцентом",
     className: "theme-graphite",
+    logo: "token",
     swatches: ["bg-[#2d7f8e]", "bg-[#8b96a3]", "bg-[#161a21]"],
   },
   {
     value: "wine-sky",
     label: "Бордово-голубой",
-    description: "Глубокий винный фон и свежий небесный акцент",
+    description: "Светлее, контрастнее: винный фон и яркий небесный акцент",
     className: "theme-wine-sky",
-    swatches: ["bg-[#8f263d]", "bg-[#62bddc]", "bg-[#17151d]"],
+    logo: "token",
+    swatches: ["bg-[#b83252]", "bg-[#58d7ff]", "bg-[#232536]"],
   },
 ] as const;
 
