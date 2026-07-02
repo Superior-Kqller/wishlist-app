@@ -70,15 +70,24 @@ type ListPreferenceKey = {
 const colorSuggestions: PreferenceSuggestion[] = [
   { label: "Розовый", color: "#e7a6b8" },
   { label: "Красный", color: "#c75b64" },
+  { label: "Бордовый", color: "#8f3e4b" },
   { label: "Оранжевый", color: "#d78a4d" },
   { label: "Жёлтый", color: "#d8b84a" },
   { label: "Зелёный", color: "#6f9b76" },
+  { label: "Хаки", color: "#7b7d57" },
+  { label: "Мятный", color: "#8bbfaf" },
   { label: "Голубой", color: "#77aabd" },
   { label: "Синий", color: "#56789f" },
   { label: "Фиолетовый", color: "#8c729c" },
+  { label: "Лавандовый", color: "#b5a6cf" },
   { label: "Белый", color: "#ece9e1" },
+  { label: "Молочный", color: "#f1eadc" },
   { label: "Бежевый", color: "#cdbb9f" },
+  { label: "Коричневый", color: "#80604d" },
   { label: "Серый", color: "#8c9097" },
+  { label: "Графитовый", color: "#454a52" },
+  { label: "Серебристый", color: "#b8bdc4" },
+  { label: "Деним", color: "#4f6787" },
   { label: "Чёрный", color: "#292a2e" },
 ];
 
@@ -99,12 +108,139 @@ const categorySuggestions: PreferenceSuggestion[] = PRODUCT_CATEGORIES.map((cate
 
 const brandSuggestions: PreferenceSuggestion[] = [
   "Apple",
+  "Samsung",
+  "Sony",
+  "Dyson",
+  "Nintendo",
+  "LEGO",
+  "Muji",
   "Uniqlo",
+  "Zara",
+  "H&M",
+  "Lime",
+  "12 Storeez",
+  "Befree",
   "Nike",
   "Adidas",
+  "Puma",
+  "New Balance",
+  "ASICS",
+  "Converse",
+  "Levi's",
   "IKEA",
+  "Hoff",
   "Casio",
+  "Xiaomi",
+  "Золотое Яблоко",
+  "Л'Этуаль",
+  "Ozon",
+  "Яндекс Маркет",
 ].map((label) => ({ label }));
+
+type SizeCategoryId = "clothes" | "shoes" | "pants" | "outerwear" | "rings" | "belts";
+
+const sizeCategories: Array<{
+  id: SizeCategoryId;
+  label: string;
+  aliases?: string[];
+  hint: string;
+  placeholder: string;
+  presets: string[];
+}> = [
+  {
+    id: "clothes",
+    label: "Одежда",
+    hint: "Футболки, худи, платья",
+    placeholder: "Например, M или 46",
+    presets: ["XS", "S", "M", "L", "XL", "42", "44", "46", "48"],
+  },
+  {
+    id: "shoes",
+    label: "Обувь",
+    hint: "Кроссовки, ботинки, домашняя обувь",
+    placeholder: "Например, 38 EU",
+    presets: ["36", "37", "38", "39", "40", "41", "42", "43", "44"],
+  },
+  {
+    id: "pants",
+    label: "Брюки и джинсы",
+    aliases: ["Брюки", "Джинсы"],
+    hint: "Талия, длина или обычный размер",
+    placeholder: "Например, W30/L32",
+    presets: ["XS", "S", "M", "L", "W28", "W30", "W32", "W34"],
+  },
+  {
+    id: "outerwear",
+    label: "Верхняя одежда",
+    aliases: ["Верх", "Куртка", "Пальто"],
+    hint: "Куртки, пальто, жилеты",
+    placeholder: "Например, M или 48",
+    presets: ["S", "M", "L", "XL", "44", "46", "48", "50"],
+  },
+  {
+    id: "rings",
+    label: "Кольцо",
+    hint: "Если украшения уместны",
+    placeholder: "Например, 17",
+    presets: ["15", "16", "16.5", "17", "17.5", "18", "18.5", "19"],
+  },
+  {
+    id: "belts",
+    label: "Ремень",
+    aliases: ["Пояс"],
+    hint: "Длина или обхват",
+    placeholder: "Например, 95 см",
+    presets: ["80 см", "85 см", "90 см", "95 см", "100 см", "105 см"],
+  },
+];
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function parseSizePreferences(value: string) {
+  const fields = Object.fromEntries(sizeCategories.map((category) => [category.id, ""])) as Record<SizeCategoryId, string>;
+  const custom: string[] = [];
+  const parts = value
+    .split(/[;\n,]/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  for (const part of parts) {
+    const matched = sizeCategories.find((category) => {
+      const names = [category.label, ...(category.aliases ?? [])];
+      return names.some((name) => new RegExp(`^${escapeRegExp(name)}[:\\s-]+`, "i").test(part));
+    });
+
+    if (!matched) {
+      custom.push(part);
+      continue;
+    }
+
+    const names = [matched.label, ...(matched.aliases ?? [])];
+    const matchedName = names.find((name) => new RegExp(`^${escapeRegExp(name)}[:\\s-]+`, "i").test(part));
+    const nextValue = matchedName
+      ? part.replace(new RegExp(`^${escapeRegExp(matchedName)}[:\\s-]+`, "i"), "").trim()
+      : "";
+    fields[matched.id] = [fields[matched.id], nextValue].filter(Boolean).join(", ");
+  }
+
+  return { fields, custom: custom.join("; ") };
+}
+
+function composeSizePreferences(fields: Record<SizeCategoryId, string>, custom: string) {
+  return [
+    ...sizeCategories
+      .map((category) => {
+        const value = fields[category.id].trim();
+        return value ? `${category.label}: ${value}` : "";
+      })
+      .filter(Boolean),
+    custom.trim(),
+  ]
+    .filter(Boolean)
+    .join("; ");
+}
 
 const hobbySuggestions: PreferenceSuggestion[] = [
   "Книги",
@@ -211,10 +347,115 @@ function QuickTextField({
   );
 }
 
+function SizeBuilder({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const { t } = useI18n();
+  const parsed = useMemo(() => parseSizePreferences(value), [value]);
+
+  const updateField = (field: SizeCategoryId, nextValue: string) => {
+    onChange(
+      composeSizePreferences(
+        {
+          ...parsed.fields,
+          [field]: nextValue,
+        },
+        parsed.custom,
+      ),
+    );
+  };
+
+  const updateCustom = (nextValue: string) => {
+    onChange(composeSizePreferences(parsed.fields, nextValue));
+  };
+
+  return (
+    <section className="space-y-4 rounded-2xl border border-border/50 bg-[hsl(var(--surface-2))/0.72] p-4 sm:p-5">
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/9 text-primary">
+          <Ruler className="h-4 w-4" aria-hidden />
+        </div>
+        <div>
+          <h2 className="text-base font-semibold tracking-tight">{t("Размеры по категориям")}</h2>
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+            {t("Разделите одежду, обувь, брюки и аксессуары, чтобы друзья не угадывали по одному общему полю.")}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
+        {sizeCategories.map((category) => {
+          const currentValue = parsed.fields[category.id];
+          return (
+            <div
+              key={category.id}
+              className="min-w-0 rounded-xl border border-border/44 bg-[hsl(var(--surface-3))/0.42] p-3"
+            >
+              <div className="mb-2.5">
+                <Label htmlFor={`size-${category.id}`} className="text-sm font-semibold">
+                  {t(category.label)}
+                </Label>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">{t(category.hint)}</p>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {category.presets.map((preset) => {
+                  const active = currentValue === preset;
+                  return (
+                    <button
+                      key={preset}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => updateField(category.id, active ? "" : preset)}
+                      className={cn(
+                        "min-h-8 rounded-lg border px-2.5 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98]",
+                        active
+                          ? "border-primary/42 bg-primary/13 text-foreground"
+                          : "border-border/48 bg-[hsl(var(--surface-2))/0.58] text-muted-foreground hover:bg-accent hover:text-foreground",
+                      )}
+                    >
+                      {preset}
+                    </button>
+                  );
+                })}
+              </div>
+              <Input
+                id={`size-${category.id}`}
+                value={currentValue}
+                onChange={(event) => updateField(category.id, event.target.value)}
+                placeholder={t(category.placeholder)}
+                maxLength={80}
+                className="mt-2.5 min-h-10 border-border/56 bg-[hsl(var(--surface-2))/0.7]"
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      <div>
+        <Label htmlFor="size-custom" className="text-sm font-semibold">
+          {t("Другое")}
+        </Label>
+        <Input
+          id="size-custom"
+          value={parsed.custom}
+          onChange={(event) => updateCustom(event.target.value)}
+          placeholder={t("Например, длина рукава, обхват запястья или свободная заметка")}
+          maxLength={180}
+          className="mt-2 border-border/56 bg-[hsl(var(--surface-3))/0.6]"
+        />
+      </div>
+    </section>
+  );
+}
+
 function PreferencesPageSkeleton() {
   return (
     <PageShell>
-      <PageMain className="max-w-7xl">
+      <PageMain className="max-w-[92rem]">
         <div className="space-y-5 animate-pulse">
           <div className="h-24 rounded-2xl bg-muted/50" />
           <div className="grid gap-4 md:grid-cols-2">
@@ -352,7 +593,7 @@ export default function PreferencesPage() {
 
   return (
     <PageShell>
-      <PageMain className="max-w-7xl">
+      <PageMain className="max-w-[92rem]">
         <div className="space-y-5">
           <PageIntro
             title={t("Подарочные профили")}
@@ -404,7 +645,7 @@ export default function PreferencesPage() {
                 </div>
               ) : null}
 
-              <motion.div layout className="grid items-start gap-4 md:grid-cols-2">
+              <motion.div layout className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.08fr)_minmax(24rem,0.92fr)] 2xl:grid-cols-[minmax(0,1.25fr)_minmax(25rem,0.75fr)]">
                 {circleUsers.map((user, index) => {
                   const isCurrent = user.id === data?.id;
                   const isExpanded = expandedUserId === user.id;
@@ -417,7 +658,7 @@ export default function PreferencesPage() {
                       initial={reduceMotion ? false : { opacity: 0, y: 14 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: reduceMotion ? 0 : index * 0.055, duration: 0.3 }}
-                      className={cn(isCurrent && "md:col-span-2")}
+                      className={cn(isCurrent && "lg:col-span-2")}
                     >
                       <PreferenceProfileCard
                         id={user.id}
@@ -457,7 +698,7 @@ export default function PreferencesPage() {
                               </Button>
                             </div>
 
-                            <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[12rem_minmax(0,1fr)] xl:grid-cols-[12rem_minmax(0,1fr)_18rem]">
+                            <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[11rem_minmax(0,1fr)] xl:grid-cols-[11rem_minmax(0,1.45fr)_20rem] 2xl:grid-cols-[11rem_minmax(0,1.7fr)_22rem]">
                               <nav className={cn(uiSurface.contentPanel, "grid min-w-0 gap-1 p-2 lg:sticky lg:top-5")}>
                                 <div className="px-3 pb-2 pt-2">
                                   <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
@@ -621,14 +862,8 @@ export default function PreferencesPage() {
                                           max={16}
                                           onChange={(value) => updateList("occasions", value)}
                                         />
-                                        <QuickTextField
-                                          id="sizes"
-                                          label="Размеры"
-                                          description="Можно выбрать основу и дополнить точными мерками."
+                                        <SizeBuilder
                                           value={draft.sizes}
-                                          placeholder="Одежда M, обувь 38, кольцо 17"
-                                          suggestions={["Одежда XS", "Одежда S", "Одежда M", "Одежда L", "Одежда XL"]}
-                                          icon={Ruler}
                                           onChange={(value) => updateText("sizes", value)}
                                         />
                                         <QuickTextField

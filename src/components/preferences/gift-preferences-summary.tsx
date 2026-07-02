@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import {
   countGiftPreferences,
   normalizeGiftPreferences,
+  splitPreferenceList,
   type GiftPreferences,
 } from "@/lib/preferences";
 import { uiSurface } from "@/lib/ui-contract";
@@ -79,6 +80,7 @@ export function GiftPreferencesSummary({
     ...preferences.dislikedBrands,
     ...preferences.doNotBuy,
   ];
+  const sizeItems = splitPreferenceList(preferences.sizes);
 
   return (
     <section
@@ -172,11 +174,11 @@ export function GiftPreferencesSummary({
                   {t("Важные детали")}
                 </div>
                 <div className="space-y-2 text-sm">
-                  {preferences.sizes ? (
-                    <p className="flex gap-2 text-foreground/82">
+                  {sizeItems.length > 0 ? (
+                    <div className="flex gap-2 text-foreground/82">
                       <Ruler className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-                      <span>{t(preferences.sizes)}</span>
-                    </p>
+                      <PreferenceBadges values={sizeItems} />
+                    </div>
                   ) : null}
                   {preferences.budget ? (
                     <p className="flex gap-2 text-foreground/82">
