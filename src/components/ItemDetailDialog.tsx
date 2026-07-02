@@ -138,7 +138,7 @@ export function ItemDetailDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         className={cn(
-          "max-w-4xl gap-0 border-border/64 bg-[hsl(var(--surface-2))] shadow-[0_24px_70px_rgba(0,0,0,0.42)]",
+          "max-w-4xl gap-0 border-border/58 bg-[hsl(var(--surface-2))/0.97] shadow-[0_28px_70px_rgb(1_5_14/0.5),0_0_0_1px_hsl(var(--foreground)/0.035)]",
           /* Мобильные: почти на всю ширину и высоту экрана */
           "max-sm:max-h-[min(94dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.75rem))]",
           "max-sm:w-[calc(100vw-0.75rem)] max-sm:max-w-[min(42rem,calc(100vw-0.75rem))]",
@@ -151,7 +151,7 @@ export function ItemDetailDialog({
             ? `, ${t("Ориентировочная стоимость").toLowerCase()} ${formatPrice(item.price, item.currency, language)}`
             : ""}
         </DialogDescription>
-        <div className="grid min-h-0 sm:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)]">
+        <div className="grid min-h-0 bg-[linear-gradient(180deg,hsl(var(--surface-2)),hsl(var(--surface-1)/0.92))] sm:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)]">
           <ItemMediaSection item={item} />
           <ItemDetailBody className="sm:min-h-[360px]">
             <ItemMetaSection
@@ -163,7 +163,7 @@ export function ItemDetailDialog({
               onTogglePurchased={handleTogglePurchased}
             />
           </ItemDetailBody>
-          <div className="border-t border-border/26 bg-[hsl(var(--surface-1))/0.18] px-3 py-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:col-span-2 sm:px-5 sm:py-5">
+          <div className="border-t border-border/28 bg-[hsl(var(--surface-1))/0.36] px-3 py-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:col-span-2 sm:px-5 sm:py-5">
             <ItemActivitySection
               comments={comments}
               currentUserId={currentUserId}

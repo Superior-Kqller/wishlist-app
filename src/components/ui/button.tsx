@@ -9,9 +9,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+          "border border-primary/42 bg-primary/16 text-foreground shadow-[var(--shadow-brand-action)] hover:border-primary/58 hover:bg-primary/22",
         gradient:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:bg-primary/85",
+          "border border-primary/46 bg-[linear-gradient(180deg,hsl(var(--primary)/0.24),hsl(var(--primary)/0.15))] text-foreground shadow-[var(--shadow-brand-action)] hover:border-primary/62 hover:bg-primary/24 active:bg-primary/20",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
@@ -21,7 +21,7 @@ const buttonVariants = cva(
         glass:
           "border border-border/90 bg-popover/70 text-popover-foreground shadow-none backdrop-blur-md transition-colors hover:bg-popover/85",
         glassActive:
-          "border border-primary/55 bg-primary/15 text-foreground shadow-none backdrop-blur-md transition-colors hover:bg-primary/20",
+          "border border-primary/48 bg-primary/13 text-foreground shadow-none backdrop-blur-md transition-colors hover:bg-primary/18",
         ghost:
           "border border-transparent bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",

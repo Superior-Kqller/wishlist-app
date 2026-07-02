@@ -160,7 +160,7 @@ export function PreferenceProfileCard({
               <motion.span
                 animate={reduceMotion ? undefined : { scale: [1, 1.12, 1] }}
                 transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full border-2 border-[hsl(var(--surface-2))] bg-primary text-primary-foreground"
+                className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full border-2 border-[hsl(var(--surface-2))] bg-primary/18 text-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.16)]"
                 aria-hidden
               >
                 <Gift className="h-2.5 w-2.5" />

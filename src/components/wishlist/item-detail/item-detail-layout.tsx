@@ -10,7 +10,7 @@ export function ItemDetailBody({
   return (
     <div
       className={cn(
-        "space-y-3 px-3 py-3 sm:space-y-3.5 sm:px-5 sm:py-5",
+        "space-y-3.5 px-3 py-3 sm:space-y-4 sm:px-5 sm:py-5",
         className,
       )}
     >

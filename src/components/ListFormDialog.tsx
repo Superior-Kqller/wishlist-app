@@ -150,7 +150,7 @@ export function ListFormDialog({
                     className={cn(
                       "px-3 py-1.5 rounded-md text-sm font-medium transition-colors border",
                       viewerIds.includes(user.id)
-                        ? "bg-primary text-primary-foreground border-primary"
+                        ? "border-primary/48 bg-primary/14 text-foreground"
                         : "bg-background border-input hover:bg-accent"
                     )}
                   >

@@ -34,7 +34,7 @@ export function ItemActivitySection({
   const { locale, t } = useI18n();
 
   return (
-    <div className={cn("space-y-3 rounded-xl border border-border/34 bg-[hsl(var(--surface-2))/0.62] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] sm:space-y-3.5 sm:p-4", className)}>
+    <div className={cn("space-y-3 rounded-xl border border-border/32 bg-[hsl(var(--surface-2))/0.48] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.03)] sm:space-y-3.5 sm:p-4", className)}>
       <h3 className="flex items-center justify-between gap-2 text-sm font-semibold text-foreground">
         <span className="flex min-w-0 items-center gap-2">
           <MessageCircle className="h-4 w-4 text-muted-foreground/78" />
@@ -50,14 +50,14 @@ export function ItemActivitySection({
       <div className="max-h-40 space-y-2 overflow-y-auto sm:max-h-52">
         {comments.length === 0 ? (
           <div className="flex min-h-20 flex-col items-center justify-center text-center">
-            <MessageCircle className="h-6 w-6 text-muted-foreground/35" />
+            <MessageCircle className="h-6 w-6 text-muted-foreground/36" />
             <p className="mt-2 text-sm text-muted-foreground/75">{t("Комментариев пока нет")}</p>
           </div>
         ) : (
           comments.map((comment) => (
             <div
               key={comment.id}
-              className="flex gap-2 rounded-lg bg-[hsl(var(--surface-3))/0.48] p-2 text-sm"
+              className="flex gap-2 rounded-lg border border-border/22 bg-[hsl(var(--surface-3))/0.42] p-2 text-sm"
             >
               <UserAvatar
                 avatarUrl={comment.user.avatarUrl || undefined}
@@ -113,7 +113,7 @@ export function ItemActivitySection({
           value={commentText}
           onChange={(event) => onCommentTextChange(event.target.value)}
           placeholder={t("Добавить комментарий...")}
-          className="min-h-[56px] resize-none bg-[hsl(var(--surface-2))/0.7] sm:min-h-16 sm:flex-1"
+          className="min-h-[56px] resize-none border-border/48 bg-[hsl(var(--surface-3))/0.5] sm:min-h-16 sm:flex-1"
           maxLength={2000}
           disabled={submittingComment}
         />
