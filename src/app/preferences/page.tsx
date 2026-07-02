@@ -585,6 +585,7 @@ export default function PreferencesPage() {
       setExpandedUserId(null);
       return;
     }
+    setActiveSection("details");
     setExpandedUserId(data.id);
     setEditingOwnProfile(true);
   };
