@@ -119,6 +119,7 @@
     --glass-bg: 224 14% 10% / 0.78;
     --glass-border: 224 11% 32% / 0.34;
     --glass-blur: 20px;
+    --theme-cool: 190 44% 48%;
     --theme-warm: 344 34% 42%;
     --interactive-glow-primary: 190 44% 48% / 0.16;
     --overlay-backdrop: 224 28% 4% / 0.68;
@@ -166,6 +167,7 @@
     --info: 203 83% 58%;
 
     --theme-warm: 286 45% 48%;
+    --theme-cool: 262 58% 62%;
     --glass-bg: 224 14% 10% / 0.78;
     --glass-border: 224 11% 32% / 0.34;
     --interactive-glow-primary: 262 58% 62% / 0.16;
@@ -189,22 +191,25 @@
     --card: var(--surface-3);
     --card-foreground: 202 75% 92%;
 
-    --primary: 202 65% 79%;
-    --primary-foreground: 213 61% 7%;
+    --primary: 349 79% 30%;
+    --primary-foreground: 202 75% 92%;
+    --accent: 349 46% 18%;
+    --accent-foreground: 202 75% 92%;
     --muted-foreground: 207 28% 74%;
     --border: 212 34% 26%;
     --input: 212 34% 26%;
-    --ring: 202 65% 79%;
+    --ring: 349 79% 30%;
     --info: 202 65% 79%;
 
-    --theme-warm: 349 79% 30%;
+    --theme-cool: 202 65% 79%;
+    --theme-warm: 337 29% 51%;
     --glass-bg: 213 48% 12% / 0.84;
-    --glass-border: 202 65% 79% / 0.2;
-    --interactive-glow-primary: 202 65% 79% / 0.14;
+    --glass-border: 337 29% 51% / 0.24;
+    --interactive-glow-primary: 349 79% 30% / 0.24;
     --overlay-backdrop: 213 61% 7% / 0.72;
     --overlay-image-scrim: 213 61% 7% / 0.58;
-    --shadow-brand-action: 0 10px 24px rgb(7 17 29 / 0.34),
-      0 0 18px hsl(var(--primary) / 0.13);
+    --shadow-brand-action: 0 10px 24px rgb(7 17 29 / 0.38),
+      0 0 18px hsl(var(--primary) / 0.22);
   }
 
   * {
@@ -268,13 +273,18 @@
   background:
     linear-gradient(
       125deg,
-      hsl(var(--primary) / 0.11) 0%,
-      hsl(var(--background) / 0) 42%
+      hsl(var(--primary) / 0.15) 0%,
+      hsl(var(--background) / 0) 36%
     ),
     linear-gradient(
       245deg,
-      hsl(var(--theme-warm) / 0.1) 0%,
+      hsl(var(--theme-cool) / 0.1) 0%,
       hsl(var(--background) / 0) 46%
+    ),
+    linear-gradient(
+      310deg,
+      hsl(var(--theme-warm) / 0.12) 0%,
+      hsl(var(--background) / 0) 34%
     ),
     linear-gradient(
       90deg,
@@ -293,8 +303,14 @@
       hsl(var(--background)) 100%
     );
   background-attachment: fixed;
-  background-position: center top, center top, center top, center top, center top;
-  background-size: auto, auto, 42px 42px, 42px 42px, auto;
+  background-position:
+    center top,
+    center top,
+    center top,
+    center top,
+    center top,
+    center top;
+  background-size: auto, auto, auto, 42px 42px, 42px 42px, auto;
 }
 
 .page-bg::before {
@@ -438,15 +454,26 @@
 .home-summary-panel {
   background:
     linear-gradient(
+      90deg,
+      hsl(var(--theme-cool) / 0.08) 0%,
+      hsl(var(--background) / 0) 34%
+    ),
+    linear-gradient(
       135deg,
       hsl(var(--surface-2) / 0.94) 0%,
-      hsl(var(--surface-3) / 0.82) 58%,
-      hsl(var(--primary) / 0.12) 100%
+      hsl(var(--surface-3) / 0.82) 46%,
+      hsl(var(--primary) / 0.14) 78%,
+      hsl(var(--theme-warm) / 0.1) 100%
     );
 }
 
 .home-toolbar-panel {
   background:
+    linear-gradient(
+      90deg,
+      hsl(var(--primary) / 0.08) 0%,
+      hsl(var(--background) / 0) 38%
+    ),
     linear-gradient(
       180deg,
       hsl(var(--surface-2) / 0.9) 0%,

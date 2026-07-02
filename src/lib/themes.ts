@@ -21,7 +21,7 @@ export const colorThemes = [
     description: "Холодный винный фон, ледяной голубой и припылённая роза",
     className: "theme-wine-sky",
     logo: "token",
-    swatches: ["bg-[#07111D]", "bg-[#A6D2EC]", "bg-[#8B1026]", "bg-[#A65D79]"],
+    swatches: ["bg-[#8B1026]", "bg-[#A6D2EC]", "bg-[#07111D]", "bg-[#A65D79]"],
   },
 ] as const;
 
