@@ -742,7 +742,7 @@ export default function PreferencesPage() {
               </motion.div>
 
               <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
-                <DialogContent className="max-w-[min(92rem,calc(100vw-1rem))]" bodyClassName="gap-5 p-4 sm:p-5">
+                <DialogContent className="max-w-[min(86rem,calc(100vw-1rem))]" bodyClassName="gap-5 p-4 sm:p-5">
                   <DialogHeader>
                     <DialogTitle>{t("Настройка подарочного профиля")}</DialogTitle>
                     <DialogDescription>
@@ -773,7 +773,7 @@ export default function PreferencesPage() {
                     </Button>
                   </div>
 
-                  <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[12rem_minmax(0,1fr)] xl:grid-cols-[12rem_minmax(0,1.45fr)_22rem]">
+                  <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[12rem_minmax(0,1fr)]">
                     <nav className={cn(uiSurface.contentPanel, "grid min-w-0 gap-1 p-2 lg:sticky lg:top-5")}>
                       {editorSections.map((section) => {
                         const Icon = section.icon;
@@ -968,17 +968,14 @@ export default function PreferencesPage() {
                           ) : null}
                         </motion.div>
                       </AnimatePresence>
-                    </div>
 
-                    <aside className="min-w-0 space-y-4 lg:col-span-2 xl:col-span-1 xl:sticky xl:top-5">
-                      <GiftPreferencesSummary userName={t("вам")} preferences={draft} />
-                      <div className={cn(uiSurface.contentPanel, "p-4 text-sm text-muted-foreground")}>
+                      <div className="mt-4 rounded-xl border border-border/42 bg-[hsl(var(--surface-2))/0.44] px-4 py-3 text-sm text-muted-foreground">
                         <p className="font-semibold text-foreground">{t("Кто это увидит")}</p>
-                        <p className="mt-1.5 leading-relaxed">
+                        <p className="mt-1 leading-relaxed">
                           {t("Только пользователи, у которых есть доступ к вашим общим подборкам.")}
                         </p>
                       </div>
-                    </aside>
+                    </div>
                   </div>
                 </DialogContent>
               </Dialog>
