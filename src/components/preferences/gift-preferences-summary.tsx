@@ -36,6 +36,7 @@ type PreferenceSignalRowProps = {
   warning?: boolean;
   accent?: "primary" | "danger" | "warning" | "muted";
   limit?: number;
+  compact?: boolean;
 };
 
 const colorValues: Record<string, string> = {
@@ -80,6 +81,7 @@ function PreferenceSignalRow({
   warning = false,
   accent = "primary",
   limit = 3,
+  compact = false,
 }: PreferenceSignalRowProps) {
   const { t } = useI18n();
   const visibleValues = values.filter(Boolean).slice(0, limit);
@@ -87,17 +89,32 @@ function PreferenceSignalRow({
   const colorDots = label.toLocaleLowerCase("ru-RU").includes("цвет");
 
   return (
-    <div className="min-w-0 rounded-xl border border-border/32 bg-[hsl(var(--surface-3))/0.34] px-2.5 py-2.5">
-      <div className="mb-2 flex min-w-0 items-center gap-1.5">
-        <Icon className={cn("h-4 w-4 shrink-0", getIconColor(accent, warning))} aria-hidden />
-        <span className="min-w-0 truncate text-xs font-semibold text-muted-foreground">{t(label)}</span>
+    <div
+      className={cn(
+        "min-w-0 rounded-xl border border-border/32 bg-[hsl(var(--surface-3))/0.34]",
+        compact ? "px-2 py-1.5" : "px-2.5 py-2.5",
+      )}
+    >
+      <div className={cn("flex min-w-0 items-center gap-1.5", compact ? "mb-1" : "mb-2")}>
+        <Icon
+          className={cn(
+            compact ? "h-3.5 w-3.5" : "h-4 w-4",
+            "shrink-0",
+            getIconColor(accent, warning),
+          )}
+          aria-hidden
+        />
+        <span className="min-w-0 truncate text-[11px] font-semibold text-muted-foreground">{t(label)}</span>
       </div>
       {visibleValues.length > 0 ? (
         <div className="flex min-w-0 flex-wrap gap-1.5 text-sm font-medium text-foreground/86">
           {visibleValues.map((value) => (
             <span
               key={value}
-              className="inline-flex min-h-7 max-w-full min-w-0 items-center gap-1 rounded-lg border border-border/32 bg-[hsl(var(--surface-2))/0.62] px-2 text-xs font-semibold"
+              className={cn(
+                "inline-flex max-w-full min-w-0 items-center gap-1 rounded-lg border border-border/32 bg-[hsl(var(--surface-2))/0.62] text-xs font-semibold",
+                compact ? "min-h-6 px-1.5" : "min-h-7 px-2",
+              )}
             >
               {colorDots ? (
                 <span
@@ -110,7 +127,12 @@ function PreferenceSignalRow({
             </span>
           ))}
           {hiddenCount > 0 ? (
-            <span className="inline-flex min-h-7 items-center rounded-lg border border-border/42 px-2 text-[11px] font-semibold text-muted-foreground">
+            <span
+              className={cn(
+                "inline-flex items-center rounded-lg border border-border/42 text-[11px] font-semibold text-muted-foreground",
+                compact ? "min-h-6 px-1.5" : "min-h-7 px-2",
+              )}
+            >
               +{hiddenCount}
             </span>
           ) : null}
@@ -133,36 +155,43 @@ export function GiftPreferencesSummary({
   const preferences = normalizeGiftPreferences(rawPreferences);
   const preferenceCount = countGiftPreferences(preferences);
   const sizeItems = splitPreferenceList(preferences.sizes);
+  const rowCompact = embedded;
+  const rowLimit = embedded ? 2 : 3;
   const positiveRows: PreferenceSignalRowProps[] = [
     {
       icon: Heart,
       label: "Бренды",
       values: preferences.favoriteBrands,
       empty: "Бренды не указаны",
+      limit: rowLimit,
     },
     {
       icon: Sparkles,
       label: "Цвета",
       values: preferences.favoriteColors,
       empty: "Цвета не выбраны",
+      limit: rowLimit,
     },
     {
       icon: Gift,
       label: "Категории",
       values: preferences.favoriteCategories,
       empty: "Категории не указаны",
+      limit: rowLimit,
     },
     {
       icon: Heart,
       label: "Интересы",
       values: preferences.hobbies,
       empty: "Интересы не указаны",
+      limit: rowLimit,
     },
     {
       icon: Sparkles,
       label: "Материалы",
       values: preferences.favoriteMaterials,
       empty: "Материалы не указаны",
+      limit: rowLimit,
     },
   ];
   const avoidRows: PreferenceSignalRowProps[] = [
@@ -172,6 +201,7 @@ export function GiftPreferencesSummary({
       values: preferences.dislikedBrands,
       empty: "Нет исключений",
       warning: true,
+      limit: rowLimit,
     },
     {
       icon: ShieldAlert,
@@ -179,6 +209,7 @@ export function GiftPreferencesSummary({
       values: preferences.dislikedColors,
       empty: "Нет исключений",
       warning: true,
+      limit: rowLimit,
     },
     {
       icon: ShieldAlert,
@@ -186,6 +217,7 @@ export function GiftPreferencesSummary({
       values: preferences.dislikedCategories,
       empty: "Нет исключений",
       warning: true,
+      limit: rowLimit,
     },
     {
       icon: ShieldAlert,
@@ -193,6 +225,7 @@ export function GiftPreferencesSummary({
       values: preferences.dislikedMaterials,
       empty: "Нет исключений",
       warning: true,
+      limit: rowLimit,
     },
     {
       icon: ShieldAlert,
@@ -200,6 +233,7 @@ export function GiftPreferencesSummary({
       values: preferences.doNotBuy,
       empty: "Стоп-лист пуст",
       warning: true,
+      limit: rowLimit,
     },
   ];
   const detailRows: PreferenceSignalRowProps[] = [
@@ -209,7 +243,7 @@ export function GiftPreferencesSummary({
       values: sizeItems,
       empty: "Размеры не указаны",
       accent: "muted",
-      limit: 4,
+      limit: embedded ? 2 : 4,
     },
     {
       icon: CircleDollarSign,
@@ -224,7 +258,7 @@ export function GiftPreferencesSummary({
       values: preferences.occasions,
       empty: "Поводы не указаны",
       accent: "warning",
-      limit: 4,
+      limit: embedded ? 2 : 4,
     },
   ];
 
@@ -287,13 +321,13 @@ export function GiftPreferencesSummary({
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className={cn("space-y-3 p-3 sm:p-4", !embedded && "border-t border-border/34")}
             >
-              <div className={cn("grid gap-3", !embedded && "xl:grid-cols-3")}>
+              <div className={cn("grid gap-3", embedded ? "sm:grid-cols-2" : "xl:grid-cols-3")}>
                 <div className="min-w-0 space-y-2">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary/80">
                     {t("Понравится")}
                   </p>
                   {positiveRows.map((row) => (
-                    <PreferenceSignalRow key={row.label} {...row} />
+                    <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
                   ))}
                 </div>
                 <div className="min-w-0 space-y-2">
@@ -301,18 +335,25 @@ export function GiftPreferencesSummary({
                     {t("Не подойдёт")}
                   </p>
                   {avoidRows.map((row) => (
-                    <PreferenceSignalRow key={row.label} {...row} />
+                    <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
                   ))}
                 </div>
-                <div className="min-w-0 space-y-2">
+                <div className={cn("min-w-0 space-y-2", embedded && "sm:col-span-2")}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-warning/90">
                     {t("Детали")}
                   </p>
-                  {detailRows.map((row) => (
-                    <PreferenceSignalRow key={row.label} {...row} />
-                  ))}
+                  <div className={cn("grid gap-2", embedded && "sm:grid-cols-3")}>
+                    {detailRows.map((row) => (
+                      <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
+                    ))}
+                  </div>
                   {preferences.notes ? (
-                    <p className="rounded-lg border border-primary/22 bg-primary/7 px-3 py-2 text-sm leading-relaxed text-muted-foreground">
+                    <p
+                      className={cn(
+                        "rounded-lg border border-primary/22 bg-primary/7 text-sm leading-relaxed text-muted-foreground",
+                        embedded ? "px-2.5 py-2" : "px-3 py-2",
+                      )}
+                    >
                       {preferences.notes}
                     </p>
                   ) : null}
