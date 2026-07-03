@@ -87,31 +87,34 @@ function PreferenceSignalRow({
   const colorDots = label.toLocaleLowerCase("ru-RU").includes("цвет");
 
   return (
-    <div className="grid min-h-10 grid-cols-[1.45rem_minmax(6.5rem,0.78fr)_minmax(0,1.42fr)] items-center gap-2 rounded-lg border border-border/32 bg-[hsl(var(--surface-3))/0.34] px-2.5 py-2">
-      <Icon className={cn("h-4 w-4", getIconColor(accent, warning))} aria-hidden />
-      <span className="min-w-0 truncate text-xs font-semibold text-muted-foreground">{t(label)}</span>
+    <div className="min-w-0 rounded-xl border border-border/32 bg-[hsl(var(--surface-3))/0.34] px-2.5 py-2.5">
+      <div className="mb-2 flex min-w-0 items-center gap-1.5">
+        <Icon className={cn("h-4 w-4 shrink-0", getIconColor(accent, warning))} aria-hidden />
+        <span className="min-w-0 truncate text-xs font-semibold text-muted-foreground">{t(label)}</span>
+      </div>
       {visibleValues.length > 0 ? (
-        <span className="min-w-0 text-sm font-medium text-foreground/86">
-          <span className="inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1">
-            {visibleValues.map((value) => (
-              <span key={value} className="inline-flex min-w-0 items-center gap-1">
-                {colorDots ? (
-                  <span
-                    className="size-2.5 shrink-0 rounded-full border border-foreground/15"
-                    style={{ backgroundColor: colorValues[value.toLocaleLowerCase("ru-RU")] ?? "#77777f" }}
-                    aria-hidden
-                  />
-                ) : null}
-                <span className="max-w-[8.5rem] truncate">{t(value)}</span>
-              </span>
-            ))}
-            {hiddenCount > 0 ? (
-              <span className="rounded-md border border-border/42 px-1.5 py-0.5 text-[11px] text-muted-foreground">
-                +{hiddenCount}
-              </span>
-            ) : null}
-          </span>
-        </span>
+        <div className="flex min-w-0 flex-wrap gap-1.5 text-sm font-medium text-foreground/86">
+          {visibleValues.map((value) => (
+            <span
+              key={value}
+              className="inline-flex min-h-7 max-w-full min-w-0 items-center gap-1 rounded-lg border border-border/32 bg-[hsl(var(--surface-2))/0.62] px-2 text-xs font-semibold"
+            >
+              {colorDots ? (
+                <span
+                  className="size-2.5 shrink-0 rounded-full border border-foreground/15"
+                  style={{ backgroundColor: colorValues[value.toLocaleLowerCase("ru-RU")] ?? "#77777f" }}
+                  aria-hidden
+                />
+              ) : null}
+              <span className="min-w-0 truncate">{t(value)}</span>
+            </span>
+          ))}
+          {hiddenCount > 0 ? (
+            <span className="inline-flex min-h-7 items-center rounded-lg border border-border/42 px-2 text-[11px] font-semibold text-muted-foreground">
+              +{hiddenCount}
+            </span>
+          ) : null}
+        </div>
       ) : (
         <span className="truncate text-sm text-muted-foreground/72">{t(empty)}</span>
       )}
@@ -284,8 +287,8 @@ export function GiftPreferencesSummary({
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className={cn("space-y-3 p-3 sm:p-4", !embedded && "border-t border-border/34")}
             >
-              <div className="grid gap-3 xl:grid-cols-3">
-                <div className="space-y-2">
+              <div className={cn("grid gap-3", !embedded && "xl:grid-cols-3")}>
+                <div className="min-w-0 space-y-2">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary/80">
                     {t("Понравится")}
                   </p>
@@ -293,7 +296,7 @@ export function GiftPreferencesSummary({
                     <PreferenceSignalRow key={row.label} {...row} />
                   ))}
                 </div>
-                <div className="space-y-2">
+                <div className="min-w-0 space-y-2">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-destructive/86">
                     {t("Не подойдёт")}
                   </p>
@@ -301,7 +304,7 @@ export function GiftPreferencesSummary({
                     <PreferenceSignalRow key={row.label} {...row} />
                   ))}
                 </div>
-                <div className="space-y-2">
+                <div className="min-w-0 space-y-2">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-warning/90">
                     {t("Детали")}
                   </p>

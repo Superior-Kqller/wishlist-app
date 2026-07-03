@@ -71,16 +71,24 @@ function PreviewGroup({
   colorDots?: boolean;
 }) {
   const { t } = useI18n();
-  const visibleValues = values.slice(0, 3);
+  const visibleValues = values.filter(Boolean).slice(0, 3);
+  const hiddenCount = Math.max(0, values.filter(Boolean).length - visibleValues.length);
 
   return (
-    <div className="grid min-w-0 grid-cols-[1rem_minmax(4.7rem,0.72fr)_minmax(0,1.35fr)] items-center gap-2 rounded-lg border border-border/28 bg-[hsl(var(--surface-3))/0.35] px-2.5 py-2">
-      <Icon className={cn("h-3.5 w-3.5", warning ? "text-destructive" : "text-primary")} aria-hidden />
-      <span className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{t(label)}</span>
-      {values.length > 0 ? (
-        <div className="min-w-0 truncate text-sm font-medium text-foreground/86">
-          {visibleValues.map((value, index) => (
-            <span key={value} className="inline-flex max-w-full items-center gap-1">
+    <div className="min-w-0 rounded-xl border border-border/28 bg-[hsl(var(--surface-3))/0.35] px-2.5 py-2.5">
+      <div className="mb-2 flex min-w-0 items-center gap-1.5">
+        <Icon className={cn("h-3.5 w-3.5 shrink-0", warning ? "text-destructive" : "text-primary")} aria-hidden />
+        <span className="min-w-0 truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          {t(label)}
+        </span>
+      </div>
+      {visibleValues.length > 0 ? (
+        <div className="flex min-w-0 flex-wrap gap-1.5 text-sm font-medium text-foreground/86">
+          {visibleValues.map((value) => (
+            <span
+              key={value}
+              className="inline-flex min-h-7 max-w-full min-w-0 items-center gap-1 rounded-lg border border-border/32 bg-[hsl(var(--surface-2))/0.62] px-2 text-xs font-semibold"
+            >
               {colorDots ? (
                 <span
                   className="size-2.5 shrink-0 rounded-full border border-foreground/15"
@@ -88,13 +96,12 @@ function PreviewGroup({
                   aria-hidden
                 />
               ) : null}
-              <span className="truncate">{t(value)}</span>
-              {index < visibleValues.length - 1 ? <span className="text-muted-foreground/55">·</span> : null}
+              <span className="min-w-0 truncate">{t(value)}</span>
             </span>
           ))}
-          {values.length > visibleValues.length ? (
-            <span className="ml-1 rounded-md border border-border/42 px-1.5 py-0.5 text-[11px] text-muted-foreground">
-              +{values.length - visibleValues.length}
+          {hiddenCount > 0 ? (
+            <span className="inline-flex min-h-7 items-center rounded-lg border border-border/42 px-2 text-[11px] font-semibold text-muted-foreground">
+              +{hiddenCount}
             </span>
           ) : null}
         </div>
