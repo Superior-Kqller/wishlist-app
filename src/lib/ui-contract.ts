@@ -10,6 +10,11 @@
  * - status: badge/marker/control states only.
  * - neutral: all base surfaces.
  */
+export const uiLayout = {
+  catalogCanvas:
+    "w-full space-y-2.5 px-2.5 py-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-5 sm:px-5 sm:py-5 sm:pb-6 xl:px-6 2xl:px-8",
+} as const;
+
 export const uiSurface = {
   shell:
     "min-h-screen bg-[hsl(var(--background))] text-foreground",
@@ -37,7 +42,7 @@ export const uiSurface = {
   homeSummary:
     "home-summary-panel relative overflow-hidden rounded-2xl border border-border/62 elevation-hero-panel backdrop-blur-md",
   homeToolbar:
-    "home-toolbar-panel relative z-20 flex min-w-0 flex-col gap-2.5 rounded-xl border border-border/56 px-2.5 py-2.5 elevation-panel backdrop-blur-md sm:z-auto sm:rounded-2xl sm:px-4 sm:py-3",
+    "home-toolbar-panel relative z-20 flex min-w-0 flex-col gap-2.5 border-y border-border/48 bg-[hsl(var(--surface-2))/0.58] px-2.5 py-2.5 sm:z-auto sm:px-3 sm:py-3",
   homeSelectionState:
     "rounded-lg border border-primary/45 bg-primary/12 px-3 py-2 text-sm text-foreground",
 } as const;

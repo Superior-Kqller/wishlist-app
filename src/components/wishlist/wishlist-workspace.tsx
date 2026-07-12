@@ -239,8 +239,7 @@ export function WishlistWorkspace({
         </div>
 
         <div className="hidden min-w-0 w-full flex-col gap-2.5 sm:flex">
-          <div className="relative rounded-xl border border-border/30 bg-[hsl(var(--surface-3))/0.24] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
-            <div className="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-primary/22 to-transparent" />
+          <div className="relative">
             <div className="grid min-w-0 gap-2 xl:grid-cols-[minmax(24rem,1fr)_auto] xl:items-center">
               <WishlistSearchInput
                 search={search}
@@ -259,7 +258,7 @@ export function WishlistWorkspace({
               </Button>
             </div>
 
-            <div className="mt-2.5 flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border/24 pt-2.5">
+            <div className="mt-2.5 flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border/32 pt-2.5">
               <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                 {currentUserId && usersWithStats.length > 0 ? (
                   <CombinedFilter

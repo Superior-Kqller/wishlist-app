@@ -20,6 +20,9 @@ import { RotateCcw } from "lucide-react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getItemWord } from "@/lib/i18n";
 
+const catalogGridClassName =
+  "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 min-[1600px]:grid-cols-5 min-[2200px]:grid-cols-6";
+
 interface WishlistGridProps {
   items: WishlistItem[];
   isLoading?: boolean;
@@ -75,7 +78,7 @@ export function WishlistGrid({
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 min-[1900px]:grid-cols-5">
+      <div className={catalogGridClassName}>
         {Array.from({ length: 12 }).map((_, i) => (
           <WishlistCardSkeleton key={i} index={i} />
         ))}
@@ -144,7 +147,7 @@ export function WishlistGrid({
       role="region"
       aria-live="polite"
       aria-label={`${t("Список желаний")}: ${items.length} ${getItemWord(language, items.length)}`}
-      className="grid grid-cols-1 items-stretch gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 min-[1900px]:grid-cols-5"
+      className={cn(catalogGridClassName, "items-stretch")}
     >
       {items.map((item) => (
         <WishCard

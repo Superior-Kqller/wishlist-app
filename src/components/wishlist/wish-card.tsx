@@ -37,7 +37,7 @@ export interface WishCardProps {
 }
 
 const cardMetaChipClass =
-  "inline-flex h-6 max-w-full items-center rounded-full border bg-[hsl(var(--surface-2))/0.72] px-2 py-0 text-[11px] font-medium leading-none shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-sm";
+  "inline-flex h-6 max-w-full items-center text-[11px] font-medium leading-none text-muted-foreground";
 
 export const WishCard = memo(function WishCard({
   item,
@@ -103,10 +103,10 @@ export const WishCard = memo(function WishCard({
       <Card
         data-testid="wishlist-card-v2"
         className={cn(
-          "group/card flex h-full flex-col overflow-hidden rounded-2xl border-border/50 bg-[hsl(var(--surface-2))/0.88] shadow-[0_16px_40px_rgba(0,0,0,0.24),inset_0_1px_0_hsl(var(--foreground)/0.04)] backdrop-blur-md max-sm:rounded-xl",
+          "group/card flex h-full flex-col overflow-hidden rounded-xl border-border/48 bg-[hsl(var(--surface-2))] shadow-none",
           isBought && "opacity-85 saturate-[0.82]",
           isCardInteractive &&
-            "cursor-pointer transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-1 hover:border-primary/34 hover:shadow-[0_22px_52px_rgba(0,0,0,0.28),0_0_0_1px_hsl(var(--primary)/0.12)] focus-visible:border-primary/45",
+            "cursor-pointer transition-[border-color,background-color,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/38 hover:bg-[hsl(var(--surface-3))/0.72] focus-visible:border-primary/45",
           selectionMode && "ring-1 ring-border/80",
           isSelected && "border-primary/65 ring-2 ring-primary/45 elevation-selected-card"
         )}
@@ -118,7 +118,7 @@ export const WishCard = memo(function WishCard({
         <div
           data-testid="wishlist-card-v2-media"
           className={cn(
-            "group relative m-1.5 mb-0 min-h-[178px] flex-1 basis-[178px] overflow-hidden rounded-xl border border-border/34 bg-[radial-gradient(circle_at_50%_32%,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_62%,hsl(var(--background))_100%)] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:bg-[linear-gradient(180deg,hsl(var(--background)/0.02)_0%,transparent_56%,hsl(var(--background)/0.2)_100%)] after:content-[''] sm:m-2 sm:mb-0 sm:min-h-[196px] sm:basis-[196px] 2xl:min-h-[220px] 2xl:basis-[220px]",
+            "group relative min-h-[178px] flex-1 basis-[178px] overflow-hidden border-b border-border/30 bg-[hsl(var(--surface-1))] after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:z-[1] after:h-16 after:bg-gradient-to-t after:from-[hsl(var(--surface-2))/0.62] after:to-transparent after:content-[''] sm:min-h-[196px] sm:basis-[196px] 2xl:min-h-[210px] 2xl:basis-[210px]",
           )}
         >
           <PriorityBadgeOverlay priority={item.priority} />
@@ -170,7 +170,7 @@ export const WishCard = memo(function WishCard({
               {item.category ? (
                 <span
                   data-testid="wishlist-card-v2-category"
-                  className={cn(cardMetaChipClass, "max-w-full truncate border-primary/28 text-foreground/82")}
+                  className={cn(cardMetaChipClass, "max-w-full truncate text-foreground/78")}
                 >
                   <span aria-hidden className="mr-1">{categoryIcon}</span>
                   {categoryLabel}
@@ -180,7 +180,7 @@ export const WishCard = memo(function WishCard({
               {ownerName ? (
                 <span
                   data-testid="wishlist-card-v2-owner"
-                  className="inline-flex h-6 max-w-full min-w-0 items-center gap-1.5 rounded-full border border-border/28 bg-[hsl(var(--surface-1))/0.42] px-2 text-muted-foreground/82 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]"
+                  className="inline-flex h-6 max-w-full min-w-0 items-center gap-1.5 text-muted-foreground/82"
                 >
                   <Avatar className="h-[18px] w-[18px] shrink-0">
                     {ownerImage && !ownerImageError ? (
@@ -224,7 +224,7 @@ export const WishCard = memo(function WishCard({
         {showFooter ? (
           <CardFooter
             data-testid="wishlist-card-v2-footer"
-            className="mt-auto flex min-h-[3.5rem] flex-row items-center gap-2 border-t border-border/18 bg-[hsl(var(--surface-1))/0.24] p-2.5 sm:min-h-[3.75rem] sm:p-3"
+            className="mt-auto flex min-h-[3.5rem] flex-row items-center gap-2 border-t border-border/24 bg-transparent p-2.5 sm:min-h-[3.75rem] sm:p-3"
           >
           {selectionMode ? (
             <p className="text-xs text-muted-foreground">
