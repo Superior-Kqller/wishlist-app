@@ -121,7 +121,7 @@ export function ProfileForm({
         <form onSubmit={handleSubmit} className="space-y-3.5">
           <div className="space-y-2">
             <Label>{t("Аватар")}</Label>
-            <div className="flex items-center gap-3 rounded-xl border border-border/30 bg-[hsl(var(--surface-3))/0.24] p-3">
+            <div className="flex items-center gap-3 border-y border-border/35 py-3">
               <UserAvatar
                 avatarUrl={avatarUrl || undefined}
                 name={name}

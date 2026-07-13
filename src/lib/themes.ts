@@ -1,9 +1,18 @@
 export const colorThemes = [
   {
+    value: "light",
+    label: "Светлый",
+    description: "Светлая основа с фиолетовым акцентом",
+    className: "theme-light",
+    colorScheme: "light",
+    swatches: ["bg-[#f5f4fa]", "bg-[#ffffff]", "bg-[#7451c8]"],
+  },
+  {
     value: "classic",
     label: "Классический",
-    description: "Фиолетовая палитра с оригинальным настроением приложения",
+    description: "Старая фиолетовая тема и оригинальный знак",
     className: "theme-classic",
+    colorScheme: "dark",
     swatches: ["bg-[#8f61e8]", "bg-[#2f1a74]", "bg-[#12101b]"],
   },
   {
@@ -11,13 +20,15 @@ export const colorThemes = [
     label: "Графитовый",
     description: "Спокойная тёмная основа с прохладным акцентом",
     className: "theme-graphite",
+    colorScheme: "dark",
     swatches: ["bg-[#2d7f8e]", "bg-[#8b96a3]", "bg-[#161a21]"],
   },
   {
     value: "wine-sky",
     label: "Бордово-голубой",
-    description: "Холодный винный фон, ледяной голубой и припылённая роза",
+    description: "Светлее, контрастнее: винный фон и яркий небесный акцент",
     className: "theme-wine-sky",
+    colorScheme: "dark",
     swatches: ["bg-[#8B1026]", "bg-[#A6D2EC]", "bg-[#07111D]", "bg-[#A65D79]"],
   },
 ] as const;

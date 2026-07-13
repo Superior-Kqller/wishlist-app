@@ -10,6 +10,11 @@ import {
   normalizeLanguage,
   translate,
 } from "@/lib/i18n";
+import {
+  COLOR_THEME_STORAGE_KEY,
+  DEFAULT_COLOR_THEME,
+  colorThemes,
+} from "@/lib/themes";
 
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
@@ -24,6 +29,24 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
   fallback: ["Consolas", "monospace"],
 });
+
+const colorThemeClassMap = colorThemes.map(
+  ({ value, className, colorScheme }) => ({ value, className, colorScheme }),
+);
+
+const colorThemeBootScript = `(() => {
+  try {
+    const themes = ${JSON.stringify(colorThemeClassMap)};
+    const stored = window.localStorage.getItem(${JSON.stringify(COLOR_THEME_STORAGE_KEY)});
+    const next = themes.find((theme) => theme.value === stored)
+      ?? themes.find((theme) => theme.value === ${JSON.stringify(DEFAULT_COLOR_THEME)});
+    document.documentElement.classList.remove(...themes.map((theme) => theme.className));
+    if (next) {
+      document.documentElement.classList.add(next.className);
+      document.documentElement.classList.toggle("dark", next.colorScheme === "dark");
+    }
+  } catch {}
+})();`;
 
 async function getRequestLanguage() {
   const cookieStore = await cookies();
@@ -85,7 +108,9 @@ export default async function RootLayout({
 
   return (
     <html lang={language} className="dark" suppressHydrationWarning>
-      <head />
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: colorThemeBootScript }} />
+      </head>
       <body className={`${manrope.variable} ${jetbrainsMono.variable} ${manrope.className}`}>
         <a
           href="#content"

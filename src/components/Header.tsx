@@ -47,12 +47,12 @@ export function Header() {
             >
               <BrandLockup compact />
             </button>
-            <LanguageSwitcher className="h-9 px-2" />
+            <LanguageSwitcher className="h-11 px-2" />
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="h-9 w-9 shrink-0 text-muted-foreground hover:text-foreground"
+              className="h-11 w-11 shrink-0 text-muted-foreground hover:text-foreground"
               onClick={signOutToLogin}
               title={t("Выйти")}
               aria-label={t("Выйти")}
@@ -75,7 +75,7 @@ export function Header() {
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "h-10 shrink-0 rounded-md border-x-0 border-b-2 border-t-0 px-3 text-xs font-semibold transition-colors active:bg-accent/45",
+                    "h-11 shrink-0 rounded-md border-x-0 border-b-2 border-t-0 px-3 text-xs font-semibold transition-colors active:bg-accent/45",
                     active
                       ? "border-primary bg-primary/8 text-foreground"
                       : "border-transparent text-muted-foreground hover:bg-accent/40 hover:text-foreground",

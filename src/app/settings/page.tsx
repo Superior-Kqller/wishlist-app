@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { PasswordForm } from "@/components/settings/PasswordForm";
-import { Check, Loader2, Palette } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fetcher } from "@/lib/fetcher";
@@ -23,67 +23,62 @@ function ThemeAccentSection({ className }: { className?: string }) {
 
   return (
     <section className={cn(uiSurface.contentPanel, "p-4 sm:p-5", className)}>
-      <div className="mb-3 flex items-start gap-3">
-        <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary">
-          <Palette className="h-4 w-4" aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <h2 className="text-lg font-semibold">{t("Внешний вид")}</h2>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            {t("Выберите цветовой характер интерфейса.")}
-          </p>
-        </div>
+      <div className="mb-3 min-w-0">
+        <h2 className="text-lg font-semibold">{t("Внешний вид")}</h2>
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+          {t("Выберите цветовой характер интерфейса.")}
+        </p>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
+      <div className="divide-y divide-border/42 border-y border-border/42">
         {colorThemes.map((theme) => {
           const selected = colorTheme === theme.value;
+          const descriptionId = `theme-${theme.value}-description`;
 
           return (
-            <button
+            <div
               key={theme.value}
-              type="button"
-              aria-pressed={selected}
-              onClick={() => setColorTheme(theme.value)}
-              className={cn(
-                "group flex min-h-[5.75rem] flex-col justify-between rounded-xl border p-3 text-left transition-[border-color,background-color,transform,box-shadow] duration-200 active:scale-[0.99]",
-                selected
-                  ? "border-primary/50 bg-primary/12 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045),0_12px_26px_hsl(var(--primary)/0.08)]"
-                  : "border-border/56 bg-[hsl(var(--surface-3))/0.42] hover:border-primary/28 hover:bg-[hsl(var(--surface-3))/0.58]",
-              )}
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 px-1 py-2"
             >
-              <span className="flex items-start justify-between gap-3">
-                <span className="min-w-0">
-                  <span className="block text-sm font-semibold text-foreground">
-                    {t(theme.label)}
-                  </span>
-                  <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
-                    {t(theme.description)}
-                  </span>
+              <button
+                type="button"
+                aria-pressed={selected}
+                aria-describedby={descriptionId}
+                onClick={() => setColorTheme(theme.value)}
+                className={cn(
+                  "flex min-h-11 min-w-0 items-center gap-2 rounded-md text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-primary/10",
+                  selected
+                    ? "text-foreground"
+                    : "text-foreground hover:text-primary",
+                )}
+              >
+                <span className="whitespace-nowrap text-sm font-semibold">
+                  {t(theme.label)}
                 </span>
-                <span
-                  className={cn(
-                    "flex size-6 shrink-0 items-center justify-center rounded-lg border transition-colors",
-                    selected
-                      ? "border-primary/45 bg-primary/18 text-primary"
-                      : "border-border/60 bg-[hsl(var(--surface-2))/0.7] text-transparent",
-                  )}
-                >
-                  <Check className="h-3.5 w-3.5" aria-hidden />
-                </span>
-              </span>
-              <span className="mt-3 flex gap-1.5" aria-hidden>
+                {selected ? (
+                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/16 text-primary">
+                    <Check className="h-3 w-3" aria-hidden />
+                  </span>
+                ) : null}
+              </button>
+              <span className="row-span-2 flex gap-1.5" aria-hidden>
                 {theme.swatches.map((swatch) => (
                   <span
                     key={swatch}
                     className={cn(
-                      "h-6 flex-1 rounded-md border border-white/10 shadow-[inset_0_1px_0_rgb(255_255_255/0.12)]",
+                      "h-3 w-7 rounded-sm border border-border/45",
                       swatch,
                     )}
                   />
                 ))}
               </span>
-            </button>
+              <p
+                id={descriptionId}
+                className="-mt-1 pb-1 text-xs leading-relaxed text-muted-foreground"
+              >
+                {t(theme.description)}
+              </p>
+            </div>
           );
         })}
       </div>
@@ -166,8 +161,8 @@ export default function SettingsPage() {
 
               <div className={cn(uiSurface.contentPanel, "p-4 sm:p-5")}>
                 <h3 className="mb-3 font-medium">{t("Информация")}</h3>
-                <div className="grid gap-2 text-sm sm:grid-cols-2 xl:grid-cols-1">
-                  <div className="flex items-center justify-between rounded-lg border border-border/28 bg-[hsl(var(--surface-3))/0.28] px-3 py-2">
+                <div className="divide-y divide-border/35 border-y border-border/35 text-sm">
+                  <div className="flex min-h-11 items-center justify-between gap-3 py-2">
                     <span className="text-muted-foreground">{t("Роль:")}</span>
                     <Badge
                       variant={user.role === "ADMIN" ? "default" : "outline"}
@@ -175,7 +170,7 @@ export default function SettingsPage() {
                       {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between rounded-lg border border-border/28 bg-[hsl(var(--surface-3))/0.28] px-3 py-2">
+                  <div className="flex min-h-11 items-center justify-between gap-3 py-2">
                     <span className="text-muted-foreground">{t("Создан:")}</span>
                     <span>
                       {new Date(user.createdAt).toLocaleDateString(locale, {

@@ -136,7 +136,7 @@ export function AppSidebar() {
               <button
                 key={list.id}
                 type="button"
-                className="flex h-8 w-full min-w-0 items-center gap-2 rounded-lg px-2 text-left text-sm text-muted-foreground transition-colors hover:bg-[hsl(var(--surface-4))/0.56] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
+                className="flex min-h-11 w-full min-w-0 items-center gap-2 rounded-lg px-2 text-left text-sm text-muted-foreground transition-colors hover:bg-[hsl(var(--surface-4))/0.56] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
                 title={list.name}
                 onClick={() => router.push(`/?listId=${list.id}`)}
               >
@@ -179,12 +179,12 @@ export function AppSidebar() {
             </p>
           </div>
         </button>
-        <LanguageSwitcher className="mt-3 h-9 w-full justify-start px-2 text-muted-foreground/82 hover:text-foreground" />
+        <LanguageSwitcher className="mt-3 h-11 w-full justify-start px-2 text-muted-foreground/82 hover:text-foreground" />
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="mt-1 h-9 w-full justify-start gap-2 px-2 text-muted-foreground/82 hover:text-foreground"
+          className="mt-1 h-11 w-full justify-start gap-2 px-2 text-muted-foreground/82 hover:text-foreground"
           onClick={signOutToLogin}
         >
           <LogOut className="h-4 w-4" />

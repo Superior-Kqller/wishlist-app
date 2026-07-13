@@ -29,6 +29,7 @@ function applyColorTheme(theme: ColorTheme) {
   const nextTheme = colorThemes.find((item) => item.value === theme);
   if (nextTheme) {
     root.classList.add(nextTheme.className);
+    root.classList.toggle("dark", nextTheme.colorScheme === "dark");
   }
 }
 

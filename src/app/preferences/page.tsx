@@ -442,7 +442,7 @@ function SizeBuilder({
                       aria-pressed={active}
                       onClick={() => updateField(category.id, active ? "" : preset)}
                       className={cn(
-                        "min-h-8 rounded-lg border px-2.5 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98]",
+                        "min-h-11 whitespace-nowrap rounded-lg border px-2.5 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98] sm:min-h-8",
                         active
                           ? "border-primary/42 bg-primary/13 text-foreground"
                           : "border-border/48 bg-[hsl(var(--surface-2))/0.58] text-muted-foreground hover:bg-accent hover:text-foreground",

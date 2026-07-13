@@ -145,6 +145,8 @@ const en: Dictionary = {
   "Управление вашим профилем и паролем": "Manage your profile and password",
   "Внешний вид": "Appearance",
   "Выберите цветовой характер интерфейса.": "Choose the color mood of the interface.",
+  "Светлый": "Light",
+  "Светлая основа с фиолетовым акцентом": "A light base with a violet accent",
   "Классический": "Classic",
   "Старая фиолетовая тема и оригинальный знак": "The old purple theme with the original mark",
   "Графитовый": "Graphite",
