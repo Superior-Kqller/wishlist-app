@@ -1,6 +1,6 @@
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import useSWR from "swr";
 import {
@@ -19,6 +19,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { fetcher } from "@/lib/fetcher";
+import { signOutToLogin } from "@/lib/client-auth";
 import { uiState, uiSurface } from "@/lib/ui-contract";
 import type { ListWithMeta } from "@/types";
 
@@ -43,16 +44,16 @@ export function AppSidebar() {
   const router = useRouter();
   const { data: session } = useSession();
   const { data: profile } = useSWR<SidebarUser>(
-    session?.user && pathname !== "/login" ? "/api/users/me" : null,
+    session?.user ? "/api/users/me" : null,
     fetcher,
   );
   const { data: lists = [] } = useSWR<ListWithMeta[]>(
-    session?.user && pathname !== "/login" ? "/api/lists" : null,
+    session?.user ? "/api/lists" : null,
     fetcher,
     { revalidateOnFocus: false, dedupingInterval: 10000 },
   );
 
-  if (!session?.user || pathname === "/login") return null;
+  if (!session?.user) return null;
   const currentUser = profile ?? session.user;
   const currentUserName = currentUser.name ?? t("Пользователь");
   const currentUserId = currentUser.id ?? session.user.id;
@@ -72,16 +73,10 @@ export function AppSidebar() {
     navItems.push({ label: t("Админка"), href: "/admin", icon: Shield });
   }
 
-  const handleSignOut = () => {
-    const currentOrigin =
-      typeof window !== "undefined" ? window.location.origin : "";
-    signOut({ callbackUrl: currentOrigin ? `${currentOrigin}/login` : "/login" });
-  };
-
   return (
     <aside
       className={cn(
-        "sticky top-0 hidden h-svh w-[17rem] shrink-0 flex-col px-4 py-5 lg:flex",
+        "sticky top-0 hidden h-svh w-[16.5rem] shrink-0 flex-col px-5 py-5 lg:flex",
         uiSurface.sidebar,
       )}
       aria-label={t("Основная навигация")}
@@ -95,10 +90,7 @@ export function AppSidebar() {
         <BrandLockup />
       </button>
 
-      <nav className="flex flex-1 flex-col gap-2" aria-label={t("Разделы")}>
-        <p className="px-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/70">
-          {t("Навигация")}
-        </p>
+      <nav className="flex flex-1 flex-col gap-1 border-b border-border/35 pb-5" aria-label={t("Разделы")}>
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = item.href ? pathname === item.href : false;
@@ -127,14 +119,14 @@ export function AppSidebar() {
       </nav>
 
       <section
-        className="mb-4 rounded-xl border border-border/45 bg-[hsl(var(--surface-3))/0.42] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]"
+        className="py-4"
         aria-label={t("Подборки")}
       >
         <div className="mb-2 flex items-center justify-between gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/70">
+          <p className="text-xs font-medium text-muted-foreground">
             {t("Подборки")}
           </p>
-          <span className="rounded-full border border-border/55 bg-[hsl(var(--surface-2))/0.72] px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+          <span className="font-mono text-[11px] text-muted-foreground/70">
             {totalListItems}
           </span>
         </div>
@@ -150,7 +142,7 @@ export function AppSidebar() {
               >
                 <Folder className="h-4 w-4 shrink-0" aria-hidden />
                 <span className="min-w-0 flex-1 truncate">{list.name}</span>
-                <span className="rounded-full bg-primary/14 px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                <span className="font-mono text-[11px] text-muted-foreground/70">
                   {list._count.items}
                 </span>
               </button>
@@ -163,7 +155,7 @@ export function AppSidebar() {
         )}
       </section>
 
-      <div className="rounded-xl border border-border/45 bg-[hsl(var(--surface-3))/0.46] px-3 py-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+      <div className="border-t border-border/35 pt-4">
         <button
           type="button"
           onClick={() => router.push("/settings")}
@@ -176,7 +168,7 @@ export function AppSidebar() {
             name={currentUserName}
             userId={currentUserId}
             size="md"
-            className="ring-1 ring-border/35"
+            className="ring-1 ring-border/30"
           />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-foreground">
@@ -187,13 +179,13 @@ export function AppSidebar() {
             </p>
           </div>
         </button>
-        <LanguageSwitcher className="mt-3 h-8 w-full justify-start px-2 text-muted-foreground/82 hover:text-foreground" />
+        <LanguageSwitcher className="mt-3 h-9 w-full justify-start px-2 text-muted-foreground/82 hover:text-foreground" />
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="mt-2 h-8 w-full justify-start gap-2 border-t border-border/35 px-2 pt-2 text-muted-foreground/82 hover:text-foreground"
-          onClick={handleSignOut}
+          className="mt-1 h-9 w-full justify-start gap-2 px-2 text-muted-foreground/82 hover:text-foreground"
+          onClick={signOutToLogin}
         >
           <LogOut className="h-4 w-4" />
           {t("Выйти")}

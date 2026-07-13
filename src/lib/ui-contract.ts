@@ -21,7 +21,7 @@ export const uiSurface = {
   shell:
     "min-h-screen bg-[hsl(var(--background))] text-foreground",
   sidebar:
-    "border-r border-border/42 bg-[hsl(var(--surface-2))/0.78] elevation-sidebar backdrop-blur-xl",
+    "border-r border-border/42 bg-[hsl(var(--surface-2))/0.72]",
   topHeader:
     "border-b border-border bg-[hsl(var(--surface-2))/0.88] elevation-header backdrop-blur-xl",
   pageHeader:
@@ -55,7 +55,7 @@ export const uiState = {
   navBase:
     "h-10 gap-2.5 border border-transparent px-3 text-muted-foreground/88 hover:bg-[hsl(var(--surface-3))/0.74] hover:text-foreground",
   navActive:
-    "border-primary/22 bg-primary/12 text-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]",
+    "border-l-primary/80 bg-primary/10 text-foreground",
   selectionIdle:
     "h-9 gap-1.5 px-3 border border-border bg-card text-muted-foreground hover:text-foreground",
   selectionActive:

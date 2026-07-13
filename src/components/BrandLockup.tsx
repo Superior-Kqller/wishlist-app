@@ -50,7 +50,7 @@ export function BrandLockup({ className, compact = false }: BrandLockupProps) {
           {t("Вишлист")}
         </span>
         <span className={cn(
-          "line-clamp-1 max-w-[65vw] text-[9px] uppercase tracking-[0.05em] text-muted-foreground/75 sm:max-w-none sm:text-[11px]",
+          "line-clamp-1 max-w-[65vw] text-[9px] text-muted-foreground/75 sm:max-w-none sm:text-[11px]",
           compact && "max-sm:hidden sm:text-[10px]",
         )}>
           {t("Каталог желаний")}
