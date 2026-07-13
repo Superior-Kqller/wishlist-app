@@ -44,11 +44,10 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
   const hasMoreItems = hasMoreRecentActivityItems(items);
 
   return (
-    <aside className={cn(uiSurface.contentPanel, "relative isolate flex h-full min-h-[15rem] flex-col overflow-hidden rounded-2xl border-border/46 bg-[hsl(var(--surface-2))/0.72] p-3 shadow-[0_18px_46px_rgba(0,0,0,0.22),inset_0_1px_0_hsl(var(--foreground)/0.045)] sm:p-4")}>
-      <div className="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-primary/28 to-transparent" />
+    <aside className={cn(uiSurface.contentPanel, "flex h-full min-h-[15rem] flex-col overflow-hidden p-3 shadow-none sm:p-4")}>
       <div className="flex items-start justify-between gap-2.5">
         <div className="flex min-w-0 items-start gap-2.5">
-          <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/42 bg-[hsl(var(--surface-3))/0.64] text-muted-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)]">
+          <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center text-muted-foreground">
             <Clock3 className="h-4 w-4" aria-hidden />
           </span>
           <div className="min-w-0">

@@ -19,7 +19,7 @@ import {
   statsHasPurchasedPrices,
 } from "@/lib/utils";
 import { fetcher } from "@/lib/fetcher";
-import { uiSurface } from "@/lib/ui-contract";
+import { uiLayout, uiSurface } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";
 
 type StatsResponse = {
@@ -179,11 +179,11 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
     <section
       className={cn(
         uiSurface.contentPanel,
-        "overflow-hidden bg-[linear-gradient(135deg,hsl(var(--surface-2))/0.88,hsl(var(--surface-3))/0.62)] p-4 sm:p-5",
+        "overflow-hidden p-4 sm:p-5 lg:p-6",
       )}
     >
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
-        <div className="space-y-4">
+      <div className="grid gap-5 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)] lg:gap-0">
+        <div className="space-y-5 lg:pr-6">
           <div>
             <p className="text-sm font-medium text-muted-foreground">
               {t("Итого к покупке")}
@@ -200,20 +200,20 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-lg border border-border/56 bg-[hsl(var(--surface-3))/0.62] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+          <div className="grid grid-cols-3 border-y border-border/55 py-3">
+            <div className="min-w-0 pr-3">
               <Package className="mb-2 h-4 w-4 text-info" aria-hidden />
               <p className="text-2xl font-semibold tabular-nums">{summary.totalItems}</p>
               <p className="text-xs text-muted-foreground">{t("Всего товаров")}</p>
             </div>
-            <div className="rounded-lg border border-border/56 bg-[hsl(var(--surface-3))/0.62] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+            <div className="min-w-0 border-l border-border/55 px-3">
               <Target className="mb-2 h-4 w-4 text-warning" aria-hidden />
               <p className="text-2xl font-semibold tabular-nums">
                 {summary.unpurchasedItems}
               </p>
               <p className="text-xs text-muted-foreground">{t("Активных желаний")}</p>
             </div>
-            <div className="rounded-lg border border-border/56 bg-[hsl(var(--surface-3))/0.62] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+            <div className="min-w-0 border-l border-border/55 pl-3">
               <Users className="mb-2 h-4 w-4 text-primary" aria-hidden />
               <p className="text-2xl font-semibold tabular-nums">{summary.memberCount}</p>
               <p className="text-xs text-muted-foreground">{t("Участников")}</p>
@@ -221,8 +221,8 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <div className="rounded-lg border border-border/56 bg-[hsl(var(--surface-3))/0.62] p-4 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+        <div className="grid gap-5 border-t border-border/55 pt-5 sm:grid-cols-2 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+          <div className="min-w-0">
             <div className="flex items-center gap-4">
               <div
                 className="relative h-24 w-24 shrink-0 rounded-full shadow-[inset_0_0_0_1px_hsl(var(--foreground)/0.08)]"
@@ -258,7 +258,7 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
             </div>
           </div>
 
-          <div className="rounded-lg border border-border/56 bg-[hsl(var(--surface-3))/0.62] p-4 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+          <div className="min-w-0 border-t border-border/55 pt-5 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
             <div className="mb-3 flex items-center gap-2">
               <CircleDollarSign className="h-4 w-4 text-success" aria-hidden />
               <p className="text-sm font-semibold">{t("Самые дорогие желания")}</p>
@@ -339,7 +339,7 @@ export default function StatsPage() {
   if (error || !statsData) {
     return (
       <PageShell>
-        <PageMain className="max-w-6xl">
+        <PageMain className={uiLayout.analyticsCanvas}>
           <EmptyState
             icon={<BarChart3 className="h-5 w-5" aria-hidden />}
             title={t("Не удалось загрузить статистику")}
@@ -357,8 +357,8 @@ export default function StatsPage() {
 
   return (
     <PageShell>
-      <PageMain className="max-w-7xl">
-        <div className="space-y-6">
+      <PageMain className={uiLayout.analyticsCanvas}>
+        <div className="space-y-4 sm:space-y-5">
           <PageIntro
             title={t("Статистика")}
             description={t("Товары в общих подборках и ориентировочная стоимость по участникам")}
@@ -371,11 +371,11 @@ export default function StatsPage() {
               description={t("Статистика появится, когда в общих списках будут товары.")}
             />
           ) : (
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] 2xl:gap-5">
               <div className="min-w-0 space-y-4">
                 <StatsOverview summary={summary} />
 
-                <section className={cn(uiSurface.contentPanel, "p-3 sm:p-4")}>
+                <section className="border-t border-border/55 pt-4 sm:pt-5">
                   <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <h2 className="text-sm font-semibold text-foreground">
@@ -385,19 +385,19 @@ export default function StatsPage() {
                         {t("Личные итоги по товарам, активным желаниям и уже закрытым покупкам")}
                       </p>
                     </div>
-                    <span className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-primary/24 bg-primary/12 px-2.5 py-1 text-xs font-semibold text-foreground tabular-nums">
+                    <span className="inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-muted-foreground tabular-nums">
                       <Users className="h-3.5 w-3.5" aria-hidden />
                       {users.length}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3 min-[2200px]:grid-cols-4">
                     {users.map((user) => (
                       <Card
                         key={user.id}
                         className={cn(
                           uiSurface.interactiveCard,
-                          "h-full border-border/58 bg-[linear-gradient(180deg,hsl(var(--surface-2))/0.92,hsl(var(--surface-3))/0.68)]",
+                          "h-full border-border/58 bg-[hsl(var(--surface-2))] shadow-none",
                         )}
                       >
                         <CardHeader className="pb-3">
@@ -419,8 +419,8 @@ export default function StatsPage() {
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-3">
-                          <div className="grid grid-cols-2 gap-2.5 text-sm">
-                            <div className="rounded-lg border border-border/38 bg-[hsl(var(--surface-2))/0.58] p-2.5">
+                          <div className="grid grid-cols-2 border-y border-border/60 py-2.5 text-sm">
+                            <div className="pr-3">
                               <p className="text-xs text-muted-foreground">
                                 {t("Всего товаров")}
                               </p>
@@ -428,7 +428,7 @@ export default function StatsPage() {
                                 {user.stats.totalItems}
                               </p>
                             </div>
-                            <div className="rounded-lg border border-border/38 bg-[hsl(var(--surface-2))/0.58] p-2.5">
+                            <div className="border-l border-border/60 pl-3">
                               <p className="text-xs text-muted-foreground">
                                 {t("Не куплено")}
                               </p>
