@@ -12,6 +12,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  PreferenceSignalRow,
+  type PreferenceSignalRowProps,
+} from "@/components/preferences/preference-signal-row";
 import { useI18n } from "@/components/i18n/language-provider";
 import { cn } from "@/lib/utils";
 import {
@@ -28,122 +32,6 @@ type GiftPreferencesSummaryProps = {
   embedded?: boolean;
 };
 
-type PreferenceSignalRowProps = {
-  icon: typeof Heart;
-  label: string;
-  values: string[];
-  empty?: string;
-  warning?: boolean;
-  accent?: "primary" | "danger" | "warning" | "muted";
-  limit?: number;
-  compact?: boolean;
-};
-
-const colorValues: Record<string, string> = {
-  "розовый": "#e7a6b8",
-  "красный": "#c75b64",
-  "бордовый": "#8f3e4b",
-  "оранжевый": "#d78a4d",
-  "жёлтый": "#d8b84a",
-  "желтый": "#d8b84a",
-  "зелёный": "#6f9b76",
-  "зеленый": "#6f9b76",
-  "хаки": "#7b7d57",
-  "мятный": "#8bbfaf",
-  "голубой": "#77aabd",
-  "синий": "#56789f",
-  "фиолетовый": "#8c729c",
-  "лавандовый": "#b5a6cf",
-  "белый": "#ece9e1",
-  "молочный": "#f1eadc",
-  "бежевый": "#cdbb9f",
-  "коричневый": "#80604d",
-  "серый": "#8c9097",
-  "графитовый": "#454a52",
-  "серебристый": "#b8bdc4",
-  "деним": "#4f6787",
-  "чёрный": "#292a2e",
-  "черный": "#292a2e",
-};
-
-function getIconColor(accent: PreferenceSignalRowProps["accent"], warning: boolean) {
-  if (warning || accent === "danger") return "text-destructive";
-  if (accent === "warning") return "text-warning";
-  if (accent === "muted") return "text-muted-foreground";
-  return "text-primary";
-}
-
-function PreferenceSignalRow({
-  icon: Icon,
-  label,
-  values,
-  empty = "Не указано",
-  warning = false,
-  accent = "primary",
-  limit = 3,
-  compact = false,
-}: PreferenceSignalRowProps) {
-  const { t } = useI18n();
-  const visibleValues = values.filter(Boolean).slice(0, limit);
-  const hiddenCount = Math.max(0, values.filter(Boolean).length - visibleValues.length);
-  const colorDots = label.toLocaleLowerCase("ru-RU").includes("цвет");
-
-  return (
-    <div
-      className={cn(
-        "min-w-0 rounded-xl border border-border/32 bg-[hsl(var(--surface-3))/0.34]",
-        compact ? "px-2 py-1.5" : "px-2.5 py-2.5",
-      )}
-    >
-      <div className={cn("flex min-w-0 items-center gap-1.5", compact ? "mb-1" : "mb-2")}>
-        <Icon
-          className={cn(
-            compact ? "h-3.5 w-3.5" : "h-4 w-4",
-            "shrink-0",
-            getIconColor(accent, warning),
-          )}
-          aria-hidden
-        />
-        <span className="min-w-0 truncate text-[11px] font-semibold text-muted-foreground">{t(label)}</span>
-      </div>
-      {visibleValues.length > 0 ? (
-        <div className="flex min-w-0 flex-wrap gap-1.5 text-sm font-medium text-foreground/86">
-          {visibleValues.map((value) => (
-            <span
-              key={value}
-              className={cn(
-                "inline-flex max-w-full min-w-0 items-center gap-1 rounded-lg border border-border/32 bg-[hsl(var(--surface-2))/0.62] text-xs font-semibold",
-                compact ? "min-h-6 px-1.5" : "min-h-7 px-2",
-              )}
-            >
-              {colorDots ? (
-                <span
-                  className="size-2.5 shrink-0 rounded-full border border-foreground/15"
-                  style={{ backgroundColor: colorValues[value.toLocaleLowerCase("ru-RU")] ?? "#77777f" }}
-                  aria-hidden
-                />
-              ) : null}
-              <span className="min-w-0 truncate">{t(value)}</span>
-            </span>
-          ))}
-          {hiddenCount > 0 ? (
-            <span
-              className={cn(
-                "inline-flex items-center rounded-lg border border-border/42 text-[11px] font-semibold text-muted-foreground",
-                compact ? "min-h-6 px-1.5" : "min-h-7 px-2",
-              )}
-            >
-              +{hiddenCount}
-            </span>
-          ) : null}
-        </div>
-      ) : (
-        <span className="truncate text-sm text-muted-foreground/72">{t(empty)}</span>
-      )}
-    </div>
-  );
-}
-
 export function GiftPreferencesSummary({
   userName,
   preferences: rawPreferences,
@@ -156,7 +44,7 @@ export function GiftPreferencesSummary({
   const preferenceCount = countGiftPreferences(preferences);
   const sizeItems = splitPreferenceList(preferences.sizes);
   const rowCompact = embedded;
-  const rowLimit = embedded ? 2 : 3;
+  const rowLimit = embedded ? undefined : 3;
   const positiveRows: PreferenceSignalRowProps[] = [
     {
       icon: Heart,
@@ -171,6 +59,7 @@ export function GiftPreferencesSummary({
       values: preferences.favoriteColors,
       empty: "Цвета не выбраны",
       limit: rowLimit,
+      colorDots: true,
     },
     {
       icon: Gift,
@@ -243,7 +132,7 @@ export function GiftPreferencesSummary({
       values: sizeItems,
       empty: "Размеры не указаны",
       accent: "muted",
-      limit: embedded ? 2 : 4,
+      limit: embedded ? undefined : 4,
     },
     {
       icon: CircleDollarSign,
@@ -258,7 +147,7 @@ export function GiftPreferencesSummary({
       values: preferences.occasions,
       empty: "Поводы не указаны",
       accent: "warning",
-      limit: embedded ? 2 : 4,
+      limit: embedded ? undefined : 4,
     },
   ];
 
@@ -267,7 +156,7 @@ export function GiftPreferencesSummary({
       className={cn(
         "overflow-hidden",
         embedded
-          ? "rounded-xl border border-border/48 bg-[hsl(var(--surface-2))/0.56]"
+          ? "border-0 bg-transparent"
           : cn(
               uiSurface.contentPanel,
               "border-primary/20 bg-[linear-gradient(120deg,hsl(var(--surface-2)/0.9),hsl(var(--primary)/0.055))]",
@@ -319,30 +208,30 @@ export function GiftPreferencesSummary({
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className={cn("space-y-3 p-3 sm:p-4", !embedded && "border-t border-border/34")}
+              className={cn(embedded ? "space-y-4 py-1" : "space-y-3 border-t border-border/34 p-3 sm:p-4")}
             >
-              <div className={cn("grid gap-3", embedded ? "sm:grid-cols-2" : "xl:grid-cols-3")}>
-                <div className="min-w-0 space-y-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary/80">
+              <div className={cn("grid gap-4", !embedded && "xl:grid-cols-3")}>
+                <div className="min-w-0">
+                  <p className="mb-1 text-xs font-semibold text-primary/80">
                     {t("Понравится")}
                   </p>
                   {positiveRows.map((row) => (
                     <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
                   ))}
                 </div>
-                <div className="min-w-0 space-y-2">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-destructive/86">
+                <div className="min-w-0">
+                  <p className="mb-1 text-xs font-semibold text-destructive/86">
                     {t("Не подойдёт")}
                   </p>
                   {avoidRows.map((row) => (
                     <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
                   ))}
                 </div>
-                <div className={cn("min-w-0 space-y-2", embedded && "sm:col-span-2")}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-warning/90">
+                <div className="min-w-0">
+                  <p className="mb-1 text-xs font-semibold text-warning/90">
                     {t("Детали")}
                   </p>
-                  <div className={cn("grid gap-2", embedded && "sm:grid-cols-3")}>
+                  <div>
                     {detailRows.map((row) => (
                       <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
                     ))}
@@ -350,8 +239,8 @@ export function GiftPreferencesSummary({
                   {preferences.notes ? (
                     <p
                       className={cn(
-                        "rounded-lg border border-primary/22 bg-primary/7 text-sm leading-relaxed text-muted-foreground",
-                        embedded ? "px-2.5 py-2" : "px-3 py-2",
+                        "mt-3 border-l-2 border-primary/28 text-sm leading-relaxed text-muted-foreground",
+                        embedded ? "pl-3" : "px-3 py-2",
                       )}
                     >
                       {preferences.notes}

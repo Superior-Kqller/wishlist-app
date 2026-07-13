@@ -4,6 +4,10 @@ import type { ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronDown, Gift, Heart, Pencil, ShieldAlert, Sparkles } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
+import {
+  getPreferenceColor,
+  PreferenceSignalRow,
+} from "@/components/preferences/preference-signal-row";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { cn } from "@/lib/utils";
@@ -12,33 +16,6 @@ import {
   normalizeGiftPreferences,
   type GiftPreferences,
 } from "@/lib/preferences";
-
-const colorValues: Record<string, string> = {
-  "розовый": "#e7a6b8",
-  "красный": "#c75b64",
-  "бордовый": "#8f3e4b",
-  "оранжевый": "#d78a4d",
-  "жёлтый": "#d8b84a",
-  "желтый": "#d8b84a",
-  "зелёный": "#6f9b76",
-  "зеленый": "#6f9b76",
-  "хаки": "#7b7d57",
-  "мятный": "#8bbfaf",
-  "голубой": "#77aabd",
-  "синий": "#56789f",
-  "фиолетовый": "#8c729c",
-  "лавандовый": "#b5a6cf",
-  "белый": "#ece9e1",
-  "молочный": "#f1eadc",
-  "бежевый": "#cdbb9f",
-  "коричневый": "#80604d",
-  "серый": "#8c9097",
-  "графитовый": "#454a52",
-  "серебристый": "#b8bdc4",
-  "деним": "#4f6787",
-  "чёрный": "#292a2e",
-  "черный": "#292a2e",
-};
 
 type PreferenceProfileCardProps = {
   id: string;
@@ -54,63 +31,6 @@ type PreferenceProfileCardProps = {
   onEdit?: () => void;
   children?: ReactNode;
 };
-
-function PreviewGroup({
-  icon: Icon,
-  label,
-  values,
-  emptyLabel,
-  warning = false,
-  colorDots = false,
-}: {
-  icon: typeof Heart;
-  label: string;
-  values: string[];
-  emptyLabel: string;
-  warning?: boolean;
-  colorDots?: boolean;
-}) {
-  const { t } = useI18n();
-  const visibleValues = values.filter(Boolean).slice(0, 3);
-  const hiddenCount = Math.max(0, values.filter(Boolean).length - visibleValues.length);
-
-  return (
-    <div className="min-w-0 rounded-xl border border-border/28 bg-[hsl(var(--surface-3))/0.35] px-2.5 py-2.5">
-      <div className="mb-2 flex min-w-0 items-center gap-1.5">
-        <Icon className={cn("h-3.5 w-3.5 shrink-0", warning ? "text-destructive" : "text-primary")} aria-hidden />
-        <span className="min-w-0 truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-          {t(label)}
-        </span>
-      </div>
-      {visibleValues.length > 0 ? (
-        <div className="flex min-w-0 flex-wrap gap-1.5 text-sm font-medium text-foreground/86">
-          {visibleValues.map((value) => (
-            <span
-              key={value}
-              className="inline-flex min-h-7 max-w-full min-w-0 items-center gap-1 rounded-lg border border-border/32 bg-[hsl(var(--surface-2))/0.62] px-2 text-xs font-semibold"
-            >
-              {colorDots ? (
-                <span
-                  className="size-2.5 shrink-0 rounded-full border border-foreground/15"
-                  style={{ backgroundColor: colorValues[value.toLocaleLowerCase("ru-RU")] ?? "#77777f" }}
-                  aria-hidden
-                />
-              ) : null}
-              <span className="min-w-0 truncate">{t(value)}</span>
-            </span>
-          ))}
-          {hiddenCount > 0 ? (
-            <span className="inline-flex min-h-7 items-center rounded-lg border border-border/42 px-2 text-[11px] font-semibold text-muted-foreground">
-              +{hiddenCount}
-            </span>
-          ) : null}
-        </div>
-      ) : (
-        <p className="min-w-0 truncate text-sm text-muted-foreground/72">{t(emptyLabel)}</p>
-      )}
-    </div>
-  );
-}
 
 export function PreferenceProfileCard({
   id,
@@ -131,8 +51,12 @@ export function PreferenceProfileCard({
   const preferences = normalizeGiftPreferences(rawPreferences);
   const preferenceCount = countGiftPreferences(preferences);
   const progress = Math.min(100, Math.round((preferenceCount / 12) * 100));
-  const likedCategories = [...preferences.favoriteCategories, ...preferences.hobbies];
-  const avoid = [...preferences.dislikedBrands, ...preferences.dislikedColors, ...preferences.doNotBuy];
+  const excluded = [
+    ...preferences.dislikedBrands,
+    ...preferences.dislikedColors,
+    ...preferences.dislikedCategories,
+    ...preferences.dislikedMaterials,
+  ];
   const details = [preferences.sizes, preferences.budget, ...preferences.occasions].filter(Boolean);
 
   return (
@@ -140,20 +64,12 @@ export function PreferenceProfileCard({
       layout
       transition={{ type: "spring", stiffness: 120, damping: 22 }}
       className={cn(
-        "group overflow-hidden rounded-[1.35rem] border bg-[hsl(var(--surface-2))/0.84] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045),0_18px_50px_-38px_hsl(var(--foreground)/0.45)]",
-        isCurrent ? "border-primary/32" : "border-border/58",
-        expanded && "border-primary/38",
+        "group overflow-hidden rounded-xl border bg-[hsl(var(--surface-2))/0.8] shadow-none",
+        isCurrent ? "border-primary/38 border-l-2" : "border-border/58",
+        expanded && "border-primary/44",
       )}
     >
-      <div className="relative overflow-hidden p-4 sm:p-5">
-        <div
-          className={cn(
-            "pointer-events-none absolute inset-x-0 top-0 h-px opacity-0 transition-opacity duration-300 group-hover:opacity-100",
-            isCurrent ? "bg-primary/55" : "bg-foreground/20",
-          )}
-          aria-hidden
-        />
-
+      <div className="overflow-hidden p-4 sm:p-5">
         <div className="flex items-start gap-3.5">
           <div className="relative shrink-0">
             <UserAvatar
@@ -163,16 +79,6 @@ export function PreferenceProfileCard({
               size="xl"
               className="ring-2 ring-background ring-offset-1 ring-offset-border/40"
             />
-            {preferenceCount > 0 ? (
-              <motion.span
-                animate={reduceMotion ? undefined : { scale: [1, 1.12, 1] }}
-                transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full border-2 border-[hsl(var(--surface-2))] bg-primary/18 text-primary shadow-[0_0_0_1px_hsl(var(--primary)/0.16)]"
-                aria-hidden
-              >
-                <Gift className="h-2.5 w-2.5" />
-              </motion.span>
-            ) : null}
           </div>
 
           <button
@@ -214,7 +120,7 @@ export function PreferenceProfileCard({
           </div>
         </div>
 
-        <div className="mt-5 grid gap-4">
+        <div className="mt-5 grid gap-0">
           <div className="min-w-0 space-y-2">
             <div className="flex items-end justify-between gap-2">
               <div>
@@ -230,7 +136,7 @@ export function PreferenceProfileCard({
                       key={color}
                       title={t(color)}
                       className="size-5 rounded-full border-2 border-[hsl(var(--surface-2))]"
-                      style={{ backgroundColor: colorValues[color.toLocaleLowerCase("ru-RU")] ?? "#77777f" }}
+                      style={{ backgroundColor: getPreferenceColor(color) }}
                     />
                   ))}
                 </div>
@@ -253,32 +159,46 @@ export function PreferenceProfileCard({
             </p>
           </div>
 
-          <PreviewGroup
-            icon={Heart}
-            label="Бренды"
-            values={preferences.favoriteBrands}
-            emptyLabel="Бренды не указаны"
-          />
-          <PreviewGroup
-            icon={Sparkles}
-            label="Цвета"
-            values={preferences.favoriteColors}
-            emptyLabel="Цвета не выбраны"
-            colorDots
-          />
-          <PreviewGroup
-            icon={Gift}
-            label="Категории"
-            values={likedCategories}
-            emptyLabel="Категории не указаны"
-          />
-          <PreviewGroup
-            icon={ShieldAlert}
-            label="Не подойдёт"
-            values={avoid}
-            emptyLabel="Стоп-лист пока пуст"
-            warning
-          />
+          <div className="mt-4 border-y border-border/42 py-1">
+            <PreferenceSignalRow
+              icon={Heart}
+              label="Бренды"
+              values={preferences.favoriteBrands}
+              empty="Бренды не указаны"
+              limit={3}
+            />
+            <PreferenceSignalRow
+              icon={Sparkles}
+              label="Цвета"
+              values={preferences.favoriteColors}
+              empty="Цвета не выбраны"
+              limit={3}
+              colorDots
+            />
+            <PreferenceSignalRow
+              icon={Gift}
+              label="Категории"
+              values={preferences.favoriteCategories}
+              empty="Категории не указаны"
+              limit={3}
+            />
+            <PreferenceSignalRow
+              icon={ShieldAlert}
+              label="Исключения"
+              values={excluded}
+              empty="Исключений нет"
+              limit={3}
+              warning
+            />
+            <PreferenceSignalRow
+              icon={ShieldAlert}
+              label="Стоп-лист"
+              values={preferences.doNotBuy}
+              empty="Стоп-лист пока пуст"
+              limit={3}
+              warning
+            />
+          </div>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border/42 pt-3 text-xs text-muted-foreground">
@@ -300,7 +220,7 @@ export function PreferenceProfileCard({
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="border-t border-border/48 bg-[hsl(var(--background))/0.3] p-3 sm:p-4"
+            className="border-t border-border/48 p-3 sm:p-4"
           >
             {children}
           </motion.div>

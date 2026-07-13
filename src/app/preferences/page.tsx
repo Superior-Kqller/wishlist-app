@@ -38,7 +38,7 @@ import { GiftPreferencesSummary } from "@/components/preferences/gift-preference
 import { PreferenceProfileCard } from "@/components/preferences/preference-profile-card";
 import { fetcher } from "@/lib/fetcher";
 import { cn } from "@/lib/utils";
-import { uiSurface } from "@/lib/ui-contract";
+import { uiLayout, uiSurface } from "@/lib/ui-contract";
 import {
   type GiftPreferences,
   countGiftPreferences,
@@ -486,7 +486,7 @@ function SizeBuilder({
 function PreferencesPageSkeleton() {
   return (
     <PageShell>
-      <PageMain className="max-w-[92rem]">
+      <PageMain className={uiLayout.workspaceCanvas}>
         <div className="space-y-5 animate-pulse">
           <div className="h-24 rounded-2xl bg-muted/50" />
           <div className="grid gap-4 md:grid-cols-2">
@@ -627,18 +627,18 @@ export default function PreferencesPage() {
 
   return (
     <PageShell>
-      <PageMain className="max-w-[92rem]">
+      <PageMain className={uiLayout.workspaceCanvas}>
         <div className="space-y-5">
           <PageIntro
             title={t("Подарочные профили")}
             description={t("Загляните в подсказки друзей перед выбором подарка. Свой профиль можно настроить прямо здесь.")}
             actions={
-              <div className="flex items-center gap-3 rounded-xl border border-border/52 bg-[hsl(var(--surface-3))/0.56] px-3.5 py-2.5">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <div className="flex items-center gap-2.5 px-1 py-1">
+                <div className="flex size-8 items-center justify-center text-primary">
                   <UsersRound className="h-4 w-4" aria-hidden />
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.11em] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {t("Профилей в круге")}
                   </p>
                   <p className="text-sm font-semibold tabular-nums">{circleUsers.length}</p>
@@ -656,12 +656,9 @@ export default function PreferencesPage() {
             </div>
           ) : (
             <section className="space-y-4" aria-labelledby="circle-title">
-              <div className="flex flex-col gap-3 px-1 sm:flex-row sm:items-end sm:justify-between">
+              <div className="flex flex-col gap-2 px-1 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-primary/78">
-                    {t("Ваш круг")}
-                  </p>
-                  <h2 id="circle-title" className="mt-1 text-lg font-semibold tracking-tight sm:text-xl">
+                  <h2 id="circle-title" className="text-lg font-semibold tracking-tight sm:text-xl">
                     {t("Что порадует каждого")}
                   </h2>
                 </div>
@@ -679,8 +676,8 @@ export default function PreferencesPage() {
                 </div>
               ) : null}
 
-              <div className="flex flex-col gap-2 rounded-xl border border-border/42 bg-[hsl(var(--surface-2))/0.44] p-2 sm:flex-row sm:items-center sm:justify-between">
-                <p className="px-2 text-xs font-semibold uppercase tracking-[0.11em] text-muted-foreground">
+              <div className="flex flex-col gap-2 border-y border-border/48 py-2 sm:flex-row sm:items-center sm:justify-between">
+                <p className="px-1 text-xs font-semibold text-muted-foreground">
                   {t("Сортировка")}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
@@ -694,7 +691,7 @@ export default function PreferencesPage() {
                         "min-h-8 rounded-lg border px-2.5 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98]",
                         profileSort === option.id
                           ? "border-primary/38 bg-primary/13 text-foreground"
-                          : "border-border/44 bg-[hsl(var(--surface-3))/0.4] text-muted-foreground hover:bg-accent hover:text-foreground",
+                          : "border-transparent bg-transparent text-muted-foreground hover:border-border/44 hover:bg-accent hover:text-foreground",
                       )}
                     >
                       {t(option.label)}
@@ -703,7 +700,7 @@ export default function PreferencesPage() {
                 </div>
               </div>
 
-              <motion.div layout className="grid items-start gap-4 md:grid-cols-2 2xl:grid-cols-3">
+              <motion.div layout className="grid items-start gap-3 md:grid-cols-2 2xl:grid-cols-3 min-[2200px]:grid-cols-4">
                 {circleUsers.map((user, index) => {
                   const isCurrent = user.id === data?.id;
                   const isExpanded = expandedUserId === user.id;

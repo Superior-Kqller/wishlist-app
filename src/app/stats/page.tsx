@@ -339,7 +339,7 @@ export default function StatsPage() {
   if (error || !statsData) {
     return (
       <PageShell>
-        <PageMain className={uiLayout.analyticsCanvas}>
+        <PageMain className={uiLayout.workspaceCanvas}>
           <EmptyState
             icon={<BarChart3 className="h-5 w-5" aria-hidden />}
             title={t("Не удалось загрузить статистику")}
@@ -357,7 +357,7 @@ export default function StatsPage() {
 
   return (
     <PageShell>
-      <PageMain className={uiLayout.analyticsCanvas}>
+      <PageMain className={uiLayout.workspaceCanvas}>
         <div className="space-y-4 sm:space-y-5">
           <PageIntro
             title={t("Статистика")}
