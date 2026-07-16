@@ -1,9 +1,0 @@
-{
-  "date": "2026-07-16",
-  "framework": "Next.js 16 with React 19",
-  "styling": "Tailwind CSS 4 with HSL custom properties in src/app/globals.css",
-  "fonts": ["Manrope", "JetBrains Mono"],
-  "motion": "Framer Motion 12",
-  "spacing": "Existing 4px-aligned Tailwind scale",
-  "preserve": ["app shell", "theme contract", "font stack", "routes", "data flow"]
-}
