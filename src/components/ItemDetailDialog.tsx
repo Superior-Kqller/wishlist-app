@@ -138,7 +138,7 @@ export function ItemDetailDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         className={cn(
-          "item-detail-dialog-surface max-w-4xl gap-0 border-border/58 bg-[hsl(var(--surface-2))] shadow-[0_28px_70px_rgb(1_5_14/0.5),0_0_0_1px_hsl(var(--foreground)/0.035)]",
+          "item-detail-dialog-surface max-w-5xl gap-0 border-border/64 bg-[hsl(var(--surface-2))] shadow-[var(--shadow-dialog)]",
           /* Мобильные: почти на всю ширину и высоту экрана */
           "max-sm:max-h-[min(94dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.75rem))]",
           "max-sm:w-[calc(100vw-0.75rem)] max-sm:max-w-[min(42rem,calc(100vw-0.75rem))]",
@@ -151,29 +151,31 @@ export function ItemDetailDialog({
             ? `, ${t("Ориентировочная стоимость").toLowerCase()} ${formatPrice(item.price, item.currency, language)}`
             : ""}
         </DialogDescription>
-        <div className="item-detail-dialog-frame grid min-h-0 sm:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)]">
-          <ItemMediaSection item={item} />
-          <ItemDetailBody className="sm:min-h-[360px]">
-            <ItemMetaSection
-              item={item}
-              canManage={canManage}
-              statusPending={statusPending}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onTogglePurchased={handleTogglePurchased}
-            />
-          </ItemDetailBody>
-          <div className="border-t border-border/28 bg-[hsl(var(--surface-2))] px-3 py-3 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:col-span-2 sm:px-5 sm:py-5">
-            <ItemActivitySection
-              comments={comments}
-              currentUserId={currentUserId}
-              commentText={commentText}
-              submittingComment={submittingComment}
-              deletingCommentId={deletingCommentId}
-              onCommentTextChange={setCommentText}
-              onSubmitComment={handleAddComment}
-              onDeleteComment={handleDeleteComment}
-            />
+        <div className="item-detail-dialog-frame grid min-h-0 md:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)]">
+          <ItemMediaSection item={item} className="md:border-r md:border-border/34" />
+          <div className="flex min-h-0 min-w-0 flex-col bg-[hsl(var(--surface-2))]">
+            <ItemDetailBody>
+              <ItemMetaSection
+                item={item}
+                canManage={canManage}
+                statusPending={statusPending}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onTogglePurchased={handleTogglePurchased}
+              />
+            </ItemDetailBody>
+            <div className="mt-auto border-t border-border/34 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:px-5 sm:py-5">
+              <ItemActivitySection
+                comments={comments}
+                currentUserId={currentUserId}
+                commentText={commentText}
+                submittingComment={submittingComment}
+                deletingCommentId={deletingCommentId}
+                onCommentTextChange={setCommentText}
+                onSubmitComment={handleAddComment}
+                onDeleteComment={handleDeleteComment}
+              />
+            </div>
           </div>
         </div>
       </DialogContent>

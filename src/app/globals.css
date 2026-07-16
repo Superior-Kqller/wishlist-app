@@ -1,3 +1,5 @@
+/* Hallmark · genre: modern-minimal · macrostructure: Workbench · designed-as-app */
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R5 V4 */
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
@@ -141,6 +143,8 @@
       inset 0 1px 0 hsl(var(--foreground) / 0.05);
     --shadow-selected-card: 0 18px 40px rgb(1 5 14 / 0.38);
     --shadow-floating: 0 12px 28px rgb(1 5 14 / 0.38);
+    --shadow-dialog: 0 28px 72px rgb(1 5 14 / 0.48),
+      0 0 0 1px hsl(var(--foreground) / 0.035);
     --shadow-brand-action: 0 10px 24px rgb(1 5 14 / 0.26),
       0 0 16px hsl(var(--primary) / 0.12);
   }
@@ -181,57 +185,59 @@
   .theme-light {
     color-scheme: light;
 
-    --background: 252 28% 97%;
-    --foreground: 230 20% 14%;
+    --background: 248 22% 97%;
+    --foreground: 232 24% 13%;
 
-    --surface-1: 252 28% 97%;
-    --surface-2: 0 0% 100%;
-    --surface-3: 248 24% 94%;
-    --surface-4: 244 18% 89%;
-    --surface-5: 240 14% 82%;
-    --surface-6: 236 12% 72%;
+    --surface-1: 248 22% 97%;
+    --surface-2: 250 24% 99%;
+    --surface-3: 246 18% 94%;
+    --surface-4: 244 14% 88%;
+    --surface-5: 240 12% 80%;
+    --surface-6: 236 10% 68%;
 
     --card: var(--surface-2);
-    --card-foreground: 230 20% 14%;
+    --card-foreground: 232 24% 13%;
 
-    --primary: 262 52% 52%;
+    --primary: 263 56% 45%;
     --primary-foreground: 0 0% 100%;
     --secondary: var(--surface-3);
-    --secondary-foreground: 230 20% 14%;
+    --secondary-foreground: 232 24% 13%;
     --muted: var(--surface-4);
-    --muted-foreground: 232 10% 42%;
-    --accent: 258 34% 91%;
-    --accent-foreground: 255 34% 24%;
-    --border: 240 14% 78%;
-    --input: 240 14% 74%;
-    --ring: 262 52% 52%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 230 20% 14%;
+    --muted-foreground: 232 12% 36%;
+    --accent: 258 28% 91%;
+    --accent-foreground: 256 38% 22%;
+    --border: 240 14% 60%;
+    --input: 240 14% 56%;
+    --ring: 263 56% 45%;
+    --popover: var(--surface-2);
+    --popover-foreground: 232 24% 13%;
 
-    --theme-cool: 262 52% 52%;
-    --theme-warm: 326 42% 56%;
-    --glass-bg: 0 0% 100% / 0.88;
-    --glass-border: 240 14% 72% / 0.5;
-    --interactive-glow-primary: 262 52% 52% / 0.12;
-    --overlay-backdrop: 232 24% 12% / 0.5;
-    --overlay-image-scrim: 232 24% 12% / 0.46;
+    --theme-cool: 263 56% 45%;
+    --theme-warm: 326 34% 50%;
+    --glass-bg: 250 24% 99% / 0.96;
+    --glass-border: 240 14% 60% / 0.42;
+    --interactive-glow-primary: 263 56% 45% / 0.1;
+    --overlay-backdrop: 232 24% 12% / 0.46;
+    --overlay-image-scrim: 232 24% 12% / 0.42;
 
-    --shadow-sidebar: 12px 0 30px rgb(42 36 62 / 0.08);
-    --shadow-header: 0 1px 10px rgb(42 36 62 / 0.1);
-    --shadow-panel: 0 14px 34px rgb(42 36 62 / 0.09),
+    --shadow-sidebar: 8px 0 24px rgb(42 36 62 / 0.055);
+    --shadow-header: 0 1px 8px rgb(42 36 62 / 0.07);
+    --shadow-panel: 0 8px 24px rgb(42 36 62 / 0.065),
       inset 0 1px 0 hsl(var(--foreground) / 0.02);
-    --shadow-hero-panel: 0 20px 52px rgb(42 36 62 / 0.12),
-      0 0 0 1px hsl(var(--primary) / 0.06),
+    --shadow-hero-panel: 0 12px 32px rgb(42 36 62 / 0.08),
+      0 0 0 1px hsl(var(--border) / 0.72),
       inset 0 1px 0 hsl(var(--foreground) / 0.02);
-    --shadow-page-header: 0 14px 38px rgb(42 36 62 / 0.09),
+    --shadow-page-header: 0 8px 24px rgb(42 36 62 / 0.065),
       inset 0 1px 0 hsl(var(--foreground) / 0.02);
-    --shadow-interactive-card: 0 10px 26px rgb(42 36 62 / 0.08),
+    --shadow-interactive-card: 0 4px 14px rgb(42 36 62 / 0.055),
       inset 0 1px 0 hsl(var(--foreground) / 0.02);
-    --shadow-interactive-card-hover: 0 14px 32px rgb(42 36 62 / 0.12),
+    --shadow-interactive-card-hover: 0 8px 20px rgb(42 36 62 / 0.08),
       inset 0 1px 0 hsl(var(--foreground) / 0.025);
-    --shadow-selected-card: 0 14px 32px rgb(42 36 62 / 0.12);
-    --shadow-floating: 0 10px 24px rgb(42 36 62 / 0.12);
-    --shadow-brand-action: 0 8px 20px rgb(42 36 62 / 0.1);
+    --shadow-selected-card: 0 8px 20px rgb(42 36 62 / 0.08);
+    --shadow-floating: 0 8px 20px rgb(42 36 62 / 0.09);
+    --shadow-dialog: 0 24px 64px rgb(42 36 62 / 0.18),
+      0 0 0 1px hsl(var(--border) / 0.72);
+    --shadow-brand-action: 0 6px 16px rgb(42 36 62 / 0.08);
   }
 
   .theme-wine-sky {
@@ -384,6 +390,15 @@
   mix-blend-mode: soft-light;
 }
 
+.theme-light .page-bg {
+  background: hsl(var(--background));
+  background-attachment: initial;
+}
+
+.theme-light .page-bg::before {
+  opacity: 0;
+}
+
 .tracking-tight {
   letter-spacing: 0;
 }
@@ -432,7 +447,7 @@
 }
 
 .dialog-modal-surface {
-  box-shadow: 0 18px 42px rgb(0 0 0 / 0.4);
+  box-shadow: var(--shadow-dialog);
 }
 
 .item-detail-dialog-surface {
@@ -442,13 +457,7 @@
 }
 
 .item-detail-dialog-frame {
-  background:
-    linear-gradient(
-      180deg,
-      hsl(var(--surface-2)) 0%,
-      hsl(var(--surface-2)) 56%,
-      hsl(var(--surface-1)) 100%
-    );
+  background: hsl(var(--surface-1));
 }
 
 @media (max-width: 640px) {
@@ -536,7 +545,24 @@
       180deg,
       hsl(var(--surface-2) / 0.9) 0%,
       hsl(var(--surface-2) / 0.76) 100%
-    );
+  );
+}
+
+.theme-light .glass {
+  background: hsl(var(--surface-2));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: var(--shadow-floating);
+}
+
+.theme-light .glass-card,
+.theme-light .card-elevated {
+  box-shadow: var(--shadow-interactive-card);
+}
+
+.theme-light .home-summary-panel,
+.theme-light .home-toolbar-panel {
+  background: hsl(var(--surface-2));
 }
 
 @keyframes shimmer {

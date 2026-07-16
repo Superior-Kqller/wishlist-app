@@ -48,7 +48,7 @@ export function ItemMetaSection({
   const { language, t } = useI18n();
   const [showFullNotes, setShowFullNotes] = useState(false);
   const actionButtonClass =
-    "h-11 min-h-[44px] min-w-[8.5rem] flex-1 basis-[8.5rem] shrink justify-center whitespace-nowrap border-border/54 bg-[hsl(var(--surface-3))/0.58] px-3 text-foreground backdrop-blur-[8px] hover:border-primary/28 hover:bg-accent sm:h-10 sm:min-h-10 sm:w-auto sm:flex-none sm:basis-auto";
+    "h-11 min-h-[44px] min-w-[8.5rem] flex-1 basis-[8.5rem] shrink justify-center whitespace-nowrap border-border/58 bg-transparent px-3 text-foreground hover:border-primary/34 hover:bg-accent sm:h-10 sm:min-h-10 sm:w-auto sm:flex-none sm:basis-auto";
   const hasLongNotes = Boolean(item.notes && item.notes.length > 180);
   const categoryLabel = getProductCategoryLabel(item.category, language);
   const categoryIcon = getProductCategoryIcon(item.category);
@@ -59,19 +59,19 @@ export function ItemMetaSection({
 
   return (
     <>
-      <DialogHeader className="space-y-2 pr-10 sm:pr-12">
+      <DialogHeader className="space-y-3 pr-10 sm:pr-12">
         <div className="min-w-0">
           <DialogTitle
             className={cn(
-              "break-words text-left text-xl font-semibold leading-[1.1] tracking-tight sm:text-2xl",
+              "min-w-0 break-words [overflow-wrap:anywhere] text-left text-2xl font-semibold leading-[1.12] tracking-tight sm:text-[1.75rem]",
               item.purchased && "line-through",
             )}
           >
             {item.title}
           </DialogTitle>
-          <div className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1.5">
+          <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-2">
             {item.price != null && item.price > 0 ? (
-              <p className="mr-1 text-2xl font-semibold leading-none tabular-nums tracking-tight text-foreground sm:text-[1.7rem]">
+              <p className="mr-1 text-2xl font-semibold leading-none tabular-nums tracking-tight text-foreground sm:text-[1.85rem]">
                 {formatPrice(item.price, item.currency, language)}
               </p>
             ) : null}
@@ -81,7 +81,7 @@ export function ItemMetaSection({
       </DialogHeader>
 
       {item.user ? (
-        <div className="flex min-w-0 items-center gap-2 rounded-lg border border-border/34 bg-[hsl(var(--surface-3))/0.44] px-2.5 py-2 text-sm text-muted-foreground/86 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+        <div className="flex min-w-0 items-center gap-2 border-y border-border/34 py-2.5 text-sm text-muted-foreground">
           <UserAvatar
             avatarUrl={item.user.avatarUrl || undefined}
             name={item.user.name}
@@ -93,10 +93,10 @@ export function ItemMetaSection({
       ) : null}
 
       {item.notes ? (
-        <div className="max-w-[34rem] space-y-1.5 rounded-xl border border-border/34 bg-[hsl(var(--surface-3))/0.38] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+        <div className="max-w-[38rem] space-y-2 py-1">
           <p
             className={cn(
-              "whitespace-pre-wrap text-sm leading-relaxed text-foreground/72",
+              "whitespace-pre-wrap text-sm leading-relaxed text-foreground/78",
               hasLongNotes && !showFullNotes && "line-clamp-4",
             )}
           >
@@ -105,7 +105,7 @@ export function ItemMetaSection({
           {hasLongNotes ? (
             <button
               type="button"
-              className="text-xs font-medium text-primary hover:text-primary/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+              className="rounded-sm text-xs font-medium text-primary hover:text-primary/82 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onClick={() => setShowFullNotes((value) => !value)}
             >
               {showFullNotes ? t("Свернуть") : t("Показать полностью")}
@@ -115,8 +115,8 @@ export function ItemMetaSection({
       ) : null}
 
       {item.category ? (
-        <div className="flex flex-wrap gap-1.5">
-          <Badge variant="brand" className="gap-1.5 px-2 py-1 text-xs">
+        <div className="flex flex-wrap gap-1.5 border-t border-border/30 pt-3">
+          <Badge variant="outline" className="gap-1.5 border-border/58 px-2 py-1 text-xs font-medium text-muted-foreground">
             <span aria-hidden>{categoryIcon}</span>
             {categoryLabel}
           </Badge>
@@ -124,7 +124,7 @@ export function ItemMetaSection({
       ) : null}
 
       {(item.url || canManage) && (
-        <div className="flex flex-wrap gap-2 border-t border-border/30 pt-3 sm:items-center">
+        <div className="flex flex-wrap gap-2 border-t border-border/34 pt-4 sm:items-center">
           {item.url ? (
             <Button
               asChild

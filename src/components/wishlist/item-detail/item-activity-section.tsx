@@ -34,30 +34,30 @@ export function ItemActivitySection({
   const { locale, t } = useI18n();
 
   return (
-    <div className={cn("space-y-3 rounded-xl border border-border/36 bg-[hsl(var(--surface-3))] p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)] sm:space-y-3.5 sm:p-4", className)}>
+    <section className={cn("space-y-3", className)} aria-label={t("Комментарии")}>
       <h3 className="flex items-center justify-between gap-2 text-sm font-semibold text-foreground">
         <span className="flex min-w-0 items-center gap-2">
           <MessageCircle className="h-4 w-4 text-muted-foreground/78" />
           {t("Комментарии")}
         </span>
         {comments.length > 0 ? (
-          <span className="rounded-md border border-border/30 bg-[hsl(var(--surface-3))/0.5] px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+          <span className="text-xs font-medium tabular-nums text-muted-foreground">
             {comments.length}
           </span>
         ) : null}
       </h3>
 
-      <div className="max-h-40 space-y-2 overflow-y-auto sm:max-h-52">
+      <div className="max-h-44 overflow-y-auto pr-1 sm:max-h-56">
         {comments.length === 0 ? (
-          <div className="flex min-h-20 flex-col items-center justify-center text-center">
-            <MessageCircle className="h-6 w-6 text-muted-foreground/36" />
-            <p className="mt-2 text-sm text-muted-foreground/75">{t("Комментариев пока нет")}</p>
+          <div className="flex min-h-16 items-center gap-2 border-y border-border/28 py-3 text-sm text-muted-foreground">
+            <MessageCircle className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+            <p>{t("Комментариев пока нет")}</p>
           </div>
         ) : (
           comments.map((comment) => (
             <div
               key={comment.id}
-              className="flex gap-2 rounded-lg border border-border/24 bg-[hsl(var(--surface-2))] p-2 text-sm"
+              className="flex gap-2 border-t border-border/28 py-3 text-sm first:border-t-0 first:pt-0"
             >
               <UserAvatar
                 avatarUrl={comment.user.avatarUrl || undefined}
@@ -107,20 +107,20 @@ export function ItemActivitySection({
 
       <form
         onSubmit={onSubmitComment}
-        className="flex flex-col gap-2 border-t border-border/35 pt-3 sm:flex-row sm:items-end"
+        className="grid gap-2 border-t border-border/35 pt-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
       >
         <Textarea
           value={commentText}
           onChange={(event) => onCommentTextChange(event.target.value)}
           placeholder={t("Добавить комментарий...")}
-          className="min-h-[56px] resize-none border-border/48 bg-[hsl(var(--surface-2))] sm:min-h-16 sm:flex-1"
+          className="min-h-24 resize-y border-border/58 bg-[hsl(var(--surface-1))]"
           maxLength={2000}
           disabled={submittingComment}
         />
         <Button
           type="submit"
           size="sm"
-          className="h-10 w-full shrink-0 sm:w-auto"
+          className="h-11 w-full shrink-0 whitespace-nowrap sm:w-auto"
           disabled={!commentText.trim() || submittingComment}
         >
           {submittingComment ? (
@@ -130,6 +130,6 @@ export function ItemActivitySection({
           )}
         </Button>
       </form>
-    </div>
+    </section>
   );
 }

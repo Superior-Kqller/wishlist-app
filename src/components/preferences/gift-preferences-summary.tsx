@@ -150,6 +150,15 @@ export function GiftPreferencesSummary({
       limit: embedded ? undefined : 4,
     },
   ];
+  const visiblePositiveRows = embedded
+    ? positiveRows.filter((row) => row.values.length > 0)
+    : positiveRows;
+  const visibleAvoidRows = embedded
+    ? avoidRows.filter((row) => row.values.length > 0)
+    : avoidRows;
+  const visibleDetailRows = embedded
+    ? detailRows.filter((row) => row.values.length > 0)
+    : detailRows;
 
   return (
     <section
@@ -208,38 +217,59 @@ export function GiftPreferencesSummary({
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className={cn(embedded ? "space-y-4 py-1" : "space-y-3 border-t border-border/34 p-3 sm:p-4")}
+              className={cn(embedded ? "py-0.5" : "space-y-3 border-t border-border/34 p-3 sm:p-4")}
             >
-              <div className={cn("grid gap-4", !embedded && "xl:grid-cols-3")}>
+              <div className={cn("grid gap-x-6 gap-y-5", embedded ? "md:grid-cols-2" : "xl:grid-cols-3")}>
                 <div className="min-w-0">
-                  <p className="mb-1 text-xs font-semibold text-primary/80">
+                  <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Heart className="h-4 w-4 text-primary" aria-hidden />
                     {t("Понравится")}
                   </p>
-                  {positiveRows.map((row) => (
-                    <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
-                  ))}
+                  {visiblePositiveRows.length > 0 ? (
+                    visiblePositiveRows.map((row) => (
+                      <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
+                    ))
+                  ) : (
+                    <p className="border-t border-border/34 py-3 text-sm text-muted-foreground">
+                      {t("Любимые вещи пока не указаны")}
+                    </p>
+                  )}
                 </div>
-                <div className="min-w-0">
-                  <p className="mb-1 text-xs font-semibold text-destructive/86">
+                <div className="min-w-0 md:border-l md:border-border/34 md:pl-6">
+                  <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <ShieldAlert className="h-4 w-4 text-destructive/82" aria-hidden />
                     {t("Не подойдёт")}
                   </p>
-                  {avoidRows.map((row) => (
-                    <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
-                  ))}
+                  {visibleAvoidRows.length > 0 ? (
+                    visibleAvoidRows.map((row) => (
+                      <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
+                    ))
+                  ) : (
+                    <p className="border-t border-border/34 py-3 text-sm text-muted-foreground">
+                      {t("Ограничений пока нет")}
+                    </p>
+                  )}
                 </div>
-                <div className="min-w-0">
-                  <p className="mb-1 text-xs font-semibold text-warning/90">
+                <div className={cn("min-w-0", embedded && "border-t border-border/34 pt-5 md:col-span-2")}>
+                  <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Ruler className="h-4 w-4 text-warning/88" aria-hidden />
                     {t("Детали")}
                   </p>
-                  <div>
-                    {detailRows.map((row) => (
-                      <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
-                    ))}
-                  </div>
+                  {visibleDetailRows.length > 0 ? (
+                    <div className={cn(embedded && "grid gap-x-6 sm:grid-cols-3")}>
+                      {visibleDetailRows.map((row) => (
+                        <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="border-t border-border/34 py-3 text-sm text-muted-foreground">
+                      {t("Размеры, бюджет и поводы пока не указаны")}
+                    </p>
+                  )}
                   {preferences.notes ? (
                     <p
                       className={cn(
-                        "mt-3 border-l-2 border-primary/28 text-sm leading-relaxed text-muted-foreground",
+                        "mt-3 border-l-2 border-primary/32 text-sm leading-relaxed text-muted-foreground",
                         embedded ? "pl-3" : "px-3 py-2",
                       )}
                     >

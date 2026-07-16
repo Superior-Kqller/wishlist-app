@@ -2,12 +2,9 @@
 
 import type { ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ChevronDown, Gift, Heart, Pencil, ShieldAlert, Sparkles } from "lucide-react";
+import { ChevronDown, Heart, Pencil, Ruler, ShieldAlert } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
-import {
-  getPreferenceColor,
-  PreferenceSignalRow,
-} from "@/components/preferences/preference-signal-row";
+import { getPreferenceColor } from "@/components/preferences/preference-signal-row";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { cn } from "@/lib/utils";
@@ -51,22 +48,28 @@ export function PreferenceProfileCard({
   const preferences = normalizeGiftPreferences(rawPreferences);
   const preferenceCount = countGiftPreferences(preferences);
   const progress = Math.min(100, Math.round((preferenceCount / 12) * 100));
-  const excluded = [
-    ...preferences.dislikedBrands,
-    ...preferences.dislikedColors,
-    ...preferences.dislikedCategories,
-    ...preferences.dislikedMaterials,
-  ];
-  const details = [preferences.sizes, preferences.budget, ...preferences.occasions].filter(Boolean);
+  const likedCount =
+    preferences.favoriteBrands.length +
+    preferences.favoriteColors.length +
+    preferences.favoriteCategories.length +
+    preferences.favoriteMaterials.length +
+    preferences.hobbies.length;
+  const avoidCount =
+    preferences.dislikedBrands.length +
+    preferences.dislikedColors.length +
+    preferences.dislikedCategories.length +
+    preferences.dislikedMaterials.length +
+    preferences.doNotBuy.length;
+  const detailCount = [preferences.sizes, preferences.budget, ...preferences.occasions].filter(Boolean).length;
 
   return (
     <motion.article
       layout
       transition={{ type: "spring", stiffness: 120, damping: 22 }}
       className={cn(
-        "group overflow-hidden rounded-xl border bg-[hsl(var(--surface-2))/0.8] shadow-none",
-        isCurrent ? "border-primary/38 border-l-2" : "border-border/58",
-        expanded && "border-primary/44",
+        "group overflow-hidden rounded-xl border bg-[hsl(var(--surface-2))] shadow-none",
+        isCurrent ? "border-primary/42" : "border-border/58",
+        expanded && "border-primary/52",
       )}
     >
       <div className="overflow-hidden p-4 sm:p-5">
@@ -85,7 +88,7 @@ export function PreferenceProfileCard({
             type="button"
             onClick={onToggle}
             aria-expanded={expanded}
-            className="min-w-0 flex-1 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="min-w-0 flex-1 rounded-lg text-left active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="truncate text-base font-semibold tracking-tight sm:text-lg">{name}</h2>
@@ -111,7 +114,13 @@ export function PreferenceProfileCard({
                 <span className="hidden sm:inline">{editing ? t("Закрыть") : t("Настроить")}</span>
               </Button>
             ) : null}
-            <Button type="button" size="icon" variant="ghost" onClick={onToggle} aria-label={t("Открыть профиль")}>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              onClick={onToggle}
+              aria-label={expanded ? t("Свернуть профиль") : t("Открыть профиль")}
+            >
               <ChevronDown
                 className={cn("h-4 w-4 transition-transform duration-300", expanded && "rotate-180")}
                 aria-hidden
@@ -120,94 +129,62 @@ export function PreferenceProfileCard({
           </div>
         </div>
 
-        <div className="mt-5 grid gap-0">
-          <div className="min-w-0 space-y-2">
-            <div className="flex items-end justify-between gap-2">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                  {t("Подсказки")}
-                </p>
-                <p className="mt-1 text-2xl font-semibold tabular-nums">{preferenceCount}</p>
+        <div className="mt-5 border-t border-border/42 pt-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <p className="text-xl font-semibold tabular-nums">{preferenceCount}</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("подсказок для подарка")}</p>
               </div>
-              {preferences.favoriteColors.length > 0 ? (
-                <div className="flex -space-x-1.5 pb-1" aria-label={t("Любимые цвета")}>
-                  {preferences.favoriteColors.slice(0, 5).map((color) => (
-                    <span
-                      key={color}
-                      title={t(color)}
-                      className="size-5 rounded-full border-2 border-[hsl(var(--surface-2))]"
-                      style={{ backgroundColor: getPreferenceColor(color) }}
-                    />
-                  ))}
-                </div>
-              ) : null}
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                {preferenceCount === 0
+                  ? t("Профиль ждёт первых подсказок")
+                  : preferenceCount < 6
+                    ? t("Уже есть за что зацепиться")
+                    : t("Можно выбирать подарок увереннее")}
+              </p>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-[hsl(var(--surface-3))]">
+            {preferences.favoriteColors.length > 0 ? (
+              <div className="flex -space-x-1.5 pt-1" aria-label={t("Любимые цвета")}>
+                {preferences.favoriteColors.slice(0, 5).map((color) => (
+                  <span
+                    key={color}
+                    title={t(color)}
+                    className="size-5 rounded-full border-2 border-[hsl(var(--surface-2))]"
+                    style={{ backgroundColor: getPreferenceColor(color) }}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </div>
+          <div className="mt-3 h-1 overflow-hidden rounded-full bg-[hsl(var(--surface-3))]">
               <motion.div
                 initial={reduceMotion ? false : { scaleX: 0 }}
                 animate={{ scaleX: progress / 100 }}
                 transition={{ type: "spring", stiffness: 90, damping: 20 }}
                 className="h-full origin-left rounded-full bg-primary/72"
               />
+          </div>
+
+          {!expanded ? (
+            <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border/34 pt-3 text-xs">
+              <span className="inline-flex min-w-0 items-center gap-1.5 text-muted-foreground">
+                <Heart className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
+                <span className="truncate">{`${t("Нравится")}: ${likedCount}`}</span>
+              </span>
+              <span className="inline-flex min-w-0 items-center gap-1.5 text-muted-foreground">
+                <ShieldAlert className="h-3.5 w-3.5 shrink-0 text-destructive/80" aria-hidden />
+                <span className="truncate">{`${t("Избегать")}: ${avoidCount}`}</span>
+              </span>
+              <span className="inline-flex min-w-0 items-center gap-1.5 text-muted-foreground">
+                <Ruler className="h-3.5 w-3.5 shrink-0 text-warning/85" aria-hidden />
+                <span className="truncate">{`${t("Детали")}: ${detailCount}`}</span>
+              </span>
             </div>
-            <p className="text-[11px] leading-relaxed text-muted-foreground">
-              {preferenceCount === 0
-                ? t("Профиль ждёт первых подсказок")
-                : preferenceCount < 6
-                  ? t("Уже есть за что зацепиться")
-                  : t("Можно выбирать подарок увереннее")}
-            </p>
-          </div>
+          ) : null}
 
-          <div className="mt-4 border-y border-border/42 py-1">
-            <PreferenceSignalRow
-              icon={Heart}
-              label="Бренды"
-              values={preferences.favoriteBrands}
-              empty="Бренды не указаны"
-              limit={3}
-            />
-            <PreferenceSignalRow
-              icon={Sparkles}
-              label="Цвета"
-              values={preferences.favoriteColors}
-              empty="Цвета не выбраны"
-              limit={3}
-              colorDots
-            />
-            <PreferenceSignalRow
-              icon={Gift}
-              label="Категории"
-              values={preferences.favoriteCategories}
-              empty="Категории не указаны"
-              limit={3}
-            />
-            <PreferenceSignalRow
-              icon={ShieldAlert}
-              label="Исключения"
-              values={excluded}
-              empty="Исключений нет"
-              limit={3}
-              warning
-            />
-            <PreferenceSignalRow
-              icon={ShieldAlert}
-              label="Стоп-лист"
-              values={preferences.doNotBuy}
-              empty="Стоп-лист пока пуст"
-              limit={3}
-              warning
-            />
-          </div>
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border/42 pt-3 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden />
-            {details.length > 0 ? `${t("Важных деталей")}: ${details.length}` : t("Детали не указаны")}
-          </span>
           {typeof wishCount === "number" ? (
-            <span>{`${t("Желаний в подборках")}: ${wishCount}`}</span>
+            <p className="mt-3 text-xs text-muted-foreground">{`${t("Желаний в подборках")}: ${wishCount}`}</p>
           ) : null}
         </div>
       </div>
@@ -220,7 +197,7 @@ export function PreferenceProfileCard({
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="border-t border-border/48 p-3 sm:p-4"
+            className="border-t border-border/48 px-4 py-4 sm:px-5 sm:py-5"
           >
             {children}
           </motion.div>
