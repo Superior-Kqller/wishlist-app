@@ -206,6 +206,7 @@ export function CombinedFilter({
             size="iconToolbar"
             onClick={onEditList}
             title={t("Изменить подборку")}
+            aria-label={t("Изменить подборку")}
           >
             <Pencil className="w-4 h-4" />
           </Button>
@@ -218,6 +219,7 @@ export function CombinedFilter({
             size="sm"
             onClick={onCreateList}
             className="h-9 gap-1.5"
+            aria-label={t("Создать подборку")}
           >
             <ListPlus className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">{t("Создать")}</span>

@@ -406,7 +406,7 @@ export function ItemFormDialog({
                   id="notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder={t("Дополнительная информация...")}
+                  placeholder={t("Дополнительная информация…")}
                   rows={4}
                   className="min-h-24 resize-y"
                 />

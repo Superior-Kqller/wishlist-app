@@ -25,7 +25,6 @@ import {
 } from "@/components/wishlist/wishlist-view-toggle";
 import { uiSurface } from "@/lib/ui-contract";
 import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
-import { getCardWord } from "@/lib/i18n";
 import type {
   ListWithMeta,
   UserWithStats,
@@ -145,7 +144,21 @@ export function WishlistWorkspace({
   size,
   setSize,
 }: WishlistWorkspaceProps) {
-  const { language, t } = useI18n();
+  const { t } = useI18n();
+  const hasSelectedCards = selectedIds.size > 0;
+  const selectionButtonTitle = hasSelectedCards
+    ? t("Режим выбора")
+    : selectionMode
+      ? t("Отменить выбор")
+      : t("Выбрать");
+  const selectionButtonAriaLabel = hasSelectedCards
+    ? t("Режим выбора")
+    : selectionMode
+      ? t("Отменить выбор")
+      : t("Выбрать карточки");
+  const selectionButtonLabel = selectionMode && !hasSelectedCards
+    ? t("Готово")
+    : t("Выбор");
 
   return (
     <>
@@ -154,7 +167,8 @@ export function WishlistWorkspace({
           <SearchField
             value={search}
             onValueChange={onSearchChange}
-            placeholder={t("Поиск...")}
+            placeholder={t("Поиск…")}
+            aria-label={t("Поиск")}
             wrapperClassName="group min-w-0 flex-1"
             iconClassName="left-3.5 text-muted-foreground/62 transition-colors duration-200 group-focus-within:text-primary/88"
             inputClassName="h-11 min-h-[44px] rounded-xl border-border/52 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] placeholder:text-muted-foreground/54 focus-visible:border-primary/48 focus-visible:ring-2 focus-visible:ring-primary/18 focus-visible:ring-offset-0"
@@ -192,13 +206,16 @@ export function WishlistWorkspace({
           </Button>
           <Button
             variant={selectionMode ? "secondary" : "outline"}
-            className="h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px]"
+            className="h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px] disabled:pointer-events-none disabled:opacity-100"
             onClick={onToggleSelectionMode}
-            title={selectionMode ? t("Отменить выбор") : t("Выбрать")}
-            aria-label={selectionMode ? t("Отменить выбор") : t("Выбрать карточки")}
+            disabled={hasSelectedCards}
+            title={selectionButtonTitle}
+            aria-label={selectionButtonAriaLabel}
           >
             <CheckSquare className="h-4 w-4 shrink-0" />
-            <span className="min-w-0 truncate">{selectionMode ? t("Готово") : t("Выбор")}</span>
+            <span className="min-w-0 truncate">
+              {selectionButtonLabel}
+            </span>
           </Button>
 
           <DropdownMenu>
@@ -295,10 +312,12 @@ export function WishlistWorkspace({
                   size="sm"
                   className={`${filterBarTriggerClass} gap-2 px-3 text-muted-foreground hover:text-foreground ${
                     selectionMode
-                      ? "border-primary/45 bg-[hsl(var(--surface-4))/0.86] text-foreground"
+                      ? "border-primary/45 bg-[hsl(var(--surface-4))/0.86] text-foreground disabled:pointer-events-none disabled:opacity-100"
                       : ""
                   }`}
                   onClick={onToggleSelectionMode}
+                  disabled={hasSelectedCards}
+                  aria-label={hasSelectedCards ? t("Режим выбора") : undefined}
                 >
                   <CheckSquare className="h-4 w-4 shrink-0" />
                   {selectionMode ? t("Режим выбора") : t("Выбрать")}
@@ -374,14 +393,12 @@ export function WishlistWorkspace({
         />
       ) : null}
 
-      {selectionMode ? (
+      {selectionMode && selectedIds.size === 0 ? (
         <div className={uiSurface.homeSelectionState}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p>
-              {t("Режим выбора")}:
-              <span className="font-semibold">{selectedIds.size}</span>{" "}
-              {getCardWord(language, selectedIds.size)}
-              .
+              <span className="font-semibold">{t("Режим выбора")}.</span>{" "}
+              {t("Нажмите на карточку, чтобы")} {t("выбрать")}.
             </p>
             <Button type="button" variant="ghost" size="sm" onClick={onClearSelectionMode}>
               {t("Завершить выбор")}

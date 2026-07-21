@@ -22,7 +22,7 @@ const SearchField = React.forwardRef<HTMLInputElement, SearchFieldProps>(
       wrapperClassName,
       inputClassName,
       iconClassName,
-      placeholder = "Поиск...",
+      placeholder = "Поиск…",
       ...props
     },
     ref,

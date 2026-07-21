@@ -80,7 +80,7 @@ export function WishlistGrid({
     return (
       <div className={catalogGridClassName}>
         {Array.from({ length: 12 }).map((_, i) => (
-          <WishlistCardSkeleton key={i} index={i} />
+          <WishlistCardSkeleton key={i} />
         ))}
       </div>
     );

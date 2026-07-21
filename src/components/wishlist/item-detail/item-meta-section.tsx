@@ -52,6 +52,10 @@ export function ItemMetaSection({
   const hasLongNotes = Boolean(item.notes && item.notes.length > 180);
   const categoryLabel = getProductCategoryLabel(item.category, language);
   const categoryIcon = getProductCategoryIcon(item.category);
+  const noteParagraphs = item.notes
+    ?.split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
 
   useEffect(() => {
     setShowFullNotes(false);
@@ -92,16 +96,23 @@ export function ItemMetaSection({
         </div>
       ) : null}
 
-      {item.notes ? (
-        <div className="max-w-[38rem] space-y-2 py-1">
-          <p
+      {noteParagraphs?.length ? (
+        <section className="max-w-[38rem] space-y-2.5 rounded-lg border border-border/34 bg-[hsl(var(--surface-3))/0.38] px-3.5 py-3">
+          <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            {t("Описание")}
+          </h3>
+          <div
             className={cn(
-              "whitespace-pre-wrap text-sm leading-relaxed text-foreground/78",
-              hasLongNotes && !showFullNotes && "line-clamp-4",
+              "space-y-2 text-sm leading-6 text-foreground/78 [text-wrap:pretty]",
+              hasLongNotes && !showFullNotes && "line-clamp-5",
             )}
           >
-            {item.notes}
-          </p>
+            {noteParagraphs.map((paragraph, index) => (
+              <p key={`${item.id}-note-${index}`} className="whitespace-pre-wrap">
+                {paragraph}
+              </p>
+            ))}
+          </div>
           {hasLongNotes ? (
             <button
               type="button"
@@ -111,7 +122,7 @@ export function ItemMetaSection({
               {showFullNotes ? t("Свернуть") : t("Показать полностью")}
             </button>
           ) : null}
-        </div>
+        </section>
       ) : null}
 
       {item.category ? (

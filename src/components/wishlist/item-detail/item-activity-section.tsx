@@ -112,7 +112,7 @@ export function ItemActivitySection({
         <Textarea
           value={commentText}
           onChange={(event) => onCommentTextChange(event.target.value)}
-          placeholder={t("Добавить комментарий...")}
+          placeholder={t("Добавить комментарий…")}
           className="min-h-24 resize-y border-border/58 bg-[hsl(var(--surface-1))]"
           maxLength={2000}
           disabled={submittingComment}

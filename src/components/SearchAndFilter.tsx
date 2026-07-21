@@ -34,7 +34,8 @@ export function WishlistSearchInput({
     <SearchField
       value={search}
       onValueChange={onSearchChange}
-      placeholder={t("Поиск...")}
+      placeholder={t("Поиск…")}
+      aria-label={t("Поиск")}
       wrapperClassName={cn("group", className)}
       iconClassName="left-3.5 text-muted-foreground/62 transition-colors duration-200 group-focus-within:text-primary/88"
       inputClassName={cn(
@@ -77,6 +78,7 @@ export function WishlistToolbarControls({
             filterBarTriggerClass,
           )}
           title={t("Сортировка")}
+          aria-label={t("Сортировка")}
         >
           <SlidersHorizontal className="mx-auto h-4 w-4 shrink-0 text-muted-foreground/85 sm:mx-0 sm:mr-2" />
           <SelectValue
@@ -99,6 +101,7 @@ export function WishlistToolbarControls({
         size="iconToolbar"
         onClick={onTogglePurchased}
         title={showPurchased ? t("Скрыть купленные") : t("Показать купленные")}
+        aria-label={showPurchased ? t("Скрыть купленные") : t("Показать купленные")}
       >
         {showPurchased ? (
           <Eye className="h-4 w-4 text-muted-foreground" />

@@ -52,7 +52,7 @@ function formatPurchasedMessage(actorName: string, itemTitle: string): string {
 function formatCommentCreatedMessage(input: NotifyCommentCreatedInput): string {
   const text =
     input.commentText.length > 240
-      ? `${input.commentText.slice(0, 237).trimEnd()}...`
+      ? `${input.commentText.slice(0, 237).trimEnd()}…`
       : input.commentText;
 
   return formatEventMessage("💬 Новый комментарий", [

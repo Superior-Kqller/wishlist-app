@@ -1,19 +1,10 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { motion } from "framer-motion";
 
-interface WishlistCardSkeletonProps {
-  index?: number;
-}
-
-export function WishlistCardSkeleton({ index = 0 }: WishlistCardSkeletonProps) {
+export function WishlistCardSkeleton() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, delay: index * 0.05 }}
-    >
+    <div>
       <Card className="flex h-full flex-col overflow-hidden border-border/65 bg-[hsl(var(--surface-2))] elevation-interactive-card">
         <div className="min-h-[178px] flex-1 basis-[178px] skeleton-shimmer sm:min-h-[196px] sm:basis-[196px] 2xl:min-h-[220px] 2xl:basis-[220px]" />
         <div className="space-y-2 p-3 pb-2 sm:p-3.5 sm:pb-2.5">
@@ -29,6 +20,6 @@ export function WishlistCardSkeleton({ index = 0 }: WishlistCardSkeletonProps) {
           <div className="h-10 w-28 rounded skeleton-shimmer" />
         </div>
       </Card>
-    </motion.div>
+    </div>
   );
 }

@@ -60,7 +60,8 @@ export function UserTable({
         <SearchField
           value={search}
           onValueChange={setSearch}
-          placeholder={t("Поиск по логину, имени или роли...")}
+          placeholder={t("Поиск по логину, имени или роли…")}
+          aria-label={t("Поиск")}
           wrapperClassName="sm:max-w-md"
         />
       </div>
@@ -125,6 +126,7 @@ export function UserTable({
                         size="icon"
                         onClick={() => setEditingUser(user)}
                         title={t("Редактировать")}
+                        aria-label={`${t("Редактировать")}: ${user.username}`}
                       >
                         <Pencil className="w-4 h-4" />
                       </Button>
@@ -133,6 +135,7 @@ export function UserTable({
                         size="icon"
                         onClick={() => setPasswordUser(user)}
                         title={t("Изменить пароль")}
+                        aria-label={`${t("Изменить пароль")}: ${user.username}`}
                       >
                         <Key className="w-4 h-4" />
                       </Button>
@@ -145,6 +148,11 @@ export function UserTable({
                           isLastAdmin(user)
                             ? t("Нельзя удалить последнего администратора")
                             : t("Удалить")
+                        }
+                        aria-label={
+                          isLastAdmin(user)
+                            ? t("Нельзя удалить последнего администратора")
+                            : `${t("Удалить")}: ${user.username}`
                         }
                       >
                         <Trash2 className="w-4 h-4" />

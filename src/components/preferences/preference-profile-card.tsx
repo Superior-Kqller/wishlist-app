@@ -109,6 +109,7 @@ export function PreferenceProfileCard({
                 variant={editing ? "default" : "outline"}
                 className="gap-1.5"
                 onClick={onEdit}
+                aria-label={editing ? t("Закрыть") : t("Настроить")}
               >
                 <Pencil className="h-3.5 w-3.5" aria-hidden />
                 <span className="hidden sm:inline">{editing ? t("Закрыть") : t("Настроить")}</span>

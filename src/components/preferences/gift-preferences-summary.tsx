@@ -193,6 +193,7 @@ export function GiftPreferencesSummary({
               size="sm"
               className="shrink-0 gap-1.5 px-2 text-xs"
               aria-expanded={expanded}
+              aria-label={expanded ? t("Свернуть") : t("Показать")}
               onClick={() => setExpanded((current) => !current)}
             >
               <span className="hidden sm:inline">{expanded ? t("Свернуть") : t("Показать")}</span>

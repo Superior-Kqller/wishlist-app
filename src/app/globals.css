@@ -583,7 +583,17 @@
     hsl(var(--muted)) 100%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
+  animation: shimmer 1.5s linear infinite;
+}
+
+.wish-card-image {
+  transition: transform 180ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .group\/card:hover .wish-card-image {
+    transform: scale(1.025);
+  }
 }
 
 @keyframes fade-in {
@@ -603,12 +613,40 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  html {
     scroll-behavior: auto !important;
   }
+
+  .skeleton-shimmer,
+  .animate-spin,
+  .animate-pulse {
+    animation: none !important;
+  }
+
+  .wish-card-image {
+    transform: none !important;
+    transition: none;
+  }
+
+  .motion-popup-surface[data-state="open"],
+  .motion-overlay-surface[data-state="open"] {
+    animation-name: reduced-fade-in !important;
+    animation-duration: 120ms !important;
+  }
+
+  .motion-popup-surface[data-state="closed"],
+  .motion-overlay-surface[data-state="closed"] {
+    animation-name: reduced-fade-out !important;
+    animation-duration: 90ms !important;
+  }
+}
+
+@keyframes reduced-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes reduced-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }

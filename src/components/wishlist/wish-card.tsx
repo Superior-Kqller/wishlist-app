@@ -139,7 +139,7 @@ export const WishCard = memo(function WishCard({
               src={imageUrl!}
               alt={item.title}
               fill
-              className="object-contain p-2 transition-transform duration-500 ease-out group-hover/card:scale-[1.045] sm:p-3"
+              className="wish-card-image object-contain p-2 sm:p-3"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               unoptimized
               onError={() => setImageError(true)}

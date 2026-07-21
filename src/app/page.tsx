@@ -807,7 +807,7 @@ export default function HomePage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen page-bg flex items-center justify-center min-h-[50vh]">
-        <div className="text-muted-foreground">Загрузка...</div>
+        <div className="text-muted-foreground">Загрузка…</div>
       </div>
     }>
       <HomePageContent />
