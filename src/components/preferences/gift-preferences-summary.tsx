@@ -270,7 +270,7 @@ export function GiftPreferencesSummary({
                   {preferences.notes ? (
                     <p
                       className={cn(
-                        "mt-3 border-l-2 border-primary/32 text-sm leading-relaxed text-muted-foreground",
+                        "mt-3 min-w-0 whitespace-pre-wrap border-l-2 border-primary/32 text-sm leading-relaxed text-muted-foreground [overflow-wrap:anywhere]",
                         embedded ? "pl-3" : "px-3 py-2",
                       )}
                     >
