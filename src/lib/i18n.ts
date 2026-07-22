@@ -184,6 +184,8 @@ const en: Dictionary = {
   "Категории:": "Categories:",
   "Сбросить": "Clear",
   "Сбросить выбранные категории": "Clear selected categories",
+  "Очистить": "Clear",
+  "Очистить категории": "Clear categories",
   "Добавить категорию": "Add category",
   "Убрать категорию": "Remove category",
   "Список пуст": "List is empty",

@@ -360,6 +360,7 @@ export function WishlistWorkspace({
             selectedCategories={effectiveSelectedCategories}
             onToggleCategory={onToggleCategory}
             onClearCategories={onClearCategories}
+            presentation="disclosure"
           />
         </div>
 
