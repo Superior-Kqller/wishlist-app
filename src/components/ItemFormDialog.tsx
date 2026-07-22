@@ -34,7 +34,7 @@ import {
   type WishlistPriority,
 } from "@/lib/priority-styles";
 import { cn } from "@/lib/utils";
-import { AlertTriangle, Loader2, X } from "lucide-react";
+import { AlertTriangle, Link2, Loader2, PenLine, X } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -64,6 +64,18 @@ const CURRENCIES = [
 
 const PRIORITY_OPTIONS: WishlistPriority[] = [1, 2, 3, 4, 5];
 
+type CreateMode = "link" | "manual";
+type LinkStage = "input" | "review";
+
+const CREATE_MODE_OPTIONS = [
+  { value: "link", label: "По ссылке", icon: Link2 },
+  { value: "manual", label: "Вручную", icon: PenLine },
+] as const satisfies ReadonlyArray<{
+  value: CreateMode;
+  label: string;
+  icon: typeof Link2;
+}>;
+
 function areStringArraysEqual(a: string[], b: string[]): boolean {
   return a.length === b.length && a.every((value, index) => value === b[index]);
 }
@@ -91,7 +103,11 @@ export function ItemFormDialog({
   const [imageUrl, setImageUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [parsingUrl, setParsingUrl] = useState(false);
+  const [createMode, setCreateMode] = useState<CreateMode>("link");
+  const [linkStage, setLinkStage] = useState<LinkStage>("input");
+  const [parseError, setParseError] = useState<string | null>(null);
   const autoFillOnceDoneRef = useRef(false);
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   const isEdit = !!item;
 
@@ -105,10 +121,16 @@ export function ItemFormDialog({
     setCategory(null);
     setNotes("");
     setImageUrl("");
+    setCreateMode("link");
+    setLinkStage("input");
+    setParseError(null);
   }, [listPickerRequired, defaultListId]);
 
   useEffect(() => {
     if (item) {
+      setCreateMode("manual");
+      setLinkStage("input");
+      setParseError(null);
       setTitle(item.title);
       setUrl(item.url || "");
       setPrice(item.price?.toString() || "");
@@ -119,6 +141,11 @@ export function ItemFormDialog({
       setNotes(item.notes || "");
       setImageUrl(item.images?.[0] ?? "");
     } else if (initialData) {
+      setCreateMode("link");
+      setLinkStage(
+        !autoFillFromUrlOnce && initialData.title?.trim() ? "review" : "input",
+      );
+      setParseError(null);
       setTitle(initialData.title || "");
       setUrl(initialData.url || "");
       setPrice(initialData.price?.toString() || "");
@@ -131,7 +158,7 @@ export function ItemFormDialog({
     } else {
       resetForm();
     }
-  }, [item, initialData, open, defaultListId, resetForm]);
+  }, [item, initialData, open, defaultListId, autoFillFromUrlOnce, resetForm]);
 
   useEffect(() => {
     if (!open) {
@@ -145,6 +172,7 @@ export function ItemFormDialog({
       toast.error(t("Вставьте ссылку в поле ниже"));
       return;
     }
+    setParseError(null);
     setParsingUrl(true);
     try {
       const res = await fetch("/api/parse", {
@@ -178,14 +206,33 @@ export function ItemFormDialog({
           return `${p}\n\n${d}`;
         });
       }
+      setLinkStage("review");
       toast.success(t("Поля заполнены по ссылке"));
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : t("Ошибка парсинга");
+      setParseError(msg);
       toast.error(msg);
     } finally {
       setParsingUrl(false);
     }
   }, [url, t]);
+
+  const showFullForm = isEdit || createMode === "manual" || linkStage === "review";
+
+  useEffect(() => {
+    if (open && createMode === "link" && linkStage === "review") {
+      titleInputRef.current?.focus();
+    }
+  }, [open, createMode, linkStage]);
+
+  function handleFormSubmit(e: React.FormEvent) {
+    if (!showFullForm) {
+      e.preventDefault();
+      void handleFillFromUrl();
+      return;
+    }
+    void handleSubmit(e);
+  }
 
   useEffect(() => {
     if (!open || isEdit || !autoFillFromUrlOnce || autoFillOnceDoneRef.current) {
@@ -287,17 +334,61 @@ export function ItemFormDialog({
             <DialogDescription className="max-w-3xl text-sm leading-snug">
               {isEdit
                 ? t("Измените данные и сохраните")
-                : t("По ссылке / Вручную: ссылка необязательна, можно заполнить карточку самому или подтянуть данные со страницы товара.")}
+                : showFullForm
+                  ? t("Проверьте данные перед добавлением желания.")
+                  : t("Вставьте ссылку — название, цена и изображение заполнятся автоматически.")}
             </DialogDescription>
           </DialogHeader>
         </div>
 
-        <form onSubmit={handleSubmit} className="min-h-0">
+        <form onSubmit={handleFormSubmit} className="min-h-0">
+          {!isEdit ? (
+            <div className="border-b border-border/34 px-4 py-3 sm:px-5">
+              <div
+                role="group"
+                aria-label={t("Способ заполнения")}
+                className="grid grid-cols-2 rounded-lg bg-muted p-1"
+              >
+                {CREATE_MODE_OPTIONS.map((option) => {
+                  const Icon = option.icon;
+                  const selected = createMode === option.value;
+                  return (
+                    <Button
+                      key={option.value}
+                      type="button"
+                      variant="ghost"
+                      aria-pressed={selected}
+                      className={cn(
+                        "gap-2 shadow-none",
+                        selected && "bg-background text-foreground shadow-sm hover:bg-background",
+                      )}
+                      onClick={() => setCreateMode(option.value)}
+                    >
+                      <Icon className="h-4 w-4" aria-hidden />
+                      {t(option.label)}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+
+          {showFullForm ? (
+          <>
+          {!isEdit && createMode === "link" && linkStage === "review" ? (
+            <div
+              role="status"
+              className="mx-4 mt-4 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm text-foreground sm:mx-5"
+            >
+              {t("Данные получены. Проверьте и дополните поля перед добавлением.")}
+            </div>
+          ) : null}
           <div className="grid min-h-0 lg:grid-cols-[minmax(0,0.95fr)_minmax(19rem,0.72fr)]">
             <div className="space-y-3.5 px-4 py-4 sm:px-5">
               <div className="space-y-2">
                 <Label htmlFor="title">{t("Название")} *</Label>
                 <Input
+                  ref={titleInputRef}
                   id="title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -307,39 +398,14 @@ export function ItemFormDialog({
               </div>
 
               <div className="space-y-2 rounded-xl border border-border/34 bg-[hsl(var(--surface-3))/0.28] p-3">
-                <div className="space-y-1">
-                  <Label htmlFor="url">{t("Ссылка (необязательно)")}</Label>
-                  <p className="text-xs leading-snug text-muted-foreground">
-                    {t("Вставьте URL страницы товара и нажмите «Заполнить» — подтянем название, цену, изображения и краткое описание, где это доступно.")}
-                  </p>
-                </div>
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
-                  <Input
-                    id="url"
-                    type="url"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="min-w-0"
-                  />
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    className="shrink-0 px-3"
-                    disabled={parsingUrl || !url.trim() || isEdit}
-                    onClick={handleFillFromUrl}
-                    title={
-                      isEdit
-                        ? t("Автозаполнение по ссылке доступно только при добавлении товара")
-                        : undefined
-                    }
-                  >
-                    {parsingUrl && (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
-                    )}
-                    {parsingUrl ? t("Загрузка…") : t("Заполнить")}
-                  </Button>
-                </div>
+                <Label htmlFor="url">{t("Ссылка (необязательно)")}</Label>
+                <Input
+                  id="url"
+                  type="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://…"
+                />
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
@@ -535,6 +601,59 @@ export function ItemFormDialog({
 
             </aside>
           </div>
+          </>
+          ) : (
+            <section
+              aria-busy={parsingUrl}
+              className="space-y-4 px-4 py-6 sm:px-5 sm:py-8"
+              data-testid="item-create-link-stage"
+            >
+              <div className="mx-auto max-w-2xl space-y-2">
+                <Label htmlFor="create-item-url">{t("Ссылка на товар")}</Label>
+                <Input
+                  id="create-item-url"
+                  type="url"
+                  value={url}
+                  onChange={(event) => {
+                    setUrl(event.target.value);
+                    setParseError(null);
+                  }}
+                  placeholder="https://…"
+                  aria-describedby={parseError ? "create-item-url-help create-item-url-error" : "create-item-url-help"}
+                  aria-invalid={Boolean(parseError)}
+                  required
+                  autoFocus
+                />
+                <p id="create-item-url-help" className="text-sm leading-relaxed text-muted-foreground">
+                  {t("Подтянем название, цену, изображение и описание. Перед добавлением всё можно проверить и изменить.")}
+                </p>
+                {parsingUrl ? (
+                  <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                    {t("Получаем данные по ссылке…")}
+                  </p>
+                ) : null}
+                {parseError ? (
+                  <div
+                    id="create-item-url-error"
+                    role="alert"
+                    className="rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm text-foreground"
+                  >
+                    <p className="font-medium">{t("Не удалось заполнить по ссылке")}</p>
+                    <p className="mt-1 text-muted-foreground">{parseError}</p>
+                  </div>
+                ) : null}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="px-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
+                  onClick={() => setCreateMode("manual")}
+                >
+                  {t("Продолжить вручную")}
+                </Button>
+              </div>
+            </section>
+          )}
 
           <DialogFooter className="grid grid-cols-2 border-t border-border/34 bg-[hsl(var(--surface-2))/0.72] px-4 py-3 sm:flex sm:px-5">
             <Button
@@ -544,9 +663,20 @@ export function ItemFormDialog({
             >
               {t("Отмена")}
             </Button>
-            <Button type="submit" disabled={saving}>
-              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isEdit ? t("Сохранить") : t("Добавить")}
+            <Button
+              type="submit"
+              disabled={saving || parsingUrl || (!showFullForm && !url.trim())}
+            >
+              {(saving || parsingUrl) && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+              )}
+              {!showFullForm
+                ? parsingUrl
+                  ? t("Получаем данные…")
+                  : t("Заполнить по ссылке")
+                : isEdit
+                  ? t("Сохранить")
+                  : t("Добавить")}
             </Button>
           </DialogFooter>
         </form>

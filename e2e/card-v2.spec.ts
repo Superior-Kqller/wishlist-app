@@ -147,7 +147,9 @@ test("add-item-cta-copy-is-clear", async ({ page }) => {
   await expect(addItemCard).toBeVisible();
   await addItemCard.click();
 
-  await expect(page.getByText("По ссылке / Вручную")).toBeVisible();
+  const dialog = page.getByRole("dialog", { name: "Добавить товар" });
+  await expect(dialog.getByRole("button", { name: "По ссылке", exact: true })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Вручную", exact: true })).toBeVisible();
 });
 
 test("card-v2-no-priority-colored-border", async ({ page }) => {
