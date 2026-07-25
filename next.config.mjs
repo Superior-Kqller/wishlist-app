@@ -6,6 +6,8 @@ const avatarAllowedHosts = parseAvatarAllowedHosts(process.env.AVATAR_ALLOWED_HO
 const nextConfig = {
   output: "standalone",
   images: {
+    // Disable the Image Optimization API until Next supports sharp >= 0.35.
+    unoptimized: true,
     remotePatterns: [
       ...avatarAllowedHosts.map((hostname) => ({
         protocol: "https",
