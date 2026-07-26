@@ -47,8 +47,6 @@ export function ItemMetaSection({
 }: ItemMetaSectionProps) {
   const { language, t } = useI18n();
   const [showFullNotes, setShowFullNotes] = useState(false);
-  const actionButtonClass =
-    "h-11 min-h-[44px] min-w-[8.5rem] flex-1 basis-[8.5rem] shrink justify-center whitespace-nowrap border-border/58 bg-transparent px-3 text-foreground hover:border-primary/34 hover:bg-accent sm:h-10 sm:min-h-10 sm:w-auto sm:flex-none sm:basis-auto";
   const hasLongNotes = Boolean(item.notes && item.notes.length > 180);
   const categoryLabel = getProductCategoryLabel(item.category, language);
   const categoryIcon = getProductCategoryIcon(item.category);
@@ -97,8 +95,8 @@ export function ItemMetaSection({
       ) : null}
 
       {noteParagraphs?.length ? (
-        <section className="max-w-[38rem] space-y-2.5 rounded-lg border border-border/34 bg-[hsl(var(--surface-3))/0.38] px-3.5 py-3">
-          <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        <section className="max-w-[38rem] space-y-2.5 sm:rounded-lg sm:border sm:border-border/34 sm:bg-[hsl(var(--surface-3))/0.38] sm:px-3.5 sm:py-3">
+          <h3 className="text-sm font-semibold text-foreground">
             {t("Описание")}
           </h3>
           <div
@@ -135,60 +133,108 @@ export function ItemMetaSection({
       ) : null}
 
       {(item.url || canManage) && (
-        <div className="flex flex-wrap gap-2 border-t border-border/34 pt-4 sm:items-center">
-          {item.url ? (
-            <Button
-              asChild
-              className="h-11 min-h-[44px] min-w-[8.5rem] flex-1 basis-[8.5rem] shrink justify-center gap-2 px-3 sm:h-10 sm:min-h-10 sm:flex-none sm:basis-auto"
-            >
-              <a href={item.url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4 shrink-0" />
-                {t("Открыть ссылку")}
-              </a>
-            </Button>
-          ) : null}
-          {canManage ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={cn(actionButtonClass, "gap-2")}
-                >
-                  <MoreHorizontal className="h-4 w-4 shrink-0" />
-                  {t("Действия")}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={onEdit}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  {t("Редактировать")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={onTogglePurchased}
-                  disabled={statusPending}
-                >
-                  {item.status === "PURCHASED" ? (
-                    <Undo2 className="mr-2 h-4 w-4" />
-                  ) : (
-                    <ShoppingCart className="mr-2 h-4 w-4" />
-                  )}
-                  {item.status === "PURCHASED"
-                    ? t("Снять отметку")
-                    : t("Отметить купленным")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={onDelete}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  {t("Удалить")}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : null}
+        <div className="hidden border-t border-border/34 pt-4 sm:block">
+          <ItemDetailActions
+            item={item}
+            canManage={canManage}
+            statusPending={statusPending}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onTogglePurchased={onTogglePurchased}
+          />
         </div>
       )}
     </>
+  );
+}
+
+type ItemDetailActionsProps = {
+  item: WishlistItem;
+  canManage: boolean;
+  statusPending: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+  onTogglePurchased: () => void;
+  mobileDock?: boolean;
+};
+
+export function ItemDetailActions({
+  item,
+  canManage,
+  statusPending,
+  onEdit,
+  onDelete,
+  onTogglePurchased,
+  mobileDock = false,
+}: ItemDetailActionsProps) {
+  const { t } = useI18n();
+  const actionButtonClass = cn(
+    "justify-center whitespace-nowrap border-border/58 text-foreground hover:border-primary/34 hover:bg-accent",
+    mobileDock
+      ? "h-12 min-h-12 min-w-0 px-3"
+      : "h-10 min-h-10 w-auto px-3",
+  );
+
+  return (
+    <div
+      className={cn(
+        "gap-2",
+        mobileDock
+          ? "grid grid-cols-[minmax(0,1fr)_auto]"
+          : "flex flex-wrap items-center",
+      )}
+    >
+      {item.url ? (
+        <Button
+          asChild
+          className={cn(actionButtonClass, "gap-2", !mobileDock && "min-w-[8.5rem]")}
+        >
+          <a href={item.url} target="_blank" rel="noopener noreferrer">
+            <ExternalLink className="h-4 w-4 shrink-0" />
+            {t("Открыть ссылку")}
+          </a>
+        </Button>
+      ) : null}
+      {canManage ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className={cn(actionButtonClass, "gap-2", mobileDock && !item.url && "w-full")}
+            >
+              <MoreHorizontal className="h-4 w-4 shrink-0" />
+              {t("Действия")}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem onClick={onEdit}>
+              <Pencil className="mr-2 h-4 w-4" />
+              {t("Редактировать")}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={onTogglePurchased}
+              disabled={statusPending}
+            >
+              {item.status === "PURCHASED" ? (
+                <Undo2 className="mr-2 h-4 w-4" />
+              ) : (
+                <ShoppingCart className="mr-2 h-4 w-4" />
+              )}
+              {item.status === "PURCHASED"
+                ? t("Снять отметку")
+                : t("Отметить купленным")}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={onDelete}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              {t("Удалить")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : null}
+    </div>
   );
 }

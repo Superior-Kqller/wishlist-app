@@ -387,6 +387,9 @@ export function WishlistWorkspace({
           selectedCategories={effectiveSelectedCategories}
           onToggleCategory={onToggleCategory}
           onClearCategories={onClearCategories}
+          activeFilterCount={activeFilterCount}
+          resultCount={filteredItems.length}
+          onClearAllFilters={onClearAllFilters}
         />
       </div>
 

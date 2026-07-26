@@ -47,7 +47,7 @@ export function ItemActivitySection({
         ) : null}
       </h3>
 
-      <div className="max-h-44 overflow-y-auto pr-1 sm:max-h-56">
+      <div className="sm:max-h-56 sm:overflow-y-auto sm:pr-1">
         {comments.length === 0 ? (
           <div className="flex min-h-16 items-center gap-2 border-y border-border/28 py-3 text-sm text-muted-foreground">
             <MessageCircle className="h-4 w-4 shrink-0 text-muted-foreground/60" />
@@ -113,7 +113,7 @@ export function ItemActivitySection({
           value={commentText}
           onChange={(event) => onCommentTextChange(event.target.value)}
           placeholder={t("Добавить комментарий…")}
-          className="min-h-24 resize-y border-border/58 bg-[hsl(var(--surface-1))]"
+          className="min-h-20 resize-y border-border/58 bg-[hsl(var(--surface-1))] sm:min-h-24"
           maxLength={2000}
           disabled={submittingComment}
         />

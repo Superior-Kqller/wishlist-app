@@ -23,18 +23,18 @@ export function ItemMediaSection({
   return (
     <div
       className={cn(
-        "h-[min(38vh,270px)] w-full shrink-0 bg-[hsl(var(--surface-1))] p-3 sm:h-full sm:min-h-[430px] sm:p-5",
+        "h-[min(31vh,240px)] w-full shrink-0 bg-[hsl(var(--surface-1))] p-0 sm:h-full sm:min-h-[430px] sm:p-5",
         className,
       )}
     >
-      <div className="relative h-full min-h-0 overflow-hidden rounded-lg border border-border/48 bg-[hsl(var(--surface-2))]">
+      <div className="relative h-full min-h-0 overflow-hidden border-b border-border/48 bg-[hsl(var(--surface-2))] sm:rounded-lg sm:border">
         {mainImage && !imageError ? (
           <Image
             src={mainImage}
             alt={item.title}
             fill
             className={cn(
-              "object-contain p-2 sm:p-3",
+              "object-contain p-3 sm:p-3",
               item.purchased && "grayscale",
             )}
             sizes="(max-width: 640px) 100vw, 520px"

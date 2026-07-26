@@ -14,7 +14,10 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ItemDetailBody } from "@/components/wishlist/item-detail/item-detail-layout";
 import { ItemMediaSection } from "@/components/wishlist/item-detail/item-media-section";
-import { ItemMetaSection } from "@/components/wishlist/item-detail/item-meta-section";
+import {
+  ItemDetailActions,
+  ItemMetaSection,
+} from "@/components/wishlist/item-detail/item-meta-section";
 import { ItemActivitySection } from "@/components/wishlist/item-detail/item-activity-section";
 import { useI18n } from "@/components/i18n/language-provider";
 
@@ -138,12 +141,10 @@ export function ItemDetailDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         className={cn(
-          "item-detail-dialog-surface max-w-5xl gap-0 border-border/64 bg-[hsl(var(--surface-2))] shadow-[var(--shadow-dialog)]",
-          /* Мобильные: почти на всю ширину и высоту экрана */
-          "max-sm:max-h-[min(94dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.75rem))]",
-          "max-sm:w-[calc(100vw-0.75rem)] max-sm:max-w-[min(42rem,calc(100vw-0.75rem))]",
+          "item-detail-dialog-surface bottom-0 left-0 top-auto h-[min(96dvh,calc(100dvh-env(safe-area-inset-top,0px)))] max-h-none w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl border-border/64 bg-[hsl(var(--surface-2))] shadow-[var(--shadow-dialog)]",
+          "sm:bottom-auto sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.5rem))] sm:w-[min(100%,calc(100vw-1rem))] sm:max-w-5xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl",
         )}
-        bodyClassName="p-0 gap-0 overflow-y-auto overscroll-y-contain"
+        bodyClassName="relative gap-0 overflow-hidden p-0 sm:overflow-y-auto"
       >
         <DialogDescription className="sr-only">
           {t("Детали желания")}: {item.title}
@@ -151,7 +152,11 @@ export function ItemDetailDialog({
             ? `, ${t("Ориентировочная стоимость").toLowerCase()} ${formatPrice(item.price, item.currency, language)}`
             : ""}
         </DialogDescription>
-        <div className="item-detail-dialog-frame grid min-h-0 md:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)]">
+        <div
+          className="pointer-events-none absolute left-1/2 top-2 z-20 h-1 w-10 -translate-x-1/2 rounded-full bg-foreground/18 sm:hidden"
+          aria-hidden
+        />
+        <div className="item-detail-dialog-frame grid min-h-0 flex-1 overflow-y-auto overscroll-contain sm:flex-none sm:overflow-visible md:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)]">
           <ItemMediaSection item={item} className="md:border-r md:border-border/34" />
           <div className="flex min-h-0 min-w-0 flex-col bg-[hsl(var(--surface-2))]">
             <ItemDetailBody>
@@ -178,6 +183,19 @@ export function ItemDetailDialog({
             </div>
           </div>
         </div>
+        {(item.url || canManage) ? (
+          <div className="shrink-0 border-t border-border/55 bg-[hsl(var(--surface-2))/0.96] px-4 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))] pt-3 backdrop-blur-md sm:hidden">
+            <ItemDetailActions
+              item={item}
+              canManage={canManage}
+              statusPending={statusPending}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onTogglePurchased={handleTogglePurchased}
+              mobileDock
+            />
+          </div>
+        ) : null}
       </DialogContent>
     </Dialog>
   );

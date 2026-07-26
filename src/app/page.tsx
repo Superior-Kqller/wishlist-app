@@ -369,6 +369,23 @@ function HomePageContent() {
         onRemove: () => setShowPurchased(false),
       });
     }
+    if (sortBy !== "newest") {
+      const sortLabel =
+        sortBy === "oldest"
+          ? t("Старые сначала")
+          : sortBy === "priority-high"
+            ? t("Приоритет ↓")
+            : sortBy === "priority-low"
+              ? t("Приоритет ↑")
+              : sortBy === "price-high"
+                ? t("Ориент. цена ↓")
+                : t("Ориент. цена ↑");
+      chips.push({
+        key: "sort",
+        label: `${t("Сортировка")}: ${sortLabel}`,
+        onRemove: () => setSortBy("newest"),
+      });
+    }
     effectiveSelectedCategories.forEach((categoryId) => {
       const category = PRODUCT_CATEGORIES.find((item) => item.id === categoryId);
       if (!category) return;
@@ -387,6 +404,7 @@ function HomePageContent() {
     normalizedSelectedUserId,
     usersWithStats,
     showPurchased,
+    sortBy,
     effectiveSelectedCategories,
     syncFiltersToUrl,
     t,
@@ -574,7 +592,6 @@ function HomePageContent() {
   const handleClearAllFilters = useCallback(() => {
     setSearch("");
     setSortBy("newest");
-    setViewMode("grid");
     setShowPurchased(false);
     setSelectedCategories([]);
     router.replace("/", { scroll: false });
