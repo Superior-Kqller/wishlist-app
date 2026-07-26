@@ -4,6 +4,10 @@ const mockRateLimit = vi.fn();
 const mockGetSessionUserIdVerified = vi.fn();
 const mockFindUnique = vi.fn();
 const mockUpdate = vi.fn();
+const mockTransaction = vi.fn();
+const mockViewerFindMany = vi.fn();
+const mockBirthdayViewerDeleteMany = vi.fn();
+const mockBirthdayViewerCreateMany = vi.fn();
 
 vi.mock("@/lib/rate-limit", () => ({
   rateLimit: mockRateLimit,
@@ -19,6 +23,7 @@ vi.mock("@/lib/auth-utils", () => ({
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
+    $transaction: mockTransaction,
     user: {
       findUnique: mockFindUnique,
       update: mockUpdate,
@@ -31,6 +36,18 @@ describe("PATCH /api/users/me", () => {
     vi.clearAllMocks();
     mockRateLimit.mockResolvedValue(null);
     mockGetSessionUserIdVerified.mockResolvedValue("user-1");
+    mockTransaction.mockImplementation(async (callback) =>
+      callback({
+        user: {
+          findMany: mockViewerFindMany,
+          update: mockUpdate,
+        },
+        birthdayViewer: {
+          deleteMany: mockBirthdayViewerDeleteMany,
+          createMany: mockBirthdayViewerCreateMany,
+        },
+      }),
+    );
     mockUpdate.mockResolvedValue({
       id: "user-1",
       username: "user1",
@@ -94,6 +111,11 @@ describe("PATCH /api/users/me", () => {
         telegramConfirmedAt: true,
         telegramNotificationsEnabled: true,
         giftPreferences: true,
+        birthdayDay: true,
+        birthdayMonth: true,
+        birthdayYear: true,
+        birthdayAudience: true,
+        birthdayViewers: { select: { viewerId: true } },
         createdAt: true,
         updatedAt: true,
       },
@@ -130,5 +152,81 @@ describe("PATCH /api/users/me", () => {
         },
       }),
     );
+  });
+
+  it("сохраняет день рождения и выбранную аудиторию", async () => {
+    mockViewerFindMany.mockResolvedValue([{ id: "viewer-1" }, { id: "viewer-2" }]);
+    mockUpdate.mockResolvedValueOnce({
+      id: "user-1",
+      username: "user1",
+      name: "Имя",
+      avatarUrl: null,
+      role: "USER",
+      telegramId: null,
+      telegramUsername: null,
+      telegramLinkedAt: null,
+      telegramConfirmedAt: null,
+      telegramNotificationsEnabled: false,
+      giftPreferences: null,
+      birthdayDay: 29,
+      birthdayMonth: 2,
+      birthdayYear: 2000,
+      birthdayAudience: "SELECTED",
+      birthdayViewers: [{ viewerId: "viewer-1" }, { viewerId: "viewer-2" }],
+      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+    });
+
+    const { PATCH } = await import("./route");
+    const response = await PATCH(
+      new Request("http://localhost/api/users/me", {
+        method: "PATCH",
+        body: JSON.stringify({
+          birthday: {
+            day: 29,
+            month: 2,
+            year: 2000,
+            audience: "SELECTED",
+            selectedViewerIds: ["viewer-1", "viewer-2"],
+          },
+        }),
+        headers: { "content-type": "application/json" },
+      }) as never,
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(
+      expect.objectContaining({
+        birthday: {
+          day: 29,
+          month: 2,
+          year: 2000,
+          audience: "SELECTED",
+          selectedViewerIds: ["viewer-1", "viewer-2"],
+        },
+      }),
+    );
+  });
+
+  it("отклоняет несуществующую календарную дату", async () => {
+    const { PATCH } = await import("./route");
+    const response = await PATCH(
+      new Request("http://localhost/api/users/me", {
+        method: "PATCH",
+        body: JSON.stringify({
+          birthday: {
+            day: 31,
+            month: 2,
+            year: null,
+            audience: "ALL",
+            selectedViewerIds: [],
+          },
+        }),
+        headers: { "content-type": "application/json" },
+      }) as never,
+    );
+
+    expect(response.status).toBe(400);
+    expect(mockTransaction).not.toHaveBeenCalled();
   });
 });

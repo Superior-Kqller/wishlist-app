@@ -1,17 +1,25 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { mutate as mutateCache } from "swr";
+import useSWR, { mutate as mutateCache } from "swr";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Camera, Loader2, Send, UserRound } from "lucide-react";
+import { CalendarDays, Camera, Loader2, Send, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { UserAvatar } from "@/components/UserAvatar";
 import { AvatarUploadDialog } from "./AvatarUploadDialog";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";
+import { fetcher } from "@/lib/fetcher";
+import type { BirthdayAudience, BirthdayProfile } from "@/types";
+
+interface AudienceOption {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+}
 
 interface ProfileFormProps {
   initialName: string;
@@ -20,6 +28,7 @@ interface ProfileFormProps {
   initialTelegramId?: string | null;
   initialTelegramLinkStatus?: "not_configured" | "pending" | "linked";
   initialTelegramNotificationsEnabled?: boolean;
+  initialBirthday?: BirthdayProfile | null;
   userId: string;
   onSuccess: () => void;
 }
@@ -40,6 +49,7 @@ export function ProfileForm({
   initialTelegramId,
   initialTelegramLinkStatus,
   initialTelegramNotificationsEnabled = false,
+  initialBirthday = null,
   userId,
   onSuccess,
 }: ProfileFormProps) {
@@ -50,6 +60,28 @@ export function ProfileForm({
   const [telegramNotificationsEnabled, setTelegramNotificationsEnabled] = useState(
     initialTelegramNotificationsEnabled
   );
+  const [birthdayEnabled, setBirthdayEnabled] = useState(Boolean(initialBirthday));
+  const [birthdayDay, setBirthdayDay] = useState(
+    initialBirthday ? String(initialBirthday.day) : "",
+  );
+  const [birthdayMonth, setBirthdayMonth] = useState(
+    initialBirthday ? String(initialBirthday.month) : "",
+  );
+  const [birthdayYear, setBirthdayYear] = useState(
+    initialBirthday?.year ? String(initialBirthday.year) : "",
+  );
+  const [birthdayAudience, setBirthdayAudience] = useState<BirthdayAudience>(
+    initialBirthday?.audience ?? "PRIVATE",
+  );
+  const [selectedViewerIds, setSelectedViewerIds] = useState<string[]>(
+    initialBirthday?.selectedViewerIds ?? [],
+  );
+  const { data: audienceData } = useSWR<{ users: AudienceOption[] }>(
+    birthdayEnabled && birthdayAudience === "SELECTED"
+      ? "/api/calendar/audience-options"
+      : null,
+    fetcher,
+  );
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -57,15 +89,38 @@ export function ProfileForm({
     return (
       name.trim() !== initialName ||
       telegramId.trim() !== (initialTelegramId ?? "") ||
-      telegramNotificationsEnabled !== initialTelegramNotificationsEnabled
+      telegramNotificationsEnabled !== initialTelegramNotificationsEnabled ||
+      birthdayEnabled !== Boolean(initialBirthday) ||
+      (birthdayEnabled &&
+        JSON.stringify({
+          day: birthdayDay,
+          month: birthdayMonth,
+          year: birthdayYear,
+          audience: birthdayAudience,
+          selectedViewerIds: [...selectedViewerIds].sort(),
+        }) !==
+          JSON.stringify({
+            day: initialBirthday ? String(initialBirthday.day) : "",
+            month: initialBirthday ? String(initialBirthday.month) : "",
+            year: initialBirthday?.year ? String(initialBirthday.year) : "",
+            audience: initialBirthday?.audience ?? "PRIVATE",
+            selectedViewerIds: [...(initialBirthday?.selectedViewerIds ?? [])].sort(),
+          }))
     );
   }, [
     initialName,
     initialTelegramId,
     initialTelegramNotificationsEnabled,
+    initialBirthday,
+    birthdayAudience,
+    birthdayDay,
+    birthdayEnabled,
+    birthdayMonth,
+    birthdayYear,
     name,
     telegramId,
     telegramNotificationsEnabled,
+    selectedViewerIds,
   ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -78,6 +133,11 @@ export function ProfileForm({
 
     if (telegramId.trim() && !/^\d{5,20}$/.test(telegramId.trim())) {
       toast.error(t("Telegram ID должен содержать только цифры (5-20 символов)"));
+      return;
+    }
+
+    if (birthdayEnabled && (!birthdayDay || !birthdayMonth)) {
+      toast.error(t("Укажите день и месяц рождения"));
       return;
     }
 
@@ -95,6 +155,16 @@ export function ProfileForm({
           name: name.trim(),
           telegramId: telegramId.trim() ? telegramId.trim() : null,
           telegramNotificationsEnabled,
+          birthday: birthdayEnabled
+            ? {
+                day: Number(birthdayDay),
+                month: Number(birthdayMonth),
+                year: birthdayYear ? Number(birthdayYear) : null,
+                audience: birthdayAudience,
+                selectedViewerIds:
+                  birthdayAudience === "SELECTED" ? selectedViewerIds : [],
+              }
+            : null,
         }),
       });
 
@@ -175,6 +245,120 @@ export function ProfileForm({
                 required
               />
             </div>
+          </div>
+
+          <div className="space-y-4 border-t border-border/40 pt-5">
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/9 text-primary">
+                <CalendarDays className="h-4 w-4" aria-hidden />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm font-semibold">{t("День рождения")}</h3>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                  {t("Год и возраст видны только вам")}
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={birthdayEnabled}
+                onChange={(event) => setBirthdayEnabled(event.target.checked)}
+                aria-label={t("Добавить день рождения")}
+                className="mt-1 size-4 accent-primary"
+              />
+            </div>
+
+            {birthdayEnabled ? (
+              <div className="space-y-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2))/0.36] p-3.5">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="birthdayDay">{t("День")}</Label>
+                    <Input
+                      id="birthdayDay"
+                      type="number"
+                      min={1}
+                      max={31}
+                      value={birthdayDay}
+                      onChange={(event) => setBirthdayDay(event.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="birthdayMonth">{t("Месяц")}</Label>
+                    <Input
+                      id="birthdayMonth"
+                      type="number"
+                      min={1}
+                      max={12}
+                      value={birthdayMonth}
+                      onChange={(event) => setBirthdayMonth(event.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="birthdayYear">{t("Год")}</Label>
+                    <Input
+                      id="birthdayYear"
+                      type="number"
+                      min={1900}
+                      max={new Date().getFullYear()}
+                      value={birthdayYear}
+                      placeholder={t("Необязательно")}
+                      onChange={(event) => setBirthdayYear(event.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="birthdayAudience">{t("Кто видит событие")}</Label>
+                  <select
+                    id="birthdayAudience"
+                    value={birthdayAudience}
+                    onChange={(event) =>
+                      setBirthdayAudience(event.target.value as BirthdayAudience)
+                    }
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="ALL">{t("Все пользователи")}</option>
+                    <option value="SELECTED">{t("Выбранные пользователи")}</option>
+                    <option value="PRIVATE">{t("Только я")}</option>
+                  </select>
+                </div>
+
+                {birthdayAudience === "SELECTED" ? (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      {t("Выберите пользователей")}
+                    </p>
+                    <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-border/55 p-2">
+                      {(audienceData?.users ?? []).map((user) => (
+                        <label
+                          key={user.id}
+                          className="flex min-h-10 cursor-pointer items-center gap-2 rounded-md px-2 hover:bg-accent/45"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedViewerIds.includes(user.id)}
+                            onChange={(event) =>
+                              setSelectedViewerIds((current) =>
+                                event.target.checked
+                                  ? [...current, user.id]
+                                  : current.filter((id) => id !== user.id),
+                              )
+                            }
+                            className="size-4 accent-primary"
+                          />
+                          <UserAvatar
+                            avatarUrl={user.avatarUrl}
+                            name={user.name}
+                            userId={user.id}
+                            size="sm"
+                          />
+                          <span className="truncate text-sm">{user.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 
           <div className="space-y-4 border-t border-border/40 pt-5">

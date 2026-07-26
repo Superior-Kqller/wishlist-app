@@ -92,6 +92,15 @@ export interface ParsedProductResponse {
 
 export type UserRole = "USER" | "ADMIN";
 export type TelegramLinkStatus = "not_configured" | "pending" | "linked";
+export type BirthdayAudience = "ALL" | "SELECTED" | "PRIVATE";
+
+export interface BirthdayProfile {
+  day: number;
+  month: number;
+  year: number | null;
+  audience: BirthdayAudience;
+  selectedViewerIds: string[];
+}
 
 export interface User {
   id: string;
@@ -106,6 +115,7 @@ export interface User {
   telegramNotificationsEnabled?: boolean;
   telegramLinkStatus?: TelegramLinkStatus;
   giftPreferences?: GiftPreferences | null;
+  birthday?: BirthdayProfile | null;
   createdAt: string;
   updatedAt: string;
   _count?: {

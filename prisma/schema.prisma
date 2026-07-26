@@ -11,6 +11,12 @@ enum Role {
   ADMIN
 }
 
+enum BirthdayAudience {
+  ALL
+  SELECTED
+  PRIVATE
+}
+
 enum ItemStatus {
   AVAILABLE
   CLAIMED
@@ -29,6 +35,12 @@ model User {
   telegramConfirmedAt DateTime?
   telegramNotificationsEnabled Boolean @default(false)
   giftPreferences Json?
+  birthdayDay   Int?
+  birthdayMonth Int?
+  birthdayYear  Int?
+  birthdayAudience BirthdayAudience @default(PRIVATE)
+  birthdayViewers BirthdayViewer[] @relation("BirthdayOwner")
+  visibleBirthdays BirthdayViewer[] @relation("BirthdayViewer")
   role          Role          @default(USER)
   items         Item[]
   claimedItems  Item[]         @relation("ItemClaimedByUser")
@@ -41,6 +53,17 @@ model User {
   @@index([username])
   @@index([role])
   @@index([telegramConfirmedAt])
+}
+
+model BirthdayViewer {
+  ownerId String
+  owner   User   @relation("BirthdayOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  viewerId String
+  viewer   User   @relation("BirthdayViewer", fields: [viewerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([ownerId, viewerId])
+  @@index([viewerId])
 }
 
 model List {

@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   BarChart3,
+  CalendarDays,
   Home,
   LogOut,
   MoreHorizontal,
@@ -41,6 +42,7 @@ export function Header() {
 
   const primaryNavItems = [
     { label: t("Главная"), href: "/", icon: Home },
+    { label: t("Календарь"), href: "/calendar", icon: CalendarDays },
     { label: t("Статистика"), href: "/stats", icon: BarChart3 },
     { label: t("Предпочтения"), href: "/preferences", icon: SlidersHorizontal },
   ];
@@ -80,7 +82,7 @@ export function Header() {
           </div>
 
           <nav
-            className="-mx-3 grid grid-cols-4 gap-1 border-t border-border/35 px-3 pb-1.5 pt-1.5 sm:-mx-4 sm:px-4"
+            className="-mx-3 grid grid-cols-5 gap-1 border-t border-border/35 px-3 pb-1.5 pt-1.5 sm:-mx-4 sm:px-4"
             aria-label={t("Разделы")}
           >
             {primaryNavItems.map((item) => {
