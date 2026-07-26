@@ -12,16 +12,19 @@ import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import type { BirthdayOccurrence } from "@/lib/calendar/birthday-calendar";
 
+import type { HolidayOccurrence } from "@/lib/calendar/holiday-calendar";
+
+type CalendarOccurrence = BirthdayOccurrence | HolidayOccurrence;
 export default function CalendarPage() {
   const { t, locale } = useI18n();
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
-  const { data, isLoading, error } = useSWR<{ occurrences: BirthdayOccurrence[] }>(
+  const { data, isLoading, error } = useSWR<{ occurrences: CalendarOccurrence[] }>(
     `/api/calendar?from=${year}-01-01&to=${year}-12-31`,
     fetcher,
   );
   const groupedOccurrences = useMemo(() => {
-    const groups = new Map<string, BirthdayOccurrence[]>();
+    const groups = new Map<string, CalendarOccurrence[]>();
     for (const occurrence of data?.occurrences ?? []) {
       const entries = groups.get(occurrence.date);
       if (entries) entries.push(occurrence);
@@ -36,7 +39,7 @@ export default function CalendarPage() {
         <div className="space-y-4">
           <PageIntro
             title={t("Календарь")}
-            description={t("Дни рождения, доступные вам")}
+            description={t("Дни рождения и общие праздники, доступные вам")}
             actions={
               <label className="flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground">{t("Год")}</span>
@@ -91,16 +94,28 @@ export default function CalendarPage() {
                   <div className="mt-3 divide-y divide-border/55">
                     {entries.map((entry) => (
                       <div key={entry.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                        <UserAvatar
-                          avatarUrl={entry.person.avatarUrl}
-                          name={entry.person.name}
-                          userId={entry.person.id}
-                          size="lg"
-                        />
+                        {entry.type === "BIRTHDAY" ? (
+                          <UserAvatar
+                            avatarUrl={entry.person.avatarUrl}
+                            name={entry.person.name}
+                            userId={entry.person.id}
+                            size="lg"
+                          />
+                        ) : (
+                          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                            <CalendarDays className="h-5 w-5 text-primary" />
+                          </span>
+                        )}
                         <div className="min-w-0">
-                          <p className="truncate font-semibold">{entry.person.name}</p>
+                          <p className="truncate font-semibold">
+                            {entry.type === "BIRTHDAY" ? entry.person.name : entry.name}
+                          </p>
                           <p className="text-sm text-muted-foreground">
-                            {entry.isOwn ? t("Ваш день рождения") : t("День рождения")}
+                            {entry.type === "HOLIDAY"
+                              ? t("Общий праздник")
+                              : entry.isOwn
+                                ? t("Ваш день рождения")
+                                : t("День рождения")}
                           </p>
                         </div>
                       </div>

@@ -18,6 +18,16 @@ enum BirthdayAudience {
 }
 
 enum ItemStatus {
+enum HolidayRuleKind {
+  FIXED
+  NTH_WEEKDAY
+}
+
+enum HolidayTheme {
+  MALE
+  FEMALE
+}
+
   AVAILABLE
   CLAIMED
   PURCHASED
@@ -67,6 +77,23 @@ model BirthdayViewer {
 }
 
 model List {
+model Holiday {
+  id               String          @id @default(cuid())
+  seedKey          String?         @unique
+  name             String
+  ruleKind         HolidayRuleKind
+  month            Int
+  day              Int?
+  weekday          Int?
+  occurrence       Int?
+  enabled          Boolean         @default(true)
+  remindersEnabled Boolean         @default(true)
+  theme             HolidayTheme?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([enabled])
+}
   id        String       @id @default(cuid())
   name      String
   userId    String

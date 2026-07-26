@@ -4,11 +4,14 @@ import type {
   BirthdayOccurrence,
 } from "@/lib/calendar/birthday-calendar";
 import { sanitizeError } from "@/lib/logger";
+import type { HolidayOccurrence } from "@/lib/calendar/holiday-calendar";
 import { parseLocalDate } from "@/lib/calendar/local-date";
 
 interface CalendarGetDependencies {
   getActorId(): Promise<string | null>;
-  listOccurrences(query: BirthdayCalendarQuery): Promise<BirthdayOccurrence[]>;
+  listOccurrences(query: BirthdayCalendarQuery): Promise<
+    Array<BirthdayOccurrence | HolidayOccurrence>
+  >;
 }
 
 export function createCalendarGetHandler(dependencies: CalendarGetDependencies) {

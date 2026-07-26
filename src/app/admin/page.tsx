@@ -12,6 +12,7 @@ import { User } from "@/types";
 import { fetcher } from "@/lib/fetcher";
 import { useI18n } from "@/components/i18n/language-provider";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
+import { HolidayCatalog } from "@/components/admin/HolidayCatalog";
 
 export default function AdminPage() {
   const { t } = useI18n();
@@ -82,6 +83,7 @@ export default function AdminPage() {
               onRefresh={() => mutate()}
             />
           )}
+          <HolidayCatalog />
         </div>
       </PageMain>
 
