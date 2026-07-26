@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import useSWR from "swr";
-import { CalendarDays, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { CalendarDays, ChevronRight, Loader2 } from "lucide-react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { UserAvatar } from "@/components/UserAvatar";
 import { PersonalEventsPanel } from "@/components/calendar/PersonalEventsPanel";
@@ -14,6 +15,7 @@ import { uiSurface } from "@/lib/ui-contract";
 import type { BirthdayOccurrence } from "@/lib/calendar/birthday-calendar";
 import type { PersonalEventOccurrence } from "@/lib/calendar/calendar-module";
 import type { HolidayOccurrence } from "@/lib/calendar/holiday-calendar";
+import { thematicWishlistHref } from "@/lib/calendar/wishlist-link";
 
 type CalendarOccurrence =
   | BirthdayOccurrence
@@ -113,7 +115,7 @@ export default function CalendarPage() {
                             <CalendarDays className="h-5 w-5 text-primary" />
                           </span>
                         )}
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <p className="truncate font-semibold">
                             {entry.type === "BIRTHDAY"
                               ? entry.person.name
@@ -132,6 +134,45 @@ export default function CalendarPage() {
                                   ? t("Ваш день рождения")
                                   : t("День рождения")}
                           </p>
+                          {entry.type === "HOLIDAY" && entry.congratulated.length > 0 ? (
+                            <div className="mt-3 space-y-2">
+                              <p className="text-xs font-medium text-muted-foreground">
+                                {t("Сегодня поздравляем")}
+                              </p>
+                              {entry.congratulated.map((person) => (
+                                <div
+                                  key={person.id}
+                                  className="rounded-lg border border-border/55 bg-background/25 p-2.5"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <UserAvatar
+                                      avatarUrl={person.avatarUrl}
+                                      name={person.name}
+                                      userId={person.id}
+                                      size="sm"
+                                    />
+                                    <span className="truncate text-sm font-medium">
+                                      {person.name}
+                                    </span>
+                                  </div>
+                                  {person.wishlists.length > 0 ? (
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                      {person.wishlists.map((wishlist) => (
+                                        <Link
+                                          key={wishlist.id}
+                                          href={thematicWishlistHref(person.id, wishlist.id)}
+                                          className="inline-flex min-h-9 items-center gap-1 rounded-md border border-border/60 bg-background/50 px-2.5 text-xs font-medium transition-colors hover:border-primary/35 hover:bg-primary/8"
+                                        >
+                                          {wishlist.name}
+                                          <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+                                        </Link>
+                                      ))}
+                                    </div>
+                                  ) : null}
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
                         </div>
                       </div>
                     ))}

@@ -5,7 +5,7 @@ import useSWR, { mutate as mutateCache } from "swr";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CalendarDays, Camera, Loader2, Send, UserRound } from "lucide-react";
+import { CalendarDays, Camera, Loader2, Send, UserRound, UsersRound } from "lucide-react";
 import { toast } from "sonner";
 import { UserAvatar } from "@/components/UserAvatar";
 import { AvatarUploadDialog } from "./AvatarUploadDialog";
@@ -14,6 +14,7 @@ import { uiSurface } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";
 import { fetcher } from "@/lib/fetcher";
 import type { BirthdayAudience, BirthdayProfile } from "@/types";
+import type { ProfileGender } from "@/lib/calendar/profile-gender";
 
 interface AudienceOption {
   id: string;
@@ -29,6 +30,8 @@ interface ProfileFormProps {
   initialTelegramLinkStatus?: "not_configured" | "pending" | "linked";
   initialTelegramNotificationsEnabled?: boolean;
   initialBirthday?: BirthdayProfile | null;
+  initialGender?: ProfileGender | null;
+  initialThematicHolidayConsent?: boolean;
   userId: string;
   onSuccess: () => void;
 }
@@ -50,6 +53,8 @@ export function ProfileForm({
   initialTelegramLinkStatus,
   initialTelegramNotificationsEnabled = false,
   initialBirthday = null,
+  initialGender = null,
+  initialThematicHolidayConsent = false,
   userId,
   onSuccess,
 }: ProfileFormProps) {
@@ -61,6 +66,12 @@ export function ProfileForm({
     initialTelegramNotificationsEnabled
   );
   const [birthdayEnabled, setBirthdayEnabled] = useState(Boolean(initialBirthday));
+  const [gender, setGender] = useState<ProfileGender | "">(
+    initialGender ?? "",
+  );
+  const [thematicHolidayConsent, setThematicHolidayConsent] = useState(
+    initialThematicHolidayConsent,
+  );
   const [birthdayDay, setBirthdayDay] = useState(
     initialBirthday ? String(initialBirthday.day) : "",
   );
@@ -90,6 +101,8 @@ export function ProfileForm({
       name.trim() !== initialName ||
       telegramId.trim() !== (initialTelegramId ?? "") ||
       telegramNotificationsEnabled !== initialTelegramNotificationsEnabled ||
+      gender !== (initialGender ?? "") ||
+      thematicHolidayConsent !== initialThematicHolidayConsent ||
       birthdayEnabled !== Boolean(initialBirthday) ||
       (birthdayEnabled &&
         JSON.stringify({
@@ -111,6 +124,8 @@ export function ProfileForm({
     initialName,
     initialTelegramId,
     initialTelegramNotificationsEnabled,
+    initialGender,
+    initialThematicHolidayConsent,
     initialBirthday,
     birthdayAudience,
     birthdayDay,
@@ -120,6 +135,8 @@ export function ProfileForm({
     name,
     telegramId,
     telegramNotificationsEnabled,
+    gender,
+    thematicHolidayConsent,
     selectedViewerIds,
   ]);
 
@@ -155,6 +172,8 @@ export function ProfileForm({
           name: name.trim(),
           telegramId: telegramId.trim() ? telegramId.trim() : null,
           telegramNotificationsEnabled,
+          gender: gender || null,
+          thematicHolidayConsent,
           birthday: birthdayEnabled
             ? {
                 day: Number(birthdayDay),
@@ -245,6 +264,56 @@ export function ProfileForm({
                 required
               />
             </div>
+          </div>
+
+          <div className="space-y-4 border-t border-border/40 pt-5">
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/9 text-primary">
+                <UsersRound className="h-4 w-4" aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold">{t("Тематические праздники")}</h3>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                  {t("Настройте участие в поздравлениях 23 февраля и 8 марта")}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="profileGender">{t("Пол профиля")}</Label>
+              <select
+                id="profileGender"
+                value={gender}
+                onChange={(event) =>
+                  setGender(event.target.value as ProfileGender | "")
+                }
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="">{t("Не указан")}</option>
+                <option value="MALE">{t("Мужской")}</option>
+                <option value="FEMALE">{t("Женский")}</option>
+              </select>
+              <p className="text-xs text-muted-foreground">
+                {t("Значение видно только вам и не отображается в чужом профиле.")}
+              </p>
+            </div>
+
+            <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2))/0.36] px-3.5 py-3">
+              <span className="min-w-0">
+                <span className="block text-sm font-medium">
+                  {t("Появляться среди поздравляемых")}
+                </span>
+                <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+                  {t("Ваш пол не будет показан напрямую, но появление в тематическом празднике может косвенно раскрыть выбранное значение. Согласие можно отозвать в любой момент.")}
+                </span>
+              </span>
+              <input
+                type="checkbox"
+                className="mt-1 size-4 shrink-0 accent-primary"
+                checked={thematicHolidayConsent}
+                onChange={(event) => setThematicHolidayConsent(event.target.checked)}
+              />
+            </label>
           </div>
 
           <div className="space-y-4 border-t border-border/40 pt-5">

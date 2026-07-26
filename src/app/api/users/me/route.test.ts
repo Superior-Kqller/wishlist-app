@@ -59,6 +59,8 @@ describe("PATCH /api/users/me", () => {
       telegramLinkedAt: null,
       telegramConfirmedAt: null,
       telegramNotificationsEnabled: false,
+      gender: "FEMALE",
+      thematicHolidayConsent: true,
       giftPreferences: null,
       createdAt: new Date("2026-01-01T00:00:00.000Z"),
       updatedAt: new Date("2026-01-01T00:00:00.000Z"),
@@ -111,6 +113,8 @@ describe("PATCH /api/users/me", () => {
         telegramConfirmedAt: true,
         telegramNotificationsEnabled: true,
         giftPreferences: true,
+        gender: true,
+        thematicHolidayConsent: true,
         birthdayDay: true,
         birthdayMonth: true,
         birthdayYear: true,
@@ -150,6 +154,83 @@ describe("PATCH /api/users/me", () => {
             budget: "до 5000 ₽",
           }),
         },
+      }),
+    );
+  });
+
+  it("сохраняет пол профиля и отдельное согласие на тематические праздники", async () => {
+    const { PATCH } = await import("./route");
+    const response = await PATCH(
+      new Request("http://localhost/api/users/me", {
+        method: "PATCH",
+        body: JSON.stringify({
+          gender: "FEMALE",
+          thematicHolidayConsent: true,
+        }),
+        headers: { "content-type": "application/json" },
+      }) as never,
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(
+      expect.objectContaining({
+        gender: "FEMALE",
+        thematicHolidayConsent: true,
+      }),
+    );
+    expect(mockUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: {
+          gender: "FEMALE",
+          thematicHolidayConsent: true,
+        },
+        select: expect.objectContaining({
+          gender: true,
+          thematicHolidayConsent: true,
+        }),
+      }),
+    );
+  });
+
+  it("сохраняет отзыв согласия на тематические праздники", async () => {
+    mockUpdate.mockResolvedValueOnce({
+      id: "user-1",
+      username: "user1",
+      name: "Имя",
+      avatarUrl: null,
+      role: "USER",
+      telegramId: null,
+      telegramUsername: null,
+      telegramLinkedAt: null,
+      telegramConfirmedAt: null,
+      telegramNotificationsEnabled: false,
+      gender: "MALE",
+      thematicHolidayConsent: false,
+      giftPreferences: null,
+      birthdayDay: null,
+      birthdayMonth: null,
+      birthdayYear: null,
+      birthdayAudience: "PRIVATE",
+      birthdayViewers: [],
+      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+    });
+    const { PATCH } = await import("./route");
+    const response = await PATCH(
+      new Request("http://localhost/api/users/me", {
+        method: "PATCH",
+        body: JSON.stringify({ thematicHolidayConsent: false }),
+        headers: { "content-type": "application/json" },
+      }) as never,
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(
+      expect.objectContaining({ thematicHolidayConsent: false }),
+    );
+    expect(mockUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: { thematicHolidayConsent: false },
       }),
     );
   });

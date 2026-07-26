@@ -69,4 +69,38 @@ describe("GET /api/calendar", () => {
       rangeEnd: "2027-04-30",
     });
   });
+
+  it("возвращает поздравляемых без прямого раскрытия пола", async () => {
+    const listOccurrences = vi.fn().mockResolvedValue([
+      {
+        id: "holiday:womens-day:2027-03-08",
+        type: "HOLIDAY",
+        date: "2027-03-08",
+        name: "8 марта",
+        congratulated: [
+          {
+            id: "user-2",
+            name: "Анна",
+            avatarUrl: null,
+            wishlists: [{ id: "list-2", name: "Мои желания" }],
+          },
+        ],
+      },
+    ]);
+    const GET = createCalendarGetHandler({
+      getActorId: async () => "actor-1",
+      listOccurrences,
+    });
+
+    const response = await GET(
+      new Request("http://localhost/api/calendar?from=2027-03-01&to=2027-03-31"),
+    );
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.occurrences[0].congratulated[0].wishlists).toEqual([
+      { id: "list-2", name: "Мои желания" },
+    ]);
+    expect(JSON.stringify(json)).not.toContain("gender");
+  });
 });

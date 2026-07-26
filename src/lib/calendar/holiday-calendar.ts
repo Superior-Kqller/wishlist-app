@@ -1,6 +1,7 @@
 import { formatLocalDate, parseLocalDate } from "./local-date";
 import { z } from "zod";
 import { isValidCalendarDate } from "./local-date";
+import type { ProfileGender } from "./profile-gender";
 
 export const holidayRuleSchema = z.discriminatedUnion("kind", [
   z
@@ -32,10 +33,26 @@ export interface HolidayCalendarSource {
   id: string;
   name: string;
   rule: HolidayRule;
+  theme: ProfileGender | null;
+}
+
+export interface VisibleWishlistSummary {
+  id: string;
+  name: string;
+}
+
+export interface ThematicHolidayCandidate {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  gender: ProfileGender | null;
+  consent: boolean;
+  wishlists: VisibleWishlistSummary[];
 }
 
 export interface HolidayCalendarRepository {
   listEnabledHolidays(): Promise<HolidayCalendarSource[]>;
+  listThematicCandidates(actorId: string): Promise<ThematicHolidayCandidate[]>;
 }
 
 export interface HolidayOccurrence {
@@ -43,6 +60,12 @@ export interface HolidayOccurrence {
   type: "HOLIDAY";
   date: string;
   name: string;
+  congratulated: Array<{
+    id: string;
+    name: string;
+    avatarUrl: string | null;
+    wishlists: VisibleWishlistSummary[];
+  }>;
 }
 
 export interface CalendarRangeQuery {
@@ -83,6 +106,9 @@ export async function listHolidayOccurrences(
   }
 
   const holidays = await repository.listEnabledHolidays();
+  const thematicCandidates = holidays.some((holiday) => holiday.theme !== null)
+    ? await repository.listThematicCandidates(query.actorId)
+    : [];
   const occurrences: HolidayOccurrence[] = [];
   for (const holiday of holidays) {
     for (let year = start.year; year <= end.year; year += 1) {
@@ -93,6 +119,20 @@ export async function listHolidayOccurrences(
         type: "HOLIDAY",
         date,
         name: holiday.name,
+        congratulated:
+          holiday.theme === null
+            ? []
+            : thematicCandidates
+                .filter(
+                  (candidate) =>
+                    candidate.consent && candidate.gender === holiday.theme,
+                )
+                .map(({ id, name, avatarUrl, wishlists }) => ({
+                  id,
+                  name,
+                  avatarUrl,
+                  wishlists,
+                })),
       });
     }
   }

@@ -78,7 +78,46 @@ export const prismaHolidayCalendarRepository: HolidayCalendarRepository = {
       where: { enabled: true },
       orderBy: [{ month: "asc" }, { name: "asc" }],
     });
-    return rows.map((row) => ({ id: row.id, name: row.name, rule: toRule(row) }));
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      rule: toRule(row),
+      theme: row.theme,
+    }));
+  },
+  async listThematicCandidates(actorId) {
+    const users = await prisma.user.findMany({
+      where: {
+        thematicHolidayConsent: true,
+        gender: { not: null },
+      },
+      select: {
+        id: true,
+        name: true,
+        avatarUrl: true,
+        gender: true,
+        thematicHolidayConsent: true,
+        lists: {
+          where: {
+            OR: [
+              { userId: actorId },
+              { viewers: { some: { userId: actorId } } },
+            ],
+          },
+          select: { id: true, name: true },
+          orderBy: { createdAt: "asc" },
+        },
+      },
+      orderBy: { name: "asc" },
+    });
+    return users.map((user) => ({
+      id: user.id,
+      name: user.name,
+      avatarUrl: user.avatarUrl,
+      gender: user.gender,
+      consent: user.thematicHolidayConsent,
+      wishlists: user.lists,
+    }));
   },
 };
 

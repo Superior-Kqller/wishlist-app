@@ -9,6 +9,10 @@ import { normalizeGiftPreferences, giftPreferencesSchema } from "@/lib/preferenc
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { isValidCalendarDate } from "@/lib/calendar/local-date";
+import {
+  profileGenderSchema,
+  type ProfileGender,
+} from "@/lib/calendar/profile-gender";
 
 const telegramIdSchema = z.string().trim().regex(/^\d{5,20}$/);
 const birthdayAudienceSchema = z.enum(["ALL", "SELECTED", "PRIVATE"]);
@@ -37,6 +41,8 @@ const updateProfileSchema = z.object({
   telegramId: z.union([telegramIdSchema, z.literal(""), z.null()]).optional(),
   telegramNotificationsEnabled: z.boolean().optional(),
   giftPreferences: giftPreferencesSchema.optional(),
+  gender: profileGenderSchema.nullable().optional(),
+  thematicHolidayConsent: z.boolean().optional(),
   birthday: z.union([birthdaySchema, z.null()]).optional(),
 });
 
@@ -89,6 +95,8 @@ export async function GET(req: NextRequest) {
       telegramConfirmedAt: true,
       telegramNotificationsEnabled: true,
       giftPreferences: true,
+      gender: true,
+      thematicHolidayConsent: true,
       birthdayDay: true,
       birthdayMonth: true,
       birthdayYear: true,
@@ -145,6 +153,8 @@ export async function PATCH(req: NextRequest) {
       telegramConfirmedAt?: Date | null;
       telegramNotificationsEnabled?: boolean;
       giftPreferences?: Prisma.InputJsonValue;
+      gender?: ProfileGender | null;
+      thematicHolidayConsent?: boolean;
       birthdayDay?: number | null;
       birthdayMonth?: number | null;
       birthdayYear?: number | null;
@@ -173,6 +183,14 @@ export async function PATCH(req: NextRequest) {
 
     if (data.giftPreferences !== undefined) {
       updateData.giftPreferences = normalizeGiftPreferences(data.giftPreferences);
+    }
+
+    if (data.gender !== undefined) {
+      updateData.gender = data.gender;
+    }
+
+    if (data.thematicHolidayConsent !== undefined) {
+      updateData.thematicHolidayConsent = data.thematicHolidayConsent;
     }
 
     if (data.birthday !== undefined) {
@@ -224,6 +242,8 @@ export async function PATCH(req: NextRequest) {
       telegramConfirmedAt: true,
       telegramNotificationsEnabled: true,
       giftPreferences: true,
+      gender: true,
+      thematicHolidayConsent: true,
       birthdayDay: true,
       birthdayMonth: true,
       birthdayYear: true,

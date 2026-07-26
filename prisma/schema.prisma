@@ -32,6 +32,11 @@ enum HolidayTheme {
   FEMALE
 }
 
+enum ProfileGender {
+  MALE
+  FEMALE
+}
+
 enum ItemStatus {
   AVAILABLE
   CLAIMED
@@ -50,6 +55,8 @@ model User {
   telegramConfirmedAt DateTime?
   telegramNotificationsEnabled Boolean @default(false)
   giftPreferences Json?
+  gender        ProfileGender?
+  thematicHolidayConsent Boolean @default(false)
   birthdayDay   Int?
   birthdayMonth Int?
   birthdayYear  Int?
