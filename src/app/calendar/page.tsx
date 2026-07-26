@@ -5,16 +5,21 @@ import useSWR from "swr";
 import { CalendarDays, Loader2 } from "lucide-react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { UserAvatar } from "@/components/UserAvatar";
+import { PersonalEventsPanel } from "@/components/calendar/PersonalEventsPanel";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { fetcher } from "@/lib/fetcher";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import type { BirthdayOccurrence } from "@/lib/calendar/birthday-calendar";
-
+import type { PersonalEventOccurrence } from "@/lib/calendar/calendar-module";
 import type { HolidayOccurrence } from "@/lib/calendar/holiday-calendar";
 
-type CalendarOccurrence = BirthdayOccurrence | HolidayOccurrence;
+type CalendarOccurrence =
+  | BirthdayOccurrence
+  | PersonalEventOccurrence
+  | HolidayOccurrence;
+
 export default function CalendarPage() {
   const { t, locale } = useI18n();
   const currentYear = new Date().getFullYear();
@@ -39,7 +44,7 @@ export default function CalendarPage() {
         <div className="space-y-4">
           <PageIntro
             title={t("Календарь")}
-            description={t("Дни рождения и общие праздники, доступные вам")}
+            description={t("Дни рождения, праздники и личные события, доступные вам")}
             actions={
               <label className="flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground">{t("Год")}</span>
@@ -58,6 +63,8 @@ export default function CalendarPage() {
             }
           />
 
+          <PersonalEventsPanel />
+
           {isLoading ? (
             <div className="flex min-h-48 items-center justify-center">
               <Loader2 className="h-7 w-7 animate-spin text-muted-foreground" />
@@ -71,8 +78,8 @@ export default function CalendarPage() {
           ) : groupedOccurrences.length === 0 ? (
             <EmptyState
               icon={<CalendarDays className="h-7 w-7" />}
-              title={t("Нет доступных дней рождения")}
-              description={t("Добавьте день рождения в настройках профиля")}
+              title={t("Нет доступных событий")}
+              description={t("Добавьте личное событие или день рождения в настройках профиля")}
             />
           ) : (
             <div className="space-y-3">
@@ -108,14 +115,22 @@ export default function CalendarPage() {
                         )}
                         <div className="min-w-0">
                           <p className="truncate font-semibold">
-                            {entry.type === "BIRTHDAY" ? entry.person.name : entry.name}
+                            {entry.type === "BIRTHDAY"
+                              ? entry.person.name
+                              : entry.type === "PERSONAL"
+                                ? entry.title
+                                : entry.name}
                           </p>
                           <p className="text-sm text-muted-foreground">
                             {entry.type === "HOLIDAY"
                               ? t("Общий праздник")
-                              : entry.isOwn
-                                ? t("Ваш день рождения")
-                                : t("День рождения")}
+                              : entry.type === "PERSONAL"
+                                ? entry.recurrence === "YEARLY"
+                                  ? t("Личное событие · ежегодно")
+                                  : t("Личное событие")
+                                : entry.isOwn
+                                  ? t("Ваш день рождения")
+                                  : t("День рождения")}
                           </p>
                         </div>
                       </div>

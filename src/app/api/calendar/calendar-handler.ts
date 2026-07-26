@@ -3,14 +3,15 @@ import type {
   BirthdayCalendarQuery,
   BirthdayOccurrence,
 } from "@/lib/calendar/birthday-calendar";
-import { sanitizeError } from "@/lib/logger";
+import type { PersonalEventOccurrence } from "@/lib/calendar/calendar-module";
 import type { HolidayOccurrence } from "@/lib/calendar/holiday-calendar";
+import { sanitizeError } from "@/lib/logger";
 import { parseLocalDate } from "@/lib/calendar/local-date";
 
 interface CalendarGetDependencies {
   getActorId(): Promise<string | null>;
   listOccurrences(query: BirthdayCalendarQuery): Promise<
-    Array<BirthdayOccurrence | HolidayOccurrence>
+    Array<BirthdayOccurrence | HolidayOccurrence | PersonalEventOccurrence>
   >;
 }
 

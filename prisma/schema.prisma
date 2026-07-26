@@ -17,7 +17,11 @@ enum BirthdayAudience {
   PRIVATE
 }
 
-enum ItemStatus {
+enum PersonalEventRecurrence {
+  ONCE
+  YEARLY
+}
+
 enum HolidayRuleKind {
   FIXED
   NTH_WEEKDAY
@@ -28,6 +32,7 @@ enum HolidayTheme {
   FEMALE
 }
 
+enum ItemStatus {
   AVAILABLE
   CLAIMED
   PURCHASED
@@ -51,6 +56,8 @@ model User {
   birthdayAudience BirthdayAudience @default(PRIVATE)
   birthdayViewers BirthdayViewer[] @relation("BirthdayOwner")
   visibleBirthdays BirthdayViewer[] @relation("BirthdayViewer")
+  personalEvents PersonalEvent[]
+  visiblePersonalEvents PersonalEventViewer[]
   role          Role          @default(USER)
   items         Item[]
   claimedItems  Item[]         @relation("ItemClaimedByUser")
@@ -65,6 +72,35 @@ model User {
   @@index([telegramConfirmedAt])
 }
 
+model PersonalEvent {
+  id          String                  @id @default(cuid())
+  ownerId     String
+  owner       User                    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title       String                  @db.VarChar(200)
+  description String?                 @db.VarChar(2000)
+  localDate   String                  @db.VarChar(10)
+  recurrence  PersonalEventRecurrence
+  audience    BirthdayAudience        @default(PRIVATE)
+  viewers     PersonalEventViewer[]
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  @@index([ownerId])
+  @@index([localDate])
+  @@index([audience])
+}
+
+model PersonalEventViewer {
+  eventId  String
+  event    PersonalEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  viewerId String
+  viewer   User          @relation(fields: [viewerId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@id([eventId, viewerId])
+  @@index([viewerId])
+}
+
 model BirthdayViewer {
   ownerId String
   owner   User   @relation("BirthdayOwner", fields: [ownerId], references: [id], onDelete: Cascade)
@@ -76,7 +112,6 @@ model BirthdayViewer {
   @@index([viewerId])
 }
 
-model List {
 model Holiday {
   id               String          @id @default(cuid())
   seedKey          String?         @unique
@@ -94,6 +129,8 @@ model Holiday {
 
   @@index([enabled])
 }
+
+model List {
   id        String       @id @default(cuid())
   name      String
   userId    String
