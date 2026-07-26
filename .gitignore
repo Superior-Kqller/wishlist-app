@@ -25,6 +25,10 @@ public/uploads/
 docs/
 wishlist-brandbook.pdf
 
+# Локальные материалы редизайна Impeccable
+/PRODUCT.md
+/.impeccable/
+
 # Локальная память агента / правила — не в репозитории
 AGENTS.md
 .codegraph/
