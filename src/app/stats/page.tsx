@@ -5,7 +5,15 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, CircleDollarSign, Loader2, Package, Target, Users } from "lucide-react";
+import {
+  BarChart3,
+  ChevronDown,
+  CircleDollarSign,
+  Loader2,
+  Package,
+  Target,
+  Users,
+} from "lucide-react";
 import { ItemsPage, StatsSummary, UserStats, UserWithStats } from "@/types";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -15,6 +23,7 @@ import {
   cn,
   formatPrice,
   formatStatsPurchasedSummary,
+  formatStatsUnpurchasedSummary,
   sortCurrencyTotalsEntries,
   statsHasPurchasedPrices,
 } from "@/lib/utils";
@@ -99,6 +108,176 @@ function StatsPurchasedValueBlock({ stats }: { stats: UserStats }) {
   );
 }
 
+function MobileParticipantRow({ user }: { user: UserWithStats }) {
+  const { language, t } = useI18n();
+  const purchasedItems = Math.max(0, user.stats.totalItems - user.stats.unpurchasedItems);
+  const wishlistValue = formatStatsUnpurchasedSummary(user.stats, language);
+  const purchasedValue = formatStatsPurchasedSummary(user.stats, language);
+
+  return (
+    <details className="group overflow-hidden rounded-xl border border-border/58 bg-[hsl(var(--surface-2))]">
+      <summary className="flex min-h-[4.5rem] cursor-pointer list-none items-center gap-3 px-3 py-2.5 outline-none transition-colors hover:bg-[hsl(var(--surface-3))/0.42] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/45 [&::-webkit-details-marker]:hidden">
+        <UserAvatar
+          avatarUrl={user.avatarUrl || undefined}
+          name={user.name}
+          userId={user.id}
+          size="md"
+        />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-semibold text-foreground">
+            {user.name}
+          </span>
+          <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+            @{user.username} · {user.stats.unpurchasedItems}{" "}
+            {t("Активных желаний").toLowerCase()}
+          </span>
+        </span>
+        <span className="min-w-0 max-w-[7.75rem] text-right">
+          <span className="block text-[10px] leading-tight text-muted-foreground">
+            {t("Итого к покупке")}
+          </span>
+          <span className="mt-0.5 block truncate text-sm font-semibold tabular-nums text-foreground">
+            {wishlistValue}
+          </span>
+        </span>
+        <ChevronDown
+          className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180"
+          aria-hidden
+        />
+      </summary>
+
+      <div className="border-t border-border/55 px-3 pb-3 pt-2.5">
+        <div className="mb-2.5 flex items-baseline justify-between gap-3">
+          <p className="text-xs text-muted-foreground">{t("Ориентировочная стоимость")}</p>
+          <p className="max-w-[62%] text-right text-sm font-semibold leading-snug tabular-nums text-foreground">
+            {wishlistValue}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-3 divide-x divide-border/55">
+          <div className="pr-2.5">
+            <p className="text-[10px] leading-tight text-muted-foreground">
+              {t("Всего товаров")}
+            </p>
+            <p className="mt-1 text-base font-semibold tabular-nums">
+              {user.stats.totalItems}
+            </p>
+          </div>
+          <div className="px-2.5">
+            <p className="text-[10px] leading-tight text-muted-foreground">
+              {t("Не куплено")}
+            </p>
+            <p className="mt-1 text-base font-semibold tabular-nums">
+              {user.stats.unpurchasedItems}
+            </p>
+          </div>
+          <div className="pl-2.5">
+            <p className="text-[10px] leading-tight text-muted-foreground">
+              {t("Куплено")}
+            </p>
+            <p className="mt-1 text-base font-semibold tabular-nums">{purchasedItems}</p>
+          </div>
+        </div>
+
+        {statsHasPurchasedPrices(user.stats) && purchasedValue ? (
+          <div className="mt-2.5 flex items-baseline justify-between gap-3 border-t border-border/55 pt-2.5">
+            <p className="text-xs text-muted-foreground">{t("Отмечено купленным")}</p>
+            <p className="max-w-[62%] text-right text-sm font-semibold leading-snug tabular-nums text-foreground">
+              {purchasedValue}
+            </p>
+          </div>
+        ) : null}
+      </div>
+    </details>
+  );
+}
+
+function ParticipantsSection({ users }: { users: UserWithStats[] }) {
+  const { t } = useI18n();
+
+  return (
+    <section className="min-w-0 border-t border-border/55 pt-4 [grid-area:participants] sm:pt-5">
+      <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h2 className="text-sm font-semibold text-foreground">{t("Участники")}</h2>
+          <p className="mt-0.5 max-w-[62ch] text-xs text-muted-foreground">
+            {t("Личные итоги по товарам, активным желаниям и уже закрытым покупкам")}
+          </p>
+        </div>
+        <span className="inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-muted-foreground tabular-nums">
+          <Users className="h-3.5 w-3.5" aria-hidden />
+          {users.length}
+        </span>
+      </div>
+
+      <div className="space-y-2 md:hidden">
+        {users.map((user) => (
+          <MobileParticipantRow key={user.id} user={user} />
+        ))}
+      </div>
+
+      <div className="hidden gap-3 md:grid md:grid-cols-2 2xl:grid-cols-3 min-[2200px]:grid-cols-4">
+        {users.map((user) => (
+          <Card
+            key={user.id}
+            className={cn(
+              uiSurface.interactiveCard,
+              "h-full border-border/58 bg-[hsl(var(--surface-2))] shadow-none",
+            )}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <UserAvatar
+                  avatarUrl={user.avatarUrl || undefined}
+                  name={user.name}
+                  userId={user.id}
+                  size="lg"
+                />
+                <div className="min-w-0 flex-1">
+                  <CardTitle className="truncate text-lg">{user.name}</CardTitle>
+                  <p className="truncate text-sm text-muted-foreground">@{user.username}</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 border-y border-border/60 py-2.5 text-sm">
+                <div className="pr-3">
+                  <p className="text-xs text-muted-foreground">{t("Всего товаров")}</p>
+                  <p className="mt-1 text-lg font-semibold tabular-nums">
+                    {user.stats.totalItems}
+                  </p>
+                </div>
+                <div className="border-l border-border/60 pl-3">
+                  <p className="text-xs text-muted-foreground">{t("Не куплено")}</p>
+                  <p className="mt-1 text-lg font-semibold tabular-nums">
+                    {user.stats.unpurchasedItems}
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t border-border/70 pt-3">
+                <p className="mb-1 text-xs text-muted-foreground">
+                  {t("Ориентировочная стоимость")}
+                </p>
+                <StatsWishlistValueBlock stats={user.stats} />
+              </div>
+
+              {statsHasPurchasedPrices(user.stats) ? (
+                <div className="border-t border-border/70 pt-2">
+                  <p className="mb-1 text-xs text-muted-foreground">
+                    {t("Отмечено купленным")}
+                  </p>
+                  <StatsPurchasedValueBlock stats={user.stats} />
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function mergeCurrencyTotals(
   target: Record<string, { unpurchased: number; purchased: number }>,
   source?: Record<string, { unpurchased: number; purchased: number }>,
@@ -179,20 +358,20 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
     <section
       className={cn(
         uiSurface.contentPanel,
-        "overflow-hidden p-4 sm:p-5 lg:p-6",
+        "overflow-hidden p-3.5 sm:p-5 lg:p-6",
       )}
     >
-      <div className="grid gap-5 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)] lg:gap-0">
-        <div className="space-y-5 lg:pr-6">
+      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)] lg:gap-0">
+        <div className="space-y-4 sm:space-y-5 lg:pr-6">
           <div>
             <p className="text-sm font-medium text-muted-foreground">
               {t("Итого к покупке")}
             </p>
-            <div className="mt-2 space-y-1">
+            <div className="mt-1.5 space-y-0.5 sm:mt-2 sm:space-y-1">
               {totalValues.map((value) => (
                 <p
                   key={value}
-                  className="text-3xl font-semibold leading-tight tracking-tight tabular-nums sm:text-4xl"
+                  className="text-[1.75rem] font-semibold leading-tight tracking-tight tabular-nums sm:text-4xl"
                 >
                   {value}
                 </p>
@@ -200,42 +379,48 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 border-y border-border/55 py-3">
-            <div className="min-w-0 pr-3">
-              <Package className="mb-2 h-4 w-4 text-info" aria-hidden />
-              <p className="text-2xl font-semibold tabular-nums">{summary.totalItems}</p>
-              <p className="text-xs text-muted-foreground">{t("Всего товаров")}</p>
+          <div className="grid grid-cols-3 border-y border-border/55 py-2.5 sm:py-3">
+            <div className="min-w-0 pr-2.5 sm:pr-3">
+              <Package className="mb-1.5 h-4 w-4 text-info sm:mb-2" aria-hidden />
+              <p className="text-xl font-semibold tabular-nums sm:text-2xl">{summary.totalItems}</p>
+              <p className="text-[11px] leading-tight text-muted-foreground sm:text-xs">
+                {t("Всего товаров")}
+              </p>
             </div>
-            <div className="min-w-0 border-l border-border/55 px-3">
-              <Target className="mb-2 h-4 w-4 text-warning" aria-hidden />
-              <p className="text-2xl font-semibold tabular-nums">
+            <div className="min-w-0 border-l border-border/55 px-2.5 sm:px-3">
+              <Target className="mb-1.5 h-4 w-4 text-warning sm:mb-2" aria-hidden />
+              <p className="text-xl font-semibold tabular-nums sm:text-2xl">
                 {summary.unpurchasedItems}
               </p>
-              <p className="text-xs text-muted-foreground">{t("Активных желаний")}</p>
+              <p className="text-[11px] leading-tight text-muted-foreground sm:text-xs">
+                {t("Активных желаний")}
+              </p>
             </div>
-            <div className="min-w-0 border-l border-border/55 pl-3">
-              <Users className="mb-2 h-4 w-4 text-primary" aria-hidden />
-              <p className="text-2xl font-semibold tabular-nums">{summary.memberCount}</p>
-              <p className="text-xs text-muted-foreground">{t("Участников")}</p>
+            <div className="min-w-0 border-l border-border/55 pl-2.5 sm:pl-3">
+              <Users className="mb-1.5 h-4 w-4 text-primary sm:mb-2" aria-hidden />
+              <p className="text-xl font-semibold tabular-nums sm:text-2xl">{summary.memberCount}</p>
+              <p className="text-[11px] leading-tight text-muted-foreground sm:text-xs">
+                {t("Участников")}
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="grid gap-5 border-t border-border/55 pt-5 sm:grid-cols-2 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+        <div className="grid gap-4 border-t border-border/55 pt-4 sm:grid-cols-2 sm:gap-5 sm:pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
           <div className="min-w-0">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div
-                className="relative h-24 w-24 shrink-0 rounded-full shadow-[inset_0_0_0_1px_hsl(var(--foreground)/0.08)]"
+                className="relative h-[4.5rem] w-[4.5rem] shrink-0 rounded-full shadow-[inset_0_0_0_1px_hsl(var(--foreground)/0.08)] sm:h-24 sm:w-24"
                 style={{ background: getPriorityGradient(summary.priorityCounts) }}
                 aria-hidden
               >
-                <div className="absolute inset-5 rounded-full bg-[hsl(var(--surface-2))]" />
+                <div className="absolute inset-4 rounded-full bg-[hsl(var(--surface-2))] sm:inset-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">
                   {t("Распределение по приоритетам")}
                 </p>
-                <div className="mt-3 space-y-1.5">
+                <div className="mt-2 space-y-1 sm:mt-3 sm:space-y-1.5">
                   {PRIORITY_ORDER.map((priority) => {
                     const count = summary.priorityCounts[String(priority)] ?? 0;
                     if (count === 0) return null;
@@ -258,13 +443,13 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
             </div>
           </div>
 
-          <div className="min-w-0 border-t border-border/55 pt-5 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
-            <div className="mb-3 flex items-center gap-2">
+          <div className="min-w-0 border-t border-border/55 pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
+            <div className="mb-2.5 flex items-center gap-2 sm:mb-3">
               <CircleDollarSign className="h-4 w-4 text-success" aria-hidden />
               <p className="text-sm font-semibold">{t("Самые дорогие желания")}</p>
             </div>
             {summary.topItems.length > 0 ? (
-              <div className="space-y-2.5">
+              <div className="space-y-2 sm:space-y-2.5">
                 {summary.topItems.map((item) => (
                   <div
                     key={item.id}
@@ -371,96 +556,14 @@ export default function StatsPage() {
               description={t("Статистика появится, когда в общих списках будут товары.")}
             />
           ) : (
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] 2xl:gap-5">
-              <div className="min-w-0 space-y-4">
+            <div className="grid grid-cols-1 [grid-template-areas:'overview'_'activity'_'participants'] gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] xl:[grid-template-areas:'overview_activity'_'participants_activity'] 2xl:gap-5">
+              <div className="min-w-0 [grid-area:overview]">
                 <StatsOverview summary={summary} />
-
-                <section className="border-t border-border/55 pt-4 sm:pt-5">
-                  <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0">
-                      <h2 className="text-sm font-semibold text-foreground">
-                        {t("Участники")}
-                      </h2>
-                      <p className="mt-0.5 max-w-[62ch] text-xs text-muted-foreground">
-                        {t("Личные итоги по товарам, активным желаниям и уже закрытым покупкам")}
-                      </p>
-                    </div>
-                    <span className="inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-muted-foreground tabular-nums">
-                      <Users className="h-3.5 w-3.5" aria-hidden />
-                      {users.length}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3 min-[2200px]:grid-cols-4">
-                    {users.map((user) => (
-                      <Card
-                        key={user.id}
-                        className={cn(
-                          uiSurface.interactiveCard,
-                          "h-full border-border/58 bg-[hsl(var(--surface-2))] shadow-none",
-                        )}
-                      >
-                        <CardHeader className="pb-3">
-                          <div className="flex items-center gap-3">
-                            <UserAvatar
-                              avatarUrl={user.avatarUrl || undefined}
-                              name={user.name}
-                              userId={user.id}
-                              size="lg"
-                            />
-                            <div className="min-w-0 flex-1">
-                              <CardTitle className="truncate text-lg">
-                                {user.name}
-                              </CardTitle>
-                              <p className="truncate text-sm text-muted-foreground">
-                                @{user.username}
-                              </p>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          <div className="grid grid-cols-2 border-y border-border/60 py-2.5 text-sm">
-                            <div className="pr-3">
-                              <p className="text-xs text-muted-foreground">
-                                {t("Всего товаров")}
-                              </p>
-                              <p className="mt-1 text-lg font-semibold tabular-nums">
-                                {user.stats.totalItems}
-                              </p>
-                            </div>
-                            <div className="border-l border-border/60 pl-3">
-                              <p className="text-xs text-muted-foreground">
-                                {t("Не куплено")}
-                              </p>
-                              <p className="mt-1 text-lg font-semibold tabular-nums">
-                                {user.stats.unpurchasedItems}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="border-t border-border/70 pt-3">
-                            <p className="mb-1 text-xs text-muted-foreground">
-                              {t("Ориентировочная стоимость")}
-                            </p>
-                            <StatsWishlistValueBlock stats={user.stats} />
-                          </div>
-
-                          {statsHasPurchasedPrices(user.stats) && (
-                            <div className="border-t border-border/70 pt-2">
-                              <p className="mb-1 text-xs text-muted-foreground">
-                                {t("Отмечено купленным")}
-                              </p>
-                              <StatsPurchasedValueBlock stats={user.stats} />
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </section>
               </div>
 
-              <div className="min-w-0 xl:sticky xl:top-6 xl:self-start">
+              <ParticipantsSection users={users} />
+
+              <div className="min-w-0 [grid-area:activity] xl:sticky xl:top-6 xl:self-start">
                 <RecentActivityPanel items={recentItemsData?.items ?? []} />
               </div>
             </div>
