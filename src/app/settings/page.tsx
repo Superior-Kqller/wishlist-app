@@ -6,9 +6,22 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { PasswordForm } from "@/components/settings/PasswordForm";
-import { Check, Loader2 } from "lucide-react";
+import {
+  CalendarDays,
+  Check,
+  Loader2,
+  Palette,
+  ShieldCheck,
+  UserRound,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { fetcher } from "@/lib/fetcher";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { cn } from "@/lib/utils";
@@ -22,63 +35,69 @@ function ThemeAccentSection({ className }: { className?: string }) {
   const { colorTheme, setColorTheme } = useColorTheme();
 
   return (
-    <section className={cn(uiSurface.contentPanel, "p-4 sm:p-5", className)}>
-      <div className="mb-3 min-w-0">
-        <h2 className="text-lg font-semibold">{t("Внешний вид")}</h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+    <section className={cn(uiSurface.contentPanel, "p-4 sm:p-6", className)}>
+      <div className="mb-5 flex min-w-0 items-start gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+          <Palette className="h-5 w-5" aria-hidden />
+        </span>
+        <div className="min-w-0">
+          <h2 className="text-lg font-semibold">{t("Внешний вид")}</h2>
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
           {t("Выберите цветовой характер интерфейса.")}
-        </p>
+          </p>
+        </div>
       </div>
 
-      <div className="divide-y divide-border/42 border-y border-border/42">
+      <div className="grid gap-2.5 sm:grid-cols-2">
         {colorThemes.map((theme) => {
           const selected = colorTheme === theme.value;
           const descriptionId = `theme-${theme.value}-description`;
 
           return (
-            <div
+            <button
               key={theme.value}
-              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 px-1 py-2"
+              type="button"
+              aria-pressed={selected}
+              aria-describedby={descriptionId}
+              onClick={() => setColorTheme(theme.value)}
+              className={cn(
+                "group relative min-h-32 rounded-xl border p-3.5 text-left transition-[background-color,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                selected
+                  ? "border-primary/48 bg-primary/10 shadow-[inset_0_1px_0_hsl(var(--primary)/0.12)]"
+                  : "border-border/58 bg-[hsl(var(--surface-2))/0.4] hover:border-primary/28 hover:bg-[hsl(var(--surface-3))/0.62]",
+              )}
             >
-              <button
-                type="button"
-                aria-pressed={selected}
-                aria-describedby={descriptionId}
-                onClick={() => setColorTheme(theme.value)}
-                className={cn(
-                  "flex min-h-11 min-w-0 items-center gap-2 rounded-md text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-primary/10",
-                  selected
-                    ? "text-foreground"
-                    : "text-foreground hover:text-primary",
-                )}
-              >
-                <span className="whitespace-nowrap text-sm font-semibold">
-                  {t(theme.label)}
-                </span>
-                {selected ? (
-                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/16 text-primary">
-                    <Check className="h-3 w-3" aria-hidden />
-                  </span>
-                ) : null}
-              </button>
-              <span className="row-span-2 flex gap-1.5" aria-hidden>
+              <span className="mb-4 flex gap-1.5" aria-hidden>
                 {theme.swatches.map((swatch) => (
                   <span
                     key={swatch}
                     className={cn(
-                      "h-3 w-7 rounded-sm border border-border/45",
+                      "h-5 flex-1 rounded-md border border-foreground/10",
                       swatch,
                     )}
                   />
                 ))}
               </span>
+              <span className="flex items-center justify-between gap-3">
+                <span className="text-sm font-semibold">{t(theme.label)}</span>
+                <span
+                  className={cn(
+                    "flex size-6 shrink-0 items-center justify-center rounded-full border transition-colors",
+                    selected
+                      ? "border-primary/35 bg-primary text-primary-foreground"
+                      : "border-border/65 bg-background/35 text-transparent",
+                  )}
+                >
+                  <Check className="h-3.5 w-3.5" aria-hidden />
+                </span>
+              </span>
               <p
                 id={descriptionId}
-                className="-mt-1 pb-1 text-xs leading-relaxed text-muted-foreground"
+                className="mt-1.5 text-xs leading-relaxed text-muted-foreground"
               >
                 {t(theme.description)}
               </p>
-            </div>
+            </button>
           );
         })}
       </div>
@@ -131,18 +150,65 @@ export default function SettingsPage() {
 
   return (
     <PageShell>
-      <PageMain className="max-w-6xl">
+      <PageMain className="max-w-5xl">
         <div className="space-y-4">
           <PageIntro
             title={t("Настройки")}
-            description={t("Управление вашим профилем и паролем")}
-            className="py-3 sm:px-5"
+            description={t("Профиль, оформление и безопасность аккаунта")}
+            actions={
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:justify-end">
+                <Badge variant={user.role === "ADMIN" ? "default" : "outline"}>
+                  {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
+                </Badge>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-border/55 bg-background/25 px-2.5 py-1.5">
+                  <CalendarDays className="h-3.5 w-3.5" aria-hidden />
+                  {t("С нами с")}{" "}
+                  {new Date(user.createdAt).toLocaleDateString(locale, {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })}
+                </span>
+              </div>
+            }
+            className="sm:px-5"
           />
 
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(21rem,0.9fr)] xl:items-start">
-            <div className="space-y-4">
-              <ThemeAccentSection />
+          <Tabs
+            defaultValue="profile"
+            className="grid gap-4 lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:items-start"
+          >
+            <TabsList
+              aria-label={t("Разделы настроек")}
+              className={cn(
+                uiSurface.contentPanel,
+                "grid h-auto grid-cols-3 gap-1 bg-transparent p-1.5 lg:sticky lg:top-6 lg:flex lg:flex-col lg:items-stretch",
+              )}
+            >
+              <TabsTrigger
+                value="profile"
+                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/12 data-[state=active]:text-foreground data-[state=active]:shadow-none lg:justify-start"
+              >
+                <UserRound className="h-4 w-4 shrink-0" aria-hidden />
+                <span>{t("Профиль")}</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="appearance"
+                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/12 data-[state=active]:text-foreground data-[state=active]:shadow-none lg:justify-start"
+              >
+                <Palette className="h-4 w-4 shrink-0" aria-hidden />
+                <span>{t("Вид")}</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="security"
+                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/12 data-[state=active]:text-foreground data-[state=active]:shadow-none lg:justify-start"
+              >
+                <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
+                <span>{t("Защита")}</span>
+              </TabsTrigger>
+            </TabsList>
 
+            <TabsContent value="profile" className="m-0">
               <ProfileForm
                 key={`profile-${refreshKey}`}
                 initialName={user.name}
@@ -154,36 +220,14 @@ export default function SettingsPage() {
                 userId={user.id}
                 onSuccess={handleSuccess}
               />
-            </div>
-
-            <div className="space-y-4">
+            </TabsContent>
+            <TabsContent value="appearance" className="m-0">
+              <ThemeAccentSection />
+            </TabsContent>
+            <TabsContent value="security" className="m-0">
               <PasswordForm key={`password-${refreshKey}`} userId={user.id} />
-
-              <div className={cn(uiSurface.contentPanel, "p-4 sm:p-5")}>
-                <h3 className="mb-3 font-medium">{t("Информация")}</h3>
-                <div className="divide-y divide-border/35 border-y border-border/35 text-sm">
-                  <div className="flex min-h-11 items-center justify-between gap-3 py-2">
-                    <span className="text-muted-foreground">{t("Роль:")}</span>
-                    <Badge
-                      variant={user.role === "ADMIN" ? "default" : "outline"}
-                    >
-                      {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
-                    </Badge>
-                  </div>
-                  <div className="flex min-h-11 items-center justify-between gap-3 py-2">
-                    <span className="text-muted-foreground">{t("Создан:")}</span>
-                    <span>
-                      {new Date(user.createdAt).toLocaleDateString(locale, {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </PageMain>
     </PageShell>

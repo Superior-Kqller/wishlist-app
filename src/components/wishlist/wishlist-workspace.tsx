@@ -1,7 +1,7 @@
 "use client";
 
 import type { RefObject } from "react";
-import { ArrowUpDown, CheckSquare, Download, Loader2, MoreHorizontal, Plus, SlidersHorizontal, Upload } from "lucide-react";
+import { CheckSquare, Download, Loader2, MoreHorizontal, Plus, SlidersHorizontal, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { SearchField } from "@/components/ui/search-field";
@@ -32,6 +32,7 @@ import type {
 } from "@/types";
 import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
 import type { ProductCategoryOption } from "@/lib/categories";
+import { cn } from "@/lib/utils";
 
 type WishlistWorkspaceProps = {
   search: string;
@@ -173,14 +174,19 @@ export function WishlistWorkspace({
             iconClassName="left-3.5 text-muted-foreground/62 transition-colors duration-200 group-focus-within:text-primary/88"
             inputClassName="h-11 min-h-[44px] rounded-xl border-border/52 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] placeholder:text-muted-foreground/54 focus-visible:border-primary/48 focus-visible:ring-2 focus-visible:ring-primary/18 focus-visible:ring-offset-0"
           />
-        </div>
-
-        <div className="grid min-w-0 grid-cols-4 items-center gap-1.5 sm:hidden">
           <Button
-            variant="outline"
-            className="relative h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px]"
+            type="button"
+            variant={hasActiveFilters ? "secondary" : "outline"}
+            className={cn(
+              "relative h-11 shrink-0 gap-2 rounded-xl px-3 text-xs",
+              hasActiveFilters
+                ? "border-primary/40 bg-primary/12 text-foreground"
+                : "border-border/58 bg-[hsl(var(--surface-3))/0.58]",
+            )}
             onClick={() => onMobileFiltersOpenChange(true)}
             title={t("Фильтры")}
+            aria-controls="mobile-filter-drawer"
+            aria-expanded={mobileFiltersOpen}
             aria-label={
               hasActiveFilters
                 ? `${t("Фильтры")}: ${activeFilterCount}`
@@ -188,25 +194,22 @@ export function WishlistWorkspace({
             }
           >
             <SlidersHorizontal className="h-4 w-4 shrink-0" />
-            <span className="min-w-0 truncate">{t("Фильтр")}</span>
+            <span>{t("Фильтры")}</span>
             {hasActiveFilters ? (
-              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border border-background bg-primary/18 px-1 text-[10px] font-semibold text-foreground shadow-[0_0_0_1px_hsl(var(--primary)/0.16)]">
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
                 {activeFilterCount}
               </span>
             ) : null}
           </Button>
+        </div>
+
+        <div className="grid min-w-0 grid-cols-2 gap-1 rounded-xl border border-border/45 bg-[hsl(var(--surface-2))/0.46] p-1 sm:hidden">
           <Button
-            variant="outline"
-            className="h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px]"
-            onClick={() => onMobileFiltersOpenChange(true)}
-            title={t("Сортировка")}
-          >
-            <ArrowUpDown className="h-4 w-4 shrink-0" />
-            <span className="min-w-0 truncate">{t("Сорт")}</span>
-          </Button>
-          <Button
-            variant={selectionMode ? "secondary" : "outline"}
-            className="h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px] disabled:pointer-events-none disabled:opacity-100"
+            variant="ghost"
+            className={cn(
+              "h-10 min-w-0 gap-2 rounded-lg px-2 text-xs disabled:pointer-events-none disabled:opacity-100",
+              selectionMode && "bg-primary/11 text-foreground",
+            )}
             onClick={onToggleSelectionMode}
             disabled={hasSelectedCards}
             title={selectionButtonTitle}
@@ -222,8 +225,8 @@ export function WishlistWorkspace({
             <DropdownMenuTrigger asChild>
               <Button
                 type="button"
-                variant="outline"
-                className="h-11 min-w-0 gap-1 rounded-lg px-1.5 text-[11px]"
+                variant="ghost"
+                className="h-10 min-w-0 gap-2 rounded-lg px-2 text-xs"
                 aria-label={t("Ещё действия")}
               >
                 <MoreHorizontal className="h-4 w-4 shrink-0" />

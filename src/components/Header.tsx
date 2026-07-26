@@ -26,10 +26,10 @@ import {
 
 const mobileNavButtonClass = (active: boolean) =>
   cn(
-    "h-11 min-w-0 rounded-md border-x-0 border-b-2 border-t-0 px-1.5 text-[11px] font-semibold transition-colors active:bg-accent/45 sm:px-3 sm:text-xs",
+    "h-11 min-w-0 flex-col gap-0.5 rounded-xl border px-1 py-1.5 text-[10px] font-semibold leading-none transition-[background-color,border-color,color,box-shadow] active:bg-accent/45 sm:flex-row sm:gap-1.5 sm:px-3 sm:text-xs",
     active
-      ? "border-primary bg-primary/8 text-foreground"
-      : "border-transparent text-muted-foreground hover:bg-accent/40 hover:text-foreground",
+      ? "border-primary/32 bg-primary/12 text-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.055)]"
+      : "border-transparent text-muted-foreground hover:border-border/45 hover:bg-accent/40 hover:text-foreground",
   );
 
 export function Header() {
@@ -80,7 +80,7 @@ export function Header() {
           </div>
 
           <nav
-            className="-mx-3 grid grid-cols-4 gap-1 border-t border-border/35 px-3 pt-1 sm:-mx-4 sm:px-4"
+            className="-mx-3 grid grid-cols-4 gap-1 border-t border-border/35 px-3 pb-1.5 pt-1.5 sm:-mx-4 sm:px-4"
             aria-label={t("Разделы")}
           >
             {primaryNavItems.map((item) => {

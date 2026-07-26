@@ -21,7 +21,7 @@ export const uiSurface = {
   shell:
     "min-h-screen bg-[hsl(var(--background))] text-foreground",
   sidebar:
-    "border-r border-border/42 bg-[hsl(var(--surface-2))/0.72]",
+    "border-r border-border/38 bg-[hsl(var(--surface-2))/0.68] elevation-sidebar backdrop-blur-xl",
   topHeader:
     "border-b border-border bg-[hsl(var(--surface-2))/0.88] elevation-header backdrop-blur-xl",
   pageHeader:
@@ -44,7 +44,7 @@ export const uiSurface = {
   homeSummary:
     "home-summary-panel relative overflow-hidden rounded-2xl border border-border/62 elevation-hero-panel backdrop-blur-md",
   homeToolbar:
-    "home-toolbar-panel relative z-20 flex min-w-0 flex-col gap-2.5 border-y border-border/48 bg-[hsl(var(--surface-2))/0.58] px-2.5 py-2.5 sm:z-auto sm:px-3 sm:py-3",
+    "home-toolbar-panel relative z-20 flex min-w-0 flex-col gap-2.5 rounded-2xl border border-border/58 px-2.5 py-2.5 elevation-panel backdrop-blur-md sm:z-auto sm:px-3 sm:py-3",
   homeSelectionState:
     "rounded-lg border border-primary/45 bg-primary/12 px-3 py-2 text-sm text-foreground",
 } as const;
@@ -55,7 +55,7 @@ export const uiState = {
   navBase:
     "h-11 gap-2.5 border border-transparent px-3 text-muted-foreground/88 hover:bg-[hsl(var(--surface-3))/0.74] hover:text-foreground",
   navActive:
-    "border-l-primary/80 bg-primary/10 text-foreground",
+    "border-primary/28 bg-primary/10 text-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)]",
   selectionIdle:
     "h-9 gap-1.5 px-3 border border-border bg-card text-muted-foreground hover:text-foreground",
   selectionActive:

@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -19,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { SlidersHorizontal, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, SlidersHorizontal } from "lucide-react";
 import type { UserWithStats, ListWithMeta } from "@/types";
 import { filterListsBySelectedUser } from "@/lib/list-filter-client";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -81,14 +82,21 @@ export function FiltersDrawer({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="dialog-modal-surface min-h-0 w-[min(95vw,calc(100vw-1rem))] max-w-md gap-0 border border-border bg-popover/88 backdrop-blur-[18px] max-sm:bottom-0 max-sm:left-0 max-sm:top-auto max-sm:max-h-[85dvh] max-sm:w-full max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-xl">
-        <DialogHeader>
-          <DialogTitle className="text-lg">{t("Фильтры")}</DialogTitle>
+      <DialogContent
+        id="mobile-filter-drawer"
+        className="dialog-modal-surface min-h-0 w-[min(95vw,calc(100vw-1rem))] max-w-md gap-0 border border-border bg-popover/90 backdrop-blur-[18px] max-sm:bottom-0 max-sm:left-0 max-sm:top-auto max-sm:max-h-[88dvh] max-sm:w-full max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-2xl"
+      >
+        <div className="-mt-3 mb-1 h-1 w-10 self-center rounded-full bg-border sm:hidden" aria-hidden />
+        <DialogHeader className="pb-1">
+          <DialogTitle className="text-xl">{t("Фильтры")}</DialogTitle>
+          <DialogDescription>
+            {t("Настройте список и порядок товаров")}
+          </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-4 pb-2">
+        <div className="flex flex-col gap-3 pb-1">
           {currentUserId && usersWithStats.length > 0 && (
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">{t("Пользователь")}</Label>
+            <div className="space-y-2 rounded-xl border border-border/50 bg-[hsl(var(--surface-2))/0.38] p-3">
+              <Label className="text-xs font-semibold text-muted-foreground">{t("Пользователь")}</Label>
               <UserFilter
                 selectedUserId={selectedUserId}
                 onUserChange={onUserChange}
@@ -98,8 +106,8 @@ export function FiltersDrawer({
             </div>
           )}
           {currentUserId && (
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">{t("Подборка")}</Label>
+            <div className="space-y-2 rounded-xl border border-border/50 bg-[hsl(var(--surface-2))/0.38] p-3">
+              <Label className="text-xs font-semibold text-muted-foreground">{t("Подборка")}</Label>
               <ListFilter
                 selectedListId={selectedListId}
                 onListChange={onListChange}
@@ -109,11 +117,11 @@ export function FiltersDrawer({
               />
             </div>
           )}
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">{t("Сортировка")}</Label>
+          <div className="space-y-2 rounded-xl border border-border/50 bg-[hsl(var(--surface-2))/0.38] p-3">
+            <Label className="text-xs font-semibold text-muted-foreground">{t("Сортировка")}</Label>
             <Select value={sortBy} onValueChange={onSortChange}>
-              <SelectTrigger className="h-10 w-full">
-                <SlidersHorizontal className="w-4 h-4 mr-2 shrink-0" />
+              <SelectTrigger className="h-11 w-full bg-background/35">
+                <SlidersHorizontal className="mr-2 h-4 w-4 shrink-0" />
                 <SelectValue placeholder={t("Сортировка")} />
               </SelectTrigger>
               <SelectContent>
@@ -126,11 +134,11 @@ export function FiltersDrawer({
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">{t("Купленные")}</Label>
+          <div className="space-y-2 rounded-xl border border-border/50 bg-[hsl(var(--surface-2))/0.38] p-3">
+            <Label className="text-xs font-semibold text-muted-foreground">{t("Купленные")}</Label>
             <Button
               variant="secondary"
-              className="h-10 w-full justify-start"
+              className="h-11 w-full justify-start bg-background/35"
               onClick={onTogglePurchased}
             >
               {showPurchased ? (
@@ -142,8 +150,8 @@ export function FiltersDrawer({
             </Button>
           </div>
           {categories.length > 0 && (
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">{t("Категории")}</Label>
+            <div className="space-y-2 rounded-xl border border-border/50 bg-[hsl(var(--surface-2))/0.38] p-3">
+              <Label className="text-xs font-semibold text-muted-foreground">{t("Категории")}</Label>
               <CategoryFilter
                 categories={categories}
                 selectedCategories={selectedCategories}
@@ -153,7 +161,7 @@ export function FiltersDrawer({
             </div>
           )}
           <Button
-            className="mt-2 h-10 w-full"
+            className="sticky bottom-0 mt-1 h-11 w-full shadow-[0_-8px_24px_hsl(var(--background)/0.45)]"
             onClick={() => onOpenChange(false)}
           >
             {t("Готово")}

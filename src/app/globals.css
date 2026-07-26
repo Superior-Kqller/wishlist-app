@@ -331,72 +331,37 @@
   }
 }
 
+.app-canvas,
 .page-bg {
   position: relative;
   isolation: isolate;
-  background:
-    linear-gradient(
-      125deg,
-      hsl(var(--primary) / 0.15) 0%,
-      hsl(var(--background) / 0) 36%
+  background-color: hsl(var(--background));
+  background-image:
+    radial-gradient(
+      ellipse 72% 58% at 100% 100%,
+      hsl(var(--theme-warm) / 0.075) 0%,
+      transparent 70%
     ),
-    linear-gradient(
-      245deg,
-      hsl(var(--theme-cool) / 0.1) 0%,
-      hsl(var(--background) / 0) 46%
-    ),
-    linear-gradient(
-      310deg,
-      hsl(var(--theme-warm) / 0.12) 0%,
-      hsl(var(--background) / 0) 34%
-    ),
-    linear-gradient(
-      90deg,
-      hsl(var(--foreground) / 0.02) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      180deg,
-      hsl(var(--foreground) / 0.014) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      180deg,
-      hsl(var(--background)) 0%,
-      hsl(var(--surface-1)) 48%,
-      hsl(var(--background)) 100%
+    radial-gradient(
+      ellipse 66% 52% at 8% -12%,
+      hsl(var(--primary) / 0.065) 0%,
+      transparent 68%
     );
   background-attachment: fixed;
-  background-position:
-    center top,
-    center top,
-    center top,
-    center top,
-    center top,
-    center top;
-  background-size: auto, auto, auto, 42px 42px, 42px 42px, auto;
 }
 
-.page-bg::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.22;
-  background-image:
-    radial-gradient(circle at 1px 1px, hsl(var(--foreground) / 0.12) 1px, transparent 0);
-  background-size: 3px 3px;
-  mix-blend-mode: soft-light;
+.app-canvas .page-bg {
+  background: transparent;
 }
 
+.theme-light .app-canvas,
 .theme-light .page-bg {
   background: hsl(var(--background));
   background-attachment: initial;
 }
 
-.theme-light .page-bg::before {
-  opacity: 0;
+.theme-light .app-canvas .page-bg {
+  background: transparent;
 }
 
 .tracking-tight {
@@ -535,16 +500,10 @@
 }
 
 .home-toolbar-panel {
-  background:
-    linear-gradient(
-      90deg,
-      hsl(var(--primary) / 0.08) 0%,
-      hsl(var(--background) / 0) 38%
-    ),
-    linear-gradient(
-      180deg,
-      hsl(var(--surface-2) / 0.9) 0%,
-      hsl(var(--surface-2) / 0.76) 100%
+  background: linear-gradient(
+    180deg,
+    hsl(var(--surface-2) / 0.92) 0%,
+    hsl(var(--surface-2) / 0.82) 100%
   );
 }
 

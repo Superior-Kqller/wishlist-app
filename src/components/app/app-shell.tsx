@@ -10,7 +10,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const showAuthenticatedShell = pathname !== "/login";
 
   return (
-    <div className="flex min-h-svh flex-col bg-[hsl(var(--background))] text-foreground">
+    <div className="app-canvas flex min-h-svh flex-col text-foreground">
       {showAuthenticatedShell ? <Header /> : null}
       <div className="flex min-h-0 flex-1">
         {showAuthenticatedShell ? <AppSidebar /> : null}
