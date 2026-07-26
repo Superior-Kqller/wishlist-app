@@ -12,6 +12,7 @@ import {
   Loader2,
   Ruler,
   Save,
+  Search,
   ShieldAlert,
   Sparkles,
   UsersRound,
@@ -35,6 +36,7 @@ import {
   type PreferenceSuggestion,
 } from "@/components/preferences/preference-chip-picker";
 import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
+import { PreferenceProfileControls } from "@/components/preferences/preference-profile-controls";
 import { PreferenceProfileCard } from "@/components/preferences/preference-profile-card";
 import { fetcher } from "@/lib/fetcher";
 import { cn } from "@/lib/utils";
@@ -45,6 +47,12 @@ import {
   emptyGiftPreferences,
   normalizeGiftPreferences,
 } from "@/lib/preferences";
+import {
+  filterAndSortPreferenceProfiles,
+  getPreferenceProfileSignals,
+  type PreferenceProfileFilter,
+  type PreferenceProfileSort,
+} from "@/lib/preference-profiles";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
 
 type PreferencesUser = {
@@ -70,7 +78,6 @@ type CircleUsersResponse = {
 };
 
 type EditorSection = "likes" | "avoid" | "details";
-type ProfileSortMode = "filled" | "sizes" | "avoid" | "wishes";
 type ListPreferenceKey = {
   [Key in keyof GiftPreferences]: GiftPreferences[Key] extends string[] ? Key : never;
 }[keyof GiftPreferences];
@@ -250,22 +257,6 @@ function composeSizePreferences(fields: Record<SizeCategoryId, string>, custom: 
     .join("; ");
 }
 
-function getProfileSortScore(user: CircleUser, mode: ProfileSortMode) {
-  const preferences = normalizeGiftPreferences(user.giftPreferences);
-  if (mode === "sizes") return Number(Boolean(preferences.sizes));
-  if (mode === "avoid") {
-    return (
-      preferences.dislikedCategories.length +
-      preferences.dislikedColors.length +
-      preferences.dislikedMaterials.length +
-      preferences.dislikedBrands.length +
-      preferences.doNotBuy.length
-    );
-  }
-  if (mode === "wishes") return user.stats?.totalItems ?? 0;
-  return countGiftPreferences(preferences);
-}
-
 const hobbySuggestions: PreferenceSuggestion[] = [
   "Книги",
   "Кофе",
@@ -306,13 +297,6 @@ const editorSections: Array<{
   { id: "likes", label: "Нравится", hint: "Цвета, материалы, бренды и интересы", icon: Heart },
   { id: "avoid", label: "Не подходит", hint: "Что точно не стоит выбирать", icon: ShieldAlert },
   { id: "details", label: "Детали", hint: "Размеры, бюджет и важные нюансы", icon: Sparkles },
-];
-
-const profileSortOptions: Array<{ id: ProfileSortMode; label: string }> = [
-  { id: "filled", label: "Заполненность" },
-  { id: "sizes", label: "С размерами" },
-  { id: "avoid", label: "Со стоп-листом" },
-  { id: "wishes", label: "По желаниям" },
 ];
 
 function QuickTextField({
@@ -526,7 +510,9 @@ export default function PreferencesPage() {
   );
   const [draft, setDraft] = useState<GiftPreferences>(emptyGiftPreferences);
   const [activeSection, setActiveSection] = useState<EditorSection>("likes");
-  const [profileSort, setProfileSort] = useState<ProfileSortMode>("filled");
+  const [profileFilter, setProfileFilter] = useState<PreferenceProfileFilter>("all");
+  const [profileSort, setProfileSort] = useState<PreferenceProfileSort>("filled");
+  const [profileSearch, setProfileSearch] = useState("");
   const [saving, setSaving] = useState(false);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -541,7 +527,7 @@ export default function PreferencesPage() {
 
   const hasChanges = JSON.stringify(draft) !== JSON.stringify(preferences);
   const preferenceCount = countGiftPreferences(draft);
-  const circleUsers = useMemo(() => {
+  const allCircleUsers = useMemo(() => {
     if (!data) return circleData?.users ?? [];
     const currentFromCircle = circleData?.users.find((user) => user.id === data.id);
     const currentUser: CircleUser = {
@@ -549,18 +535,38 @@ export default function PreferencesPage() {
       username: data.username,
       name: data.name,
       avatarUrl: data.avatarUrl,
-      giftPreferences: data.giftPreferences,
+      giftPreferences: draft,
       stats: currentFromCircle?.stats ?? { totalItems: data._count?.items ?? 0 },
     };
 
-    const restUsers = [...(circleData?.users.filter((user) => user.id !== data.id) ?? [])].sort((first, second) => {
-      const scoreDiff = getProfileSortScore(second, profileSort) - getProfileSortScore(first, profileSort);
-      if (scoreDiff !== 0) return scoreDiff;
-      return first.name.localeCompare(second.name, "ru");
-    });
-
-    return [currentUser, ...restUsers];
-  }, [circleData?.users, data, profileSort]);
+    return [currentUser, ...(circleData?.users.filter((user) => user.id !== data.id) ?? [])];
+  }, [circleData?.users, data, draft]);
+  const circleUsers = useMemo(
+    () =>
+      filterAndSortPreferenceProfiles(allCircleUsers, {
+        filter: profileFilter,
+        sort: profileSort,
+        query: profileSearch,
+        currentUserId: data?.id,
+      }),
+    [allCircleUsers, data?.id, profileFilter, profileSearch, profileSort],
+  );
+  const profileFilterCounts = useMemo(
+    () =>
+      allCircleUsers.reduce(
+        (counts, user) => {
+          const signals = getPreferenceProfileSignals(user);
+          counts.all += 1;
+          if (signals.preferenceCount > 0) counts.filled += 1;
+          if (signals.hasSizes) counts.sizes += 1;
+          if (signals.avoidCount > 0) counts.avoid += 1;
+          return counts;
+        },
+        { all: 0, filled: 0, sizes: 0, avoid: 0 },
+      ),
+    [allCircleUsers],
+  );
+  const hasProfileControls = profileFilter !== "all" || profileSearch.trim().length > 0;
 
   const updateList = (key: ListPreferenceKey, value: string[]) => {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -641,7 +647,7 @@ export default function PreferencesPage() {
                   <p className="text-xs text-muted-foreground">
                     {t("Профилей в круге")}
                   </p>
-                  <p className="text-sm font-semibold tabular-nums">{circleUsers.length}</p>
+                  <p className="text-sm font-semibold tabular-nums">{allCircleUsers.length}</p>
                 </div>
               </div>
             }
@@ -676,67 +682,78 @@ export default function PreferencesPage() {
                 </div>
               ) : null}
 
-              <div className="flex flex-col gap-2 border-y border-border/48 py-2 sm:flex-row sm:items-center sm:justify-between">
-                <p className="px-1 text-xs font-semibold text-muted-foreground">
-                  {t("Сортировка")}
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {profileSortOptions.map((option) => (
-                    <button
-                      key={option.id}
-                      type="button"
-                      aria-pressed={profileSort === option.id}
-                      onClick={() => setProfileSort(option.id)}
-                      className={cn(
-                        "min-h-8 rounded-lg border px-2.5 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98]",
-                        profileSort === option.id
-                          ? "border-primary/38 bg-primary/13 text-foreground"
-                          : "border-transparent bg-transparent text-muted-foreground hover:border-border/44 hover:bg-accent hover:text-foreground",
-                      )}
-                    >
-                      {t(option.label)}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <PreferenceProfileControls
+                filter={profileFilter}
+                sort={profileSort}
+                search={profileSearch}
+                counts={profileFilterCounts}
+                resultCount={circleUsers.length}
+                onFilterChange={setProfileFilter}
+                onSortChange={setProfileSort}
+                onSearchChange={setProfileSearch}
+              />
 
-              <motion.div layout className="grid items-start gap-3 md:grid-cols-2 2xl:grid-cols-3 min-[2200px]:grid-cols-4">
-                {circleUsers.map((user, index) => {
-                  const isCurrent = user.id === data?.id;
-                  const isExpanded = expandedUserId === user.id;
-                  const cardPreferences = isCurrent ? draft : user.giftPreferences;
+              {circleUsers.length > 0 ? (
+                <motion.div layout className="grid items-start gap-3 md:grid-cols-2 2xl:grid-cols-3 min-[2200px]:grid-cols-4">
+                  {circleUsers.map((user, index) => {
+                    const isCurrent = user.id === data?.id;
+                    const isExpanded = expandedUserId === user.id;
+                    const cardPreferences = isCurrent ? draft : user.giftPreferences;
 
-                  return (
-                    <motion.div
-                      layout
-                      key={user.id}
-                      initial={reduceMotion ? false : { opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: reduceMotion ? 0 : index * 0.055, duration: 0.3 }}
-                    >
-                      <PreferenceProfileCard
-                        id={user.id}
-                        name={user.name}
-                        username={user.username}
-                        avatarUrl={user.avatarUrl}
-                        preferences={cardPreferences}
-                        wishCount={user.stats?.totalItems}
-                        isCurrent={isCurrent}
-                        expanded={isExpanded}
-                        editing={isCurrent && editorOpen}
-                        onToggle={() => toggleProfile(user.id)}
-                        onEdit={isCurrent ? toggleEditor : undefined}
+                    return (
+                      <motion.div
+                        layout
+                        key={user.id}
+                        initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: reduceMotion ? 0 : index * 0.055, duration: 0.3 }}
                       >
-                        <GiftPreferencesSummary
-                          userName={isCurrent ? t("вам") : user.name}
+                        <PreferenceProfileCard
+                          id={user.id}
+                          name={user.name}
+                          username={user.username}
+                          avatarUrl={user.avatarUrl}
                           preferences={cardPreferences}
-                          embedded
-                        />
-                      </PreferenceProfileCard>
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
+                          wishCount={user.stats?.totalItems}
+                          isCurrent={isCurrent}
+                          expanded={isExpanded}
+                          editing={isCurrent && editorOpen}
+                          onToggle={() => toggleProfile(user.id)}
+                          onEdit={isCurrent ? toggleEditor : undefined}
+                        >
+                          <GiftPreferencesSummary
+                            userName={isCurrent ? t("вам") : user.name}
+                            preferences={cardPreferences}
+                            embedded
+                          />
+                        </PreferenceProfileCard>
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
+              ) : (
+                <div className={cn(uiSurface.emptyState, "px-4 py-10 text-center")}>
+                  <Search className="mx-auto h-5 w-5 text-muted-foreground" aria-hidden />
+                  <p className="mt-3 text-sm font-semibold">{t("Подходящих профилей не найдено")}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {t("Измените запрос или сбросьте фильтры.")}
+                  </p>
+                  {hasProfileControls ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-4"
+                      onClick={() => {
+                        setProfileFilter("all");
+                        setProfileSearch("");
+                      }}
+                    >
+                      {t("Сбросить")}
+                    </Button>
+                  ) : null}
+                </div>
+              )}
 
               <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
                 <DialogContent className="max-w-[min(86rem,calc(100vw-1rem))]" bodyClassName="gap-5 p-4 sm:p-5">
