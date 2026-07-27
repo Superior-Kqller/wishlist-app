@@ -217,6 +217,7 @@ export default function SettingsPage() {
                 initialTelegramId={user.telegramId}
                 initialTelegramLinkStatus={user.telegramLinkStatus}
                 initialTelegramNotificationsEnabled={Boolean(user.telegramNotificationsEnabled)}
+                initialCalendarNotificationsEnabled={Boolean(user.calendarNotificationsEnabled)}
                 initialBirthday={user.birthday}
                 initialGender={user.gender}
                 initialThematicHolidayConsent={Boolean(user.thematicHolidayConsent)}

@@ -74,7 +74,7 @@ export interface CalendarRangeQuery {
   rangeEnd: string;
 }
 
-function dateForRule(rule: HolidayRule, year: number): string {
+export function dateForRule(rule: HolidayRule, year: number): string {
   if (rule.kind === "FIXED") {
     return formatLocalDate(year, rule.month, rule.day);
   }

@@ -40,6 +40,7 @@ const updateProfileSchema = z.object({
   avatarUrl: z.string().max(2048).optional(),
   telegramId: z.union([telegramIdSchema, z.literal(""), z.null()]).optional(),
   telegramNotificationsEnabled: z.boolean().optional(),
+  calendarNotificationsEnabled: z.boolean().optional(),
   giftPreferences: giftPreferencesSchema.optional(),
   gender: profileGenderSchema.nullable().optional(),
   thematicHolidayConsent: z.boolean().optional(),
@@ -94,6 +95,7 @@ export async function GET(req: NextRequest) {
       telegramLinkedAt: true,
       telegramConfirmedAt: true,
       telegramNotificationsEnabled: true,
+      calendarNotificationsEnabled: true,
       giftPreferences: true,
       gender: true,
       thematicHolidayConsent: true,
@@ -152,6 +154,7 @@ export async function PATCH(req: NextRequest) {
       telegramLinkedAt?: Date | null;
       telegramConfirmedAt?: Date | null;
       telegramNotificationsEnabled?: boolean;
+      calendarNotificationsEnabled?: boolean;
       giftPreferences?: Prisma.InputJsonValue;
       gender?: ProfileGender | null;
       thematicHolidayConsent?: boolean;
@@ -179,6 +182,9 @@ export async function PATCH(req: NextRequest) {
 
     if (data.telegramNotificationsEnabled !== undefined) {
       updateData.telegramNotificationsEnabled = data.telegramNotificationsEnabled;
+    }
+    if (data.calendarNotificationsEnabled !== undefined) {
+      updateData.calendarNotificationsEnabled = data.calendarNotificationsEnabled;
     }
 
     if (data.giftPreferences !== undefined) {
@@ -241,6 +247,7 @@ export async function PATCH(req: NextRequest) {
       telegramLinkedAt: true,
       telegramConfirmedAt: true,
       telegramNotificationsEnabled: true,
+      calendarNotificationsEnabled: true,
       giftPreferences: true,
       gender: true,
       thematicHolidayConsent: true,

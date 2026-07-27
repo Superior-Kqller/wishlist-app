@@ -37,6 +37,12 @@ enum ProfileGender {
   FEMALE
 }
 
+enum CalendarReminderSourceType {
+  BIRTHDAY
+  PERSONAL
+  HOLIDAY
+}
+
 enum ItemStatus {
   AVAILABLE
   CLAIMED
@@ -54,6 +60,7 @@ model User {
   telegramLinkedAt DateTime?
   telegramConfirmedAt DateTime?
   telegramNotificationsEnabled Boolean @default(false)
+  calendarNotificationsEnabled Boolean @default(true)
   giftPreferences Json?
   gender        ProfileGender?
   thematicHolidayConsent Boolean @default(false)
@@ -65,6 +72,8 @@ model User {
   visibleBirthdays BirthdayViewer[] @relation("BirthdayViewer")
   personalEvents PersonalEvent[]
   visiblePersonalEvents PersonalEventViewer[]
+  calendarEventMutes CalendarEventMute[]
+  calendarReminderDeliveries CalendarReminderDelivery[]
   role          Role          @default(USER)
   items         Item[]
   claimedItems  Item[]         @relation("ItemClaimedByUser")
@@ -77,6 +86,31 @@ model User {
   @@index([username])
   @@index([role])
   @@index([telegramConfirmedAt])
+}
+
+model CalendarEventMute {
+  userId     String
+  user       User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceType CalendarReminderSourceType
+  sourceId   String
+  createdAt  DateTime                   @default(now())
+
+  @@id([userId, sourceType, sourceId])
+  @@index([sourceType, sourceId])
+}
+
+model CalendarReminderDelivery {
+  id             String                     @id @default(cuid())
+  recipientId    String
+  recipient      User                       @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  sourceType     CalendarReminderSourceType
+  sourceId       String
+  occurrenceDate String                     @db.VarChar(10)
+  checkpointDays Int
+  createdAt      DateTime                   @default(now())
+
+  @@unique([recipientId, sourceType, sourceId, occurrenceDate, checkpointDays])
+  @@index([occurrenceDate])
 }
 
 model PersonalEvent {

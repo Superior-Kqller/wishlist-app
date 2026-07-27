@@ -15,6 +15,7 @@ import {
   LayoutList,
   Loader2,
   PartyPopper,
+  BellOff,
 } from "lucide-react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -49,10 +50,14 @@ function EventRow({
   occurrence,
   locale,
   t,
+  muted,
+  onToggleMuted,
 }: {
   occurrence: CalendarOccurrence;
   locale: string;
   t: (value: string) => string;
+  muted: boolean;
+  onToggleMuted: () => void;
 }) {
   const Icon =
     occurrence.type === "BIRTHDAY"
@@ -101,6 +106,20 @@ function EventRow({
               month: "short",
             })}
           </time>
+          <button
+            type="button"
+            onClick={onToggleMuted}
+            aria-pressed={muted}
+            className={cn(
+              "inline-flex min-h-9 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition-colors",
+              muted
+                ? "border-primary/35 bg-primary/10 text-foreground"
+                : "border-border/60 text-muted-foreground hover:bg-accent",
+            )}
+          >
+            <BellOff className="h-3.5 w-3.5" aria-hidden />
+            {muted ? t("Напоминания выключены") : t("Не напоминать")}
+          </button>
         </div>
 
         {occurrence.type === "BIRTHDAY" && !occurrence.isOwn ? (
@@ -273,6 +292,9 @@ export default function CalendarPage() {
   const { data, isLoading, error, mutate } = useSWR<{
     occurrences: CalendarOccurrence[];
   }>(`/api/calendar?from=${year}-01-01&to=${year + 1}-12-31`, fetcher);
+  const { data: muteData, mutate: mutateMutes } = useSWR<{
+    mutedEventKeys: string[];
+  }>("/api/calendar/reminder-mutes", fetcher);
 
   const filtered = useMemo(
     () => filterCalendarOccurrences(data?.occurrences ?? [], filter),
@@ -302,6 +324,31 @@ export default function CalendarPage() {
     const next = new Date(year, month + delta, 1);
     setYear(next.getFullYear());
     setMonth(next.getMonth());
+  }
+
+  function reminderKey(occurrence: CalendarOccurrence): string {
+    const sourceId =
+      occurrence.type === "PERSONAL"
+        ? occurrence.sourceId
+        : occurrence.type === "BIRTHDAY"
+          ? occurrence.person.id
+          : occurrence.id.split(":")[1];
+    return `${occurrence.type}:${sourceId}`;
+  }
+
+  async function toggleReminderMute(occurrence: CalendarOccurrence) {
+    const key = reminderKey(occurrence);
+    const muted = muteData?.mutedEventKeys.includes(key) ?? false;
+    await fetch("/api/calendar/reminder-mutes", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sourceType: occurrence.type,
+        sourceId: key.slice(key.indexOf(":") + 1),
+        muted: !muted,
+      }),
+    });
+    await mutateMutes();
   }
 
   return (
@@ -447,7 +494,14 @@ export default function CalendarPage() {
                   </h2>
                   <div className="divide-y divide-border/55">
                     {entries.map((entry) => (
-                      <EventRow key={entry.id} occurrence={entry} locale={locale} t={t} />
+                      <EventRow
+                        key={entry.id}
+                        occurrence={entry}
+                        locale={locale}
+                        t={t}
+                        muted={muteData?.mutedEventKeys.includes(reminderKey(entry)) ?? false}
+                        onToggleMuted={() => void toggleReminderMute(entry)}
+                      />
                     ))}
                   </div>
                 </section>
@@ -472,7 +526,14 @@ export default function CalendarPage() {
               {historyOpen ? (
                 <div className="mt-3 divide-y divide-border/55 border-t border-border/55 pt-3">
                   {history.map((entry) => (
-                    <EventRow key={entry.id} occurrence={entry} locale={locale} t={t} />
+                    <EventRow
+                      key={entry.id}
+                      occurrence={entry}
+                      locale={locale}
+                      t={t}
+                      muted={muteData?.mutedEventKeys.includes(reminderKey(entry)) ?? false}
+                      onToggleMuted={() => void toggleReminderMute(entry)}
+                    />
                   ))}
                 </div>
               ) : null}

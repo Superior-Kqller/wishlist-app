@@ -29,6 +29,7 @@ interface ProfileFormProps {
   initialTelegramId?: string | null;
   initialTelegramLinkStatus?: "not_configured" | "pending" | "linked";
   initialTelegramNotificationsEnabled?: boolean;
+  initialCalendarNotificationsEnabled?: boolean;
   initialBirthday?: BirthdayProfile | null;
   initialGender?: ProfileGender | null;
   initialThematicHolidayConsent?: boolean;
@@ -52,6 +53,7 @@ export function ProfileForm({
   initialTelegramId,
   initialTelegramLinkStatus,
   initialTelegramNotificationsEnabled = false,
+  initialCalendarNotificationsEnabled = true,
   initialBirthday = null,
   initialGender = null,
   initialThematicHolidayConsent = false,
@@ -64,6 +66,9 @@ export function ProfileForm({
   const [telegramId, setTelegramId] = useState(initialTelegramId ?? "");
   const [telegramNotificationsEnabled, setTelegramNotificationsEnabled] = useState(
     initialTelegramNotificationsEnabled
+  );
+  const [calendarNotificationsEnabled, setCalendarNotificationsEnabled] = useState(
+    initialCalendarNotificationsEnabled,
   );
   const [birthdayEnabled, setBirthdayEnabled] = useState(Boolean(initialBirthday));
   const [gender, setGender] = useState<ProfileGender | "">(
@@ -101,6 +106,7 @@ export function ProfileForm({
       name.trim() !== initialName ||
       telegramId.trim() !== (initialTelegramId ?? "") ||
       telegramNotificationsEnabled !== initialTelegramNotificationsEnabled ||
+      calendarNotificationsEnabled !== initialCalendarNotificationsEnabled ||
       gender !== (initialGender ?? "") ||
       thematicHolidayConsent !== initialThematicHolidayConsent ||
       birthdayEnabled !== Boolean(initialBirthday) ||
@@ -124,6 +130,7 @@ export function ProfileForm({
     initialName,
     initialTelegramId,
     initialTelegramNotificationsEnabled,
+    initialCalendarNotificationsEnabled,
     initialGender,
     initialThematicHolidayConsent,
     initialBirthday,
@@ -135,6 +142,7 @@ export function ProfileForm({
     name,
     telegramId,
     telegramNotificationsEnabled,
+    calendarNotificationsEnabled,
     gender,
     thematicHolidayConsent,
     selectedViewerIds,
@@ -172,6 +180,7 @@ export function ProfileForm({
           name: name.trim(),
           telegramId: telegramId.trim() ? telegramId.trim() : null,
           telegramNotificationsEnabled,
+          calendarNotificationsEnabled,
           gender: gender || null,
           thematicHolidayConsent,
           birthday: birthdayEnabled
@@ -478,6 +487,24 @@ export function ProfileForm({
               <span
                 aria-hidden
                 className="relative h-6 w-11 shrink-0 rounded-full border border-border/70 bg-muted transition-colors after:absolute after:left-0.5 after:top-0.5 after:size-5 after:rounded-full after:bg-foreground/75 after:shadow-sm after:transition-transform peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-checked:border-primary/50 peer-checked:bg-primary/70 peer-checked:after:translate-x-5 peer-checked:after:bg-primary-foreground"
+              />
+            </label>
+            <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2))/0.36] px-3.5 py-2.5">
+              <span className="min-w-0">
+                <span className="block text-sm font-medium">
+                  {t("Напоминания календаря")}
+                </span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  {t("Получать в Telegram напоминания о доступных событиях")}
+                </span>
+              </span>
+              <input
+                type="checkbox"
+                className="size-4 shrink-0 accent-primary"
+                checked={calendarNotificationsEnabled}
+                onChange={(event) =>
+                  setCalendarNotificationsEnabled(event.target.checked)
+                }
               />
             </label>
           </div>
