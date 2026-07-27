@@ -113,6 +113,12 @@ model CalendarReminderDelivery {
   @@index([occurrenceDate])
 }
 
+model CalendarInstallationSettings {
+  id        Int      @id @default(1)
+  timeZone  String   @default("Europe/Moscow") @db.VarChar(100)
+  updatedAt DateTime @updatedAt
+}
+
 model PersonalEvent {
   id          String                  @id @default(cuid())
   ownerId     String

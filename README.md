@@ -142,3 +142,13 @@ Release history: [CHANGELOG.md](CHANGELOG.md).
 ## License
 
 [LICENSE](LICENSE)
+# Automatic calendar reminders
+
+The production Docker container processes calendar reminders automatically; no
+separate cron job or external calendar service is required. Processing starts
+after 10:00 in the installation time zone and is safe to repeat because delivered
+checkpoints are persisted.
+
+An administrator can set the installation IANA time zone (for example,
+`Europe/Moscow`) under Administration → Calendar reminders. The default is
+`Europe/Moscow`.

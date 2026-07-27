@@ -42,6 +42,13 @@ export interface CalendarTelegramAdapter {
   send(message: { chatId: string; text: string }): Promise<void>;
 }
 
+export interface CalendarReminderLogger {
+  deliveryError(error: unknown, context: {
+    sourceType: CalendarReminderSourceType;
+    checkpointDays: CalendarReminderCheckpoint;
+  }): void;
+}
+
 const CHECKPOINTS: CalendarReminderCheckpoint[] = [30, 21, 7, 0];
 
 function addDays(localDate: string, days: number): string {
@@ -87,16 +94,18 @@ function formatMessage(
 export function createCalendarReminderModule(
   repository: CalendarReminderRepository,
   telegram: CalendarTelegramAdapter,
+  logger?: CalendarReminderLogger,
 ) {
   return {
     async processDueReminders(input: {
       localDate: string;
       publicBaseUrl: string;
-    }): Promise<{ sent: number }> {
+    }): Promise<{ sent: number; failed: number }> {
       if (!parseLocalDate(input.localDate)) throw new Error("INVALID_LOCAL_DATE");
       const rangeEnd = addDays(input.localDate, 30);
       const events = await repository.listReminderEvents(input.localDate, rangeEnd);
       let sent = 0;
+      let failed = 0;
 
       for (const event of events) {
         if (!event.remindersEnabled) continue;
@@ -131,12 +140,17 @@ export function createCalendarReminderModule(
               text: formatMessage(event, recipient.id, checkpoint, input.publicBaseUrl),
             });
             sent += 1;
-          } catch {
+          } catch (error) {
+            failed += 1;
+            logger?.deliveryError(error, {
+              sourceType: delivery.sourceType,
+              checkpointDays: delivery.checkpointDays,
+            });
             await repository.releaseDelivery(delivery);
           }
         }
       }
-      return { sent };
+      return { sent, failed };
     },
   };
 }

@@ -188,13 +188,18 @@ describe("calendar reminder module", () => {
   it("освобождает бронь доставки после ошибки Telegram для будущего повтора", async () => {
     const repo = repository([event({ audienceUserIds: ["owner"] })]);
     const send = vi.fn().mockRejectedValueOnce(new Error("network")).mockResolvedValue(undefined);
-    const reminders = createCalendarReminderModule(repo, { send });
+    const deliveryError = vi.fn();
+    const reminders = createCalendarReminderModule(repo, { send }, { deliveryError });
     const input = { localDate: "2027-08-01", publicBaseUrl: "https://wishlist.example" };
 
     await reminders.processDueReminders(input);
     await reminders.processDueReminders(input);
 
     expect(repo.releaseDelivery).toHaveBeenCalledOnce();
+    expect(deliveryError).toHaveBeenCalledWith(expect.any(Error), {
+      sourceType: "PERSONAL",
+      checkpointDays: 30,
+    });
     expect(send).toHaveBeenCalledTimes(2);
   });
 });
