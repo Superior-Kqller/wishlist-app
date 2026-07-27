@@ -46,6 +46,7 @@ import { useWishlistUrlSync } from "@/hooks/use-wishlist-url-sync";
 import { useWishlistAddUrlDeepLink } from "@/hooks/use-wishlist-add-url-deeplink";
 import { useI18n } from "@/components/i18n/language-provider";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
+import { UpcomingCalendarCard } from "@/components/calendar/UpcomingCalendarCard";
 
 function HomePageContent() {
   const { t } = useI18n();
@@ -622,6 +623,7 @@ function HomePageContent() {
   return (
     <div className="min-h-screen page-bg">
       <div className={uiLayout.catalogCanvas}>
+        <UpcomingCalendarCard />
         <WishlistWorkspace
           search={search}
           onSearchChange={setSearch}

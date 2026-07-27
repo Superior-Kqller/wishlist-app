@@ -137,7 +137,7 @@ export function PersonalEventsPanel() {
               {t("Годовщины и другие важные даты с выбранной вами аудиторией")}
             </p>
           </div>
-          <Button type="button" onClick={openCreate}>
+          <Button type="button" onClick={openCreate} disabled={!!error}>
             <CalendarPlus className="mr-2 h-4 w-4" aria-hidden />
             {t("Добавить событие")}
           </Button>
@@ -148,7 +148,12 @@ export function PersonalEventsPanel() {
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" aria-label={t("Загрузка")} />
           </div>
         ) : error ? (
-          <p className="mt-4 text-sm text-destructive">{t("Не удалось загрузить личные события")}</p>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/35 bg-destructive/8 px-4 py-3">
+            <p className="text-sm text-destructive">{t("Не удалось загрузить личные события")}</p>
+            <Button type="button" variant="ghost" size="sm" onClick={() => void refresh()}>
+              {t("Повторить")}
+            </Button>
+          </div>
         ) : data?.events.length ? (
           <div className="mt-4 divide-y divide-border/55">
             {data.events.map((event) => (
