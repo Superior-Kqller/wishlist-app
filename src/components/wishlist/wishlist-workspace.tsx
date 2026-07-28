@@ -163,7 +163,9 @@ export function WishlistWorkspace({
 
   return (
     <>
-      <div className={`${uiSurface.homeToolbar} overflow-hidden`}>
+      <div
+        className={`${uiSurface.homeToolbar} overflow-hidden max-sm:gap-1.5 max-sm:rounded-xl max-sm:px-2 max-sm:py-2`}
+      >
         <div className="flex min-w-0 items-center gap-2 sm:hidden">
           <SearchField
             value={search}
@@ -203,11 +205,11 @@ export function WishlistWorkspace({
           </Button>
         </div>
 
-        <div className="grid min-w-0 grid-cols-2 gap-1 rounded-xl border border-border/45 bg-[hsl(var(--surface-2))/0.46] p-1 sm:hidden">
+        <div className="grid min-w-0 grid-cols-2 gap-1 border-t border-border/38 pt-1.5 sm:hidden">
           <Button
             variant="ghost"
             className={cn(
-              "h-10 min-w-0 gap-2 rounded-lg px-2 text-xs disabled:pointer-events-none disabled:opacity-100",
+              "h-9 min-w-0 gap-2 rounded-lg px-2 text-xs text-muted-foreground disabled:pointer-events-none disabled:opacity-100",
               selectionMode && "bg-primary/11 text-foreground",
             )}
             onClick={onToggleSelectionMode}
@@ -226,7 +228,7 @@ export function WishlistWorkspace({
               <Button
                 type="button"
                 variant="ghost"
-                className="h-10 min-w-0 gap-2 rounded-lg px-2 text-xs"
+                className="h-9 min-w-0 gap-2 rounded-lg px-2 text-xs text-muted-foreground"
                 aria-label={t("Ещё действия")}
               >
                 <MoreHorizontal className="h-4 w-4 shrink-0" />
