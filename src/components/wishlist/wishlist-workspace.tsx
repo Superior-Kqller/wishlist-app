@@ -157,14 +157,10 @@ export function WishlistWorkspace({
     : selectionMode
       ? t("Отменить выбор")
       : t("Выбрать карточки");
-  const selectionButtonLabel = selectionMode && !hasSelectedCards
-    ? t("Готово")
-    : t("Выбор");
-
   return (
     <>
       <div
-        className={`${uiSurface.homeToolbar} overflow-hidden max-sm:gap-1.5 max-sm:rounded-xl max-sm:px-2 max-sm:py-2`}
+        className={`${uiSurface.homeToolbar} overflow-hidden max-sm:rounded-xl max-sm:px-2 max-sm:py-2`}
       >
         <div className="flex min-w-0 items-center gap-2 sm:hidden">
           <SearchField
@@ -180,7 +176,7 @@ export function WishlistWorkspace({
             type="button"
             variant={hasActiveFilters ? "secondary" : "outline"}
             className={cn(
-              "relative h-11 shrink-0 gap-2 rounded-xl px-3 text-xs",
+              "relative h-11 w-11 shrink-0 rounded-xl p-0",
               hasActiveFilters
                 ? "border-primary/40 bg-primary/12 text-foreground"
                 : "border-border/58 bg-[hsl(var(--surface-3))/0.58]",
@@ -196,20 +192,16 @@ export function WishlistWorkspace({
             }
           >
             <SlidersHorizontal className="h-4 w-4 shrink-0" />
-            <span>{t("Фильтры")}</span>
             {hasActiveFilters ? (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
                 {activeFilterCount}
               </span>
             ) : null}
           </Button>
-        </div>
-
-        <div className="grid min-w-0 grid-cols-2 gap-1 border-t border-border/38 pt-1.5 sm:hidden">
           <Button
             variant="ghost"
             className={cn(
-              "h-9 min-w-0 gap-2 rounded-lg px-2 text-xs text-muted-foreground disabled:pointer-events-none disabled:opacity-100",
+              "h-11 w-11 shrink-0 rounded-xl p-0 text-muted-foreground disabled:pointer-events-none disabled:opacity-100",
               selectionMode && "bg-primary/11 text-foreground",
             )}
             onClick={onToggleSelectionMode}
@@ -218,9 +210,6 @@ export function WishlistWorkspace({
             aria-label={selectionButtonAriaLabel}
           >
             <CheckSquare className="h-4 w-4 shrink-0" />
-            <span className="min-w-0 truncate">
-              {selectionButtonLabel}
-            </span>
           </Button>
 
           <DropdownMenu>
@@ -228,11 +217,11 @@ export function WishlistWorkspace({
               <Button
                 type="button"
                 variant="ghost"
-                className="h-9 min-w-0 gap-2 rounded-lg px-2 text-xs text-muted-foreground"
+                className="h-11 w-11 shrink-0 rounded-xl p-0 text-muted-foreground"
                 aria-label={t("Ещё действия")}
+                title={t("Ещё действия")}
               >
                 <MoreHorizontal className="h-4 w-4 shrink-0" />
-                <span className="min-w-0 truncate">{t("Ещё")}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">

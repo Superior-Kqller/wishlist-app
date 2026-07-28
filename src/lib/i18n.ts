@@ -40,6 +40,7 @@ const en: Dictionary = {
   "Личное событие": "Personal event",
   "Ваш день рождения": "Your birthday",
   "Открыть вишлисты": "Open wishlists",
+  "Ближайшее событие": "Next event",
   "Ближайшие события": "Upcoming events",
   "Три следующих доступных вам события": "Your next three accessible events",
   "Весь календарь": "Full calendar",
