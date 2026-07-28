@@ -25,7 +25,7 @@ import type {
   PersonalEventRecord,
   PersonalEventInput,
   PersonalEventRecurrence,
-} from "@/lib/calendar/calendar-module";
+} from "@/lib/calendar/personal-events";
 
 interface AudienceUser {
   id: string;

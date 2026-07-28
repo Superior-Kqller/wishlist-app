@@ -1,61 +1,68 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
-import { holidayRuleSchema } from "@/lib/calendar/holiday-calendar";
-import type { HolidayActor, HolidayCatalogRepository } from "@/lib/calendar/holiday-catalog";
-import { createHoliday, updateHoliday } from "@/lib/calendar/holiday-catalog";
-
-const holidaySchema = z.object({
-  name: z.string().trim().min(1).max(120),
-  rule: holidayRuleSchema,
-  enabled: z.boolean(),
-  remindersEnabled: z.boolean(),
-  theme: z.enum(["MALE", "FEMALE"]).nullable(),
-});
+import type {
+  HolidayActor,
+  HolidayCatalog,
+} from "@/lib/calendar/holiday-catalog";
 
 interface Dependencies {
   getActor(): Promise<HolidayActor | null>;
-  repository: HolidayCatalogRepository;
+  catalog: HolidayCatalog;
 }
 
-function accessResponse(actor: HolidayActor | null) {
+function unauthorized(actor: HolidayActor | null) {
   if (!actor) return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
-  if (actor.role !== "ADMIN") {
+  return null;
+}
+
+function domainError(error: unknown) {
+  if (error instanceof Error && error.message === "FORBIDDEN") {
     return NextResponse.json({ error: "Недостаточно прав" }, { status: 403 });
   }
-  return null;
+  if (error instanceof Error && error.message === "INVALID_HOLIDAY") {
+    return NextResponse.json({ error: "Ошибка проверки данных" }, { status: 400 });
+  }
+  throw error;
 }
 
 export function createHolidayHandlers(dependencies: Dependencies) {
   return {
     GET: async () => {
       const actor = await dependencies.getActor();
-      const denied = accessResponse(actor);
+      const denied = unauthorized(actor);
       if (denied) return denied;
-      return NextResponse.json({ holidays: await dependencies.repository.list() });
+      try {
+        return NextResponse.json({
+          holidays: await dependencies.catalog.list(actor!),
+        });
+      } catch (error) {
+        return domainError(error);
+      }
     },
     POST: async (request: Request) => {
       const actor = await dependencies.getActor();
-      const denied = accessResponse(actor);
+      const denied = unauthorized(actor);
       if (denied) return denied;
-      const parsed = holidaySchema.safeParse(await request.json());
-      if (!parsed.success) {
-        return NextResponse.json({ error: "Ошибка проверки данных" }, { status: 400 });
+      try {
+        const holiday = await dependencies.catalog.create(
+          actor!,
+          await request.json(),
+        );
+        return NextResponse.json(holiday, { status: 201 });
+      } catch (error) {
+        return domainError(error);
       }
-      const holiday = await createHoliday(dependencies.repository, actor!, parsed.data);
-      return NextResponse.json(holiday, { status: 201 });
     },
     PATCH: async (request: Request, id: string) => {
       const actor = await dependencies.getActor();
-      const denied = accessResponse(actor);
+      const denied = unauthorized(actor);
       if (denied) return denied;
-      const body = await request.json();
-      const parsed = holidaySchema.partial().safeParse(body);
-      if (!parsed.success || Object.keys(parsed.data).length === 0) {
-        return NextResponse.json({ error: "Ошибка проверки данных" }, { status: 400 });
+      try {
+        return NextResponse.json(
+          await dependencies.catalog.update(actor!, id, await request.json()),
+        );
+      } catch (error) {
+        return domainError(error);
       }
-      return NextResponse.json(
-        await updateHoliday(dependencies.repository, actor!, id, parsed.data),
-      );
     },
   };
 }

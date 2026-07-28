@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   createCalendarReminderModule,
-  type CalendarReminderEvent,
   type CalendarReminderRepository,
 } from "./reminder-module";
+import type { ReminderEventFact } from "./calendar-events";
 
-function event(overrides: Partial<CalendarReminderEvent> = {}): CalendarReminderEvent {
+function event(overrides: Partial<ReminderEventFact> = {}): ReminderEventFact {
   return {
     sourceType: "PERSONAL",
     sourceId: "event-1",
@@ -15,12 +15,17 @@ function event(overrides: Partial<CalendarReminderEvent> = {}): CalendarReminder
     excludedRecipientIds: [],
     congratulated: [],
     wishlistLinksByRecipient: {},
-    remindersEnabled: true,
     ...overrides,
   };
 }
 
-function repository(events: CalendarReminderEvent[]): CalendarReminderRepository {
+function eventSource(events: ReminderEventFact[]) {
+  return {
+    reminderFacts: vi.fn().mockResolvedValue(events),
+  };
+}
+
+function repository(): CalendarReminderRepository {
   const deliveries = new Set<string>();
   const deliveryKey = (delivery: {
     recipientId: string;
@@ -37,7 +42,6 @@ function repository(events: CalendarReminderEvent[]): CalendarReminderRepository
       delivery.checkpointDays,
     ].join(":");
   return {
-    listReminderEvents: vi.fn().mockResolvedValue(events),
     listEligibleRecipients: vi.fn(async (userIds) =>
       [
         {
@@ -72,9 +76,10 @@ describe("calendar reminder module", () => {
   it.each([30, 21, 7, 0])(
     "отправляет напоминание в контрольной точке %i дней",
     async (checkpointDays) => {
-      const repo = repository([event()]);
+      const repo = repository();
+      const events = eventSource([event()]);
       const send = vi.fn().mockResolvedValue(undefined);
-      const reminders = createCalendarReminderModule(repo, { send });
+      const reminders = createCalendarReminderModule(events, repo, { send });
 
       await reminders.processDueReminders({
         localDate: `2027-08-${String(31 - checkpointDays).padStart(2, "0")}`,
@@ -88,7 +93,8 @@ describe("calendar reminder module", () => {
   );
 
   it("учитывает настройки, приглушение и исключения получателей", async () => {
-    const repo = repository([
+    const repo = repository();
+    const events = eventSource([
       event({
         sourceType: "BIRTHDAY",
         sourceId: "birthday-person",
@@ -130,7 +136,7 @@ describe("calendar reminder module", () => {
     ]);
     const send = vi.fn().mockResolvedValue(undefined);
 
-    await createCalendarReminderModule(repo, { send }).processDueReminders({
+    await createCalendarReminderModule(events, repo, { send }).processDueReminders({
       localDate: "2027-08-01",
       publicBaseUrl: "https://wishlist.example",
     });
@@ -140,9 +146,10 @@ describe("calendar reminder module", () => {
   });
 
   it("не дублирует доставку при повторном и конкурентном запуске", async () => {
-    const repo = repository([event()]);
+    const repo = repository();
+    const events = eventSource([event()]);
     const send = vi.fn().mockResolvedValue(undefined);
-    const reminders = createCalendarReminderModule(repo, { send });
+    const reminders = createCalendarReminderModule(events, repo, { send });
     const input = { localDate: "2027-08-01", publicBaseUrl: "https://wishlist.example" };
 
     await Promise.all([
@@ -154,15 +161,16 @@ describe("calendar reminder module", () => {
   });
 
   it("новый зритель получает только ещё не наступившие контрольные точки", async () => {
-    const repo = repository([event({ audienceUserIds: ["owner"] })]);
+    const repo = repository();
+    const events = eventSource([event({ audienceUserIds: ["owner"] })]);
     const send = vi.fn().mockResolvedValue(undefined);
-    const reminders = createCalendarReminderModule(repo, { send });
+    const reminders = createCalendarReminderModule(events, repo, { send });
 
     await reminders.processDueReminders({
       localDate: "2027-08-01",
       publicBaseUrl: "https://wishlist.example",
     });
-    repo.listReminderEvents = vi
+    events.reminderFacts = vi
       .fn()
       .mockResolvedValue([event({ audienceUserIds: ["owner", "new-viewer"] })]);
     repo.listEligibleRecipients = vi.fn().mockResolvedValue([
@@ -186,10 +194,11 @@ describe("calendar reminder module", () => {
   });
 
   it("освобождает бронь доставки после ошибки Telegram для будущего повтора", async () => {
-    const repo = repository([event({ audienceUserIds: ["owner"] })]);
+    const repo = repository();
+    const events = eventSource([event({ audienceUserIds: ["owner"] })]);
     const send = vi.fn().mockRejectedValueOnce(new Error("network")).mockResolvedValue(undefined);
     const deliveryError = vi.fn();
-    const reminders = createCalendarReminderModule(repo, { send }, { deliveryError });
+    const reminders = createCalendarReminderModule(events, repo, { send }, { deliveryError });
     const input = { localDate: "2027-08-01", publicBaseUrl: "https://wishlist.example" };
 
     await reminders.processDueReminders(input);

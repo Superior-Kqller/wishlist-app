@@ -1,15 +1,13 @@
 import { NextRequest } from "next/server";
 import { getSessionUserIdVerified } from "@/lib/auth-utils";
-import { createCalendarModule } from "@/lib/calendar/calendar-module";
-import { prismaCalendarRepository } from "@/lib/calendar/prisma-calendar-repository";
+import { personalEvents } from "@/lib/calendar/prisma-personal-events";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { createPersonalEventsHandlers } from "./events-handler";
 
-const calendar = createCalendarModule(prismaCalendarRepository);
 const handlers = createPersonalEventsHandlers({
   getActorId: getSessionUserIdVerified,
-  listOwnPersonalEvents: calendar.listOwnPersonalEvents,
-  createPersonalEvent: calendar.createPersonalEvent,
+  listOwnPersonalEvents: personalEvents.listOwn,
+  createPersonalEvent: personalEvents.create,
 });
 
 export async function GET(request: NextRequest) {

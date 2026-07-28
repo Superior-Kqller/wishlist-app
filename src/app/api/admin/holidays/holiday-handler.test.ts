@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import type { HolidayCatalogRepository } from "@/lib/calendar/holiday-catalog";
+import {
+  createHolidayCatalog,
+  type HolidayCatalogRepository,
+} from "@/lib/calendar/holiday-catalog";
 import { createHolidayHandlers } from "./holiday-handler";
 
 function repository(): HolidayCatalogRepository {
@@ -15,7 +18,7 @@ describe("/api/admin/holidays", () => {
     const repo = repository();
     const handlers = createHolidayHandlers({
       getActor: async () => ({ role: "USER" }),
-      repository: repo,
+      catalog: createHolidayCatalog(repo),
     });
     const response = await handlers.POST(
       new Request("http://localhost/api/admin/holidays", {
@@ -37,7 +40,7 @@ describe("/api/admin/holidays", () => {
     const repo = repository();
     const handlers = createHolidayHandlers({
       getActor: async () => ({ role: "ADMIN" }),
-      repository: repo,
+      catalog: createHolidayCatalog(repo),
     });
     const response = await handlers.POST(
       new Request("http://localhost/api/admin/holidays", {
@@ -59,7 +62,7 @@ describe("/api/admin/holidays", () => {
     const repo = repository();
     const handlers = createHolidayHandlers({
       getActor: async () => ({ role: "ADMIN" }),
-      repository: repo,
+      catalog: createHolidayCatalog(repo),
     });
     const response = await handlers.POST(
       new Request("http://localhost/api/admin/holidays", {

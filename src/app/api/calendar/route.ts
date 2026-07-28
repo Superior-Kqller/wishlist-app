@@ -1,23 +1,12 @@
 import { NextRequest } from "next/server";
 import { getSessionUserIdVerified } from "@/lib/auth-utils";
-import { createCalendarModule } from "@/lib/calendar/calendar-module";
-import { prismaCalendarRepository } from "@/lib/calendar/prisma-calendar-repository";
-import { listHolidayOccurrences } from "@/lib/calendar/holiday-calendar";
-import { prismaHolidayCalendarRepository } from "@/lib/calendar/prisma-holiday-repository";
+import { calendarEvents } from "@/lib/calendar/prisma-calendar-events";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { createCalendarGetHandler } from "./calendar-handler";
 
 const calendarGet = createCalendarGetHandler({
   getActorId: getSessionUserIdVerified,
-  listOccurrences: async (query) => {
-    const [calendarOccurrences, holidays] = await Promise.all([
-      createCalendarModule(prismaCalendarRepository).listOccurrences(query),
-      listHolidayOccurrences(prismaHolidayCalendarRepository, query),
-    ]);
-    return [...calendarOccurrences, ...holidays].sort(
-      (left, right) => left.date.localeCompare(right.date),
-    );
-  },
+  calendarFor: calendarEvents.calendarFor,
 });
 
 export async function GET(request: NextRequest) {

@@ -1,19 +1,14 @@
 import { parseLocalDate } from "./local-date";
+import type {
+  CalendarEventSourceType,
+  CalendarRange,
+  ReminderEventFact,
+} from "./calendar-events";
 
-export type CalendarReminderSourceType = "BIRTHDAY" | "PERSONAL" | "HOLIDAY";
+export type CalendarReminderSourceType = CalendarEventSourceType;
 export type CalendarReminderCheckpoint = 30 | 21 | 7 | 0;
 
-export interface CalendarReminderEvent {
-  sourceType: CalendarReminderSourceType;
-  sourceId: string;
-  occurrenceDate: string;
-  title: string;
-  audienceUserIds: string[];
-  excludedRecipientIds: string[];
-  congratulated: string[];
-  wishlistLinksByRecipient: Record<string, Array<{ label: string; href: string }>>;
-  remindersEnabled: boolean;
-}
+export type CalendarReminderEvent = ReminderEventFact;
 
 export interface CalendarReminderRecipient {
   id: string;
@@ -32,10 +27,13 @@ export interface CalendarReminderDelivery {
 }
 
 export interface CalendarReminderRepository {
-  listReminderEvents(rangeStart: string, rangeEnd: string): Promise<CalendarReminderEvent[]>;
   listEligibleRecipients(userIds: string[]): Promise<CalendarReminderRecipient[]>;
   claimDelivery(delivery: CalendarReminderDelivery): Promise<boolean>;
   releaseDelivery(delivery: CalendarReminderDelivery): Promise<void>;
+}
+
+export interface CalendarReminderEventSource {
+  reminderFacts(range: CalendarRange): Promise<ReminderEventFact[]>;
 }
 
 export interface CalendarTelegramAdapter {
@@ -92,6 +90,7 @@ function formatMessage(
 }
 
 export function createCalendarReminderModule(
+  eventSource: CalendarReminderEventSource,
   repository: CalendarReminderRepository,
   telegram: CalendarTelegramAdapter,
   logger?: CalendarReminderLogger,
@@ -103,12 +102,14 @@ export function createCalendarReminderModule(
     }): Promise<{ sent: number; failed: number }> {
       if (!parseLocalDate(input.localDate)) throw new Error("INVALID_LOCAL_DATE");
       const rangeEnd = addDays(input.localDate, 30);
-      const events = await repository.listReminderEvents(input.localDate, rangeEnd);
+      const events = await eventSource.reminderFacts({
+        rangeStart: input.localDate,
+        rangeEnd,
+      });
       let sent = 0;
       let failed = 0;
 
       for (const event of events) {
-        if (!event.remindersEnabled) continue;
         const checkpoint = daysBetween(input.localDate, event.occurrenceDate);
         if (checkpoint === null) continue;
         const recipients = await repository.listEligibleRecipients(event.audienceUserIds);

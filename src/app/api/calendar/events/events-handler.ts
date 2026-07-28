@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import type { PersonalEventInput, PersonalEventRecord } from "@/lib/calendar/calendar-module";
+import type {
+  PersonalEventInput,
+  PersonalEventRecord,
+} from "@/lib/calendar/personal-events";
 import { sanitizeError } from "@/lib/logger";
 
 const personalEventSchema = z.object({

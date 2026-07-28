@@ -1,6 +1,8 @@
-import type { BirthdayOccurrence } from "./birthday-calendar";
-import type { PersonalEventOccurrence } from "./calendar-module";
-import type { HolidayOccurrence } from "./holiday-calendar";
+import type {
+  BirthdayOccurrence,
+  HolidayOccurrence,
+  PersonalEventOccurrence,
+} from "./calendar-events";
 
 export type CalendarOccurrence =
   | BirthdayOccurrence

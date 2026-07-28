@@ -3,10 +3,10 @@ import { createCalendarGetHandler } from "./calendar-handler";
 
 describe("GET /api/calendar", () => {
   it("не раскрывает календарь без авторизации", async () => {
-    const listOccurrences = vi.fn();
+    const calendarFor = vi.fn();
     const GET = createCalendarGetHandler({
       getActorId: async () => null,
-      listOccurrences,
+      calendarFor,
     });
 
     const response = await GET(
@@ -15,13 +15,13 @@ describe("GET /api/calendar", () => {
 
     expect(response.status).toBe(401);
     expect(await response.json()).toEqual({ error: "Необходима авторизация" });
-    expect(listOccurrences).not.toHaveBeenCalled();
+    expect(calendarFor).not.toHaveBeenCalled();
   });
 
   it("отклоняет неверный диапазон локальных дат", async () => {
     const GET = createCalendarGetHandler({
       getActorId: async () => "actor-1",
-      listOccurrences: vi.fn(),
+      calendarFor: vi.fn(),
     });
 
     const response = await GET(
@@ -33,7 +33,7 @@ describe("GET /api/calendar", () => {
   });
 
   it("возвращает доступные вхождения в заданном диапазоне", async () => {
-    const listOccurrences = vi.fn().mockResolvedValue([
+    const calendarFor = vi.fn().mockResolvedValue([
       {
         id: "birthday:user-2:2027-04-10",
         type: "BIRTHDAY",
@@ -44,7 +44,7 @@ describe("GET /api/calendar", () => {
     ]);
     const GET = createCalendarGetHandler({
       getActorId: async () => "actor-1",
-      listOccurrences,
+      calendarFor,
     });
 
     const response = await GET(
@@ -63,15 +63,14 @@ describe("GET /api/calendar", () => {
         },
       ],
     });
-    expect(listOccurrences).toHaveBeenCalledWith({
-      actorId: "actor-1",
+    expect(calendarFor).toHaveBeenCalledWith("actor-1", {
       rangeStart: "2027-04-01",
       rangeEnd: "2027-04-30",
     });
   });
 
   it("возвращает поздравляемых без прямого раскрытия пола", async () => {
-    const listOccurrences = vi.fn().mockResolvedValue([
+    const calendarFor = vi.fn().mockResolvedValue([
       {
         id: "holiday:womens-day:2027-03-08",
         type: "HOLIDAY",
@@ -89,7 +88,7 @@ describe("GET /api/calendar", () => {
     ]);
     const GET = createCalendarGetHandler({
       getActorId: async () => "actor-1",
-      listOccurrences,
+      calendarFor,
     });
 
     const response = await GET(

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fetcher } from "@/lib/fetcher";
 import type { HolidayCatalogEntry } from "@/lib/calendar/holiday-catalog";
-import type { HolidayRule } from "@/lib/calendar/holiday-calendar";
+import type { HolidayRule } from "@/lib/calendar/holiday-rules";
 
 function changeFixedRule(
   rule: HolidayRule,

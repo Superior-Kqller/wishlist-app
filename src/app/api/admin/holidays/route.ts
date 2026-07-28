@@ -1,10 +1,10 @@
 import { getCurrentUserWithDbCheck } from "@/lib/auth-utils";
-import { prismaHolidayCatalogRepository } from "@/lib/calendar/prisma-holiday-repository";
+import { holidayCatalog } from "@/lib/calendar/prisma-holiday-catalog";
 import { createHolidayHandlers } from "./holiday-handler";
 
 const handlers = createHolidayHandlers({
   getActor: getCurrentUserWithDbCheck,
-  repository: prismaHolidayCatalogRepository,
+  catalog: holidayCatalog,
 });
 
 export const GET = handlers.GET;

@@ -49,6 +49,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.4",
     "@next/eslint-plugin-next": "^16.2.12",
     "@playwright/test": "^1.62.0",
     "@tailwindcss/postcss": "^4.3.3",

@@ -1,18 +1,14 @@
 import { NextResponse } from "next/server";
 import type {
-  BirthdayCalendarQuery,
-  BirthdayOccurrence,
-} from "@/lib/calendar/birthday-calendar";
-import type { PersonalEventOccurrence } from "@/lib/calendar/calendar-module";
-import type { HolidayOccurrence } from "@/lib/calendar/holiday-calendar";
+  CalendarOccurrence,
+  CalendarRange,
+} from "@/lib/calendar/calendar-events";
 import { sanitizeError } from "@/lib/logger";
 import { parseLocalDate } from "@/lib/calendar/local-date";
 
 interface CalendarGetDependencies {
   getActorId(): Promise<string | null>;
-  listOccurrences(query: BirthdayCalendarQuery): Promise<
-    Array<BirthdayOccurrence | HolidayOccurrence | PersonalEventOccurrence>
-  >;
+  calendarFor(actorId: string, range: CalendarRange): Promise<CalendarOccurrence[]>;
 }
 
 export function createCalendarGetHandler(dependencies: CalendarGetDependencies) {
@@ -36,8 +32,7 @@ export function createCalendarGetHandler(dependencies: CalendarGetDependencies) 
     }
 
     try {
-      const occurrences = await dependencies.listOccurrences({
-        actorId,
+      const occurrences = await dependencies.calendarFor(actorId, {
         rangeStart,
         rangeEnd,
       });
