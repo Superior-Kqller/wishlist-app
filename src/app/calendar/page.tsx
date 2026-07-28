@@ -172,7 +172,8 @@ function MonthGrid({
   const firstDay = new Date(year, month, 1);
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const leadingDays = (firstDay.getDay() + 6) % 7;
-  const byDate = new Map(groupCalendarOccurrences(occurrences));
+  const groupedMonth = groupCalendarOccurrences(occurrences);
+  const byDate = new Map(groupedMonth);
   const weekdayLabels = Array.from({ length: 7 }, (_, index) =>
     new Date(2026, 0, 5 + index).toLocaleDateString(locale, { weekday: "short" }),
   );
@@ -212,7 +213,10 @@ function MonthGrid({
             return (
               <div
                 key={date}
-                className="min-h-14 border-b border-r border-border/35 p-1 last:border-r-0 sm:min-h-28 sm:p-2"
+                className={cn(
+                  "min-h-14 border-b border-r border-border/35 p-1 last:border-r-0 sm:min-h-28 sm:p-2",
+                  entries.length > 0 && "bg-primary/[0.035]",
+                )}
                 role="gridcell"
                 aria-label={[
                   new Date(`${date}T12:00:00`).toLocaleDateString(locale, {
@@ -232,7 +236,7 @@ function MonthGrid({
                 >
                   {day}
                 </time>
-                <div className="mt-1 flex flex-wrap gap-1 sm:mt-1.5 sm:block sm:space-y-1">
+                <div className="mt-1 flex min-h-2 flex-wrap items-center gap-0.5 sm:mt-1.5 sm:block sm:space-y-1">
                   {entries.slice(0, 3).map((entry) => {
                     const href =
                       entry.type === "BIRTHDAY" && !entry.isOwn
@@ -251,7 +255,7 @@ function MonthGrid({
                       entry.type === "PERSONAL" && "bg-success/12 text-success",
                     );
                     const dotClassName = cn(
-                      "h-1.5 w-1.5 rounded-full sm:hidden",
+                      "inline-block h-1.5 w-1.5 shrink-0 rounded-full ring-2 ring-background sm:hidden",
                       entry.type === "BIRTHDAY" && "bg-info",
                       entry.type === "HOLIDAY" && "bg-primary",
                       entry.type === "PERSONAL" && "bg-success",
@@ -279,7 +283,7 @@ function MonthGrid({
                     );
                   })}
                   {entries.length > 3 ? (
-                    <p className="px-0.5 text-[9px] text-muted-foreground sm:px-1 sm:text-[11px]">
+                    <p className="px-0.5 text-[9px] font-semibold text-muted-foreground sm:px-1 sm:text-[11px]">
                       {t("Ещё")}: {entries.length - 3}
                     </p>
                   ) : null}
@@ -289,6 +293,65 @@ function MonthGrid({
           })}
         </div>
       </div>
+      {groupedMonth.length > 0 ? (
+        <div className="mt-3 border-t border-border/45 pt-3 sm:hidden">
+          <h3 className="mb-2 px-1 text-xs font-semibold text-muted-foreground">
+            {t("События месяца")}
+          </h3>
+          <div className="space-y-1">
+            {groupedMonth.flatMap(([date, entries]) =>
+              entries.map((entry) => {
+                const href =
+                  entry.type === "BIRTHDAY" && !entry.isOwn
+                    ? `/?userId=${entry.person.id}`
+                    : entry.type === "HOLIDAY" && entry.congratulated[0]?.wishlists[0]
+                      ? thematicWishlistHref(
+                          entry.congratulated[0].id,
+                          entry.congratulated[0].wishlists[0].id,
+                        )
+                      : null;
+                const content = (
+                  <>
+                    <time
+                      dateTime={date}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/9 text-xs font-semibold text-primary"
+                    >
+                      {Number(date.slice(-2))}
+                    </time>
+                    <span className="min-w-0 flex-1 truncate text-sm font-semibold">
+                      {getOccurrenceTitle(entry)}
+                    </span>
+                    <span
+                      className={cn(
+                        "h-2 w-2 shrink-0 rounded-full",
+                        entry.type === "BIRTHDAY" && "bg-info",
+                        entry.type === "HOLIDAY" && "bg-primary",
+                        entry.type === "PERSONAL" && "bg-success",
+                      )}
+                      aria-hidden
+                    />
+                  </>
+                );
+                const itemClassName =
+                  "flex min-h-11 items-center gap-3 rounded-xl px-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55";
+                return href ? (
+                  <Link
+                    key={`${date}:${entry.id}`}
+                    href={href}
+                    className={cn(itemClassName, "hover:bg-primary/7")}
+                  >
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={`${date}:${entry.id}`} className={itemClassName}>
+                    {content}
+                  </div>
+                );
+              }),
+            )}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

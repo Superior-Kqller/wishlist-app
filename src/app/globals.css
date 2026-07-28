@@ -127,8 +127,14 @@
     --canvas-cool-alpha: 0.11;
     --canvas-warm-alpha: 0.09;
     --canvas-primary-alpha: 0.08;
+    --canvas-neutral: var(--foreground);
+    --canvas-neutral-alpha: 0.08;
     --panel-cool-alpha: 0.035;
     --panel-warm-alpha: 0.025;
+    --panel-highlight: var(--foreground);
+    --panel-highlight-alpha: 0.035;
+    --panel-depth-alpha: 0.2;
+    --calendar-glow-alpha: 0.12;
     --interactive-glow-primary: 190 44% 48% / 0.16;
     --overlay-backdrop: 224 28% 4% / 0.68;
     --overlay-image-scrim: 224 28% 4% / 0.58;
@@ -181,8 +187,12 @@
     --canvas-cool-alpha: 0.14;
     --canvas-warm-alpha: 0.11;
     --canvas-primary-alpha: 0.09;
-    --panel-cool-alpha: 0.05;
-    --panel-warm-alpha: 0.035;
+    --canvas-neutral-alpha: 0.1;
+    --panel-cool-alpha: 0.075;
+    --panel-warm-alpha: 0.06;
+    --panel-highlight-alpha: 0.045;
+    --panel-depth-alpha: 0.3;
+    --calendar-glow-alpha: 0.2;
     --glass-bg: 224 14% 10% / 0.78;
     --glass-border: 224 11% 32% / 0.34;
     --interactive-glow-primary: 262 58% 62% / 0.16;
@@ -227,8 +237,14 @@
     --canvas-cool-alpha: 0.08;
     --canvas-warm-alpha: 0.065;
     --canvas-primary-alpha: 0.055;
-    --panel-cool-alpha: 0.055;
-    --panel-warm-alpha: 0.035;
+    --canvas-neutral: 263 56% 82%;
+    --canvas-neutral-alpha: 0.16;
+    --panel-cool-alpha: 0.07;
+    --panel-warm-alpha: 0.055;
+    --panel-highlight: 0 0% 100%;
+    --panel-highlight-alpha: 0.55;
+    --panel-depth-alpha: 0.44;
+    --calendar-glow-alpha: 0.12;
     --glass-bg: 250 24% 99% / 0.96;
     --glass-border: 240 14% 60% / 0.42;
     --interactive-glow-primary: 263 56% 45% / 0.1;
@@ -284,8 +300,12 @@
     --canvas-cool-alpha: 0.12;
     --canvas-warm-alpha: 0.1;
     --canvas-primary-alpha: 0.1;
+    --canvas-neutral-alpha: 0.08;
     --panel-cool-alpha: 0.045;
     --panel-warm-alpha: 0.04;
+    --panel-highlight-alpha: 0.045;
+    --panel-depth-alpha: 0.24;
+    --calendar-glow-alpha: 0.18;
     --glass-bg: 213 48% 12% / 0.84;
     --glass-border: 337 29% 51% / 0.24;
     --interactive-glow-primary: 349 79% 30% / 0.24;
@@ -357,6 +377,11 @@
   isolation: isolate;
   background-color: hsl(var(--background));
   background-image:
+    radial-gradient(
+      ellipse 54% 38% at 52% -12%,
+      hsl(var(--canvas-neutral) / var(--canvas-neutral-alpha)) 0%,
+      transparent 72%
+    ),
     radial-gradient(
       ellipse 76% 62% at 104% 94%,
       hsl(var(--theme-warm) / var(--canvas-warm-alpha)) 0%,
@@ -480,12 +505,27 @@
 
 .elevation-panel {
   box-shadow: var(--shadow-panel);
-  background-image: linear-gradient(
-    145deg,
-    hsl(var(--theme-cool) / var(--panel-cool-alpha)) 0%,
-    transparent 42%,
-    hsl(var(--theme-warm) / var(--panel-warm-alpha)) 100%
-  );
+  background-image:
+    linear-gradient(
+      180deg,
+      hsl(var(--panel-highlight) / var(--panel-highlight-alpha)) 0%,
+      transparent 22%
+    ),
+    radial-gradient(
+      circle at 0% 0%,
+      hsl(var(--theme-cool) / var(--panel-cool-alpha)) 0%,
+      transparent 48%
+    ),
+    radial-gradient(
+      circle at 100% 100%,
+      hsl(var(--theme-warm) / var(--panel-warm-alpha)) 0%,
+      transparent 52%
+    ),
+    linear-gradient(
+      145deg,
+      transparent 48%,
+      hsl(var(--surface-3) / var(--panel-depth-alpha)) 100%
+    );
 }
 
 .elevation-hero-panel {
@@ -527,6 +567,26 @@
       hsl(var(--primary) / 0.14) 78%,
       hsl(var(--theme-warm) / 0.1) 100%
     );
+}
+
+.calendar-preview-panel {
+  background:
+    radial-gradient(
+      circle at 8% 12%,
+      hsl(var(--theme-cool) / var(--calendar-glow-alpha)) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 96% 100%,
+      hsl(var(--theme-warm) / var(--calendar-glow-alpha)) 0%,
+      transparent 48%
+    ),
+    linear-gradient(
+      145deg,
+      hsl(var(--surface-2) / 0.98) 0%,
+      hsl(var(--surface-3) / 0.9) 100%
+    );
+  box-shadow: var(--shadow-hero-panel);
 }
 
 .home-toolbar-panel {

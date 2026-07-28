@@ -28,11 +28,11 @@ export function UpcomingCalendarCard() {
     <section
       className={cn(
         uiSurface.contentPanel,
-        "mb-3 overflow-hidden p-3 sm:mb-4 sm:p-5",
+        "calendar-preview-panel mb-3 overflow-hidden p-3 sm:mb-4 sm:p-5",
       )}
       aria-labelledby="upcoming-calendar-title"
     >
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 px-1">
         <div>
           <h2 id="upcoming-calendar-title" className="text-sm font-semibold sm:text-base">
             {t("Ближайшие события")}
@@ -44,10 +44,12 @@ export function UpcomingCalendarCard() {
         <Link
           href="/calendar"
           aria-label={t("Весь календарь")}
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-primary transition-colors hover:bg-primary/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 sm:h-10 sm:w-auto sm:gap-1.5 sm:px-3"
+          className="group inline-flex h-11 shrink-0 items-center gap-2 rounded-xl pl-3 pr-1.5 text-sm font-semibold text-primary transition-[background-color,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-primary/9 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 sm:h-10 sm:px-3"
         >
           <span className="max-sm:sr-only">{t("Весь календарь")}</span>
-          <ArrowRight className="h-4 w-4" aria-hidden />
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-0.5">
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </span>
         </Link>
       </div>
 
@@ -74,25 +76,51 @@ export function UpcomingCalendarCard() {
           {t("Ближайших событий пока нет")}
         </p>
       ) : (
-        <div className="mt-2 grid grid-cols-3 divide-x divide-border/55 rounded-xl bg-primary/[0.04] sm:mt-4 sm:gap-2 sm:divide-x-0 sm:bg-transparent">
+        <div className="mt-3 grid grid-cols-[1.35fr_0.9fr] grid-rows-2 gap-px overflow-hidden rounded-xl bg-border/50 ring-1 ring-foreground/[0.035] sm:mt-4 sm:grid-cols-3 sm:grid-rows-1 sm:gap-2 sm:bg-transparent sm:ring-0">
           {upcoming.map((occurrence) => {
             const title = getOccurrenceTitle(occurrence);
+            const isNext = occurrence.id === upcoming[0]?.id;
             return (
               <Link
                 key={occurrence.id}
                 href="/calendar"
-                className="group flex min-w-0 flex-col items-start gap-1 px-2 py-2.5 transition-colors hover:bg-primary/6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 sm:flex-row sm:items-center sm:gap-3 sm:rounded-xl sm:border sm:border-border/50 sm:bg-background/25 sm:p-3 sm:hover:border-primary/30"
+                className={cn(
+                  "group relative flex min-w-0 bg-[hsl(var(--surface-2))/0.9] transition-[background-color,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-[hsl(var(--surface-3))/0.96] active:scale-[0.985] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 sm:col-span-1 sm:row-span-1 sm:flex-row sm:items-center sm:justify-start sm:gap-3 sm:rounded-xl sm:border sm:border-border/50 sm:bg-background/25 sm:p-3 sm:hover:border-primary/30",
+                  isNext
+                    ? cn(
+                        "row-span-2 flex-col justify-between p-3.5",
+                        upcoming.length === 1 && "col-span-2",
+                      )
+                    : cn(
+                        "flex-col justify-center gap-1 px-3 py-2.5",
+                        upcoming.length === 2 && "row-span-2",
+                      ),
+                )}
               >
-                <span className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary sm:flex">
+                <span
+                  className={cn(
+                    "flex shrink-0 items-center justify-center bg-primary/10 text-primary",
+                    isNext ? "h-9 w-9 rounded-xl" : "hidden",
+                    "sm:flex sm:h-9 sm:w-9 sm:rounded-lg",
+                  )}
+                >
                   <CalendarDays className="h-4 w-4" aria-hidden />
                 </span>
-                <span className="flex min-w-0 flex-col-reverse sm:block">
-                  <span className="line-clamp-2 text-xs font-semibold leading-tight sm:block sm:truncate sm:text-sm">
+                <span className={cn("flex min-w-0 flex-col-reverse sm:block", isNext && "mt-4 sm:mt-0")}>
+                  <span
+                    className={cn(
+                      "line-clamp-2 font-semibold leading-tight sm:block sm:truncate sm:text-sm",
+                      isNext ? "text-sm" : "text-xs",
+                    )}
+                  >
                     {title}
                   </span>
                   <time
                     dateTime={occurrence.date}
-                    className="mb-1 block text-[11px] font-medium capitalize text-primary sm:mb-0 sm:text-xs sm:text-muted-foreground"
+                    className={cn(
+                      "mb-1 block font-medium capitalize text-primary sm:mb-0 sm:text-xs sm:text-muted-foreground",
+                      isNext ? "text-xs" : "text-[11px]",
+                    )}
                   >
                     {new Date(`${occurrence.date}T12:00:00`).toLocaleDateString(locale, {
                       day: "numeric",
