@@ -68,7 +68,7 @@ function EventRow({
   const title = getOccurrenceTitle(occurrence);
 
   return (
-    <article className="group flex gap-3 py-3 first:pt-0 last:pb-0">
+    <article className="group flex gap-2 py-2.5 first:pt-0 last:pb-0 sm:gap-3 sm:py-3">
       {occurrence.type === "BIRTHDAY" ? (
         <UserAvatar
           avatarUrl={occurrence.person.avatarUrl}
@@ -77,13 +77,13 @@ function EventRow({
           size="lg"
         />
       ) : (
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary sm:h-12 sm:w-12 sm:border sm:border-primary/20">
           <Icon className="h-5 w-5" aria-hidden />
         </span>
       )}
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="truncate font-semibold">{title}</p>
             <p className="text-sm text-muted-foreground">
               {occurrence.type === "HOLIDAY"
@@ -99,7 +99,7 @@ function EventRow({
           </div>
           <time
             dateTime={occurrence.date}
-            className="shrink-0 text-sm font-medium capitalize text-muted-foreground"
+            className="shrink-0 text-sm font-medium capitalize text-muted-foreground max-sm:hidden"
           >
             {new Date(`${occurrence.date}T12:00:00`).toLocaleDateString(locale, {
               day: "numeric",
@@ -111,14 +111,16 @@ function EventRow({
             onClick={onToggleMuted}
             aria-pressed={muted}
             className={cn(
-              "inline-flex min-h-9 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition-colors",
+              "inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition-colors sm:min-h-9 sm:min-w-0",
               muted
                 ? "border-primary/35 bg-primary/10 text-foreground"
                 : "border-border/60 text-muted-foreground hover:bg-accent",
             )}
           >
             <BellOff className="h-3.5 w-3.5" aria-hidden />
-            {muted ? t("Напоминания выключены") : t("Не напоминать")}
+            <span className="max-sm:sr-only">
+              {muted ? t("Напоминания выключены") : t("Не напоминать")}
+            </span>
           </button>
         </div>
 
@@ -182,12 +184,12 @@ function MonthGrid({
       aria-label={t("Месячная сетка календаря")}
       tabIndex={0}
     >
-      <div className="min-w-[42rem]" role="grid">
+      <div className="min-w-0 sm:min-w-[42rem]" role="grid">
         <div className="grid grid-cols-7 border-b border-border/55" role="row">
           {weekdayLabels.map((label) => (
             <div
               key={label}
-              className="px-2 pb-2 text-xs font-semibold capitalize text-muted-foreground"
+              className="px-0.5 pb-1.5 text-center text-[10px] font-semibold capitalize text-muted-foreground sm:px-2 sm:pb-2 sm:text-left sm:text-xs"
               role="columnheader"
             >
               {label}
@@ -198,7 +200,7 @@ function MonthGrid({
           {Array.from({ length: leadingDays }, (_, index) => (
             <div
               key={`empty:${index}`}
-              className="min-h-28 border-b border-r border-border/35"
+              className="min-h-14 border-b border-r border-border/35 sm:min-h-28"
               role="gridcell"
             />
           ))}
@@ -210,24 +212,27 @@ function MonthGrid({
             return (
               <div
                 key={date}
-                className="min-h-28 border-b border-r border-border/35 p-2 last:border-r-0"
+                className="min-h-14 border-b border-r border-border/35 p-1 last:border-r-0 sm:min-h-28 sm:p-2"
                 role="gridcell"
-                aria-label={new Date(`${date}T12:00:00`).toLocaleDateString(locale, {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
+                aria-label={[
+                  new Date(`${date}T12:00:00`).toLocaleDateString(locale, {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  }),
+                  ...entries.map(getOccurrenceTitle),
+                ].join(", ")}
               >
                 <time
                   dateTime={date}
                   className={cn(
-                    "inline-flex h-7 min-w-7 items-center justify-center rounded-lg px-1.5 text-sm font-semibold",
+                    "inline-flex h-6 min-w-6 items-center justify-center rounded-md px-1 text-xs font-semibold sm:h-7 sm:min-w-7 sm:rounded-lg sm:px-1.5 sm:text-sm",
                     isToday && "bg-primary text-primary-foreground",
                   )}
                 >
                   {day}
                 </time>
-                <div className="mt-1.5 space-y-1">
+                <div className="mt-1 flex flex-wrap gap-1 sm:mt-1.5 sm:block sm:space-y-1">
                   {entries.slice(0, 3).map((entry) => {
                     const href =
                       entry.type === "BIRTHDAY" && !entry.isOwn
@@ -245,27 +250,36 @@ function MonthGrid({
                       entry.type === "HOLIDAY" && "bg-primary/12 text-primary",
                       entry.type === "PERSONAL" && "bg-success/12 text-success",
                     );
-                    return href ? (
-                      <Link
-                        key={entry.id}
-                        href={href}
-                        title={getOccurrenceTitle(entry)}
-                        className={className}
-                      >
-                        {getOccurrenceTitle(entry)}
-                      </Link>
-                    ) : (
-                      <div
-                        key={entry.id}
-                        title={getOccurrenceTitle(entry)}
-                        className={className}
-                      >
-                        {getOccurrenceTitle(entry)}
-                      </div>
+                    const dotClassName = cn(
+                      "h-1.5 w-1.5 rounded-full sm:hidden",
+                      entry.type === "BIRTHDAY" && "bg-info",
+                      entry.type === "HOLIDAY" && "bg-primary",
+                      entry.type === "PERSONAL" && "bg-success",
+                    );
+                    return (
+                      <span key={entry.id}>
+                        <span className={dotClassName} aria-hidden />
+                        {href ? (
+                          <Link
+                            href={href}
+                            title={getOccurrenceTitle(entry)}
+                            className={cn(className, "max-sm:hidden")}
+                          >
+                            {getOccurrenceTitle(entry)}
+                          </Link>
+                        ) : (
+                          <span
+                            title={getOccurrenceTitle(entry)}
+                            className={cn(className, "max-sm:hidden")}
+                          >
+                            {getOccurrenceTitle(entry)}
+                          </span>
+                        )}
+                      </span>
                     );
                   })}
                   {entries.length > 3 ? (
-                    <p className="px-1 text-[11px] text-muted-foreground">
+                    <p className="px-0.5 text-[9px] text-muted-foreground sm:px-1 sm:text-[11px]">
                       {t("Ещё")}: {entries.length - 3}
                     </p>
                   ) : null}
@@ -353,7 +367,7 @@ export default function CalendarPage() {
 
   return (
     <PageShell>
-      <PageMain className="max-w-6xl">
+      <PageMain className="max-w-6xl max-sm:px-3 max-sm:py-4">
         {/* Extension of the existing product world: a scan-first planning surface,
             not a decorative calendar. The list leads on mobile; month context leads
             on wide screens. Filters and history stay visible without hiding tasks. */}
@@ -361,12 +375,13 @@ export default function CalendarPage() {
           <PageIntro
             title={t("Календарь")}
             description={t("Планируйте внимание и подарки к значимым датам")}
+            className="max-sm:border-0 max-sm:bg-transparent max-sm:px-1 max-sm:py-0 max-sm:shadow-none [&_p]:max-sm:hidden"
           />
 
-          <section className={cn(uiSurface.contentPanel, "p-3 sm:p-4")}>
+          <section className={cn(uiSurface.contentPanel, "p-2.5 sm:p-4")}>
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div
-                className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] max-sm:hidden [&::-webkit-scrollbar]:hidden"
                 aria-label={t("Фильтры календаря")}
               >
                 {FILTERS.map((option) => (
@@ -383,6 +398,20 @@ export default function CalendarPage() {
                   </Button>
                 ))}
               </div>
+              <label className="grid gap-1 text-xs font-medium text-muted-foreground sm:hidden">
+                <span>{t("Фильтр")}</span>
+                <select
+                  value={filter}
+                  onChange={(event) => setFilter(event.target.value as CalendarFilter)}
+                  className="h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground"
+                >
+                  {FILTERS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {t(option.label)}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <div className="flex items-center justify-between gap-2">
                 <div className="inline-flex rounded-lg border border-border/55 p-0.5">
                   <Button
@@ -440,7 +469,7 @@ export default function CalendarPage() {
               onAction={() => void mutate()}
             />
           ) : view === "month" ? (
-            <section className={cn(uiSurface.contentPanel, "overflow-hidden p-3 sm:p-4")}>
+            <section className={cn(uiSurface.contentPanel, "overflow-hidden p-2.5 sm:p-4")}>
               <div className="mb-4 flex items-center justify-between gap-3">
                 <Button
                   type="button"
@@ -484,8 +513,8 @@ export default function CalendarPage() {
           ) : (
             <div className="space-y-3">
               {groupedUpcoming.map(([date, entries]) => (
-                <section key={date} className={cn(uiSurface.contentPanel, "p-4 sm:p-5")}>
-                  <h2 className="mb-3 text-sm font-semibold capitalize text-muted-foreground">
+                <section key={date} className={cn(uiSurface.contentPanel, "p-3 sm:p-5")}>
+                  <h2 className="mb-2 text-xs font-semibold capitalize text-muted-foreground sm:mb-3 sm:text-sm">
                     {new Date(`${date}T12:00:00`).toLocaleDateString(locale, {
                       day: "numeric",
                       month: "long",

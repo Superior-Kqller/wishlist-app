@@ -129,17 +129,22 @@ export function PersonalEventsPanel() {
 
   return (
     <>
-      <section className={cn(uiSurface.contentPanel, "p-4 sm:p-5")}>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
+      <section className={cn(uiSurface.contentPanel, "p-3 sm:p-5")}>
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:items-start sm:gap-3">
+          <div className="min-w-0">
             <h2 className="font-semibold">{t("Мои личные события")}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-sm text-muted-foreground max-sm:hidden">
               {t("Годовщины и другие важные даты с выбранной вами аудиторией")}
             </p>
           </div>
-          <Button type="button" onClick={openCreate} disabled={!!error}>
-            <CalendarPlus className="mr-2 h-4 w-4" aria-hidden />
-            {t("Добавить событие")}
+          <Button
+            type="button"
+            onClick={openCreate}
+            disabled={!!error}
+            className="max-sm:h-11 max-sm:px-3"
+          >
+            <CalendarPlus className="h-4 w-4 sm:mr-2" aria-hidden />
+            <span className="max-sm:sr-only">{t("Добавить событие")}</span>
           </Button>
         </div>
 
@@ -174,7 +179,9 @@ export function PersonalEventsPanel() {
             ))}
           </div>
         ) : (
-          <p className="mt-4 text-sm text-muted-foreground">{t("Личных событий пока нет")}</p>
+          <p className="mt-2 text-sm text-muted-foreground sm:mt-4">
+            {t("Личных событий пока нет")}
+          </p>
         )}
       </section>
 

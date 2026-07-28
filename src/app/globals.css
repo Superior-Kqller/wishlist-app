@@ -124,6 +124,11 @@
     --glass-blur: 20px;
     --theme-cool: 190 44% 48%;
     --theme-warm: 344 34% 42%;
+    --canvas-cool-alpha: 0.11;
+    --canvas-warm-alpha: 0.09;
+    --canvas-primary-alpha: 0.08;
+    --panel-cool-alpha: 0.035;
+    --panel-warm-alpha: 0.025;
     --interactive-glow-primary: 190 44% 48% / 0.16;
     --overlay-backdrop: 224 28% 4% / 0.68;
     --overlay-image-scrim: 224 28% 4% / 0.58;
@@ -173,6 +178,11 @@
 
     --theme-warm: 286 45% 48%;
     --theme-cool: 262 58% 62%;
+    --canvas-cool-alpha: 0.14;
+    --canvas-warm-alpha: 0.11;
+    --canvas-primary-alpha: 0.09;
+    --panel-cool-alpha: 0.05;
+    --panel-warm-alpha: 0.035;
     --glass-bg: 224 14% 10% / 0.78;
     --glass-border: 224 11% 32% / 0.34;
     --interactive-glow-primary: 262 58% 62% / 0.16;
@@ -214,6 +224,11 @@
 
     --theme-cool: 263 56% 45%;
     --theme-warm: 326 34% 50%;
+    --canvas-cool-alpha: 0.08;
+    --canvas-warm-alpha: 0.065;
+    --canvas-primary-alpha: 0.055;
+    --panel-cool-alpha: 0.055;
+    --panel-warm-alpha: 0.035;
     --glass-bg: 250 24% 99% / 0.96;
     --glass-border: 240 14% 60% / 0.42;
     --interactive-glow-primary: 263 56% 45% / 0.1;
@@ -266,6 +281,11 @@
 
     --theme-cool: 202 65% 79%;
     --theme-warm: 337 29% 51%;
+    --canvas-cool-alpha: 0.12;
+    --canvas-warm-alpha: 0.1;
+    --canvas-primary-alpha: 0.1;
+    --panel-cool-alpha: 0.045;
+    --panel-warm-alpha: 0.04;
     --glass-bg: 213 48% 12% / 0.84;
     --glass-border: 337 29% 51% / 0.24;
     --interactive-glow-primary: 349 79% 30% / 0.24;
@@ -338,14 +358,19 @@
   background-color: hsl(var(--background));
   background-image:
     radial-gradient(
-      ellipse 72% 58% at 100% 100%,
-      hsl(var(--theme-warm) / 0.075) 0%,
-      transparent 70%
+      ellipse 76% 62% at 104% 94%,
+      hsl(var(--theme-warm) / var(--canvas-warm-alpha)) 0%,
+      transparent 68%
     ),
     radial-gradient(
-      ellipse 66% 52% at 8% -12%,
-      hsl(var(--primary) / 0.065) 0%,
-      transparent 68%
+      ellipse 68% 56% at -4% -8%,
+      hsl(var(--theme-cool) / var(--canvas-cool-alpha)) 0%,
+      transparent 66%
+    ),
+    radial-gradient(
+      ellipse 52% 44% at 68% 28%,
+      hsl(var(--primary) / var(--canvas-primary-alpha)) 0%,
+      transparent 72%
     );
   background-attachment: fixed;
 }
@@ -356,7 +381,6 @@
 
 .theme-light .app-canvas,
 .theme-light .page-bg {
-  background: hsl(var(--background));
   background-attachment: initial;
 }
 
@@ -456,6 +480,12 @@
 
 .elevation-panel {
   box-shadow: var(--shadow-panel);
+  background-image: linear-gradient(
+    145deg,
+    hsl(var(--theme-cool) / var(--panel-cool-alpha)) 0%,
+    transparent 42%,
+    hsl(var(--theme-warm) / var(--panel-warm-alpha)) 100%
+  );
 }
 
 .elevation-hero-panel {
@@ -519,7 +549,6 @@
   box-shadow: var(--shadow-interactive-card);
 }
 
-.theme-light .home-summary-panel,
 .theme-light .home-toolbar-panel {
   background: hsl(var(--surface-2));
 }
