@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg"
      width="1200" height="420" viewBox="0 0 1200 420"
      role="img" aria-labelledby="title desc">
-  <title id="title">Wishlist — self-hosted gift planning</title>
-  <desc id="desc">Shared wishlists with private reservations: gift-givers see who claimed an item while the list owner keeps the surprise.</desc>
+  <title id="title">Вишлист — планирование подарков на своём сервере</title>
+  <desc id="desc">Общие списки с тайной бронью: дарящие видят, кто забронировал подарок, а для владельца списка сохраняется сюрприз.</desc>
 
   <defs>
     <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
@@ -22,7 +22,7 @@
           fill="#8F68D8" opacity=".07"/>
 
     <g id="title-block" transform="translate(60 52)">
-      <g aria-label="Wishlist brand mark">
+      <g aria-label="Логотип Вишлиста">
         <rect width="50" height="50" rx="15" fill="url(#brand)"/>
         <path d="M25 10l3.9 9.3 10 .8-7.6 6.5 2.3 9.7-8.6-5.1-8.6 5.1 2.3-9.7-7.6-6.5 10-.8L25 10z"
               fill="#F7F2FF"/>
@@ -31,26 +31,26 @@
       <text x="70" y="31"
             fill="#A7B0BF"
             font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-            font-size="18" font-weight="700" letter-spacing="2">
-        SELF-HOSTED GIFT PLANNING
+            font-size="18" font-weight="700" letter-spacing="1.5">
+        СВОЙ СЕРВЕР · ПЛАНИРОВАНИЕ ПОДАРКОВ
       </text>
       <text x="0" y="132"
             fill="#F4F6FA"
             font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
-            font-size="78" font-weight="760" letter-spacing="-3">
-        Wishlist
+            font-size="78" font-weight="760" letter-spacing="-2.5">
+        Вишлист
       </text>
       <text x="0" y="185"
             fill="#C7CED9"
             font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
             font-size="27" font-weight="520">
-        Shared lists. Private reservations.
+        Общие списки. Тайная бронь.
       </text>
       <text x="0" y="224"
             fill="#C7CED9"
             font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
             font-size="27" font-weight="520">
-        No duplicate gifts.
+        Без повторных подарков.
       </text>
 
       <g transform="translate(0 284)"
@@ -72,14 +72,14 @@
         <text x="0" y="20"
               fill="#A7B0BF"
               font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-              font-size="17" font-weight="700" letter-spacing="1.3">
-          ONE WISH · TWO VIEWS
+              font-size="17" font-weight="700" letter-spacing="1">
+          ОДНО ЖЕЛАНИЕ · ДВА ВЗГЛЯДА
         </text>
         <text x="442" y="20"
               fill="#DDE2EA"
               font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
               font-size="18" font-weight="650" text-anchor="end">
-          Birthday ideas
+          День рождения
         </text>
         <line x1="0" y1="40" x2="442" y2="40" stroke="#343B4B"/>
 
@@ -92,13 +92,13 @@
                 fill="#F2F4F7"
                 font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
                 font-size="22" font-weight="680">
-            Concert tickets
+            Билеты на концерт
           </text>
           <text x="92" y="65"
                 fill="#A7B0BF"
                 font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
                 font-size="17" font-weight="650">
-            PRIORITY · WOULD BE GREAT
+            ПРИОРИТЕТ · БЫЛО БЫ ЗДОРОВО
           </text>
           <path d="M410 34l8 8-8 8" fill="none" stroke="#697386" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round"/>
@@ -110,7 +110,7 @@
                 fill="#B9A4E7"
                 font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
                 font-size="16" font-weight="700">
-            GIFT-GIVERS
+            ДЛЯ ДАРЯЩИХ
           </text>
           <circle cx="28" cy="55" r="11" fill="#A887EE"/>
           <path d="M23 55l4 4 7-9" fill="none" stroke="#0E1119" stroke-width="2.5"
@@ -119,7 +119,7 @@
                 fill="#F0EBFA"
                 font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
                 font-size="20" font-weight="680">
-            Claimed by Alex
+            Бронь: Саша
           </text>
         </g>
 
@@ -129,7 +129,7 @@
                 fill="#86CAD3"
                 font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
                 font-size="16" font-weight="700">
-            LIST OWNER
+            ДЛЯ ВЛАДЕЛЬЦА
           </text>
           <circle cx="28" cy="55" r="11" fill="#55B8C5"/>
           <path d="M23 55h10" stroke="#0E1119" stroke-width="2.5" stroke-linecap="round"/>
@@ -137,7 +137,7 @@
                 fill="#D5F0F3"
                 font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
                 font-size="20" font-weight="680">
-            Claim stays hidden
+            Бронь не видна
           </text>
         </g>
 
@@ -148,13 +148,13 @@
                 fill="#C9D1DC"
                 font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
                 font-size="18" font-weight="620">
-            12 Oct reminder
+            Напомнить 12 октября
           </text>
-          <path d="M217 14h32" stroke="#475163" stroke-width="2" stroke-linecap="round"/>
-          <path d="M242 8l8 6-8 6" fill="none" stroke="#697386" stroke-width="2"
+          <path d="M236 14h20" stroke="#475163" stroke-width="2" stroke-linecap="round"/>
+          <path d="M249 8l8 6-8 6" fill="none" stroke="#697386" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M274 7l17 7-17 7 4-7z" fill="#A887EE"/>
-          <text x="302" y="21"
+          <path d="M280 7l17 7-17 7 4-7z" fill="#A887EE"/>
+          <text x="308" y="21"
                 fill="#E0E4EB"
                 font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
                 font-size="18" font-weight="650">

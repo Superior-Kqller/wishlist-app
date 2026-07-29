@@ -1,28 +1,35 @@
-<p align="center">
-  <img src="public/assets/logo/logo-mark-1.8.0-512.png" alt="Логотип Вишлиста" width="96">
+<p align="right">
+  <a href="./README.md">English</a>
 </p>
 
-<h1 align="center">Вишлист</h1>
-
-Self-hosted приложение для личных и общих списков желаний. Добавляйте идеи подарков с фото и ценами, делитесь списками, бронируйте позиции, отмечайте покупки и держите планирование подарков в одном месте.
-
 <p align="center">
-  <img src="assets/readme-home-desktop.png" alt="Каталог Вишлиста на desktop с демо-данными" width="920">
+  <img src="./assets/readme/hero-ru.svg" width="100%" alt="Вишлист — общие списки желаний, тайная бронь подарков и планирование на своём сервере">
 </p>
 
-## Возможности
+Вишлист — self-hosted веб-приложение для семьи, друзей и небольших команд. Оно собирает идеи, предпочтения, важные даты и подготовку подарков в одном месте — без бесконечного поиска по перепискам.
 
-- личные и общие вишлисты;
-- бронирование подарков без дублей;
-- статусы: доступно, забронировано, куплено;
-- фото товаров, ссылки, заметки, теги, приоритеты и цены;
-- поиск, фильтры, сортировка, карточки и таблица;
-- роли пользователей, админ-панель, экспорт в CSV/JSON и PWA для телефона;
-- опциональные Telegram-уведомления и команды бота.
+<p align="center">
+  <img src="./assets/readme-home-desktop.png" width="100%" alt="Каталог Вишлиста с общими списками, фильтрами, приоритетами, ценами и карточками желаний">
+</p>
 
-## Стек
+## Весь путь подарка в одном месте
 
-Next.js, React, TypeScript, Prisma, PostgreSQL или встроенный PGlite, NextAuth, Tailwind CSS, Radix UI, опциональный Valkey/Redis, Docker Compose.
+- **Сохраняйте идеи** — создавайте личные и общие списки со ссылками, фото, ценами, заметками, категориями и приоритетами.
+- **Выбирайте без спойлеров** — тайно бронируйте желание: другие дарящие не купят то же самое, а владелец списка не узнает, кто готовит подарок.
+- **Планируйте по людям и датам** — учитывайте предпочтения, дни рождения, личные события, общие праздники и автоматические напоминания.
+- **Держите всех в курсе** — отмечайте покупки, обсуждайте изменения, экспортируйте данные и при необходимости подключайте Telegram.
+
+Доступны карточный и табличный виды, поиск, фильтры, сортировка, роли, админ-панель, русский и английский интерфейс и установка как мобильного PWA.
+
+## Выберите подходящий режим
+
+| Режим | Для чего подходит | База данных |
+| --- | --- | --- |
+| **Docker Compose** | Постоянная домашняя или серверная установка | PostgreSQL в отдельном контейнере |
+| **Один контейнер** | Компактная личная установка | Встроенный PGlite в Docker volume |
+| **Разработка** | Локальная доработка и тестирование | Локальный PostgreSQL |
+
+Valkey/Redis не обязателен. Без него ограничение частоты запросов работает в памяти процесса приложения.
 
 ## Быстрый запуск
 
@@ -32,12 +39,12 @@ Next.js, React, TypeScript, Prisma, PostgreSQL или встроенный PGlit
 git clone https://github.com/Superior-Kqller/wishlist-app.git
 cd wishlist-app
 cp .env.example .env
+openssl rand -base64 32
 ```
 
-Заполните `.env`: задайте сильные пароли, `NEXTAUTH_SECRET` и `NEXTAUTH_URL`. Все обязательные и опциональные переменные описаны в [.env.example](.env.example); необязательные настройки там закомментированы.
+Задайте в `.env` надёжные значения `DB_PASSWORD`, `NEXTAUTH_SECRET` и `NEXTAUTH_URL`, затем запустите вариант с PostgreSQL:
 
 ```bash
-openssl rand -base64 32
 docker network create proxy
 docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
@@ -45,20 +52,52 @@ docker compose -f docker-compose.prod.yml up -d
 
 Откройте `http://127.0.0.1:4030`.
 
-Если нужна БД прямо в контейнере приложения без отдельного PostgreSQL-сервиса, используйте PGlite-вариант:
+Для установки в одном контейнере с PGlite:
 
 ```bash
 docker compose -f docker-compose.pglite.yml pull
 docker compose -f docker-compose.pglite.yml up -d
 ```
 
-В этом режиме `DB_PASSWORD` не нужен, а данные БД хранятся в Docker volume `pglite-data`.
+В режиме PGlite переменная `DB_PASSWORD` не нужна, а файлы базы хранятся в Docker volume `pglite-data`.
 
-Valkey не обязателен: без него rate limiting работает в памяти процесса. Если нужен общий Redis/Valkey-счетчик лимитов, запускайте production с дополнительным compose-файлом:
+Все обязательные и дополнительные настройки — Telegram, reverse proxy, начальные пользователи и Valkey — описаны в [`.env.example`](./.env.example).
+
+<details>
+<summary><strong>Подключить общий счётчик Valkey/Redis</strong></summary>
 
 ```bash
-docker compose -f docker-compose.prod.yml -f docker-compose.valkey.yml up -d
+docker compose \
+  -f docker-compose.prod.yml \
+  -f docker-compose.valkey.yml \
+  up -d
 ```
+
+</details>
+
+## Напоминания календаря
+
+Production-контейнер сам обрабатывает напоминания: отдельный cron или внешний календарный сервис не нужен. Контрольные точки сохраняются, поэтому повторная обработка не дублирует уведомления.
+
+Администратор выбирает IANA-временную зону в разделе **Администрирование → Напоминания календаря**. Начальное значение — `Europe/Moscow`.
+
+## Эксплуатация
+
+Состояние приложения доступно на `/api/health`, версия — на `/api/version`. Данные PostgreSQL и загруженные изображения хранятся в Docker volumes.
+
+<details>
+<summary><strong>Основные Docker-команды</strong></summary>
+
+```bash
+docker compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml logs -f wishlist-app
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Для PGlite замените `docker-compose.prod.yml` на `docker-compose.pglite.yml`.
+
+</details>
 
 ## Локальная разработка
 
@@ -72,87 +111,38 @@ npm run db:seed
 npm run dev
 ```
 
-Для локального запуска укажите в `.env` локальный `DATABASE_URL`, `NEXTAUTH_URL=http://localhost:3000` и `DISABLE_PWA=1`.
+Используйте локальный `DATABASE_URL`, задайте `NEXTAUTH_URL=http://localhost:3000` и добавьте `DISABLE_PWA=1` в `.env`.
 
-Чтобы быстро поднять только инфраструктуру для разработки:
+Чтобы поднять только локальную базу:
 
 ```bash
 docker compose -f docker-compose.dev.yml up -d
 ```
 
-По умолчанию это только PostgreSQL на `localhost:5432`. Если нужен локальный Valkey:
+Если нужен локальный Valkey, добавьте `--profile cache` и задайте `REDIS_URL=redis://localhost:6379`.
 
-```bash
-docker compose -f docker-compose.dev.yml --profile cache up -d
-```
-
-Тогда для приложения вне Docker можно указать `REDIS_URL=redis://localhost:6379`.
-
-## Настройка
-
-Источник правды по переменным окружения — [.env.example](.env.example). Там же описаны:
-
-- обязательные значения для Docker-запуска;
-- локальная разработка;
-- Telegram-бот и webhook;
-- reverse proxy;
-- опциональный Redis/Valkey;
-- seed-пользователи.
-
-Минимум для production:
-
-- `DB_PASSWORD`
-- `NEXTAUTH_SECRET`
-- `NEXTAUTH_URL`
-- `APP_PORT`
-- `SEED_USER1_*` и `SEED_USER2_*`
-
-## Эксплуатация
-
-Полезные команды:
-
-```bash
-docker compose -f docker-compose.prod.yml ps
-docker compose -f docker-compose.prod.yml logs -f wishlist-app
-docker compose -f docker-compose.prod.yml pull
-docker compose -f docker-compose.prod.yml up -d
-```
-
-Healthcheck доступен на `/api/health`, версия приложения — на `/api/version`. База и загруженные изображения хранятся в Docker volumes; socket Valkey добавляется только при запуске с `docker-compose.valkey.yml`.
-
-Для одно-контейнерного режима с PGlite используйте:
-
-```bash
-docker compose -f docker-compose.pglite.yml ps
-docker compose -f docker-compose.pglite.yml logs -f wishlist-app
-docker compose -f docker-compose.pglite.yml pull
-docker compose -f docker-compose.pglite.yml up -d
-```
-
-## Команды разработки
+<details>
+<summary><strong>Команды разработки</strong></summary>
 
 | Команда | Что делает |
 | --- | --- |
-| `npm run dev` | Запускает dev-сервер. |
-| `npm run build` | Собирает production-версию. |
-| `npm start` | Запускает собранное приложение. |
-| `npm run lint` | Запускает ESLint. |
-| `npm test` | Запускает unit-тесты. |
-| `npm run test:e2e` | Запускает Playwright e2e-тесты. |
-| `npm run db:seed` | Создает начальных пользователей. |
-| `npm run db:studio` | Открывает Prisma Studio. |
+| `npm run dev` | Запускает dev-сервер |
+| `npm run build` | Собирает production-версию |
+| `npm start` | Запускает собранное приложение |
+| `npm run lint` | Запускает ESLint |
+| `npm test` | Запускает unit-тесты |
+| `npm run test:e2e` | Запускает end-to-end тесты Playwright |
+| `npm run db:seed` | Создаёт начальных пользователей |
+| `npm run db:studio` | Открывает Prisma Studio |
 
-История изменений: [CHANGELOG.md](CHANGELOG.md).
+</details>
+
+## Стек
+
+Next.js · React · TypeScript · Prisma · PostgreSQL / PGlite · NextAuth · Tailwind CSS · Radix UI · Docker Compose · опциональный Valkey/Redis
+
+История изменений — в [CHANGELOG.md](./CHANGELOG.md).
 
 ## Лицензия
 
-[LICENSE](LICENSE)
-# Автоматические напоминания календаря
-
-Производственный Docker-контейнер сам проверяет календарные напоминания — отдельный
-cron или внешний календарный сервис не нужен. Проверка выполняется после 10:00 по
-локальной дате установки и повторяется безопасно: уже отправленные контрольные точки
-не дублируются.
-
-Администратор выбирает IANA-временную зону (например, `Europe/Moscow`) в разделе
-«Администрирование» → «Напоминания календаря». Начальное значение — `Europe/Moscow`.
+[MIT](./LICENSE)
