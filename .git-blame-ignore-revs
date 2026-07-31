@@ -1,0 +1,6 @@
+# Коммиты только с форматированием — их надо пропускать в git blame.
+# Локально включить: git config blame.ignoreRevsFile .git-blame-ignore-revs
+# GitHub подхватывает этот файл автоматически.
+
+# style: apply prettier to the whole tree
+737fd4df951ba5693dd52ce64b0f01aa685f2f9e
