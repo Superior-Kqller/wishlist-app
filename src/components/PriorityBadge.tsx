@@ -22,7 +22,7 @@ export function PriorityBadge({ priority, className }: PriorityBadgeProps) {
       className={cn(
         "inline-flex items-center gap-1.5 border text-xs font-medium",
         priorityBadgeToneByPriority[normalizedPriority],
-        className
+        className,
       )}
       data-testid="priority-badge"
       aria-label={`${t("Приоритет")}: ${label}`}

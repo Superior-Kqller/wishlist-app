@@ -40,4 +40,3 @@ export interface TelegramInlineButton {
 export interface TelegramReplyMarkup {
   inline_keyboard: TelegramInlineButton[][];
 }
-

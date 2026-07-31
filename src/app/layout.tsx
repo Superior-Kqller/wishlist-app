@@ -4,17 +4,8 @@ import { JetBrains_Mono, Manrope } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AppShell } from "@/components/app/app-shell";
-import {
-  LANGUAGE_COOKIE_NAME,
-  appMetadataCopy,
-  normalizeLanguage,
-  translate,
-} from "@/lib/i18n";
-import {
-  COLOR_THEME_STORAGE_KEY,
-  DEFAULT_COLOR_THEME,
-  colorThemes,
-} from "@/lib/themes";
+import { LANGUAGE_COOKIE_NAME, appMetadataCopy, normalizeLanguage, translate } from "@/lib/i18n";
+import { COLOR_THEME_STORAGE_KEY, DEFAULT_COLOR_THEME, colorThemes } from "@/lib/themes";
 
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
@@ -30,9 +21,11 @@ const jetbrainsMono = JetBrains_Mono({
   fallback: ["Consolas", "monospace"],
 });
 
-const colorThemeClassMap = colorThemes.map(
-  ({ value, className, colorScheme }) => ({ value, className, colorScheme }),
-);
+const colorThemeClassMap = colorThemes.map(({ value, className, colorScheme }) => ({
+  value,
+  className,
+  colorScheme,
+}));
 
 const colorThemeBootScript = `(() => {
   try {
@@ -98,11 +91,7 @@ export const viewport: Viewport = {
   themeColor: "#0E1119",
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const language = await getRequestLanguage();
   const skipLabel = translate(language, "К основному содержимому");
 

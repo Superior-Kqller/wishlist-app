@@ -41,8 +41,7 @@ const PRIORITY_ORDER = [5, 4, 3, 2, 1] as const;
 function StatsWishlistValueBlock({ stats }: { stats: UserStats }) {
   const { language } = useI18n();
   const fallbackCur = stats.currency || "RUB";
-  const hasBreakdown =
-    stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
+  const hasBreakdown = stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
   if (!hasBreakdown) {
     return (
       <p className="text-2xl font-bold">
@@ -50,19 +49,15 @@ function StatsWishlistValueBlock({ stats }: { stats: UserStats }) {
       </p>
     );
   }
-  const unpurchasedEntries = sortCurrencyTotalsEntries(
-    stats.pricesByCurrency,
-  ).filter(([, v]) => v.unpurchased > 0);
+  const unpurchasedEntries = sortCurrencyTotalsEntries(stats.pricesByCurrency).filter(
+    ([, v]) => v.unpurchased > 0,
+  );
   if (unpurchasedEntries.length === 0) {
-    return (
-      <p className="text-2xl font-bold">{formatPrice(0, fallbackCur, language)}</p>
-    );
+    return <p className="text-2xl font-bold">{formatPrice(0, fallbackCur, language)}</p>;
   }
   if (unpurchasedEntries.length === 1) {
     const [c, v] = unpurchasedEntries[0];
-    return (
-      <p className="text-2xl font-bold">{formatPrice(v.unpurchased, c, language)}</p>
-    );
+    return <p className="text-2xl font-bold">{formatPrice(v.unpurchased, c, language)}</p>;
   }
   return (
     <div className="space-y-1">
@@ -77,25 +72,19 @@ function StatsWishlistValueBlock({ stats }: { stats: UserStats }) {
 
 function StatsPurchasedValueBlock({ stats }: { stats: UserStats }) {
   const { language } = useI18n();
-  const hasBreakdown =
-    stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
+  const hasBreakdown = stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
   if (!hasBreakdown) {
     const summary = formatStatsPurchasedSummary(stats, language);
-    return (
-      <p className="text-lg font-semibold text-muted-foreground">{summary}</p>
-    );
+    return <p className="text-lg font-semibold text-muted-foreground">{summary}</p>;
   }
-  const purchasedEntries = sortCurrencyTotalsEntries(
-    stats.pricesByCurrency,
-  ).filter(([, v]) => v.purchased > 0);
+  const purchasedEntries = sortCurrencyTotalsEntries(stats.pricesByCurrency).filter(
+    ([, v]) => v.purchased > 0,
+  );
   if (purchasedEntries.length > 1) {
     return (
       <div className="space-y-1">
         {purchasedEntries.map(([c, v]) => (
-          <p
-            key={c}
-            className="text-lg font-semibold text-muted-foreground tabular-nums"
-          >
+          <p key={c} className="text-lg font-semibold text-muted-foreground tabular-nums">
             {formatPrice(v.purchased, c)}
           </p>
         ))}
@@ -103,9 +92,7 @@ function StatsPurchasedValueBlock({ stats }: { stats: UserStats }) {
     );
   }
   const summary = formatStatsPurchasedSummary(stats, language);
-  return (
-    <p className="text-lg font-semibold text-muted-foreground">{summary}</p>
-  );
+  return <p className="text-lg font-semibold text-muted-foreground">{summary}</p>;
 }
 
 function MobileParticipantRow({ user }: { user: UserWithStats }) {
@@ -124,12 +111,9 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
           size="md"
         />
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold text-foreground">
-            {user.name}
-          </span>
+          <span className="block truncate text-sm font-semibold text-foreground">{user.name}</span>
           <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-            @{user.username} · {user.stats.unpurchasedItems}{" "}
-            {t("Активных желаний").toLowerCase()}
+            @{user.username} · {user.stats.unpurchasedItems} {t("Активных желаний").toLowerCase()}
           </span>
         </span>
         <span className="min-w-0 max-w-[7.75rem] text-right">
@@ -156,25 +140,17 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
 
         <div className="grid grid-cols-3 divide-x divide-border/55">
           <div className="pr-2.5">
-            <p className="text-[10px] leading-tight text-muted-foreground">
-              {t("Всего товаров")}
-            </p>
-            <p className="mt-1 text-base font-semibold tabular-nums">
-              {user.stats.totalItems}
-            </p>
+            <p className="text-[10px] leading-tight text-muted-foreground">{t("Всего товаров")}</p>
+            <p className="mt-1 text-base font-semibold tabular-nums">{user.stats.totalItems}</p>
           </div>
           <div className="px-2.5">
-            <p className="text-[10px] leading-tight text-muted-foreground">
-              {t("Не куплено")}
-            </p>
+            <p className="text-[10px] leading-tight text-muted-foreground">{t("Не куплено")}</p>
             <p className="mt-1 text-base font-semibold tabular-nums">
               {user.stats.unpurchasedItems}
             </p>
           </div>
           <div className="pl-2.5">
-            <p className="text-[10px] leading-tight text-muted-foreground">
-              {t("Куплено")}
-            </p>
+            <p className="text-[10px] leading-tight text-muted-foreground">{t("Куплено")}</p>
             <p className="mt-1 text-base font-semibold tabular-nums">{purchasedItems}</p>
           </div>
         </div>
@@ -243,9 +219,7 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
               <div className="grid grid-cols-2 border-y border-border/60 py-2.5 text-sm">
                 <div className="pr-3">
                   <p className="text-xs text-muted-foreground">{t("Всего товаров")}</p>
-                  <p className="mt-1 text-lg font-semibold tabular-nums">
-                    {user.stats.totalItems}
-                  </p>
+                  <p className="mt-1 text-lg font-semibold tabular-nums">{user.stats.totalItems}</p>
                 </div>
                 <div className="border-l border-border/60 pl-3">
                   <p className="text-xs text-muted-foreground">{t("Не куплено")}</p>
@@ -264,9 +238,7 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
 
               {statsHasPurchasedPrices(user.stats) ? (
                 <div className="border-t border-border/70 pt-2">
-                  <p className="mb-1 text-xs text-muted-foreground">
-                    {t("Отмечено купленным")}
-                  </p>
+                  <p className="mb-1 text-xs text-muted-foreground">{t("Отмечено купленным")}</p>
                   <StatsPurchasedValueBlock stats={user.stats} />
                 </div>
               ) : null}
@@ -323,9 +295,7 @@ function formatSummaryValues(
     ([, value]) => value.unpurchased > 0,
   );
   if (entries.length === 0) return [formatPrice(0, "RUB", language)];
-  return entries.map(([currency, value]) =>
-    formatPrice(value.unpurchased, currency, language),
-  );
+  return entries.map(([currency, value]) => formatPrice(value.unpurchased, currency, language));
 }
 
 function getPriorityGradient(priorityCounts: StatsSummary["priorityCounts"]) {
@@ -339,9 +309,7 @@ function getPriorityGradient(priorityCounts: StatsSummary["priorityCounts"]) {
     const start = cursor;
     const end = cursor + (count / total) * 100;
     cursor = end;
-    return [
-      `hsl(var(--priority-${priority}) / 0.94) ${start.toFixed(2)}% ${end.toFixed(2)}%`,
-    ];
+    return [`hsl(var(--priority-${priority}) / 0.94) ${start.toFixed(2)}% ${end.toFixed(2)}%`];
   });
   return `conic-gradient(${segments.join(", ")})`;
 }
@@ -355,18 +323,11 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
   );
 
   return (
-    <section
-      className={cn(
-        uiSurface.contentPanel,
-        "overflow-hidden p-3.5 sm:p-5 lg:p-6",
-      )}
-    >
+    <section className={cn(uiSurface.contentPanel, "overflow-hidden p-3.5 sm:p-5 lg:p-6")}>
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)] lg:gap-0">
         <div className="space-y-4 sm:space-y-5 lg:pr-6">
           <div>
-            <p className="text-sm font-medium text-muted-foreground">
-              {t("Итого к покупке")}
-            </p>
+            <p className="text-sm font-medium text-muted-foreground">{t("Итого к покупке")}</p>
             <div className="mt-1.5 space-y-0.5 sm:mt-2 sm:space-y-1">
               {totalValues.map((value) => (
                 <p
@@ -398,7 +359,9 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
             </div>
             <div className="min-w-0 border-l border-border/55 pl-2.5 sm:pl-3">
               <Users className="mb-1.5 h-4 w-4 text-primary sm:mb-2" aria-hidden />
-              <p className="text-xl font-semibold tabular-nums sm:text-2xl">{summary.memberCount}</p>
+              <p className="text-xl font-semibold tabular-nums sm:text-2xl">
+                {summary.memberCount}
+              </p>
               <p className="text-[11px] leading-tight text-muted-foreground sm:text-xs">
                 {t("Участников")}
               </p>
@@ -417,9 +380,7 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
                 <div className="absolute inset-4 rounded-full bg-[hsl(var(--surface-2))] sm:inset-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold">
-                  {t("Распределение по приоритетам")}
-                </p>
+                <p className="text-sm font-semibold">{t("Распределение по приоритетам")}</p>
                 <div className="mt-2 space-y-1 sm:mt-3 sm:space-y-1.5">
                   {PRIORITY_ORDER.map((priority) => {
                     const count = summary.priorityCounts[String(priority)] ?? 0;
@@ -457,9 +418,7 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
                   >
                     <div className="min-w-0">
                       <p className="truncate font-medium">{item.title}</p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {item.userName}
-                      </p>
+                      <p className="truncate text-xs text-muted-foreground">{item.userName}</p>
                     </div>
                     <p className="font-semibold tabular-nums text-foreground">
                       {formatPrice(item.price, item.currency, language)}
@@ -487,21 +446,16 @@ export default function StatsPage() {
     isLoading,
     error,
     mutate,
-  } = useSWR<StatsResponse>(
-    status === "authenticated" ? "/api/users/stats" : null,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      dedupingInterval: 30000,
-    }
-  );
+  } = useSWR<StatsResponse>(status === "authenticated" ? "/api/users/stats" : null, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: true,
+    dedupingInterval: 30000,
+  });
 
-  const { data: versionData } = useSWR<{ version: string }>(
-    "/api/version",
-    fetcher,
-    { revalidateOnFocus: false, dedupingInterval: 60000 }
-  );
+  const { data: versionData } = useSWR<{ version: string }>("/api/version", fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000,
+  });
   const { data: recentItemsData } = useSWR<ItemsPage>(
     status === "authenticated" ? "/api/items?limit=8" : null,
     fetcher,

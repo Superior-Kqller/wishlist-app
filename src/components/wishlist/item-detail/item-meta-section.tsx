@@ -1,18 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  ExternalLink,
-  MoreHorizontal,
-  Pencil,
-  ShoppingCart,
-  Trash2,
-  Undo2,
-} from "lucide-react";
-import {
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { ExternalLink, MoreHorizontal, Pencil, ShoppingCart, Trash2, Undo2 } from "lucide-react";
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -96,9 +86,7 @@ export function ItemMetaSection({
 
       {noteParagraphs?.length ? (
         <section className="max-w-[38rem] space-y-2.5 sm:rounded-lg sm:border sm:border-border/34 sm:bg-[hsl(var(--surface-3))/0.38] sm:px-3.5 sm:py-3">
-          <h3 className="text-sm font-semibold text-foreground">
-            {t("Описание")}
-          </h3>
+          <h3 className="text-sm font-semibold text-foreground">{t("Описание")}</h3>
           <div
             className={cn(
               "space-y-2 text-sm leading-6 text-foreground/78 [text-wrap:pretty]",
@@ -125,7 +113,10 @@ export function ItemMetaSection({
 
       {item.category ? (
         <div className="flex flex-wrap gap-1.5 border-t border-border/30 pt-3">
-          <Badge variant="outline" className="gap-1.5 border-border/58 px-2 py-1 text-xs font-medium text-muted-foreground">
+          <Badge
+            variant="outline"
+            className="gap-1.5 border-border/58 px-2 py-1 text-xs font-medium text-muted-foreground"
+          >
             <span aria-hidden>{categoryIcon}</span>
             {categoryLabel}
           </Badge>
@@ -170,25 +161,18 @@ export function ItemDetailActions({
   const { t } = useI18n();
   const actionButtonClass = cn(
     "justify-center whitespace-nowrap border-border/58 text-foreground hover:border-primary/34 hover:bg-accent",
-    mobileDock
-      ? "h-12 min-h-12 min-w-0 px-3"
-      : "h-10 min-h-10 w-auto px-3",
+    mobileDock ? "h-12 min-h-12 min-w-0 px-3" : "h-10 min-h-10 w-auto px-3",
   );
 
   return (
     <div
       className={cn(
         "gap-2",
-        mobileDock
-          ? "grid grid-cols-[minmax(0,1fr)_auto]"
-          : "flex flex-wrap items-center",
+        mobileDock ? "grid grid-cols-[minmax(0,1fr)_auto]" : "flex flex-wrap items-center",
       )}
     >
       {item.url ? (
-        <Button
-          asChild
-          className={cn(actionButtonClass, "gap-2", !mobileDock && "min-w-[8.5rem]")}
-        >
+        <Button asChild className={cn(actionButtonClass, "gap-2", !mobileDock && "min-w-[8.5rem]")}>
           <a href={item.url} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="h-4 w-4 shrink-0" />
             {t("Открыть ссылку")}
@@ -212,18 +196,13 @@ export function ItemDetailActions({
               <Pencil className="mr-2 h-4 w-4" />
               {t("Редактировать")}
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={onTogglePurchased}
-              disabled={statusPending}
-            >
+            <DropdownMenuItem onClick={onTogglePurchased} disabled={statusPending}>
               {item.status === "PURCHASED" ? (
                 <Undo2 className="mr-2 h-4 w-4" />
               ) : (
                 <ShoppingCart className="mr-2 h-4 w-4" />
               )}
-              {item.status === "PURCHASED"
-                ? t("Снять отметку")
-                : t("Отметить купленным")}
+              {item.status === "PURCHASED" ? t("Снять отметку") : t("Отметить купленным")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={onDelete}

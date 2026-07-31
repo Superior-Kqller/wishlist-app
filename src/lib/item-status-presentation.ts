@@ -1,10 +1,7 @@
 import type { ItemStatus } from "@/types";
 import { type Language, translate } from "@/lib/i18n";
 
-export function getItemStatusLabel(
-  status: ItemStatus,
-  language: Language = "ru",
-): string {
+export function getItemStatusLabel(status: ItemStatus, language: Language = "ru"): string {
   if (status === "CLAIMED") return translate(language, "Доступно");
   if (status === "PURCHASED") return translate(language, "Куплено");
   return translate(language, "Доступно");

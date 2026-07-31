@@ -48,9 +48,7 @@ export function Header() {
   ];
   const secondaryNavItems = [
     { label: t("Настройки"), href: "/settings", icon: Settings },
-    ...(isAdmin
-      ? [{ label: t("Админка"), href: "/admin", icon: Shield }]
-      : []),
+    ...(isAdmin ? [{ label: t("Админка"), href: "/admin", icon: Shield }] : []),
   ];
   const secondaryNavActive = secondaryNavItems.some((item) => pathname === item.href);
 

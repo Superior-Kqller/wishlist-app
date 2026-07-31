@@ -1,7 +1,15 @@
 "use client";
 
 import type { RefObject } from "react";
-import { CheckSquare, Download, Loader2, MoreHorizontal, Plus, SlidersHorizontal, Upload } from "lucide-react";
+import {
+  CheckSquare,
+  Download,
+  Loader2,
+  MoreHorizontal,
+  Plus,
+  SlidersHorizontal,
+  Upload,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { SearchField } from "@/components/ui/search-field";
@@ -12,10 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WishlistGrid } from "@/components/WishlistGrid";
-import {
-  WishlistSearchInput,
-  WishlistToolbarControls,
-} from "@/components/SearchAndFilter";
+import { WishlistSearchInput, WishlistToolbarControls } from "@/components/SearchAndFilter";
 import { CategoryFilter } from "@/components/CategoryFilter";
 import { CombinedFilter } from "@/components/CombinedFilter";
 import { FiltersDrawer } from "@/components/FiltersDrawer";
@@ -25,11 +30,7 @@ import {
 } from "@/components/wishlist/wishlist-view-toggle";
 import { uiSurface } from "@/lib/ui-contract";
 import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
-import type {
-  ListWithMeta,
-  UserWithStats,
-  WishlistItem,
-} from "@/types";
+import type { ListWithMeta, UserWithStats, WishlistItem } from "@/types";
 import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
 import type { ProductCategoryOption } from "@/lib/categories";
 import { cn } from "@/lib/utils";
@@ -185,11 +186,7 @@ export function WishlistWorkspace({
             title={t("Фильтры")}
             aria-controls="mobile-filter-drawer"
             aria-expanded={mobileFiltersOpen}
-            aria-label={
-              hasActiveFilters
-                ? `${t("Фильтры")}: ${activeFilterCount}`
-                : t("Фильтры")
-            }
+            aria-label={hasActiveFilters ? `${t("Фильтры")}: ${activeFilterCount}` : t("Фильтры")}
           >
             <SlidersHorizontal className="h-4 w-4 shrink-0" />
             {hasActiveFilters ? (
@@ -324,9 +321,9 @@ export function WishlistWorkspace({
                       size="sm"
                       className={`${filterBarTriggerClass} gap-2 px-3 text-muted-foreground hover:text-foreground`}
                     >
-                  <Download className="h-4 w-4" />
-                  {t("Данные")}
-                </Button>
+                      <Download className="h-4 w-4" />
+                      {t("Данные")}
+                    </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44">
                     <DropdownMenuItem onClick={onImport} disabled={isImporting}>
@@ -454,9 +451,7 @@ export function WishlistWorkspace({
       />
 
       <div ref={sentinelRef} className="flex justify-center py-4 sm:py-6">
-        {isLoadingMore ? (
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        ) : null}
+        {isLoadingMore ? <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /> : null}
         {!isLoadingMore && hasMore ? (
           <Button variant="outline" onClick={() => setSize(size + 1)}>
             {t("Загрузить ещё")}

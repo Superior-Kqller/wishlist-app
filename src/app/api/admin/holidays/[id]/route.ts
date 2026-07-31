@@ -7,10 +7,7 @@ const handlers = createHolidayHandlers({
   catalog: holidayCatalog,
 });
 
-export async function PATCH(
-  request: Request,
-  context: { params: Promise<{ id: string }> },
-) {
+export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
   return handlers.PATCH(request, id);
 }

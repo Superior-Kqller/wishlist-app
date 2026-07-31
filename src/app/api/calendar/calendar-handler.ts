@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import type {
-  CalendarOccurrence,
-  CalendarRange,
-} from "@/lib/calendar/calendar-events";
+import type { CalendarOccurrence, CalendarRange } from "@/lib/calendar/calendar-events";
 import { sanitizeError } from "@/lib/logger";
 import { parseLocalDate } from "@/lib/calendar/local-date";
 

@@ -28,9 +28,7 @@ async function getRedis(): Promise<import("ioredis").default | null> {
   try {
     const { default: Redis } = await import("ioredis");
     const opts = { maxRetriesPerRequest: 1, connectTimeout: 2000, lazyConnect: true };
-    redisClient = url.startsWith("/")
-      ? new Redis({ ...opts, path: url })
-      : new Redis(url, opts);
+    redisClient = url.startsWith("/") ? new Redis({ ...opts, path: url }) : new Redis(url, opts);
     await redisClient.connect();
     return redisClient;
   } catch {

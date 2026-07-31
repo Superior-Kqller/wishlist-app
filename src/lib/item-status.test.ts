@@ -13,7 +13,7 @@ describe("item-status transitions", () => {
         actorUserId: "u2",
         ownerUserId: "u1",
         claimerUserId: null,
-      })
+      }),
     ).toBe(false);
   });
 
@@ -23,7 +23,7 @@ describe("item-status transitions", () => {
         actorUserId: "u1",
         ownerUserId: "u1",
         claimerUserId: null,
-      })
+      }),
     ).toBe(true);
 
     expect(
@@ -31,7 +31,7 @@ describe("item-status transitions", () => {
         actorUserId: "u2",
         ownerUserId: "u1",
         claimerUserId: null,
-      })
+      }),
     ).toBe(false);
   });
 
@@ -41,7 +41,7 @@ describe("item-status transitions", () => {
         actorUserId: "u2",
         ownerUserId: "u1",
         claimerUserId: "u2",
-      })
+      }),
     ).toBe(false);
 
     expect(
@@ -49,7 +49,7 @@ describe("item-status transitions", () => {
         actorUserId: "u1",
         ownerUserId: "u1",
         claimerUserId: "u2",
-      })
+      }),
     ).toBe(true);
   });
 
@@ -59,7 +59,7 @@ describe("item-status transitions", () => {
         actorUserId: "u1",
         ownerUserId: "u1",
         claimerUserId: "u2",
-      })
+      }),
     ).toBe(false);
   });
 
@@ -69,7 +69,7 @@ describe("item-status transitions", () => {
         actorUserId: "u2",
         ownerUserId: "u1",
         claimerUserId: "u2",
-      })
+      }),
     ).toBe(false);
 
     expect(
@@ -77,7 +77,7 @@ describe("item-status transitions", () => {
         actorUserId: "u1",
         ownerUserId: "u1",
         claimerUserId: "u2",
-      })
+      }),
     ).toBe(false);
   });
 });
@@ -105,7 +105,7 @@ describe("item-status payload conflicts", () => {
       hasConflictingStatusPayload({
         status: "CLAIMED",
         purchased: false,
-      })
+      }),
     ).toBe(true);
   });
 
@@ -114,4 +114,3 @@ describe("item-status payload conflicts", () => {
     expect(hasConflictingStatusPayload({ purchased: true })).toBe(false);
   });
 });
-

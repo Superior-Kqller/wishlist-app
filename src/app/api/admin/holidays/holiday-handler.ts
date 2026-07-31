@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import type {
-  HolidayActor,
-  HolidayCatalog,
-} from "@/lib/calendar/holiday-catalog";
+import type { HolidayActor, HolidayCatalog } from "@/lib/calendar/holiday-catalog";
 
 interface Dependencies {
   getActor(): Promise<HolidayActor | null>;
@@ -43,10 +40,7 @@ export function createHolidayHandlers(dependencies: Dependencies) {
       const denied = unauthorized(actor);
       if (denied) return denied;
       try {
-        const holiday = await dependencies.catalog.create(
-          actor!,
-          await request.json(),
-        );
+        const holiday = await dependencies.catalog.create(actor!, await request.json());
         return NextResponse.json(holiday, { status: 201 });
       } catch (error) {
         return domainError(error);

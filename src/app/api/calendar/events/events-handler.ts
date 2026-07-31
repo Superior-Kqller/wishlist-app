@@ -1,37 +1,32 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import type {
-  PersonalEventInput,
-  PersonalEventRecord,
-} from "@/lib/calendar/personal-events";
+import type { PersonalEventInput, PersonalEventRecord } from "@/lib/calendar/personal-events";
 import { sanitizeError } from "@/lib/logger";
 
-const personalEventSchema = z.object({
-  title: z.string().trim().min(1).max(200),
-  description: z.string().trim().max(2000).nullable().default(null),
-  date: z.iso.date(),
-  recurrence: z.enum(["ONCE", "YEARLY"]),
-  audience: z.enum(["ALL", "SELECTED", "PRIVATE"]),
-  selectedViewerIds: z.array(z.string().min(1)).max(200).default([]),
-}).superRefine((event, context) => {
-  if (event.audience !== "SELECTED" && event.selectedViewerIds.length > 0) {
-    context.addIssue({
-      code: "custom",
-      path: ["selectedViewerIds"],
-      message: "Выбранные пользователи допустимы только для выбранной аудитории",
-    });
-  }
-});
+const personalEventSchema = z
+  .object({
+    title: z.string().trim().min(1).max(200),
+    description: z.string().trim().max(2000).nullable().default(null),
+    date: z.iso.date(),
+    recurrence: z.enum(["ONCE", "YEARLY"]),
+    audience: z.enum(["ALL", "SELECTED", "PRIVATE"]),
+    selectedViewerIds: z.array(z.string().min(1)).max(200).default([]),
+  })
+  .superRefine((event, context) => {
+    if (event.audience !== "SELECTED" && event.selectedViewerIds.length > 0) {
+      context.addIssue({
+        code: "custom",
+        path: ["selectedViewerIds"],
+        message: "Выбранные пользователи допустимы только для выбранной аудитории",
+      });
+    }
+  });
 
 type EventContext = { params: Promise<{ id: string }> };
 
-const unauthorized = () =>
-  NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+const unauthorized = () => NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
 const invalidInput = (error: z.ZodError) =>
-  NextResponse.json(
-    { error: "Ошибка проверки данных", details: error.issues },
-    { status: 400 },
-  );
+  NextResponse.json({ error: "Ошибка проверки данных", details: error.issues }, { status: 400 });
 
 interface EventsDependencies {
   getActorId(): Promise<string | null>;

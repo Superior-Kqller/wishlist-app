@@ -2,15 +2,7 @@
 
 import { memo, type KeyboardEvent, useState } from "react";
 import Image from "next/image";
-import {
-  Check,
-  ExternalLink,
-  Globe2,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  Undo2,
-} from "lucide-react";
+import { Check, ExternalLink, Globe2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -177,9 +169,7 @@ export const ProductRow = memo(function ProductRow({
                 </AvatarFallback>
               )}
             </Avatar>
-            <span className="truncate text-xs text-muted-foreground">
-              {ownerName}
-            </span>
+            <span className="truncate text-xs text-muted-foreground">{ownerName}</span>
           </div>
         ) : (
           <span className="text-xs text-muted-foreground">—</span>
@@ -223,11 +213,7 @@ export const ProductRow = memo(function ProductRow({
                 }}
                 disabled={statusPending}
               >
-                {isBought ? (
-                  <Undo2 className="mr-2 h-4 w-4" />
-                ) : (
-                  <Check className="mr-2 h-4 w-4" />
-                )}
+                {isBought ? <Undo2 className="mr-2 h-4 w-4" /> : <Check className="mr-2 h-4 w-4" />}
                 {isBought ? t("Вернуть в доступные") : t("Отметить купленным")}
               </DropdownMenuItem>
               <DropdownMenuItem

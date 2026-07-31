@@ -15,10 +15,7 @@ function isWebhookAuthorized(req: NextRequest): boolean {
   const headerBuffer = Buffer.from(header);
   const secretBuffer = Buffer.from(config.webhookSecret);
 
-  return (
-    headerBuffer.length === secretBuffer.length &&
-    timingSafeEqual(headerBuffer, secretBuffer)
-  );
+  return headerBuffer.length === secretBuffer.length && timingSafeEqual(headerBuffer, secretBuffer);
 }
 
 export async function POST(req: NextRequest) {

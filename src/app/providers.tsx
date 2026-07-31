@@ -27,9 +27,7 @@ export function Providers({
         >
           <ColorThemeProvider>
             <TooltipProvider delayDuration={300}>
-              <HeaderActionsProvider>
-                {children}
-              </HeaderActionsProvider>
+              <HeaderActionsProvider>{children}</HeaderActionsProvider>
             </TooltipProvider>
           </ColorThemeProvider>
           <Toaster

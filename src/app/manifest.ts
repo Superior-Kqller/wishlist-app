@@ -1,10 +1,6 @@
 import type { MetadataRoute } from "next";
 import { cookies } from "next/headers";
-import {
-  LANGUAGE_COOKIE_NAME,
-  appMetadataCopy,
-  normalizeLanguage,
-} from "@/lib/i18n";
+import { LANGUAGE_COOKIE_NAME, appMetadataCopy, normalizeLanguage } from "@/lib/i18n";
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const cookieStore = await cookies();

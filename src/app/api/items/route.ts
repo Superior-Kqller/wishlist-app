@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
   const limitRaw = parseInt(searchParams.get("limit") || "50", 10);
   const limit = Math.min(
     Number.isFinite(limitRaw) && limitRaw > 0 ? Math.floor(limitRaw) : 50,
-    100
+    100,
   );
   const userIdParam = searchParams.get("userId");
   const listIdParam = searchParams.get("listId");
@@ -81,10 +81,7 @@ export async function GET(req: NextRequest) {
         OR: [
           { createdAt: { lt: cursorDate } },
           {
-            AND: [
-              { createdAt: cursorDate },
-              { id: { lt: cursorId } },
-            ],
+            AND: [{ createdAt: cursorDate }, { id: { lt: cursorId } }],
           },
         ],
       });
@@ -116,17 +113,17 @@ export async function GET(req: NextRequest) {
   if (listIdTrim !== "" && listIdTrim !== "all") {
     const canSee = await canUserSeeList(listIdTrim, currentUserId);
     if (!canSee) {
-      return NextResponse.json({ items: [], pagination: { hasMore: false, nextCursor: null, limit } });
+      return NextResponse.json({
+        items: [],
+        pagination: { hasMore: false, nextCursor: null, limit },
+      });
     }
     conditions.push({ listId: listIdTrim });
   } else {
     const visibleListIds = await getVisibleListIdsForUser(currentUserId);
     if (visibleListIds.length > 0) {
       conditions.push({
-        OR: [
-          { listId: { in: visibleListIds } },
-          { listId: null, userId: currentUserId },
-        ],
+        OR: [{ listId: { in: visibleListIds } }, { listId: null, userId: currentUserId }],
       });
     } else {
       conditions.push({ listId: null, userId: currentUserId });
@@ -170,7 +167,7 @@ export async function GET(req: NextRequest) {
       headers: {
         "Cache-Control": "private, s-maxage=30, stale-while-revalidate=60",
       },
-    }
+    },
   );
 }
 
@@ -191,9 +188,15 @@ export async function POST(req: NextRequest) {
 
     const listId: string | null = data.listId ?? null;
     if (listId) {
-      const list = await prisma.list.findUnique({ where: { id: listId }, select: { userId: true } });
+      const list = await prisma.list.findUnique({
+        where: { id: listId },
+        select: { userId: true },
+      });
       if (!list || list.userId !== userId) {
-        return NextResponse.json({ error: "Подборка не найдена или доступ запрещён" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Подборка не найдена или доступ запрещён" },
+          { status: 400 },
+        );
       }
     }
 
@@ -229,13 +232,10 @@ export async function POST(req: NextRequest) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Ошибка проверки данных", details: err.issues },
-        { status: 400 }
+        { status: 400 },
       );
     }
     sanitizeError("Create item error", err, { userId });
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

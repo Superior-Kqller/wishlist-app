@@ -35,7 +35,9 @@ export function AddItemCard({ onAdd, disabled, disabledHint }: AddItemCardProps)
         <Plus className="h-5 w-5" />
       </span>
       <span className="min-w-0 space-y-1">
-        <span className="block text-sm font-semibold leading-tight text-foreground">{t("Новый лот в коллекции")}</span>
+        <span className="block text-sm font-semibold leading-tight text-foreground">
+          {t("Новый лот в коллекции")}
+        </span>
         <span className="block text-xs leading-snug text-muted-foreground">
           {t("Добавьте товар по ссылке или заполните карточку вручную.")}
         </span>

@@ -13,10 +13,7 @@ const changePasswordSchema = z.object({
 });
 
 // PATCH /api/users/[id]/password — изменение пароля
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -32,10 +29,7 @@ export async function PATCH(
   const isOwnAccount = currentUserId === id;
 
   if (!userIsAdmin && !isOwnAccount) {
-    return NextResponse.json(
-      { error: "Можно менять только свой пароль" },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: "Можно менять только свой пароль" }, { status: 403 });
   }
 
   try {
@@ -46,7 +40,7 @@ export async function PATCH(
     if (requiresCurrentPassword && !data.currentPassword) {
       return NextResponse.json(
         { error: "Для смены пароля укажите текущий пароль" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -66,10 +60,7 @@ export async function PATCH(
         (await bcrypt.compare(data.currentPassword!, user.password));
 
       if (!isCurrentPasswordValid) {
-        return NextResponse.json(
-          { error: "Текущий пароль указан неверно" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Текущий пароль указан неверно" }, { status: 400 });
       }
     }
 
@@ -83,22 +74,16 @@ export async function PATCH(
     return NextResponse.json({ success: true });
   } catch (err) {
     if (err instanceof SyntaxError) {
-      return NextResponse.json(
-        { error: "Невалидный JSON в теле запроса" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Невалидный JSON в теле запроса" }, { status: 400 });
     }
 
     if (err instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Ошибка проверки данных", details: err.issues },
-        { status: 400 }
+        { status: 400 },
       );
     }
     sanitizeError("Change password error", err, { userId: id });
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

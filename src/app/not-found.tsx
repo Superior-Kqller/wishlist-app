@@ -15,9 +15,7 @@ export default function NotFound() {
         <p className="mt-8 text-[5.5rem] font-semibold leading-none tracking-tight text-primary/80 sm:text-8xl">
           404
         </p>
-        <h1 className="mt-4 text-2xl font-semibold text-foreground">
-          {t("Страница не найдена")}
-        </h1>
+        <h1 className="mt-4 text-2xl font-semibold text-foreground">{t("Страница не найдена")}</h1>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
           {t("Проверьте ссылку или вернитесь к каталогу желаний.")}
         </p>

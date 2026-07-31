@@ -1,11 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription } from "@/components/ui/dialog";
 import { WishlistItem } from "@/types";
 import { ItemComment } from "@/types";
 import { formatPrice } from "@/lib/utils";
@@ -58,7 +54,7 @@ export function ItemDetailDialog({
   const { data: comments = [], mutate: mutateComments } = useSWR<ItemComment[]>(
     item && open ? `/api/items/${item.id}/comments` : null,
     fetcher,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   );
 
   useEffect(() => {
@@ -109,9 +105,7 @@ export function ItemDetailDialog({
       toast.success(t("Комментарий удалён"));
       mutateComments();
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : t("Ошибка при удалении комментария")
-      );
+      toast.error(err instanceof Error ? err.message : t("Ошибка при удалении комментария"));
     } finally {
       setDeletingCommentId(null);
     }
@@ -183,7 +177,7 @@ export function ItemDetailDialog({
             </div>
           </div>
         </div>
-        {(item.url || canManage) ? (
+        {item.url || canManage ? (
           <div className="shrink-0 border-t border-border/55 bg-[hsl(var(--surface-2))/0.96] px-4 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))] pt-3 backdrop-blur-md sm:hidden">
             <ItemDetailActions
               item={item}

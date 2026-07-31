@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     for (const item of items) {
       const createdAt = parseDate(item.createdAt);
       const purchasedAt = item.purchased
-        ? parseDate(item.purchasedAt) ?? createdAt ?? new Date()
+        ? (parseDate(item.purchasedAt) ?? createdAt ?? new Date())
         : null;
 
       await prisma.item.create({
@@ -97,9 +97,6 @@ export async function POST(req: NextRequest) {
       );
     }
     sanitizeError("Import items error", err, { userId });
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

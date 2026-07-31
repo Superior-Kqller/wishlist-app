@@ -32,9 +32,11 @@ describe("telegram notifications", () => {
   });
 
   it("does not send reservation notifications", async () => {
-    mockFindUnique
-      .mockResolvedValueOnce({ id: "actor-1", name: "Аня" })
-      .mockResolvedValue({ telegramId: null, telegramConfirmedAt: null, telegramNotificationsEnabled: false });
+    mockFindUnique.mockResolvedValueOnce({ id: "actor-1", name: "Аня" }).mockResolvedValue({
+      telegramId: null,
+      telegramConfirmedAt: null,
+      telegramNotificationsEnabled: false,
+    });
 
     const { notifyStatusTransition } = await import("./notifications");
 
@@ -53,9 +55,11 @@ describe("telegram notifications", () => {
   });
 
   it("sends purchased notifications with emoji to configured chat ids", async () => {
-    mockFindUnique
-      .mockResolvedValueOnce({ id: "actor-1", name: "Аня" })
-      .mockResolvedValue({ telegramId: null, telegramConfirmedAt: null, telegramNotificationsEnabled: false });
+    mockFindUnique.mockResolvedValueOnce({ id: "actor-1", name: "Аня" }).mockResolvedValue({
+      telegramId: null,
+      telegramConfirmedAt: null,
+      telegramNotificationsEnabled: false,
+    });
 
     const { notifyStatusTransition } = await import("./notifications");
 

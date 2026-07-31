@@ -25,9 +25,7 @@ function localDateAndHour(now: Date, timeZone: string) {
   };
 }
 
-export function createAutomaticReminderRunner(
-  dependencies: AutomaticReminderRunnerDependencies,
-) {
+export function createAutomaticReminderRunner(dependencies: AutomaticReminderRunnerDependencies) {
   let processedLocalDate: string | null = null;
   let running = false;
 

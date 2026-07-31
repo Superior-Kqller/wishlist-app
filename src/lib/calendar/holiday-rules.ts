@@ -15,13 +15,7 @@ export const holidayRuleSchema = z.discriminatedUnion("kind", [
     kind: z.literal("NTH_WEEKDAY"),
     month: z.number().int().min(1).max(12),
     weekday: z.number().int().min(0).max(6),
-    occurrence: z.union([
-      z.literal(-1),
-      z.literal(1),
-      z.literal(2),
-      z.literal(3),
-      z.literal(4),
-    ]),
+    occurrence: z.union([z.literal(-1), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
   }),
 ]);
 
@@ -34,8 +28,7 @@ export function dateForHolidayRule(rule: HolidayRule, year: number): string {
 
   if (rule.occurrence > 0) {
     const firstWeekday = new Date(Date.UTC(year, rule.month - 1, 1)).getUTCDay();
-    const day =
-      1 + ((rule.weekday - firstWeekday + 7) % 7) + (rule.occurrence - 1) * 7;
+    const day = 1 + ((rule.weekday - firstWeekday + 7) % 7) + (rule.occurrence - 1) * 7;
     return formatLocalDate(year, rule.month, day);
   }
 

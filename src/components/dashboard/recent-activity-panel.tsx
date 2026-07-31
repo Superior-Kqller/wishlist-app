@@ -44,15 +44,24 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
   const hasMoreItems = hasMoreRecentActivityItems(items);
 
   return (
-    <aside className={cn(uiSurface.contentPanel, "flex h-full min-h-[15rem] flex-col overflow-hidden p-3 shadow-none sm:p-4")}>
+    <aside
+      className={cn(
+        uiSurface.contentPanel,
+        "flex h-full min-h-[15rem] flex-col overflow-hidden p-3 shadow-none sm:p-4",
+      )}
+    >
       <div className="flex items-start justify-between gap-2.5">
         <div className="flex min-w-0 items-start gap-2.5">
           <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center text-muted-foreground">
             <Clock3 className="h-4 w-4" aria-hidden />
           </span>
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold leading-tight text-foreground/94">{t("Активность")}</h2>
-            <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground/70">{t("Последние изменения")}</p>
+            <h2 className="text-sm font-semibold leading-tight text-foreground/94">
+              {t("Активность")}
+            </h2>
+            <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground/70">
+              {t("Последние изменения")}
+            </p>
           </div>
         </div>
         {hasMoreItems ? (
@@ -64,15 +73,18 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
             onClick={() => setExpanded((value) => !value)}
           >
             {expanded ? t("Свернуть") : t("Все изменения")}
-            <ChevronDown
-              className={cn("h-3 w-3 transition-transform", expanded && "rotate-180")}
-            />
+            <ChevronDown className={cn("h-3 w-3 transition-transform", expanded && "rotate-180")} />
           </Button>
         ) : null}
       </div>
 
       {visibleItems.length > 0 ? (
-        <div className={cn("mt-3 flex flex-1 flex-col gap-1.5", expanded && "max-h-[28rem] overflow-y-auto pr-1")}>
+        <div
+          className={cn(
+            "mt-3 flex flex-1 flex-col gap-1.5",
+            expanded && "max-h-[28rem] overflow-y-auto pr-1",
+          )}
+        >
           {visibleItems.map((item) => {
             const actor = item.user;
 
@@ -101,7 +113,10 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
                     </div>
                     <Badge
                       variant="outline"
-                      className={cn("mt-0.5 h-5 shrink-0 rounded-md px-1.5 py-0 text-[10px] leading-none opacity-82", getItemStatusTone(item.status))}
+                      className={cn(
+                        "mt-0.5 h-5 shrink-0 rounded-md px-1.5 py-0 text-[10px] leading-none opacity-82",
+                        getItemStatusTone(item.status),
+                      )}
                     >
                       {getItemStatusLabel(item.status, language)}
                     </Badge>
@@ -115,7 +130,9 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
                       </>
                     ) : null}
                     <span aria-hidden>·</span>
-                    <time dateTime={item.updatedAt}>{formatActivityDate(item.updatedAt, locale)}</time>
+                    <time dateTime={item.updatedAt}>
+                      {formatActivityDate(item.updatedAt, locale)}
+                    </time>
                   </p>
                 </div>
               </div>
@@ -123,7 +140,12 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
           })}
         </div>
       ) : (
-        <div className={cn(uiSurface.emptyState, "mt-3 min-h-0 flex-1 border-border/50 bg-[hsl(var(--surface-3))/0.38] px-3 py-4 sm:mt-4 sm:py-6")}>
+        <div
+          className={cn(
+            uiSurface.emptyState,
+            "mt-3 min-h-0 flex-1 border-border/50 bg-[hsl(var(--surface-3))/0.38] px-3 py-4 sm:mt-4 sm:py-6",
+          )}
+        >
           <p className="text-sm font-medium text-foreground">{t("Пока нет активности")}</p>
           <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1">
             {t("Добавленные и обновленные товары появятся здесь.")}

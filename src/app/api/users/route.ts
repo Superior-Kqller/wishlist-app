@@ -10,7 +10,12 @@ import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 const createUserSchema = z.object({
-  username: z.string().trim().min(3).max(50).regex(/^[a-zA-Z0-9_]+$/, "Username может содержать только буквы, цифры и _"),
+  username: z
+    .string()
+    .trim()
+    .min(3)
+    .max(50)
+    .regex(/^[a-zA-Z0-9_]+$/, "Username может содержать только буквы, цифры и _"),
   password: passwordSchema,
   name: z.string().trim().min(1).max(100),
   role: z.enum(["USER", "ADMIN"]).default("USER"),
@@ -27,7 +32,7 @@ export async function GET(req: NextRequest) {
     const message = err instanceof Error ? err.message : "Forbidden";
     return NextResponse.json(
       { error: message || "Forbidden" },
-      { status: message === "Unauthorized" ? 401 : 403 }
+      { status: message === "Unauthorized" ? 401 : 403 },
     );
   }
 
@@ -35,7 +40,7 @@ export async function GET(req: NextRequest) {
   const limitRaw = parseInt(searchParams.get("limit") || "50", 10);
   const limit = Math.min(
     Number.isFinite(limitRaw) && limitRaw > 0 ? Math.floor(limitRaw) : 50,
-    100
+    100,
   );
   const cursorParam = searchParams.get("cursor");
 
@@ -74,10 +79,7 @@ export async function GET(req: NextRequest) {
   const hasMore = users.length > limit;
   const items = hasMore ? users.slice(0, limit) : users;
   const last = items[items.length - 1];
-  const nextCursor =
-    hasMore && last
-      ? encodeUserListCursor(last.createdAt, last.id)
-      : null;
+  const nextCursor = hasMore && last ? encodeUserListCursor(last.createdAt, last.id) : null;
 
   return NextResponse.json({
     users: items,
@@ -100,7 +102,7 @@ export async function POST(req: NextRequest) {
     const message = err instanceof Error ? err.message : "Forbidden";
     return NextResponse.json(
       { error: message || "Forbidden" },
-      { status: message === "Unauthorized" ? 401 : 403 }
+      { status: message === "Unauthorized" ? 401 : 403 },
     );
   }
 
@@ -144,10 +146,7 @@ export async function POST(req: NextRequest) {
         ? target.includes("username")
         : target === "username";
       if (code === "P2002" && isUsernameConflict) {
-        return NextResponse.json(
-          { error: "Такой логин уже занят" },
-          { status: 409 }
-        );
+        return NextResponse.json({ error: "Такой логин уже занят" }, { status: 409 });
       }
       throw createErr;
     }
@@ -157,13 +156,10 @@ export async function POST(req: NextRequest) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Ошибка проверки данных", details: err.issues },
-        { status: 400 }
+        { status: 400 },
       );
     }
     sanitizeError("Create user error", err);
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

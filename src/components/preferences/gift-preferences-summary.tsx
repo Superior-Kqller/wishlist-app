@@ -153,9 +153,7 @@ export function GiftPreferencesSummary({
   const visiblePositiveRows = embedded
     ? positiveRows.filter((row) => row.values.length > 0)
     : positiveRows;
-  const visibleAvoidRows = embedded
-    ? avoidRows.filter((row) => row.values.length > 0)
-    : avoidRows;
+  const visibleAvoidRows = embedded ? avoidRows.filter((row) => row.values.length > 0) : avoidRows;
   const visibleDetailRows = embedded
     ? detailRows.filter((row) => row.values.length > 0)
     : detailRows;
@@ -198,7 +196,10 @@ export function GiftPreferencesSummary({
             >
               <span className="hidden sm:inline">{expanded ? t("Свернуть") : t("Показать")}</span>
               <ChevronDown
-                className={cn("h-4 w-4 transition-transform duration-200", expanded && "rotate-180")}
+                className={cn(
+                  "h-4 w-4 transition-transform duration-200",
+                  expanded && "rotate-180",
+                )}
                 aria-hidden
               />
             </Button>
@@ -207,7 +208,12 @@ export function GiftPreferencesSummary({
       ) : null}
 
       {preferenceCount === 0 ? (
-        <div className={cn("px-4 py-4 text-sm text-muted-foreground sm:px-5", !embedded && "border-t border-border/34")}>
+        <div
+          className={cn(
+            "px-4 py-4 text-sm text-muted-foreground sm:px-5",
+            !embedded && "border-t border-border/34",
+          )}
+        >
           {t("Пользователь пока не добавил подсказки для подарков.")}
         </div>
       ) : (
@@ -220,7 +226,12 @@ export function GiftPreferencesSummary({
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className={cn(embedded ? "py-0.5" : "space-y-3 border-t border-border/34 p-3 sm:p-4")}
             >
-              <div className={cn("grid gap-x-6 gap-y-5", embedded ? "md:grid-cols-2" : "xl:grid-cols-3")}>
+              <div
+                className={cn(
+                  "grid gap-x-6 gap-y-5",
+                  embedded ? "md:grid-cols-2" : "xl:grid-cols-3",
+                )}
+              >
                 <div className="min-w-0">
                   <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
                     <Heart className="h-4 w-4 text-primary" aria-hidden />
@@ -251,7 +262,12 @@ export function GiftPreferencesSummary({
                     </p>
                   )}
                 </div>
-                <div className={cn("min-w-0", embedded && "border-t border-border/34 pt-5 md:col-span-2")}>
+                <div
+                  className={cn(
+                    "min-w-0",
+                    embedded && "border-t border-border/34 pt-5 md:col-span-2",
+                  )}
+                >
                   <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
                     <Ruler className="h-4 w-4 text-warning/88" aria-hidden />
                     {t("Детали")}

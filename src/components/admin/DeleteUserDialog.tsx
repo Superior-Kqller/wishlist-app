@@ -59,9 +59,7 @@ export function DeleteUserDialog({
       onOpenChange(false);
       setConfirmText("");
     } catch (err: unknown) {
-      toast.error(
-        err instanceof Error ? err.message : t("Ошибка при удалении пользователя"),
-      );
+      toast.error(err instanceof Error ? err.message : t("Ошибка при удалении пользователя"));
     } finally {
       setDeleting(false);
     }
@@ -83,11 +81,14 @@ export function DeleteUserDialog({
             {canDelete ? (
               <>
                 {t("Это действие нельзя отменить. Все данные пользователя")}{" "}
-                <strong>{user.username}</strong> {t("будут удалены, включая все его желания")} ({user._count?.items || 0}).
+                <strong>{user.username}</strong> {t("будут удалены, включая все его желания")} (
+                {user._count?.items || 0}).
               </>
             ) : (
               <>
-                {t("Нельзя удалить последнего администратора. Сначала создайте другого администратора или измените роль другого пользователя.")}
+                {t(
+                  "Нельзя удалить последнего администратора. Сначала создайте другого администратора или измените роль другого пользователя.",
+                )}
               </>
             )}
           </DialogDescription>

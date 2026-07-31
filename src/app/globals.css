@@ -141,23 +141,20 @@
 
     --shadow-sidebar: 12px 0 34px rgb(0 0 0 / 0.2);
     --shadow-header: 0 1px 10px rgb(0 0 0 / 0.34);
-    --shadow-panel: 0 18px 42px rgb(1 5 14 / 0.34),
-      inset 0 1px 0 hsl(var(--foreground) / 0.04);
-    --shadow-hero-panel: 0 26px 72px rgb(1 5 14 / 0.44),
-      0 0 0 1px hsl(var(--primary) / 0.08),
+    --shadow-panel: 0 18px 42px rgb(1 5 14 / 0.34), inset 0 1px 0 hsl(var(--foreground) / 0.04);
+    --shadow-hero-panel:
+      0 26px 72px rgb(1 5 14 / 0.44), 0 0 0 1px hsl(var(--primary) / 0.08),
       inset 0 1px 0 hsl(var(--foreground) / 0.06);
-    --shadow-page-header: 0 18px 48px rgb(1 5 14 / 0.34),
-      inset 0 1px 0 hsl(var(--foreground) / 0.04);
-    --shadow-interactive-card: 0 14px 34px rgb(1 5 14 / 0.3),
-      inset 0 1px 0 hsl(var(--foreground) / 0.035);
-    --shadow-interactive-card-hover: 0 18px 40px rgb(1 5 14 / 0.38),
-      inset 0 1px 0 hsl(var(--foreground) / 0.05);
+    --shadow-page-header:
+      0 18px 48px rgb(1 5 14 / 0.34), inset 0 1px 0 hsl(var(--foreground) / 0.04);
+    --shadow-interactive-card:
+      0 14px 34px rgb(1 5 14 / 0.3), inset 0 1px 0 hsl(var(--foreground) / 0.035);
+    --shadow-interactive-card-hover:
+      0 18px 40px rgb(1 5 14 / 0.38), inset 0 1px 0 hsl(var(--foreground) / 0.05);
     --shadow-selected-card: 0 18px 40px rgb(1 5 14 / 0.38);
     --shadow-floating: 0 12px 28px rgb(1 5 14 / 0.38);
-    --shadow-dialog: 0 28px 72px rgb(1 5 14 / 0.48),
-      0 0 0 1px hsl(var(--foreground) / 0.035);
-    --shadow-brand-action: 0 10px 24px rgb(1 5 14 / 0.26),
-      0 0 16px hsl(var(--primary) / 0.12);
+    --shadow-dialog: 0 28px 72px rgb(1 5 14 / 0.48), 0 0 0 1px hsl(var(--foreground) / 0.035);
+    --shadow-brand-action: 0 10px 24px rgb(1 5 14 / 0.26), 0 0 16px hsl(var(--primary) / 0.12);
   }
 
   .theme-classic {
@@ -198,8 +195,7 @@
     --interactive-glow-primary: 262 58% 62% / 0.16;
     --overlay-backdrop: 224 28% 4% / 0.68;
     --overlay-image-scrim: 224 28% 4% / 0.58;
-    --shadow-brand-action: 0 10px 24px rgb(1 5 14 / 0.32),
-      0 0 18px hsl(var(--primary) / 0.2);
+    --shadow-brand-action: 0 10px 24px rgb(1 5 14 / 0.32), 0 0 18px hsl(var(--primary) / 0.2);
   }
 
   .theme-light {
@@ -253,21 +249,19 @@
 
     --shadow-sidebar: 8px 0 24px rgb(42 36 62 / 0.055);
     --shadow-header: 0 1px 8px rgb(42 36 62 / 0.07);
-    --shadow-panel: 0 8px 24px rgb(42 36 62 / 0.065),
+    --shadow-panel: 0 8px 24px rgb(42 36 62 / 0.065), inset 0 1px 0 hsl(var(--foreground) / 0.02);
+    --shadow-hero-panel:
+      0 12px 32px rgb(42 36 62 / 0.08), 0 0 0 1px hsl(var(--border) / 0.72),
       inset 0 1px 0 hsl(var(--foreground) / 0.02);
-    --shadow-hero-panel: 0 12px 32px rgb(42 36 62 / 0.08),
-      0 0 0 1px hsl(var(--border) / 0.72),
-      inset 0 1px 0 hsl(var(--foreground) / 0.02);
-    --shadow-page-header: 0 8px 24px rgb(42 36 62 / 0.065),
-      inset 0 1px 0 hsl(var(--foreground) / 0.02);
-    --shadow-interactive-card: 0 4px 14px rgb(42 36 62 / 0.055),
-      inset 0 1px 0 hsl(var(--foreground) / 0.02);
-    --shadow-interactive-card-hover: 0 8px 20px rgb(42 36 62 / 0.08),
-      inset 0 1px 0 hsl(var(--foreground) / 0.025);
+    --shadow-page-header:
+      0 8px 24px rgb(42 36 62 / 0.065), inset 0 1px 0 hsl(var(--foreground) / 0.02);
+    --shadow-interactive-card:
+      0 4px 14px rgb(42 36 62 / 0.055), inset 0 1px 0 hsl(var(--foreground) / 0.02);
+    --shadow-interactive-card-hover:
+      0 8px 20px rgb(42 36 62 / 0.08), inset 0 1px 0 hsl(var(--foreground) / 0.025);
     --shadow-selected-card: 0 8px 20px rgb(42 36 62 / 0.08);
     --shadow-floating: 0 8px 20px rgb(42 36 62 / 0.09);
-    --shadow-dialog: 0 24px 64px rgb(42 36 62 / 0.18),
-      0 0 0 1px hsl(var(--border) / 0.72);
+    --shadow-dialog: 0 24px 64px rgb(42 36 62 / 0.18), 0 0 0 1px hsl(var(--border) / 0.72);
     --shadow-brand-action: 0 6px 16px rgb(42 36 62 / 0.08);
   }
 
@@ -311,8 +305,7 @@
     --interactive-glow-primary: 349 79% 30% / 0.24;
     --overlay-backdrop: 213 61% 7% / 0.72;
     --overlay-image-scrim: 213 61% 7% / 0.58;
-    --shadow-brand-action: 0 10px 24px rgb(7 17 29 / 0.38),
-      0 0 18px hsl(var(--primary) / 0.22);
+    --shadow-brand-action: 0 10px 24px rgb(7 17 29 / 0.38), 0 0 18px hsl(var(--primary) / 0.22);
   }
 
   * {
@@ -521,11 +514,7 @@
       hsl(var(--theme-warm) / var(--panel-warm-alpha)) 0%,
       transparent 52%
     ),
-    linear-gradient(
-      145deg,
-      transparent 48%,
-      hsl(var(--surface-3) / var(--panel-depth-alpha)) 100%
-    );
+    linear-gradient(145deg, transparent 48%, hsl(var(--surface-3) / var(--panel-depth-alpha)) 100%);
 }
 
 .elevation-hero-panel {
@@ -555,11 +544,7 @@
 
 .home-summary-panel {
   background:
-    linear-gradient(
-      90deg,
-      hsl(var(--theme-cool) / 0.08) 0%,
-      hsl(var(--background) / 0) 34%
-    ),
+    linear-gradient(90deg, hsl(var(--theme-cool) / 0.08) 0%, hsl(var(--background) / 0) 34%),
     linear-gradient(
       135deg,
       hsl(var(--surface-2) / 0.94) 0%,
@@ -581,11 +566,7 @@
       hsl(var(--theme-warm) / var(--calendar-glow-alpha)) 0%,
       transparent 48%
     ),
-    linear-gradient(
-      145deg,
-      hsl(var(--surface-2) / 0.98) 0%,
-      hsl(var(--surface-3) / 0.9) 100%
-    );
+    linear-gradient(145deg, hsl(var(--surface-2) / 0.98) 0%, hsl(var(--surface-3) / 0.9) 100%);
   box-shadow: var(--shadow-hero-panel);
 }
 
@@ -690,11 +671,19 @@
 }
 
 @keyframes reduced-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes reduced-fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }

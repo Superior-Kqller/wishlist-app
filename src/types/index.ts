@@ -70,8 +70,9 @@ export interface CreateItemPayload {
   listId?: string | null;
 }
 
-export interface UpdateItemPayload
-  extends Partial<Omit<CreateItemPayload, "url" | "price" | "notes" | "listId">> {
+export interface UpdateItemPayload extends Partial<
+  Omit<CreateItemPayload, "url" | "price" | "notes" | "listId">
+> {
   url?: string | null;
   price?: number | null;
   notes?: string | null;

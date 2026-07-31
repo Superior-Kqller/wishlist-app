@@ -4,10 +4,7 @@ import { canViewList } from "./access-policy";
 /**
  * Проверяет, может ли пользователь видеть подборку (владелец или в ListViewer).
  */
-export async function canUserSeeList(
-  listId: string,
-  userId: string
-): Promise<boolean> {
+export async function canUserSeeList(listId: string, userId: string): Promise<boolean> {
   const list = await prisma.list.findUnique({
     where: { id: listId },
     select: { userId: true, viewers: { select: { userId: true } } },
@@ -37,10 +34,7 @@ export async function getVisibleListIdsForUser(userId: string): Promise<string[]
  * Проверяет, может ли пользователь видеть товар.
  * Товар без подборки (listId == null) виден только владельцу.
  */
-export async function canUserSeeItem(
-  itemId: string,
-  userId: string
-): Promise<boolean> {
+export async function canUserSeeItem(itemId: string, userId: string): Promise<boolean> {
   const item = await prisma.item.findUnique({
     where: { id: itemId },
     select: { listId: true, userId: true },
@@ -56,7 +50,7 @@ const USER_ID_REGEX = /^[a-z0-9]+$/i;
  * Проверяет, что все переданные id существуют в таблице User.
  */
 export async function ensureUserIdsExist(
-  ids: string[]
+  ids: string[],
 ): Promise<{ ok: true } | { ok: false; missing: string[] }> {
   const unique = [...new Set(ids.map((id) => id.trim()).filter((id) => id.length > 0))];
   if (unique.length === 0) return { ok: true };

@@ -1,14 +1,7 @@
 import { dateForHolidayRule } from "./holiday-rules";
-import {
-  formatLocalDate,
-  isLeapYear,
-  parseLocalDate,
-} from "./local-date";
+import { formatLocalDate, isLeapYear, parseLocalDate } from "./local-date";
 import { thematicWishlistHref } from "./wishlist-link";
-import type {
-  CalendarAudience,
-  PersonalEventRecurrence,
-} from "./personal-events";
+import type { CalendarAudience, PersonalEventRecurrence } from "./personal-events";
 import type {
   CalendarEventSource,
   CalendarPersonalEventSource,
@@ -16,9 +9,7 @@ import type {
 } from "./calendar-event-source";
 
 export type CalendarEventSourceType = "BIRTHDAY" | "PERSONAL" | "HOLIDAY";
-export type CalendarEventsErrorCode =
-  | "INVALID_DATE_RANGE"
-  | "INVALID_EVENT_SOURCE";
+export type CalendarEventsErrorCode = "INVALID_DATE_RANGE" | "INVALID_EVENT_SOURCE";
 
 export class CalendarEventsError extends Error {
   constructor(readonly code: CalendarEventsErrorCode) {
@@ -63,10 +54,7 @@ export interface HolidayOccurrence {
   }>;
 }
 
-export type CalendarOccurrence =
-  | BirthdayOccurrence
-  | PersonalEventOccurrence
-  | HolidayOccurrence;
+export type CalendarOccurrence = BirthdayOccurrence | PersonalEventOccurrence | HolidayOccurrence;
 
 export interface ReminderEventFact {
   sourceType: CalendarEventSourceType;
@@ -76,10 +64,7 @@ export interface ReminderEventFact {
   audienceUserIds: string[];
   excludedRecipientIds: string[];
   congratulated: string[];
-  wishlistLinksByRecipient: Record<
-    string,
-    Array<{ label: string; href: string }>
-  >;
+  wishlistLinksByRecipient: Record<string, Array<{ label: string; href: string }>>;
 }
 
 export interface CalendarRange {
@@ -93,10 +78,7 @@ function yearsIn(range: CalendarRange): number[] {
   if (!start || !end || range.rangeStart > range.rangeEnd) {
     throw new CalendarEventsError("INVALID_DATE_RANGE");
   }
-  return Array.from(
-    { length: end.year - start.year + 1 },
-    (_, index) => start.year + index,
-  );
+  return Array.from({ length: end.year - start.year + 1 }, (_, index) => start.year + index);
 }
 
 function birthdayDate(year: number, month: number, day: number): string {
@@ -112,9 +94,7 @@ function datesForPersonalEvent(
   validDatesOnly = true,
 ): string[] {
   if (event.recurrence === "ONCE") {
-    return event.date >= range.rangeStart && event.date <= range.rangeEnd
-      ? [event.date]
-      : [];
+    return event.date >= range.rangeStart && event.date <= range.rangeEnd ? [event.date] : [];
   }
   const source = parseLocalDate(event.date);
   if (!source) return [];
@@ -161,8 +141,7 @@ function accessibleWishlists(
     .filter(
       (wishlist) =>
         wishlist.ownerId === personId &&
-        (wishlist.ownerId === recipientId ||
-          wishlist.viewerIds.includes(recipientId)),
+        (wishlist.ownerId === recipientId || wishlist.viewerIds.includes(recipientId)),
     )
     .map((wishlist) => ({
       label: `Вишлист «${wishlist.name}»`,
@@ -172,10 +151,7 @@ function accessibleWishlists(
 
 export function createCalendarEvents(source: CalendarEventSource) {
   return {
-    async calendarFor(
-      actorId: string,
-      range: CalendarRange,
-    ): Promise<CalendarOccurrence[]> {
+    async calendarFor(actorId: string, range: CalendarRange): Promise<CalendarOccurrence[]> {
       const years = yearsIn(range);
       const [people, personalEvents, holidays, wishlists] = await Promise.all([
         source.listPeople(),
@@ -188,60 +164,44 @@ export function createCalendarEvents(source: CalendarEventSource) {
         if (
           person.birthdayDay === null ||
           person.birthdayMonth === null ||
-          !canSee(
-            person.id,
-            person.birthdayAudience,
-            person.birthdayViewerIds,
-            actorId,
-          )
+          !canSee(person.id, person.birthdayAudience, person.birthdayViewerIds, actorId)
         ) {
           return [];
         }
         return years.flatMap((year) => {
-          const date = birthdayDate(
-            year,
-            person.birthdayMonth!,
-            person.birthdayDay!,
-          );
+          const date = birthdayDate(year, person.birthdayMonth!, person.birthdayDay!);
           if (date < range.rangeStart || date > range.rangeEnd) return [];
-          return [{
-            id: `birthday:${person.id}:${date}`,
-            type: "BIRTHDAY" as const,
-            date,
-            person: {
-              id: person.id,
-              name: person.name,
-              avatarUrl: person.avatarUrl,
+          return [
+            {
+              id: `birthday:${person.id}:${date}`,
+              type: "BIRTHDAY" as const,
+              date,
+              person: {
+                id: person.id,
+                name: person.name,
+                avatarUrl: person.avatarUrl,
+              },
+              isOwn: person.id === actorId,
             },
-            isOwn: person.id === actorId,
-          }];
+          ];
         });
       });
 
-      const personal: PersonalEventOccurrence[] = personalEvents.flatMap(
-        (event) => {
-          if (
-            !canSee(
-              event.ownerId,
-              event.audience,
-              event.viewerIds,
-              actorId,
-            )
-          ) {
-            return [];
-          }
-          return datesForPersonalEvent(event, range, years).map((date) => ({
-            id: `personal:${event.id}:${date}`,
-            sourceId: event.id,
-            type: "PERSONAL" as const,
-            title: event.title,
-            description: event.description,
-            date,
-            recurrence: event.recurrence,
-            isOwn: event.ownerId === actorId,
-          }));
-        },
-      );
+      const personal: PersonalEventOccurrence[] = personalEvents.flatMap((event) => {
+        if (!canSee(event.ownerId, event.audience, event.viewerIds, actorId)) {
+          return [];
+        }
+        return datesForPersonalEvent(event, range, years).map((date) => ({
+          id: `personal:${event.id}:${date}`,
+          sourceId: event.id,
+          type: "PERSONAL" as const,
+          title: event.title,
+          description: event.description,
+          date,
+          recurrence: event.recurrence,
+          isOwn: event.ownerId === actorId,
+        }));
+      });
       const nonHolidays = [...birthdays, ...personal].sort(
         (left, right) =>
           left.date.localeCompare(right.date) ||
@@ -256,43 +216,41 @@ export function createCalendarEvents(source: CalendarEventSource) {
           years.flatMap((year) => {
             const date = dateForHolidayRule(holiday.rule, year);
             if (date < range.rangeStart || date > range.rangeEnd) return [];
-            return [{
-              id: `holiday:${holiday.id}:${date}`,
-              type: "HOLIDAY" as const,
-              date,
-              name: holiday.name,
-              congratulated:
-                holiday.theme === null
-                  ? []
-                  : people
-                      .filter(
-                        (person) =>
-                          person.thematicHolidayConsent &&
-                          person.gender === holiday.theme,
-                      )
-                      .sort((left, right) =>
-                        left.name.localeCompare(right.name, "ru"),
-                      )
-                      .map((person) => ({
-                        id: person.id,
-                        name: person.name,
-                        avatarUrl: person.avatarUrl,
-                        wishlists: wishlists
-                          .filter(
-                            (wishlist) =>
-                              wishlist.ownerId === person.id &&
-                              (wishlist.ownerId === actorId ||
-                                wishlist.viewerIds.includes(actorId)),
-                          )
-                          .map(({ id, name }) => ({ id, name })),
-                      })),
-            }];
+            return [
+              {
+                id: `holiday:${holiday.id}:${date}`,
+                type: "HOLIDAY" as const,
+                date,
+                name: holiday.name,
+                congratulated:
+                  holiday.theme === null
+                    ? []
+                    : people
+                        .filter(
+                          (person) =>
+                            person.thematicHolidayConsent && person.gender === holiday.theme,
+                        )
+                        .sort((left, right) => left.name.localeCompare(right.name, "ru"))
+                        .map((person) => ({
+                          id: person.id,
+                          name: person.name,
+                          avatarUrl: person.avatarUrl,
+                          wishlists: wishlists
+                            .filter(
+                              (wishlist) =>
+                                wishlist.ownerId === person.id &&
+                                (wishlist.ownerId === actorId ||
+                                  wishlist.viewerIds.includes(actorId)),
+                            )
+                            .map(({ id, name }) => ({ id, name })),
+                        })),
+              },
+            ];
           }),
         )
         .sort(
           (left, right) =>
-            left.date.localeCompare(right.date) ||
-            left.name.localeCompare(right.name, "ru"),
+            left.date.localeCompare(right.date) || left.name.localeCompare(right.name, "ru"),
         );
 
       return [...nonHolidays, ...holidayOccurrences].sort((left, right) =>
@@ -320,15 +278,8 @@ export function createCalendarEvents(source: CalendarEventSource) {
           allUserIds,
         );
         for (const year of years) {
-          const occurrenceDate = birthdayDate(
-            year,
-            person.birthdayMonth,
-            person.birthdayDay,
-          );
-          if (
-            occurrenceDate < range.rangeStart ||
-            occurrenceDate > range.rangeEnd
-          ) {
+          const occurrenceDate = birthdayDate(year, person.birthdayMonth, person.birthdayDay);
+          if (occurrenceDate < range.rangeStart || occurrenceDate > range.rangeEnd) {
             continue;
           }
           facts.push({
@@ -356,12 +307,7 @@ export function createCalendarEvents(source: CalendarEventSource) {
           event.viewerIds,
           allUserIds,
         );
-        for (const occurrenceDate of datesForPersonalEvent(
-          event,
-          range,
-          years,
-          false,
-        )) {
+        for (const occurrenceDate of datesForPersonalEvent(event, range, years, false)) {
           facts.push({
             sourceType: "PERSONAL",
             sourceId: event.id,
@@ -379,17 +325,12 @@ export function createCalendarEvents(source: CalendarEventSource) {
         if (!holiday.remindersEnabled) continue;
         const congratulated = holiday.theme
           ? people.filter(
-              (person) =>
-                person.thematicHolidayConsent &&
-                person.gender === holiday.theme,
+              (person) => person.thematicHolidayConsent && person.gender === holiday.theme,
             )
           : [];
         for (const year of years) {
           const occurrenceDate = dateForHolidayRule(holiday.rule, year);
-          if (
-            occurrenceDate < range.rangeStart ||
-            occurrenceDate > range.rangeEnd
-          ) {
+          if (occurrenceDate < range.rangeStart || occurrenceDate > range.rangeEnd) {
             continue;
           }
           facts.push({

@@ -32,10 +32,9 @@ describe("GET /api/users/[id]", () => {
 
   it("не запрашивает пол и согласие для чужого профиля", async () => {
     const { GET } = await import("./route");
-    const response = await GET(
-      new Request("http://localhost/api/users/user-2") as never,
-      { params: Promise.resolve({ id: "user-2" }) },
-    );
+    const response = await GET(new Request("http://localhost/api/users/user-2") as never, {
+      params: Promise.resolve({ id: "user-2" }),
+    });
 
     expect(response.status).toBe(200);
     const query = mockFindUnique.mock.calls[0][0];

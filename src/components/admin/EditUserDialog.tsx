@@ -97,9 +97,7 @@ export function EditUserDialog({
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
-      toast.error(
-        err instanceof Error ? err.message : t("Ошибка при обновлении пользователя"),
-      );
+      toast.error(err instanceof Error ? err.message : t("Ошибка при обновлении пользователя"));
     } finally {
       setSaving(false);
     }
@@ -112,9 +110,7 @@ export function EditUserDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{t("Редактировать пользователя")}</DialogTitle>
-          <DialogDescription>
-            {t("Измените данные пользователя")}
-          </DialogDescription>
+          <DialogDescription>{t("Измените данные пользователя")}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -165,11 +161,7 @@ export function EditUserDialog({
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("Отмена")}
             </Button>
             <Button type="submit" disabled={saving}>

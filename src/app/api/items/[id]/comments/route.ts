@@ -12,10 +12,7 @@ const createCommentSchema = z.object({
 });
 
 // GET /api/items/[id]/comments
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.read);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -41,10 +38,7 @@ export async function GET(
 }
 
 // POST /api/items/[id]/comments
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -110,13 +104,10 @@ export async function POST(
     if (err instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Ошибка проверки данных", details: err.issues },
-        { status: 400 }
+        { status: 400 },
       );
     }
     sanitizeError("Create comment error", err, { itemId });
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

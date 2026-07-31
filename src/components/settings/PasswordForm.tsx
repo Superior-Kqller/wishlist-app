@@ -71,9 +71,7 @@ export function PasswordForm({ userId }: PasswordFormProps) {
       setConfirmPassword("");
       setPasswordErrors([]);
     } catch (err: unknown) {
-      toast.error(
-        err instanceof Error ? err.message : t("Ошибка при изменении пароля"),
-      );
+      toast.error(err instanceof Error ? err.message : t("Ошибка при изменении пароля"));
     } finally {
       setSaving(false);
     }

@@ -41,7 +41,7 @@ export default withAuth(
     pages: {
       signIn: "/login",
     },
-  }
+  },
 );
 
 export const config = {

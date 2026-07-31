@@ -37,16 +37,20 @@ export function BrandLockup({ className, compact = false }: BrandLockupProps) {
         )}
       />
       <div className="flex min-w-0 flex-col items-start text-left leading-tight">
-        <span className={cn(
-          "truncate text-sm font-bold text-foreground sm:text-lg",
-          compact && "max-w-[8rem] sm:max-w-none sm:text-base",
-        )}>
+        <span
+          className={cn(
+            "truncate text-sm font-bold text-foreground sm:text-lg",
+            compact && "max-w-[8rem] sm:max-w-none sm:text-base",
+          )}
+        >
           {t("Вишлист")}
         </span>
-        <span className={cn(
-          "line-clamp-1 max-w-[65vw] text-[9px] text-muted-foreground/75 sm:max-w-none sm:text-[11px]",
-          compact && "max-sm:hidden sm:text-[10px]",
-        )}>
+        <span
+          className={cn(
+            "line-clamp-1 max-w-[65vw] text-[9px] text-muted-foreground/75 sm:max-w-none sm:text-[11px]",
+            compact && "max-sm:hidden sm:text-[10px]",
+          )}
+        >
           {t("Каталог желаний")}
         </span>
       </div>

@@ -33,10 +33,7 @@ export function createPrismaCalendarReminderRepository(
         await prisma.calendarReminderDelivery.create({ data: delivery });
         return true;
       } catch (error) {
-        if (
-          error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.code === "P2002"
-        ) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
           return false;
         }
         throw error;

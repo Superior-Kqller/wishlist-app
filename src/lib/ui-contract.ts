@@ -18,8 +18,7 @@ export const uiLayout = {
 } as const;
 
 export const uiSurface = {
-  shell:
-    "min-h-screen bg-[hsl(var(--background))] text-foreground",
+  shell: "min-h-screen bg-[hsl(var(--background))] text-foreground",
   sidebar:
     "border-r border-border/38 bg-[hsl(var(--surface-2))/0.68] elevation-sidebar backdrop-blur-xl",
   topHeader:
@@ -32,8 +31,7 @@ export const uiSurface = {
     "border-border/62 bg-[hsl(var(--surface-2))] elevation-interactive-card transition-[border-color,box-shadow,transform] hover:border-primary/38",
   emptyState:
     "rounded-2xl border border-dashed border-border/70 bg-[hsl(var(--surface-2))/0.74] px-4 py-10 text-center",
-  panel:
-    "rounded-xl border border-border bg-[hsl(var(--surface-2))] elevation-panel",
+  panel: "rounded-xl border border-border bg-[hsl(var(--surface-2))] elevation-panel",
   panelInset: "rounded-lg border border-border bg-card",
   stickyPanel:
     "sticky z-30 -mx-3 flex min-w-0 flex-col gap-1.5 border-b border-border bg-[hsl(var(--surface-2))/0.96] px-3 py-1.5 backdrop-blur-md max-sm:top-[calc(4.625rem+env(safe-area-inset-top,0px))] sm:static sm:z-auto sm:-mx-4 sm:border-0 sm:bg-transparent sm:px-4 sm:py-2 sm:backdrop-blur-none",
@@ -58,6 +56,5 @@ export const uiState = {
     "border-primary/28 bg-primary/10 text-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)]",
   selectionIdle:
     "h-9 gap-1.5 px-3 border border-border bg-card text-muted-foreground hover:text-foreground",
-  selectionActive:
-    "h-9 gap-1.5 px-3 border border-primary/55 bg-primary/16 text-foreground",
+  selectionActive: "h-9 gap-1.5 px-3 border border-primary/55 bg-primary/16 text-foreground",
 } as const;

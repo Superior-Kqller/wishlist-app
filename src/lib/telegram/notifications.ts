@@ -36,17 +36,11 @@ function formatEventMessage(title: string, lines: string[]): string {
 }
 
 function formatItemCreatedMessage(input: NotifyItemCreatedInput): string {
-  return formatEventMessage("🎁 Новый подарок", [
-    `👤 ${input.actorName}`,
-    `📌 ${input.itemTitle}`,
-  ]);
+  return formatEventMessage("🎁 Новый подарок", [`👤 ${input.actorName}`, `📌 ${input.itemTitle}`]);
 }
 
 function formatPurchasedMessage(actorName: string, itemTitle: string): string {
-  return formatEventMessage("✅ Подарок куплен", [
-    `👤 ${actorName}`,
-    `📌 ${itemTitle}`,
-  ]);
+  return formatEventMessage("✅ Подарок куплен", [`👤 ${actorName}`, `📌 ${itemTitle}`]);
 }
 
 function formatCommentCreatedMessage(input: NotifyCommentCreatedInput): string {
@@ -155,4 +149,3 @@ export async function notifyStatusTransition(input: NotifyStatusTransitionInput)
     });
   }
 }
-

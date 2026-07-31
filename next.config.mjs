@@ -45,8 +45,7 @@ const nextConfig = {
   poweredByHeader: false,
 };
 
-const pwaDisabled =
-  process.env.DISABLE_PWA === "1" || process.env.npm_lifecycle_event === "dev";
+const pwaDisabled = process.env.DISABLE_PWA === "1" || process.env.npm_lifecycle_event === "dev";
 
 const withSerwist = withSerwistInit({
   swSrc: "src/app/sw.ts",

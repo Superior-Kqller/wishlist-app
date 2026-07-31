@@ -44,13 +44,10 @@ export function DashboardSummary({
 }: DashboardSummaryProps) {
   const { t, locale } = useI18n();
   const formattedValue =
-    summary.totalValue > 0
-      ? `${Math.round(summary.totalValue).toLocaleString(locale)} ₽`
-      : "—";
+    summary.totalValue > 0 ? `${Math.round(summary.totalValue).toLocaleString(locale)} ₽` : "—";
   const availablePercent =
     summary.total > 0 ? Math.round((summary.available / summary.total) * 100) : 0;
-  const purchasedPercent =
-    summary.total > 0 ? Math.max(0, 100 - availablePercent) : 0;
+  const purchasedPercent = summary.total > 0 ? Math.max(0, 100 - availablePercent) : 0;
   const distribution = [
     { label: t("Доступно"), value: availablePercent, className: "bg-info" },
     { label: t("Куплено"), value: purchasedPercent, className: "bg-success" },
@@ -83,7 +80,9 @@ export function DashboardSummary({
   ];
 
   return (
-    <section className={`${uiSurface.homeSummary} isolate h-full rounded-xl border-border/54 px-3 py-3 sm:rounded-2xl sm:px-5 sm:py-4`}>
+    <section
+      className={`${uiSurface.homeSummary} isolate h-full rounded-xl border-border/54 px-3 py-3 sm:rounded-2xl sm:px-5 sm:py-4`}
+    >
       <div className="pointer-events-none absolute -right-16 -top-20 h-44 w-44 rounded-full bg-primary/14 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-20 left-12 h-36 w-56 rounded-full bg-info/10 blur-3xl" />
       <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-primary/34 to-transparent" />
@@ -102,7 +101,8 @@ export function DashboardSummary({
           </p>
         </div>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          {summary.total} {t("Всего").toLowerCase()} · {summary.available} {t("Доступно").toLowerCase()}
+          {summary.total} {t("Всего").toLowerCase()} · {summary.available}{" "}
+          {t("Доступно").toLowerCase()}
           {summary.purchased > 0 ? ` · ${summary.purchased} ${t("Куплено").toLowerCase()}` : ""}
         </p>
         {summary.total > 0 ? (
@@ -161,7 +161,10 @@ export function DashboardSummary({
             </div>
             <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               {distribution.map((segment) => (
-                <span key={segment.label} className="inline-flex items-center gap-1.5 rounded-lg border border-border/26 bg-[hsl(var(--surface-3))/0.46] px-2 py-1">
+                <span
+                  key={segment.label}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border/26 bg-[hsl(var(--surface-3))/0.46] px-2 py-1"
+                >
                   <span className={`h-2 w-2 rounded-full ${segment.className}`} aria-hidden />
                   {segment.label}: {segment.value}%
                 </span>
@@ -176,12 +179,19 @@ export function DashboardSummary({
               key={label}
               className="group relative h-[4.65rem] overflow-hidden rounded-xl border border-border/28 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.66),hsl(var(--surface-2)_/_0.54))] px-3.5 py-3.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] transition-colors duration-200 hover:border-primary/28"
             >
-              <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" aria-hidden />
-              <p className="text-[11px] font-medium leading-none text-muted-foreground/78">{label}</p>
+              <span
+                className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent"
+                aria-hidden
+              />
+              <p className="text-[11px] font-medium leading-none text-muted-foreground/78">
+                {label}
+              </p>
               <p className="mt-2 text-[1.38rem] font-semibold leading-none tabular-nums tracking-tight text-foreground">
                 {value}
               </p>
-              <span className={`absolute right-3 top-3 inline-flex h-7 w-7 items-center justify-center rounded-lg border shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] ${tone}`}>
+              <span
+                className={`absolute right-3 top-3 inline-flex h-7 w-7 items-center justify-center rounded-lg border shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] ${tone}`}
+              >
                 <Icon className="h-3.5 w-3.5" aria-hidden />
               </span>
             </div>

@@ -44,10 +44,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
-  const { data: profile } = useSWR<SidebarUser>(
-    session?.user ? "/api/users/me" : null,
-    fetcher,
-  );
+  const { data: profile } = useSWR<SidebarUser>(session?.user ? "/api/users/me" : null, fetcher);
   const { data: lists = [] } = useSWR<ListWithMeta[]>(
     session?.user ? "/api/lists" : null,
     fetcher,
@@ -92,7 +89,10 @@ export function AppSidebar() {
         <BrandLockup />
       </button>
 
-      <nav className="flex flex-1 flex-col gap-1 border-b border-border/35 pb-5" aria-label={t("Разделы")}>
+      <nav
+        className="flex flex-1 flex-col gap-1 border-b border-border/35 pb-5"
+        aria-label={t("Разделы")}
+      >
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = item.href ? pathname === item.href : false;
@@ -120,17 +120,10 @@ export function AppSidebar() {
         })}
       </nav>
 
-      <section
-        className="py-4"
-        aria-label={t("Подборки")}
-      >
+      <section className="py-4" aria-label={t("Подборки")}>
         <div className="mb-2 flex items-center justify-between gap-2">
-          <p className="text-xs font-medium text-muted-foreground">
-            {t("Подборки")}
-          </p>
-          <span className="font-mono text-[11px] text-muted-foreground/70">
-            {totalListItems}
-          </span>
+          <p className="text-xs font-medium text-muted-foreground">{t("Подборки")}</p>
+          <span className="font-mono text-[11px] text-muted-foreground/70">{totalListItems}</span>
         </div>
         {pinnedLists.length > 0 ? (
           <div className="space-y-1">
@@ -151,9 +144,7 @@ export function AppSidebar() {
             ))}
           </div>
         ) : (
-          <p className="px-2 py-2 text-sm text-muted-foreground">
-            {t("Пока нет подборок")}
-          </p>
+          <p className="px-2 py-2 text-sm text-muted-foreground">{t("Пока нет подборок")}</p>
         )}
       </section>
 
@@ -173,12 +164,8 @@ export function AppSidebar() {
             className="ring-1 ring-border/30"
           />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-foreground">
-              {currentUserName}
-            </p>
-            <p className="mt-0.5 truncate text-xs text-muted-foreground/78">
-              {currentUsername}
-            </p>
+            <p className="truncate text-sm font-semibold text-foreground">{currentUserName}</p>
+            <p className="mt-0.5 truncate text-xs text-muted-foreground/78">{currentUsername}</p>
           </div>
         </button>
         <LanguageSwitcher className="mt-3 h-11 w-full justify-start px-2 text-muted-foreground/82 hover:text-foreground" />

@@ -3,9 +3,7 @@ import type { CalendarEventSource } from "./calendar-event-source";
 import { CalendarEventsError } from "./calendar-events";
 import { holidayRuleSchema } from "./holiday-rules";
 
-export function createPrismaCalendarEventSource(
-  prisma: PrismaClient,
-): CalendarEventSource {
+export function createPrismaCalendarEventSource(prisma: PrismaClient): CalendarEventSource {
   return {
     async listPeople() {
       const people = await prisma.user.findMany({
@@ -90,10 +88,7 @@ export function createPrismaCalendarEventSource(
     async listWishlistsAccessibleBy(userIds) {
       const wishlists = await prisma.list.findMany({
         where: {
-          OR: [
-            { userId: { in: userIds } },
-            { viewers: { some: { userId: { in: userIds } } } },
-          ],
+          OR: [{ userId: { in: userIds } }, { viewers: { some: { userId: { in: userIds } } } }],
         },
         select: {
           id: true,

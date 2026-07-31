@@ -5,8 +5,7 @@ import { Search } from "lucide-react";
 import { Input, type InputProps } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-export interface SearchFieldProps
-  extends Omit<InputProps, "onChange" | "type" | "value"> {
+export interface SearchFieldProps extends Omit<InputProps, "onChange" | "type" | "value"> {
   value: string;
   onValueChange: (value: string) => void;
   wrapperClassName?: string;

@@ -10,8 +10,7 @@ export function startProductionCalendarReminderRunner() {
   if (started) return;
   started = true;
   startAutomaticReminderRunner({
-    getTimeZone: async () =>
-      (await prismaCalendarInstallationSettingsRepository.get()).timeZone,
+    getTimeZone: async () => (await prismaCalendarInstallationSettingsRepository.get()).timeZone,
     processDueReminders: async (input) => {
       const result = await calendarReminders.processDueReminders(input);
       sanitizeLog("Calendar reminders processed", {
@@ -21,8 +20,7 @@ export function startProductionCalendarReminderRunner() {
       });
       return result;
     },
-    publicBaseUrl:
-      process.env.NEXTAUTH_URL ?? `http://127.0.0.1:${process.env.PORT ?? "4030"}`,
+    publicBaseUrl: process.env.NEXTAUTH_URL ?? `http://127.0.0.1:${process.env.PORT ?? "4030"}`,
     onError: (error) => sanitizeError("Calendar reminder runner error", error),
   });
 }

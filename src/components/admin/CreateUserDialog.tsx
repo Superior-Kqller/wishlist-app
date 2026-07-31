@@ -31,11 +31,7 @@ interface CreateUserDialogProps {
   onSuccess: () => void;
 }
 
-export function CreateUserDialog({
-  open,
-  onOpenChange,
-  onSuccess,
-}: CreateUserDialogProps) {
+export function CreateUserDialog({ open, onOpenChange, onSuccess }: CreateUserDialogProps) {
   const { t } = useI18n();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -99,9 +95,7 @@ export function CreateUserDialog({
       onOpenChange(false);
       resetForm();
     } catch (err: unknown) {
-      toast.error(
-        err instanceof Error ? err.message : t("Ошибка при создании пользователя"),
-      );
+      toast.error(err instanceof Error ? err.message : t("Ошибка при создании пользователя"));
     } finally {
       setSaving(false);
     }
@@ -120,9 +114,7 @@ export function CreateUserDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{t("Создать пользователя")}</DialogTitle>
-          <DialogDescription>
-            {t("Создайте новую учетную запись пользователя")}
-          </DialogDescription>
+          <DialogDescription>{t("Создайте новую учетную запись пользователя")}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -137,9 +129,7 @@ export function CreateUserDialog({
               pattern="[a-zA-Z0-9_]+"
               title={t("Только буквы, цифры и _")}
             />
-            <p className="text-xs text-muted-foreground">
-              {t("Только буквы, цифры и символ _")}
-            </p>
+            <p className="text-xs text-muted-foreground">{t("Только буквы, цифры и символ _")}</p>
           </div>
 
           <div className="space-y-2">

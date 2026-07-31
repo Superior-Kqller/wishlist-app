@@ -2,7 +2,7 @@ name: Docker Image
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths-ignore:
       - "README.md"
       - "README.ru.md"
@@ -10,7 +10,7 @@ on:
       - "**/*.md"
       - "assets/**"
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths-ignore:
       - "README.md"
       - "README.ru.md"

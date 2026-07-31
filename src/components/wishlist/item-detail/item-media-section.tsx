@@ -6,13 +6,7 @@ import { ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
 
-export function ItemMediaSection({
-  item,
-  className,
-}: {
-  item: WishlistItem;
-  className?: string;
-}) {
+export function ItemMediaSection({ item, className }: { item: WishlistItem; className?: string }) {
   const [imageError, setImageError] = useState(false);
   const mainImage = item.images?.[0] ?? null;
 
@@ -33,10 +27,7 @@ export function ItemMediaSection({
             src={mainImage}
             alt={item.title}
             fill
-            className={cn(
-              "object-contain p-3 sm:p-3",
-              item.purchased && "grayscale",
-            )}
+            className={cn("object-contain p-3 sm:p-3", item.purchased && "grayscale")}
             sizes="(max-width: 640px) 100vw, 520px"
             unoptimized
             onError={() => setImageError(true)}

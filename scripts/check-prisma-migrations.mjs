@@ -32,11 +32,9 @@ function getChangedFiles() {
     console.log(`ℹ️ Проверяем изменения в strict mode: base=${base}, head=${head}`);
     const result = getDiff(base, head);
     if (!result.ok) {
+      console.error(`❌ Не удалось выполнить strict diff для диапазона ${base}..${head}.`);
       console.error(
-        `❌ Не удалось выполнить strict diff для диапазона ${base}..${head}.`
-      );
-      console.error(
-        "Проверьте checkout/fetch в CI: без корректного diff проверка миграций невалидна."
+        "Проверьте checkout/fetch в CI: без корректного diff проверка миграций невалидна.",
       );
       process.exit(2);
     }
@@ -65,17 +63,14 @@ function getChangedFiles() {
 
 const changed = getChangedFiles();
 const schemaChanged = changed.includes("prisma/schema.prisma");
-const migrationChanged = changed.some((f) =>
-  /^prisma\/migrations\/[^/]+\/migration\.sql$/.test(f)
-);
+const migrationChanged = changed.some((f) => /^prisma\/migrations\/[^/]+\/migration\.sql$/.test(f));
 
 if (schemaChanged && !migrationChanged) {
   console.error(
-    "❌ Изменён prisma/schema.prisma, но не найден новый prisma/migrations/*/migration.sql."
+    "❌ Изменён prisma/schema.prisma, но не найден новый prisma/migrations/*/migration.sql.",
   );
   console.error("Создайте миграцию: npx prisma migrate dev --name <name>.");
   process.exit(1);
 }
 
 console.log("✅ Проверка Prisma миграций пройдена.");
-

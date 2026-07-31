@@ -10,12 +10,10 @@ export function encodeUserListCursor(createdAt: Date, id: string): string {
   return Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
 }
 
-export function decodeUserListCursor(
-  cursor: string
-): { createdAt: Date; id: string } | null {
+export function decodeUserListCursor(cursor: string): { createdAt: Date; id: string } | null {
   try {
     const parsed = JSON.parse(
-      Buffer.from(cursor, "base64url").toString("utf8")
+      Buffer.from(cursor, "base64url").toString("utf8"),
     ) as UserListCursorPayload;
     if (typeof parsed.c !== "string" || typeof parsed.i !== "string") {
       return null;

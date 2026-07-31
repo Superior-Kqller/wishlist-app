@@ -62,26 +62,26 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  */
 export function sanitizeError(message: string, error: unknown, context?: LogContext): void {
   const sanitizedContext = context ? sanitizeObject(context) : undefined;
-  
+
   if (error instanceof Error) {
     const sanitizedError = {
       name: error.name,
       message: error.message,
       stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
     };
-    
+
     const logData: Record<string, unknown> = { error: sanitizedError };
     if (sanitizedContext && isRecord(sanitizedContext)) {
       Object.assign(logData, sanitizedContext);
     }
-    
+
     console.error(message, logData);
   } else {
     const logData: Record<string, unknown> = { error: sanitizeObject(error) };
     if (sanitizedContext && isRecord(sanitizedContext)) {
       Object.assign(logData, sanitizedContext);
     }
-    
+
     console.error(message, logData);
   }
 }

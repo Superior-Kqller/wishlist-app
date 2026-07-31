@@ -30,24 +30,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(product);
   } catch (err: unknown) {
     if (err instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Невалидный URL", details: err.issues },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Невалидный URL", details: err.issues }, { status: 400 });
     }
 
     const chain =
-      err instanceof Error
-        ? err.cause instanceof Error
-          ? err.cause.message
-          : err.message
-        : "";
+      err instanceof Error ? (err.cause instanceof Error ? err.cause.message : err.message) : "";
     const isRedirect = /redirect count exceeded|too many redirects/i.test(chain);
     const isFetchFailed = /fetch failed|ECONNREFUSED|ETIMEDOUT/i.test(chain);
 
     sanitizeError("Parse error", err);
-    const fallback =
-      err instanceof Error ? err.message : "Не удалось получить данные со страницы";
+    const fallback = err instanceof Error ? err.message : "Не удалось получить данные со страницы";
     const message = isRedirect
       ? "Ссылка ведёт на цепочку перенаправлений. Введите ссылку на страницу товара вручную или попробуйте другой магазин."
       : isFetchFailed

@@ -23,4 +23,3 @@ export function getTelegramConfig(): TelegramConfig {
     webhookSecret: webhookSecret && webhookSecret.length > 0 ? webhookSecret : undefined,
   };
 }
-

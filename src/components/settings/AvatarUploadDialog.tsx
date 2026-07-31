@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -134,9 +140,7 @@ export function AvatarUploadDialog({
         fileInputRef.current.value = "";
       }
     } catch (err: unknown) {
-      toast.error(
-        err instanceof Error ? err.message : t("Ошибка при загрузке аватара"),
-      );
+      toast.error(err instanceof Error ? err.message : t("Ошибка при загрузке аватара"));
     } finally {
       setUploading(false);
     }
@@ -164,32 +168,27 @@ export function AvatarUploadDialog({
       setFileLabel("");
       setUrl("");
     } catch (err: unknown) {
-      toast.error(
-        err instanceof Error ? err.message : t("Ошибка при удалении аватара"),
-      );
+      toast.error(err instanceof Error ? err.message : t("Ошибка при удалении аватара"));
     } finally {
       setUploading(false);
     }
   };
 
-  const previewUrl = uploadMethod === "file" && filePreview
-    ? filePreview
-    : uploadMethod === "url" && url.trim()
-    ? url
-    : currentAvatarUrl;
+  const previewUrl =
+    uploadMethod === "file" && filePreview
+      ? filePreview
+      : uploadMethod === "url" && url.trim()
+        ? url
+        : currentAvatarUrl;
   const submitDisabled =
-    uploading ||
-    (uploadMethod === "file" && !file) ||
-    (uploadMethod === "url" && !url.trim());
+    uploading || (uploadMethod === "file" && !file) || (uploadMethod === "url" && !url.trim());
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{t("Изменить аватар")}</DialogTitle>
-          <DialogDescription>
-            {t("Загрузите изображение или укажите URL")}
-          </DialogDescription>
+          <DialogDescription>{t("Загрузите изображение или укажите URL")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -223,7 +222,9 @@ export function AvatarUploadDialog({
                   type="file"
                   accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
                   onChange={handleFileSelect}
-                  onInput={(e) => handleFileSelect(e as unknown as React.ChangeEvent<HTMLInputElement>)}
+                  onInput={(e) =>
+                    handleFileSelect(e as unknown as React.ChangeEvent<HTMLInputElement>)
+                  }
                   onClick={() => {
                     // Чтобы повторный выбор того же файла тоже триггерил change
                     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -262,20 +263,11 @@ export function AvatarUploadDialog({
 
           <div className="flex gap-2 justify-end">
             {currentAvatarUrl && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleRemove}
-                disabled={uploading}
-              >
+              <Button type="button" variant="outline" onClick={handleRemove} disabled={uploading}>
                 {t("Удалить")}
               </Button>
             )}
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={submitDisabled}
-            >
+            <Button type="button" onClick={handleSubmit} disabled={submitDisabled}>
               {uploading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {t("Сохранить")}
             </Button>

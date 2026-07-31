@@ -23,11 +23,7 @@ interface ParseUrlDialogProps {
   onParsed: (data: ParsedProductResponse) => void;
 }
 
-export function ParseUrlDialog({
-  open,
-  onOpenChange,
-  onParsed,
-}: ParseUrlDialogProps) {
+export function ParseUrlDialog({ open, onOpenChange, onParsed }: ParseUrlDialogProps) {
   const { t } = useI18n();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,9 +51,7 @@ export function ParseUrlDialog({
       onOpenChange(false);
       setUrl("");
     } catch (err: unknown) {
-      toast.error(
-        err instanceof Error ? err.message : t("Ошибка при парсинге URL"),
-      );
+      toast.error(err instanceof Error ? err.message : t("Ошибка при парсинге URL"));
     } finally {
       setLoading(false);
     }
@@ -72,7 +66,9 @@ export function ParseUrlDialog({
             {t("Добавить из ссылки")}
           </DialogTitle>
           <DialogDescription>
-            {t("Вставьте ссылку на товар или страницу: подтянем название, цену и картинки. Описание со страницы попадёт в заметку, если оно есть.")}
+            {t(
+              "Вставьте ссылку на товар или страницу: подтянем название, цену и картинки. Описание со страницы попадёт в заметку, если оно есть.",
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -102,11 +98,7 @@ export function ParseUrlDialog({
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("Отмена")}
             </Button>
             <Button type="submit" disabled={loading || !url.trim()}>

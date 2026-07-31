@@ -3,7 +3,10 @@ import { prisma } from "@/lib/prisma";
 export async function confirmTelegramLinkByTelegramId(params: {
   telegramId: string;
   telegramUsername?: string;
-}): Promise<{ ok: true; userId: string; userName: string } | { ok: false; reason: "not_found" | "already_linked" }> {
+}): Promise<
+  | { ok: true; userId: string; userName: string }
+  | { ok: false; reason: "not_found" | "already_linked" }
+> {
   const existing = await prisma.user.findFirst({
     where: { telegramId: params.telegramId },
     select: {

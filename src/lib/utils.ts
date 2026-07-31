@@ -33,14 +33,16 @@ export function sortCurrencyTotalsEntries(
 }
 
 /** Текст «стоимость не купленного» с учётом нескольких валют (для компактного UI) */
-export function formatStatsUnpurchasedSummary(stats: {
-  totalWishlistValue: number;
-  currency?: string;
-  pricesByCurrency?: Record<string, CurrencyTotals>;
-}, language: Language = "ru"): string {
+export function formatStatsUnpurchasedSummary(
+  stats: {
+    totalWishlistValue: number;
+    currency?: string;
+    pricesByCurrency?: Record<string, CurrencyTotals>;
+  },
+  language: Language = "ru",
+): string {
   const fallbackCur = stats.currency || "RUB";
-  const hasBreakdown =
-    stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
+  const hasBreakdown = stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
   if (!hasBreakdown) {
     return formatPrice(stats.totalWishlistValue, fallbackCur, language);
   }
@@ -54,14 +56,16 @@ export function formatStatsUnpurchasedSummary(stats: {
 }
 
 /** Текст суммы купленного по валютам; null если нет купленных позиций с ценой */
-export function formatStatsPurchasedSummary(stats: {
-  totalPurchasedValue: number;
-  currency?: string;
-  pricesByCurrency?: Record<string, CurrencyTotals>;
-}, language: Language = "ru"): string | null {
+export function formatStatsPurchasedSummary(
+  stats: {
+    totalPurchasedValue: number;
+    currency?: string;
+    pricesByCurrency?: Record<string, CurrencyTotals>;
+  },
+  language: Language = "ru",
+): string | null {
   const fallbackCur = stats.currency || "RUB";
-  const hasBreakdown =
-    stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
+  const hasBreakdown = stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
   if (!hasBreakdown) {
     if (stats.totalPurchasedValue > 0) {
       return formatPrice(stats.totalPurchasedValue, fallbackCur, language);

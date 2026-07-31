@@ -13,18 +13,51 @@ const DEFAULT_SEED_USER2_NAME = "User Two";
 const DEFAULT_HOLIDAYS = [
   { seedKey: "new-year", name: "Новый год", ruleKind: "FIXED", month: 1, day: 1 },
   { seedKey: "christmas", name: "Рождество", ruleKind: "FIXED", month: 1, day: 7 },
-  { seedKey: "valentines-day", name: "День святого Валентина", ruleKind: "FIXED", month: 2, day: 14 },
-  { seedKey: "defender-day", name: "23 февраля", ruleKind: "FIXED", month: 2, day: 23, theme: "MALE" },
+  {
+    seedKey: "valentines-day",
+    name: "День святого Валентина",
+    ruleKind: "FIXED",
+    month: 2,
+    day: 14,
+  },
+  {
+    seedKey: "defender-day",
+    name: "23 февраля",
+    ruleKind: "FIXED",
+    month: 2,
+    day: 23,
+    theme: "MALE",
+  },
   { seedKey: "womens-day", name: "8 марта", ruleKind: "FIXED", month: 3, day: 8, theme: "FEMALE" },
   { seedKey: "spring-labor-day", name: "1 мая", ruleKind: "FIXED", month: 5, day: 1 },
   { seedKey: "victory-day", name: "День Победы", ruleKind: "FIXED", month: 5, day: 9 },
   { seedKey: "childrens-day", name: "День защиты детей", ruleKind: "FIXED", month: 6, day: 1 },
   { seedKey: "russia-day", name: "День России", ruleKind: "FIXED", month: 6, day: 12 },
-  { seedKey: "family-day", name: "День семьи, любви и верности", ruleKind: "FIXED", month: 7, day: 8 },
+  {
+    seedKey: "family-day",
+    name: "День семьи, любви и верности",
+    ruleKind: "FIXED",
+    month: 7,
+    day: 8,
+  },
   { seedKey: "knowledge-day", name: "День знаний", ruleKind: "FIXED", month: 9, day: 1 },
   { seedKey: "teachers-day", name: "День учителя", ruleKind: "FIXED", month: 10, day: 5 },
-  { seedKey: "fathers-day", name: "День отца", ruleKind: "NTH_WEEKDAY", month: 10, weekday: 0, occurrence: 3 },
-  { seedKey: "mothers-day", name: "День матери", ruleKind: "NTH_WEEKDAY", month: 11, weekday: 0, occurrence: -1 },
+  {
+    seedKey: "fathers-day",
+    name: "День отца",
+    ruleKind: "NTH_WEEKDAY",
+    month: 10,
+    weekday: 0,
+    occurrence: 3,
+  },
+  {
+    seedKey: "mothers-day",
+    name: "День матери",
+    ruleKind: "NTH_WEEKDAY",
+    month: 11,
+    weekday: 0,
+    occurrence: -1,
+  },
   { seedKey: "unity-day", name: "День народного единства", ruleKind: "FIXED", month: 11, day: 4 },
 ];
 
@@ -51,8 +84,8 @@ function assertSafeSeedConfig(env = process.env) {
   if (unsafeVars.length > 0) {
     throw new Error(
       `Unsafe seed config for production: ${unsafeVars.join(
-        ", "
-      )}. Set strong non-default passwords (forbidden default: "changeme").`
+        ", ",
+      )}. Set strong non-default passwords (forbidden default: "changeme").`,
     );
   }
 }
@@ -69,7 +102,7 @@ function assertSafeSeedUsernames(env = process.env) {
   }
   if (user1Username.toLowerCase() === user2Username.toLowerCase()) {
     throw new Error(
-      "Unsafe seed config: SEED_USER1_USERNAME and SEED_USER2_USERNAME must be different."
+      "Unsafe seed config: SEED_USER1_USERNAME and SEED_USER2_USERNAME must be different.",
     );
   }
 
@@ -143,8 +176,7 @@ async function main() {
   }
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

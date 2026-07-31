@@ -14,20 +14,12 @@ type WishlistViewToggleProps = {
   className?: string;
 };
 
-export function WishlistViewToggle({
-  value,
-  onValueChange,
-  className,
-}: WishlistViewToggleProps) {
+export function WishlistViewToggle({ value, onValueChange, className }: WishlistViewToggleProps) {
   const { t } = useI18n();
 
   return (
     <div
-      className={cn(
-        "inline-flex rounded-lg p-0.5",
-        filterBarTriggerClass,
-        className,
-      )}
+      className={cn("inline-flex rounded-lg p-0.5", filterBarTriggerClass, className)}
       aria-label={t("Режим отображения")}
     >
       <Button

@@ -19,9 +19,7 @@ describe("HolidayCatalog with Prisma adapter", () => {
   });
 
   it("сам проверяет права и валидирует каталог перед записью", async () => {
-    const catalog = createHolidayCatalog(
-      createPrismaHolidayCatalogRepository(prisma),
-    );
+    const catalog = createHolidayCatalog(createPrismaHolidayCatalogRepository(prisma));
     const input = {
       name: "  Семейный день  ",
       rule: { kind: "FIXED" as const, month: 6, day: 12 },
@@ -30,15 +28,13 @@ describe("HolidayCatalog with Prisma adapter", () => {
       theme: null,
     };
 
-    await expect(catalog.create({ role: "USER" }, input)).rejects.toThrow(
-      "FORBIDDEN",
-    );
+    await expect(catalog.create({ role: "USER" }, input)).rejects.toThrow("FORBIDDEN");
     const created = await catalog.create({ role: "ADMIN" }, input);
     await expect(catalog.list({ role: "ADMIN" })).resolves.toEqual([
       { ...created, name: "Семейный день" },
     ]);
-    await expect(
-      catalog.update({ role: "ADMIN" }, created.id, {}),
-    ).rejects.toThrow("INVALID_HOLIDAY");
+    await expect(catalog.update({ role: "ADMIN" }, created.id, {})).rejects.toThrow(
+      "INVALID_HOLIDAY",
+    );
   });
 });

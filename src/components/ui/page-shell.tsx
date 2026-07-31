@@ -17,9 +17,7 @@ interface PageMainProps {
 }
 
 export function PageMain({ children, className }: PageMainProps) {
-  return (
-    <main className={cn("container mx-auto px-4 py-6 lg:py-8", className)}>{children}</main>
-  );
+  return <main className={cn("container mx-auto px-4 py-6 lg:py-8", className)}>{children}</main>;
 }
 
 interface PageIntroProps {

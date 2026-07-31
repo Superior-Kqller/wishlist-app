@@ -68,4 +68,3 @@ export async function answerTelegramCallback(input: AnswerCallbackInput): Promis
 
   await callTelegramApi("answerCallbackQuery", payload);
 }
-

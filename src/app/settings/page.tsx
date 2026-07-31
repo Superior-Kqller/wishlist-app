@@ -6,22 +6,10 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { PasswordForm } from "@/components/settings/PasswordForm";
-import {
-  CalendarDays,
-  Check,
-  Loader2,
-  Palette,
-  ShieldCheck,
-  UserRound,
-} from "lucide-react";
+import { CalendarDays, Check, Loader2, Palette, ShieldCheck, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetcher } from "@/lib/fetcher";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { cn } from "@/lib/utils";
@@ -43,7 +31,7 @@ function ThemeAccentSection({ className }: { className?: string }) {
         <div className="min-w-0">
           <h2 className="text-lg font-semibold">{t("Внешний вид")}</h2>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-          {t("Выберите цветовой характер интерфейса.")}
+            {t("Выберите цветовой характер интерфейса.")}
           </p>
         </div>
       </div>
@@ -71,10 +59,7 @@ function ThemeAccentSection({ className }: { className?: string }) {
                 {theme.swatches.map((swatch) => (
                   <span
                     key={swatch}
-                    className={cn(
-                      "h-5 flex-1 rounded-md border border-foreground/10",
-                      swatch,
-                    )}
+                    className={cn("h-5 flex-1 rounded-md border border-foreground/10", swatch)}
                   />
                 ))}
               </span>
@@ -111,10 +96,12 @@ export default function SettingsPage() {
   const router = useRouter();
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const { data: user, isLoading, error, mutate } = useSWR(
-    status === "authenticated" ? "/api/users/me" : null,
-    fetcher
-  );
+  const {
+    data: user,
+    isLoading,
+    error,
+    mutate,
+  } = useSWR(status === "authenticated" ? "/api/users/me" : null, fetcher);
 
   useEffect(() => {
     if (status === "unauthenticated") {

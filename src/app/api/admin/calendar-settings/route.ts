@@ -3,9 +3,7 @@ import { createCalendarInstallationSettings } from "@/lib/calendar/installation-
 import { prismaCalendarInstallationSettingsRepository } from "@/lib/calendar/prisma-installation-settings-repository";
 import { createCalendarSettingsHandlers } from "./settings-handler";
 
-const settings = createCalendarInstallationSettings(
-  prismaCalendarInstallationSettingsRepository,
-);
+const settings = createCalendarInstallationSettings(prismaCalendarInstallationSettingsRepository);
 const handlers = createCalendarSettingsHandlers({
   getActor: getCurrentUserWithDbCheck,
   getSettings: settings.get,

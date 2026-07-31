@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 
-export interface EmptyStateProps
-  extends React.HTMLAttributes<HTMLElement> {
+export interface EmptyStateProps extends React.HTMLAttributes<HTMLElement> {
   icon?: React.ReactNode;
   title: string;
   description?: string;
@@ -44,9 +43,7 @@ function EmptyState({
       </div>
       <h2 className="text-lg font-semibold text-balance">{title}</h2>
       {description ? (
-        <p className="mt-2 max-w-md text-sm text-pretty text-muted-foreground">
-          {description}
-        </p>
+        <p className="mt-2 max-w-md text-sm text-pretty text-muted-foreground">{description}</p>
       ) : null}
       <div className="mt-5 flex flex-col gap-2 sm:flex-row">
         {actionLabel && onAction ? (

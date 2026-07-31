@@ -73,18 +73,12 @@ export function WishlistToolbarControls({
     <div className={cn("flex flex-shrink-0 items-center gap-2", className)}>
       <Select value={sortBy} onValueChange={onSortChange}>
         <SelectTrigger
-          className={cn(
-            "w-9 shrink-0 px-0 sm:w-[184px] sm:px-3",
-            filterBarTriggerClass,
-          )}
+          className={cn("w-9 shrink-0 px-0 sm:w-[184px] sm:px-3", filterBarTriggerClass)}
           title={t("Сортировка")}
           aria-label={t("Сортировка")}
         >
           <SlidersHorizontal className="mx-auto h-4 w-4 shrink-0 text-muted-foreground/85 sm:mx-0 sm:mr-2" />
-          <SelectValue
-            placeholder={t("Сортировка")}
-            className="sr-only sm:not-sr-only sm:inline"
-          />
+          <SelectValue placeholder={t("Сортировка")} className="sr-only sm:not-sr-only sm:inline" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="newest">{t("Новые сначала")}</SelectItem>

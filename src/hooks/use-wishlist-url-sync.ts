@@ -89,12 +89,7 @@ export function useWishlistUrlSync({
     if (!allowedListIdsForFilters.has(selectedListId)) {
       syncFiltersToUrl({ listId: null });
     }
-  }, [
-    selectedListId,
-    allowedListIdsForFilters,
-    currentUserId,
-    syncFiltersToUrl,
-  ]);
+  }, [selectedListId, allowedListIdsForFilters, currentUserId, syncFiltersToUrl]);
 
   return { syncFiltersToUrl };
 }

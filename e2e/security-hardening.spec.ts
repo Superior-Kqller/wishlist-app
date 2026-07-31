@@ -46,7 +46,7 @@ async function createAuthenticatedApiContext(): Promise<APIRequestContext> {
     const signInText = await signInResponse.text();
     if (![200, 302].includes(signInResponse.status())) {
       authErrors.push(
-        `signIn status=${signInResponse.status()} user=${candidate.username} body=${signInText.slice(0, 180)}`
+        `signIn status=${signInResponse.status()} user=${candidate.username} body=${signInText.slice(0, 180)}`,
       );
       continue;
     }
@@ -55,7 +55,7 @@ async function createAuthenticatedApiContext(): Promise<APIRequestContext> {
     if (sessionResponse.status() !== 200) {
       const sessionText = await sessionResponse.text();
       authErrors.push(
-        `session status=${sessionResponse.status()} user=${candidate.username} body=${sessionText.slice(0, 180)}`
+        `session status=${sessionResponse.status()} user=${candidate.username} body=${sessionText.slice(0, 180)}`,
       );
       continue;
     }

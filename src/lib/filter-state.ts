@@ -2,10 +2,7 @@ import type { UserWithStats } from "@/types";
 
 export type UserScope = "all" | "me" | "user";
 
-export function resolveUserScope(
-  selectedUserId: string | null,
-  currentUserId: string
-): UserScope {
+export function resolveUserScope(selectedUserId: string | null, currentUserId: string): UserScope {
   if (selectedUserId === null) return "all";
   if (selectedUserId === "me" || selectedUserId === currentUserId) return "me";
   return "user";
@@ -18,7 +15,7 @@ export function resolveUserScope(
 export function normalizeSelectedUserId(
   selectedUserId: string | null,
   currentUserId: string | undefined,
-  users: UserWithStats[]
+  users: UserWithStats[],
 ): string | null {
   if (!selectedUserId) return null;
   if (!currentUserId) return selectedUserId;
@@ -29,4 +26,3 @@ export function normalizeSelectedUserId(
 
   return users.some((u) => u.id === selectedUserId) ? selectedUserId : null;
 }
-

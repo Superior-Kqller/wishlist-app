@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
   DEFAULT_LANGUAGE,
   LANGUAGE_COOKIE_NAME,
@@ -45,9 +38,7 @@ export function LanguageProvider({
   }, []);
 
   useEffect(() => {
-    const storedLanguage = normalizeLanguage(
-      window.localStorage.getItem(LANGUAGE_STORAGE_KEY),
-    );
+    const storedLanguage = normalizeLanguage(window.localStorage.getItem(LANGUAGE_STORAGE_KEY));
     if (storedLanguage !== language) {
       setLanguage(storedLanguage);
       return;

@@ -85,10 +85,7 @@ describe("canUserSeeItem", () => {
 
 describe("getVisibleListIdsForUser", () => {
   it("возвращает ID подборок, где пользователь владелец или viewer", async () => {
-    mockFindMany.mockResolvedValue([
-      { id: "list-1" },
-      { id: "list-2" },
-    ]);
+    mockFindMany.mockResolvedValue([{ id: "list-1" }, { id: "list-2" }]);
     const ids = await getVisibleListIdsForUser("user-1");
     expect(ids).toEqual(["list-1", "list-2"]);
   });

@@ -150,7 +150,10 @@ export function PersonalEventsPanel() {
 
         {isLoading ? (
           <div className="mt-4 flex min-h-20 items-center justify-center">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" aria-label={t("Загрузка")} />
+            <Loader2
+              className="h-5 w-5 animate-spin text-muted-foreground"
+              aria-label={t("Загрузка")}
+            />
           </div>
         ) : error ? (
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/35 bg-destructive/8 px-4 py-3">
@@ -169,10 +172,22 @@ export function PersonalEventsPanel() {
                     {event.date} · {event.recurrence === "YEARLY" ? t("Ежегодно") : t("Однократно")}
                   </p>
                 </div>
-                <Button type="button" variant="ghost" size="icon" onClick={() => openEdit(event)} aria-label={t("Изменить событие")}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => openEdit(event)}
+                  aria-label={t("Изменить событие")}
+                >
                   <Pencil className="h-4 w-4" aria-hidden />
                 </Button>
-                <Button type="button" variant="ghost" size="icon" onClick={() => remove(event)} aria-label={t("Удалить событие")}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => remove(event)}
+                  aria-label={t("Удалить событие")}
+                >
                   <Trash2 className="h-4 w-4" aria-hidden />
                 </Button>
               </div>
@@ -188,33 +203,73 @@ export function PersonalEventsPanel() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? t("Изменить личное событие") : t("Новое личное событие")}</DialogTitle>
-            <DialogDescription>{t("Событие увидят только пользователи из выбранной аудитории")}</DialogDescription>
+            <DialogTitle>
+              {editingId ? t("Изменить личное событие") : t("Новое личное событие")}
+            </DialogTitle>
+            <DialogDescription>
+              {t("Событие увидят только пользователи из выбранной аудитории")}
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="event-title">{t("Название")}</Label>
-              <Input id="event-title" maxLength={200} required value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} />
+              <Input
+                id="event-title"
+                maxLength={200}
+                required
+                value={form.title}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, title: event.target.value }))
+                }
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="event-date">{t("Дата")}</Label>
-              <Input id="event-date" type="date" required value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} />
+              <Input
+                id="event-date"
+                type="date"
+                required
+                value={form.date}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, date: event.target.value }))
+                }
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="event-description">{t("Описание (необязательно)")}</Label>
-              <Textarea id="event-description" maxLength={2000} value={form.description ?? ""} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value || null }))} />
+              <Textarea
+                id="event-description"
+                maxLength={2000}
+                value={form.description ?? ""}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, description: event.target.value || null }))
+                }
+              />
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               <label className="grid gap-2 text-sm font-medium">
                 {t("Повторение")}
-                <select className="h-11 rounded-md border border-input bg-background px-3" value={form.recurrence} onChange={(event) => setForm((current) => ({ ...current, recurrence: event.target.value as PersonalEventRecurrence }))}>
+                <select
+                  className="h-11 rounded-md border border-input bg-background px-3"
+                  value={form.recurrence}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      recurrence: event.target.value as PersonalEventRecurrence,
+                    }))
+                  }
+                >
                   <option value="ONCE">{t("Однократно")}</option>
                   <option value="YEARLY">{t("Ежегодно")}</option>
                 </select>
               </label>
               <label className="grid gap-2 text-sm font-medium">
                 {t("Аудитория")}
-                <select className="h-11 rounded-md border border-input bg-background px-3" value={form.audience} onChange={(event) => setAudience(event.target.value as CalendarAudience)}>
+                <select
+                  className="h-11 rounded-md border border-input bg-background px-3"
+                  value={form.audience}
+                  onChange={(event) => setAudience(event.target.value as CalendarAudience)}
+                >
                   <option value="ALL">{t("Всем")}</option>
                   <option value="SELECTED">{t("Выбранным")}</option>
                   <option value="PRIVATE">{t("Только мне")}</option>
@@ -226,16 +281,21 @@ export function PersonalEventsPanel() {
                 <legend className="text-sm font-medium">{t("Кому показать")}</legend>
                 <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border border-border p-2">
                   {(audienceData?.users ?? []).map((user) => (
-                    <label key={user.id} className="flex min-h-10 items-center gap-3 rounded-md px-2 hover:bg-accent">
+                    <label
+                      key={user.id}
+                      className="flex min-h-10 items-center gap-3 rounded-md px-2 hover:bg-accent"
+                    >
                       <input
                         type="checkbox"
                         checked={form.selectedViewerIds.includes(user.id)}
-                        onChange={(event) => setForm((current) => ({
-                          ...current,
-                          selectedViewerIds: event.target.checked
-                            ? [...current.selectedViewerIds, user.id]
-                            : current.selectedViewerIds.filter((id) => id !== user.id),
-                        }))}
+                        onChange={(event) =>
+                          setForm((current) => ({
+                            ...current,
+                            selectedViewerIds: event.target.checked
+                              ? [...current.selectedViewerIds, user.id]
+                              : current.selectedViewerIds.filter((id) => id !== user.id),
+                          }))
+                        }
                       />
                       <span className="text-sm">{user.name}</span>
                     </label>
@@ -245,8 +305,14 @@ export function PersonalEventsPanel() {
             ) : null}
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>{t("Отмена")}</Button>
-            <Button type="button" onClick={save} disabled={saving || !form.title.trim() || !form.date}>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              {t("Отмена")}
+            </Button>
+            <Button
+              type="button"
+              onClick={save}
+              disabled={saving || !form.title.trim() || !form.date}
+            >
               {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden /> : null}
               {editingId ? t("Сохранить") : t("Создать")}
             </Button>

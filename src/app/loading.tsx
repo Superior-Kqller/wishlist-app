@@ -6,7 +6,9 @@ export default function Loading() {
     <div className="min-h-screen page-bg">
       <div className="mx-auto w-full max-w-[112rem] space-y-3 px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-5 sm:px-6 sm:py-6 sm:pb-6 xl:px-8 2xl:px-10">
         <div className="grid items-stretch gap-3 sm:gap-5 xl:grid-cols-[minmax(0,2.35fr)_minmax(18rem,0.9fr)]">
-          <section className={`${uiSurface.homeSummary} h-full rounded-xl px-3 py-3 sm:rounded-2xl sm:px-5 sm:py-4`}>
+          <section
+            className={`${uiSurface.homeSummary} h-full rounded-xl px-3 py-3 sm:rounded-2xl sm:px-5 sm:py-4`}
+          >
             <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
               <div className="min-w-0 space-y-2">
                 <Skeleton className="h-3 w-28 rounded-full" />
@@ -23,7 +25,9 @@ export default function Loading() {
             </div>
           </section>
 
-          <aside className={`${uiSurface.contentPanel} rounded-xl border-border/42 p-3 sm:rounded-2xl sm:p-4`}>
+          <aside
+            className={`${uiSurface.contentPanel} rounded-xl border-border/42 p-3 sm:rounded-2xl sm:p-4`}
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-2">
                 <Skeleton className="h-4 w-24 rounded-full" />

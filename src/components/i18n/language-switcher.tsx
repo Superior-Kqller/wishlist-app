@@ -40,12 +40,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
             className="gap-2"
             aria-label={`${t("Выбранный язык")}: ${languageLabels[option]}`}
           >
-            <Check
-              className={cn(
-                "h-4 w-4",
-                option === language ? "opacity-100" : "opacity-0",
-              )}
-            />
+            <Check className={cn("h-4 w-4", option === language ? "opacity-100" : "opacity-0")} />
             <span>{option === "ru" ? t("Русский") : t("Английский")}</span>
           </DropdownMenuItem>
         ))}

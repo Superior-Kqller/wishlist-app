@@ -1,8 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  createCalendarReminderModule,
-  type CalendarReminderRepository,
-} from "./reminder-module";
+import { createCalendarReminderModule, type CalendarReminderRepository } from "./reminder-module";
 import type { ReminderEventFact } from "./calendar-events";
 
 function event(overrides: Partial<ReminderEventFact> = {}): ReminderEventFact {
@@ -152,10 +149,7 @@ describe("calendar reminder module", () => {
     const reminders = createCalendarReminderModule(events, repo, { send });
     const input = { localDate: "2027-08-01", publicBaseUrl: "https://wishlist.example" };
 
-    await Promise.all([
-      reminders.processDueReminders(input),
-      reminders.processDueReminders(input),
-    ]);
+    await Promise.all([reminders.processDueReminders(input), reminders.processDueReminders(input)]);
 
     expect(send).toHaveBeenCalledTimes(2);
   });
@@ -188,9 +182,7 @@ describe("calendar reminder module", () => {
     });
 
     expect(send).toHaveBeenCalledTimes(2);
-    expect(send.mock.calls[1][0]).toEqual(
-      expect.objectContaining({ chatId: "10005" }),
-    );
+    expect(send.mock.calls[1][0]).toEqual(expect.objectContaining({ chatId: "10005" }));
   });
 
   it("освобождает бронь доставки после ошибки Telegram для будущего повтора", async () => {

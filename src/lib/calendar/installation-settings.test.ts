@@ -4,9 +4,7 @@ import {
   type CalendarInstallationSettingsRepository,
 } from "./installation-settings";
 
-function repository(
-  timeZone = "Europe/Moscow",
-): CalendarInstallationSettingsRepository {
+function repository(timeZone = "Europe/Moscow"): CalendarInstallationSettingsRepository {
   return {
     get: vi.fn().mockResolvedValue({ timeZone }),
     save: vi.fn(async (nextTimeZone) => ({ timeZone: nextTimeZone })),
@@ -24,9 +22,9 @@ describe("calendar installation settings", () => {
     const repo = repository();
     const settings = createCalendarInstallationSettings(repo);
 
-    await expect(
-      settings.update({ role: "USER" }, { timeZone: "Europe/Berlin" }),
-    ).rejects.toThrow("FORBIDDEN");
+    await expect(settings.update({ role: "USER" }, { timeZone: "Europe/Berlin" })).rejects.toThrow(
+      "FORBIDDEN",
+    );
     expect(repo.save).not.toHaveBeenCalled();
   });
 
@@ -34,14 +32,14 @@ describe("calendar installation settings", () => {
     const repo = repository();
     const settings = createCalendarInstallationSettings(repo);
 
-    await expect(
-      settings.update({ role: "ADMIN" }, { timeZone: "Not/A_Zone" }),
-    ).rejects.toThrow("INVALID_TIME_ZONE");
+    await expect(settings.update({ role: "ADMIN" }, { timeZone: "Not/A_Zone" })).rejects.toThrow(
+      "INVALID_TIME_ZONE",
+    );
     await expect(
       settings.update({ role: "ADMIN" }, { timeZone: "America/New_York" }),
     ).resolves.toEqual({ timeZone: "America/New_York" });
-    await expect(
-      settings.update({ role: "ADMIN" }, { timeZone: "UTC" }),
-    ).resolves.toEqual({ timeZone: "UTC" });
+    await expect(settings.update({ role: "ADMIN" }, { timeZone: "UTC" })).resolves.toEqual({
+      timeZone: "UTC",
+    });
   });
 });

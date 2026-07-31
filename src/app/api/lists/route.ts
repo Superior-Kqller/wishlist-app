@@ -55,10 +55,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(result);
   } catch (err) {
     sanitizeError("Get lists error", err);
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }
 
@@ -80,8 +77,8 @@ export async function POST(req: NextRequest) {
       new Set(
         data.viewerIds
           .map((uid) => uid.trim())
-          .filter((uid) => uid.length > 0 && uid !== currentUserId)
-      )
+          .filter((uid) => uid.length > 0 && uid !== currentUserId),
+      ),
     );
     const viewerCandidates = normalizedViewerIds;
     const viewerCheck = await ensureUserIdsExist(viewerCandidates);
@@ -91,7 +88,7 @@ export async function POST(req: NextRequest) {
           error: "Указаны несуществующие пользователи",
           details: { unknownIds: viewerCheck.missing },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -124,13 +121,10 @@ export async function POST(req: NextRequest) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Ошибка проверки данных", details: err.issues },
-        { status: 400 }
+        { status: 400 },
       );
     }
     sanitizeError("Create list error", err, { userId: currentUserId });
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

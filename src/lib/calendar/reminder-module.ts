@@ -1,9 +1,5 @@
 import { parseLocalDate } from "./local-date";
-import type {
-  CalendarEventSourceType,
-  CalendarRange,
-  ReminderEventFact,
-} from "./calendar-events";
+import type { CalendarEventSourceType, CalendarRange, ReminderEventFact } from "./calendar-events";
 
 export type CalendarReminderSourceType = CalendarEventSourceType;
 export type CalendarReminderCheckpoint = 30 | 21 | 7 | 0;
@@ -41,10 +37,13 @@ export interface CalendarTelegramAdapter {
 }
 
 export interface CalendarReminderLogger {
-  deliveryError(error: unknown, context: {
-    sourceType: CalendarReminderSourceType;
-    checkpointDays: CalendarReminderCheckpoint;
-  }): void;
+  deliveryError(
+    error: unknown,
+    context: {
+      sourceType: CalendarReminderSourceType;
+      checkpointDays: CalendarReminderCheckpoint;
+    },
+  ): void;
 }
 
 const CHECKPOINTS: CalendarReminderCheckpoint[] = [30, 21, 7, 0];
@@ -74,11 +73,7 @@ function formatMessage(
   const baseUrl = publicBaseUrl.replace(/\/+$/, "");
   const remaining =
     checkpoint === 0 ? "сегодня" : `через ${checkpoint} ${checkpoint === 21 ? "день" : "дней"}`;
-  const lines = [
-    `📅 ${event.title}`,
-    `Дата: ${event.occurrenceDate}`,
-    `Осталось: ${remaining}`,
-  ];
+  const lines = [`📅 ${event.title}`, `Дата: ${event.occurrenceDate}`, `Осталось: ${remaining}`];
   if (event.congratulated.length > 0) {
     lines.push(`Поздравляем: ${event.congratulated.join(", ")}`);
   }

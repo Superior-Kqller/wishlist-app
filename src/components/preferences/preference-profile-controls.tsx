@@ -4,10 +4,7 @@ import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/components/i18n/language-provider";
 import { cn } from "@/lib/utils";
-import type {
-  PreferenceProfileFilter,
-  PreferenceProfileSort,
-} from "@/lib/preference-profiles";
+import type { PreferenceProfileFilter, PreferenceProfileSort } from "@/lib/preference-profiles";
 
 const filterOptions: Array<{ id: PreferenceProfileFilter; label: string }> = [
   { id: "all", label: "Все" },

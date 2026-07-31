@@ -29,11 +29,7 @@ interface UserTableProps {
   onRefresh: () => void;
 }
 
-export function UserTable({
-  users,
-  currentUserId,
-  onRefresh,
-}: UserTableProps) {
+export function UserTable({ users, currentUserId, onRefresh }: UserTableProps) {
   const { t, locale } = useI18n();
   const [search, setSearch] = useState("");
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -47,13 +43,12 @@ export function UserTable({
       (u) =>
         u.username.toLowerCase().includes(q) ||
         u.name.toLowerCase().includes(q) ||
-        u.role.toLowerCase().includes(q)
+        u.role.toLowerCase().includes(q),
     );
   }, [users, search]);
 
   const adminCount = users.filter((u) => u.role === "ADMIN").length;
-  const isLastAdmin = (user: User) =>
-    user.role === "ADMIN" && adminCount <= 1;
+  const isLastAdmin = (user: User) => user.role === "ADMIN" && adminCount <= 1;
 
   const formatCreatedAt = (createdAt: string) =>
     new Date(createdAt).toLocaleDateString(locale, {
@@ -100,11 +95,7 @@ export function UserTable({
         )}
         onClick={() => setDeletingUser(user)}
         disabled={isLastAdmin(user)}
-        title={
-          isLastAdmin(user)
-            ? t("Нельзя удалить последнего администратора")
-            : t("Удалить")
-        }
+        title={isLastAdmin(user) ? t("Нельзя удалить последнего администратора") : t("Удалить")}
         aria-label={
           isLastAdmin(user)
             ? t("Нельзя удалить последнего администратора")
@@ -135,9 +126,7 @@ export function UserTable({
         <EmptyState
           icon={<Users className="h-5 w-5" aria-hidden />}
           title={t("Пользователи не найдены")}
-          description={t(
-            "Измените поисковый запрос или создайте нового пользователя.",
-          )}
+          description={t("Измените поисковый запрос или создайте нового пользователя.")}
           className={cn(uiSurface.contentPanel, "min-h-[240px]")}
         />
       ) : (
@@ -167,33 +156,23 @@ export function UserTable({
                         </Badge>
                       ) : null}
                     </div>
-                    <p className="truncate text-sm text-muted-foreground">
-                      @{user.username}
-                    </p>
+                    <p className="truncate text-sm text-muted-foreground">@{user.username}</p>
                   </div>
                   <Badge
                     variant={user.role === "ADMIN" ? "default" : "outline"}
                     className="shrink-0"
                   >
-                    {user.role === "ADMIN"
-                      ? t("Администратор")
-                      : t("Пользователь")}
+                    {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
                   </Badge>
                 </div>
 
                 <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border/34 pt-3 text-sm">
                   <div>
-                    <dt className="text-xs text-muted-foreground">
-                      {t("Желаний")}
-                    </dt>
-                    <dd className="mt-1 font-semibold tabular-nums">
-                      {user._count?.items || 0}
-                    </dd>
+                    <dt className="text-xs text-muted-foreground">{t("Желаний")}</dt>
+                    <dd className="mt-1 font-semibold tabular-nums">{user._count?.items || 0}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-muted-foreground">
-                      {t("Создан")}
-                    </dt>
+                    <dt className="text-xs text-muted-foreground">{t("Создан")}</dt>
                     <dd className="mt-1 font-medium tabular-nums">
                       {formatCreatedAt(user.createdAt)}
                     </dd>
@@ -207,12 +186,7 @@ export function UserTable({
             ))}
           </div>
 
-          <div
-            className={cn(
-              uiSurface.contentPanel,
-              "hidden overflow-hidden sm:block",
-            )}
-          >
+          <div className={cn(uiSurface.contentPanel, "hidden overflow-hidden sm:block")}>
             <Table>
               <TableHeader className="bg-muted/35">
                 <TableRow className="hover:bg-transparent">
@@ -221,9 +195,7 @@ export function UserTable({
                   <TableHead>{t("Роль")}</TableHead>
                   <TableHead>{t("Желаний")}</TableHead>
                   <TableHead>{t("Создан")}</TableHead>
-                  <TableHead className="text-right">
-                    {t("Действия")}
-                  </TableHead>
+                  <TableHead className="text-right">{t("Действия")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -241,12 +213,8 @@ export function UserTable({
                     </TableCell>
                     <TableCell>{user.name}</TableCell>
                     <TableCell>
-                      <Badge
-                        variant={user.role === "ADMIN" ? "default" : "outline"}
-                      >
-                        {user.role === "ADMIN"
-                          ? t("Администратор")
-                          : t("Пользователь")}
+                      <Badge variant={user.role === "ADMIN" ? "default" : "outline"}>
+                        {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
                       </Badge>
                     </TableCell>
                     <TableCell>{user._count?.items || 0}</TableCell>

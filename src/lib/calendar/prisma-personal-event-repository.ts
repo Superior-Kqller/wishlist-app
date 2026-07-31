@@ -48,9 +48,7 @@ function eventData(input: PersonalEventInput) {
   };
 }
 
-export function createPrismaPersonalEventRepository(
-  prisma: PrismaClient,
-): PersonalEventRepository {
+export function createPrismaPersonalEventRepository(prisma: PrismaClient): PersonalEventRepository {
   return {
     async findExistingUserIds(userIds) {
       const users = await prisma.user.findMany({

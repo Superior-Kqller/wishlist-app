@@ -34,9 +34,10 @@ export function UserFilter({
   const userScope = resolveUserScope(selectedUserId, currentUserId);
   const isMyMode = userScope === "me";
 
-  const selectedUser = selectedUserId && selectedUserId !== "me" && selectedUserId !== currentUserId
-    ? users.find((u) => u.id === selectedUserId)
-    : null;
+  const selectedUser =
+    selectedUserId && selectedUserId !== "me" && selectedUserId !== currentUserId
+      ? users.find((u) => u.id === selectedUserId)
+      : null;
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -51,8 +52,7 @@ export function UserFilter({
               uiSurface.inputAlt,
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               "touch-manipulation",
-              (selectedUser || isMyMode) &&
-                "border-primary/40 bg-primary/15 text-foreground"
+              (selectedUser || isMyMode) && "border-primary/40 bg-primary/15 text-foreground",
             )}
             data-testid="mobile-user-trigger"
           >
@@ -97,7 +97,7 @@ export function UserFilter({
             onClick={() => onUserChange(null)}
             className={cn(
               "cursor-pointer",
-              selectedUserId === null && "border border-primary/40 bg-primary/15"
+              selectedUserId === null && "border border-primary/40 bg-primary/15",
             )}
             data-testid="mobile-user-option-all"
           >
@@ -105,10 +105,7 @@ export function UserFilter({
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => onUserChange("me")}
-            className={cn(
-              "cursor-pointer",
-              isMyMode && "border border-primary/40 bg-primary/15"
-            )}
+            className={cn("cursor-pointer", isMyMode && "border border-primary/40 bg-primary/15")}
             data-testid="mobile-user-option-me"
           >
             {t("Мои")}
@@ -120,16 +117,11 @@ export function UserFilter({
               onClick={() => onUserChange(user.id)}
               className={cn(
                 "flex items-center gap-3 p-3 cursor-pointer",
-                selectedUserId === user.id && "border border-primary/40 bg-primary/15"
+                selectedUserId === user.id && "border border-primary/40 bg-primary/15",
               )}
               data-testid={`mobile-user-option-${user.id}`}
             >
-              <UserAvatar
-                avatarUrl={user.avatarUrl}
-                name={user.name}
-                userId={user.id}
-                size="md"
-              />
+              <UserAvatar avatarUrl={user.avatarUrl} name={user.name} userId={user.id} size="md" />
               <div className="flex-1 min-w-0">
                 <div className="font-medium truncate">{user.name}</div>
                 <div className="text-xs text-muted-foreground">

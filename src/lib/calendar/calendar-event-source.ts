@@ -1,8 +1,5 @@
 import type { HolidayRule } from "./holiday-rules";
-import type {
-  CalendarAudience,
-  PersonalEventRecurrence,
-} from "./personal-events";
+import type { CalendarAudience, PersonalEventRecurrence } from "./personal-events";
 
 export interface CalendarPersonSource {
   id: string;

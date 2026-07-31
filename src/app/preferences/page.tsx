@@ -214,7 +214,10 @@ function escapeRegExp(value: string) {
 }
 
 function parseSizePreferences(value: string) {
-  const fields = Object.fromEntries(sizeCategories.map((category) => [category.id, ""])) as Record<SizeCategoryId, string>;
+  const fields = Object.fromEntries(sizeCategories.map((category) => [category.id, ""])) as Record<
+    SizeCategoryId,
+    string
+  >;
   const custom: string[] = [];
   const parts = value
     .split(/[;\n,]/)
@@ -233,7 +236,9 @@ function parseSizePreferences(value: string) {
     }
 
     const names = [matched.label, ...(matched.aliases ?? [])];
-    const matchedName = names.find((name) => new RegExp(`^${escapeRegExp(name)}[:\\s-]+`, "i").test(part));
+    const matchedName = names.find((name) =>
+      new RegExp(`^${escapeRegExp(name)}[:\\s-]+`, "i").test(part),
+    );
     const nextValue = matchedName
       ? part.replace(new RegExp(`^${escapeRegExp(matchedName)}[:\\s-]+`, "i"), "").trim()
       : "";
@@ -362,13 +367,7 @@ function QuickTextField({
   );
 }
 
-function SizeBuilder({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) {
+function SizeBuilder({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   const { t } = useI18n();
   const parsed = useMemo(() => parseSizePreferences(value), [value]);
 
@@ -397,7 +396,9 @@ function SizeBuilder({
         <div>
           <h2 className="text-base font-semibold tracking-tight">{t("Размеры по категориям")}</h2>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            {t("Разделите одежду, обувь, брюки и аксессуары, чтобы друзья не угадывали по одному общему полю.")}
+            {t(
+              "Разделите одежду, обувь, брюки и аксессуары, чтобы друзья не угадывали по одному общему полю.",
+            )}
           </p>
         </div>
       </div>
@@ -499,11 +500,9 @@ export default function PreferencesPage() {
     isLoading: isCircleLoading,
     error: circleError,
     mutate: mutateCircle,
-  } = useSWR<CircleUsersResponse>(
-    status === "authenticated" ? "/api/users/stats" : null,
-    fetcher,
-    { revalidateOnFocus: false },
-  );
+  } = useSWR<CircleUsersResponse>(status === "authenticated" ? "/api/users/stats" : null, fetcher, {
+    revalidateOnFocus: false,
+  });
   const preferences = useMemo(
     () => normalizeGiftPreferences(data?.giftPreferences),
     [data?.giftPreferences],
@@ -637,16 +636,16 @@ export default function PreferencesPage() {
         <div className="space-y-5">
           <PageIntro
             title={t("Подарочные профили")}
-            description={t("Загляните в подсказки друзей перед выбором подарка. Свой профиль можно настроить прямо здесь.")}
+            description={t(
+              "Загляните в подсказки друзей перед выбором подарка. Свой профиль можно настроить прямо здесь.",
+            )}
             actions={
               <div className="flex items-center gap-2.5 px-1 py-1">
                 <div className="flex size-8 items-center justify-center text-primary">
                   <UsersRound className="h-4 w-4" aria-hidden />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">
-                    {t("Профилей в круге")}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t("Профилей в круге")}</p>
                   <p className="text-sm font-semibold tabular-nums">{allCircleUsers.length}</p>
                 </div>
               </div>
@@ -656,7 +655,13 @@ export default function PreferencesPage() {
           {error ? (
             <div className={cn(uiSurface.emptyState, "px-4 py-8")}>
               <p className="text-sm font-semibold">{t("Не удалось загрузить профиль")}</p>
-              <Button type="button" variant="outline" size="sm" className="mt-4" onClick={() => mutate()}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-4"
+                onClick={() => mutate()}
+              >
                 {t("Попробовать снова")}
               </Button>
             </div>
@@ -669,13 +674,17 @@ export default function PreferencesPage() {
                   </h2>
                 </div>
                 <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-                  {t("Откройте карточку, чтобы посмотреть весь профиль. Ваша карточка всегда идёт первой.")}
+                  {t(
+                    "Откройте карточку, чтобы посмотреть весь профиль. Ваша карточка всегда идёт первой.",
+                  )}
                 </p>
               </div>
 
               {circleError ? (
                 <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/7 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-                  <span>{t("Не удалось загрузить профили друзей. Ваш профиль по-прежнему доступен.")}</span>
+                  <span>
+                    {t("Не удалось загрузить профили друзей. Ваш профиль по-прежнему доступен.")}
+                  </span>
                   <Button type="button" variant="outline" size="sm" onClick={() => mutateCircle()}>
                     {t("Повторить")}
                   </Button>
@@ -694,7 +703,10 @@ export default function PreferencesPage() {
               />
 
               {circleUsers.length > 0 ? (
-                <motion.div layout className="grid items-start gap-3 md:grid-cols-2 2xl:grid-cols-3 min-[2200px]:grid-cols-4">
+                <motion.div
+                  layout
+                  className="grid items-start gap-3 md:grid-cols-2 2xl:grid-cols-3 min-[2200px]:grid-cols-4"
+                >
                   {circleUsers.map((user, index) => {
                     const isCurrent = user.id === data?.id;
                     const isExpanded = expandedUserId === user.id;
@@ -734,7 +746,9 @@ export default function PreferencesPage() {
               ) : (
                 <div className={cn(uiSurface.emptyState, "px-4 py-10 text-center")}>
                   <Search className="mx-auto h-5 w-5 text-muted-foreground" aria-hidden />
-                  <p className="mt-3 text-sm font-semibold">{t("Подходящих профилей не найдено")}</p>
+                  <p className="mt-3 text-sm font-semibold">
+                    {t("Подходящих профилей не найдено")}
+                  </p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {t("Измените запрос или сбросьте фильтры.")}
                   </p>
@@ -756,11 +770,16 @@ export default function PreferencesPage() {
               )}
 
               <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
-                <DialogContent className="max-w-[min(86rem,calc(100vw-1rem))]" bodyClassName="gap-5 p-4 sm:p-5">
+                <DialogContent
+                  className="max-w-[min(86rem,calc(100vw-1rem))]"
+                  bodyClassName="gap-5 p-4 sm:p-5"
+                >
                   <DialogHeader>
                     <DialogTitle>{t("Настройка подарочного профиля")}</DialogTitle>
                     <DialogDescription>
-                      {t("Разделите бренды, цвета, категории, стоп-лист и детали. Карточка в списке обновляется сразу.")}
+                      {t(
+                        "Разделите бренды, цвета, категории, стоп-лист и детали. Карточка в списке обновляется сразу.",
+                      )}
                     </DialogDescription>
                   </DialogHeader>
 
@@ -772,7 +791,8 @@ export default function PreferencesPage() {
                       <div>
                         <p className="text-sm font-semibold">{t("Ваш профиль")}</p>
                         <p className="text-xs text-muted-foreground">
-                          {t("Заполнено подсказок")}: <span className="tabular-nums">{preferenceCount}</span>
+                          {t("Заполнено подсказок")}:{" "}
+                          <span className="tabular-nums">{preferenceCount}</span>
                         </p>
                       </div>
                     </div>
@@ -782,13 +802,22 @@ export default function PreferencesPage() {
                       disabled={!hasChanges || saving}
                       onClick={handleSubmit}
                     >
-                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                      {saving ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
                       {saving ? t("Сохраняем") : t("Сохранить")}
                     </Button>
                   </div>
 
                   <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[12rem_minmax(0,1fr)]">
-                    <nav className={cn(uiSurface.contentPanel, "grid min-w-0 gap-1 p-2 lg:sticky lg:top-5")}>
+                    <nav
+                      className={cn(
+                        uiSurface.contentPanel,
+                        "grid min-w-0 gap-1 p-2 lg:sticky lg:top-5",
+                      )}
+                    >
                       {editorSections.map((section) => {
                         const Icon = section.icon;
                         const active = activeSection === section.id;
@@ -804,9 +833,14 @@ export default function PreferencesPage() {
                                 : "border-transparent text-muted-foreground hover:bg-accent/60 hover:text-foreground",
                             )}
                           >
-                            <Icon className={cn("h-4 w-4 shrink-0", active && "text-primary")} aria-hidden />
+                            <Icon
+                              className={cn("h-4 w-4 shrink-0", active && "text-primary")}
+                              aria-hidden
+                            />
                             <span className="min-w-0 flex-1">
-                              <span className="block text-sm font-semibold">{t(section.label)}</span>
+                              <span className="block text-sm font-semibold">
+                                {t(section.label)}
+                              </span>
                               <span className="hidden truncate text-[11px] text-muted-foreground xl:block">
                                 {t(section.hint)}
                               </span>
@@ -946,7 +980,12 @@ export default function PreferencesPage() {
                                 description="Ориентир помогает не ставить друзей в неловкое положение."
                                 value={draft.budget}
                                 placeholder="Например, дороже 5000 ₽ лучше обсудить"
-                                suggestions={["До 1000 ₽", "До 3000 ₽", "До 5000 ₽", "Бюджет не важен"]}
+                                suggestions={[
+                                  "До 1000 ₽",
+                                  "До 3000 ₽",
+                                  "До 5000 ₽",
+                                  "Бюджет не важен",
+                                ]}
                                 icon={CircleDollarSign}
                                 onChange={(value) => updateText("budget", value)}
                               />
@@ -961,11 +1000,16 @@ export default function PreferencesPage() {
                               />
                               <section className="space-y-3 rounded-2xl border border-border/50 bg-[hsl(var(--surface-2))/0.72] p-4 sm:p-5">
                                 <div>
-                                  <Label htmlFor="notes" className="text-base font-semibold tracking-tight">
+                                  <Label
+                                    htmlFor="notes"
+                                    className="text-base font-semibold tracking-tight"
+                                  >
                                     {t("Личная подсказка")}
                                   </Label>
                                   <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                                    {t("Аллергии, доставка, упаковка или любая деталь, которую не выразить кнопкой.")}
+                                    {t(
+                                      "Аллергии, доставка, упаковка или любая деталь, которую не выразить кнопкой.",
+                                    )}
                                   </p>
                                 </div>
                                 <Textarea
@@ -974,7 +1018,9 @@ export default function PreferencesPage() {
                                   rows={5}
                                   maxLength={1000}
                                   onChange={(event) => updateText("notes", event.target.value)}
-                                  placeholder={t("Например: люблю практичные подарки и не люблю сюрпризы с доставкой на работу")}
+                                  placeholder={t(
+                                    "Например: люблю практичные подарки и не люблю сюрпризы с доставкой на работу",
+                                  )}
                                   className="min-h-32 resize-y border-border/56 bg-[hsl(var(--surface-3))/0.6]"
                                 />
                               </section>

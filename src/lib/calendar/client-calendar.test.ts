@@ -70,9 +70,10 @@ describe("client calendar", () => {
   it("groups occurrences that share a calendar date", () => {
     const sameDay = { ...occurrences[2], id: "holiday-2", date: "2026-07-28" };
     expect(
-      groupCalendarOccurrences([occurrences[1], sameDay, occurrences[3]]).map(
-        ([date, entries]) => [date, entries.map(({ id }) => id)],
-      ),
+      groupCalendarOccurrences([occurrences[1], sameDay, occurrences[3]]).map(([date, entries]) => [
+        date,
+        entries.map(({ id }) => id),
+      ]),
     ).toEqual([
       ["2026-07-28", ["birthday", "holiday-2"]],
       ["2026-07-30", ["personal"]],
@@ -80,9 +81,11 @@ describe("client calendar", () => {
   });
 
   it("returns the nearest three accessible occurrences", () => {
-    expect(
-      getUpcomingOccurrences(occurrences, "2026-07-27", 3).map(({ id }) => id),
-    ).toEqual(["birthday", "holiday", "personal"]);
+    expect(getUpcomingOccurrences(occurrences, "2026-07-27", 3).map(({ id }) => id)).toEqual([
+      "birthday",
+      "holiday",
+      "personal",
+    ]);
   });
 
   it("uses list view initially on mobile and month view on wide screens", () => {

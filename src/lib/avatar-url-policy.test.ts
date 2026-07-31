@@ -8,21 +8,20 @@ import {
 
 describe("avatar-url-policy parseAvatarAllowedHosts", () => {
   it("парсит и нормализует список хостов из env", () => {
-    expect(
-      parseAvatarAllowedHosts("cdn.example.com, IMG.EXAMPLE.COM, cdn.example.com")
-    ).toEqual(["cdn.example.com", "img.example.com"]);
+    expect(parseAvatarAllowedHosts("cdn.example.com, IMG.EXAMPLE.COM, cdn.example.com")).toEqual([
+      "cdn.example.com",
+      "img.example.com",
+    ]);
   });
 
   it("отбрасывает невалидные записи", () => {
     expect(
-      parseAvatarAllowedHosts("https://bad.example.com,*.evil.com, good.example.com/path")
+      parseAvatarAllowedHosts("https://bad.example.com,*.evil.com, good.example.com/path"),
     ).toEqual([]);
   });
 
   it("отбрасывает localhost, IP literals и host c trailing dot", () => {
-    expect(
-      parseAvatarAllowedHosts("localhost,127.0.0.1,[::1],cdn.example.com.")
-    ).toEqual([]);
+    expect(parseAvatarAllowedHosts("localhost,127.0.0.1,[::1],cdn.example.com.")).toEqual([]);
   });
 });
 
@@ -114,7 +113,7 @@ describe("avatar-url-policy getAvatarAllowedHostsFromEnv", () => {
       getAvatarAllowedHostsFromEnv({
         NODE_ENV: "test",
         AVATAR_ALLOWED_HOSTS: "a.example.com, b.example.com",
-      } as NodeJS.ProcessEnv)
+      } as NodeJS.ProcessEnv),
     ).toEqual(["a.example.com", "b.example.com"]);
   });
 });

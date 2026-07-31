@@ -9,13 +9,7 @@ import { AddItemCard } from "./AddItemCard";
 import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
-import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RotateCcw } from "lucide-react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getItemWord } from "@/lib/i18n";

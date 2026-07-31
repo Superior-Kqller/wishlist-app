@@ -20,13 +20,7 @@ const sizeClasses = {
   xl: "w-12 h-12 text-lg",
 };
 
-export function UserAvatar({
-  avatarUrl,
-  name,
-  userId,
-  size = "md",
-  className,
-}: UserAvatarProps) {
+export function UserAvatar({ avatarUrl, name, userId, size = "md", className }: UserAvatarProps) {
   const [imageError, setImageError] = useState(false);
   const sizeClass = sizeClasses[size];
   const initials = getInitials(name);
@@ -56,7 +50,7 @@ export function UserAvatar({
         "rounded-full flex items-center justify-center text-primary-foreground font-medium",
         colorClass,
         sizeClass,
-        className
+        className,
       )}
       title={name}
     >

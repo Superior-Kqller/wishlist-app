@@ -4,10 +4,7 @@ import type {
   PersonalEventOccurrence,
 } from "./calendar-events";
 
-export type CalendarOccurrence =
-  | BirthdayOccurrence
-  | PersonalEventOccurrence
-  | HolidayOccurrence;
+export type CalendarOccurrence = BirthdayOccurrence | PersonalEventOccurrence | HolidayOccurrence;
 
 export type CalendarFilter = "ALL" | CalendarOccurrence["type"];
 export type CalendarView = "list" | "month";
@@ -74,8 +71,7 @@ export function getUpcomingOccurrences(
   return occurrences
     .filter((occurrence) => occurrence.date >= today)
     .toSorted(
-      (left, right) =>
-        left.date.localeCompare(right.date) || left.id.localeCompare(right.id),
+      (left, right) => left.date.localeCompare(right.date) || left.id.localeCompare(right.id),
     )
     .slice(0, limit);
 }

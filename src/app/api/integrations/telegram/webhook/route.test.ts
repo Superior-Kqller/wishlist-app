@@ -43,7 +43,10 @@ describe("telegram webhook route", () => {
     const { POST } = await import("./route");
     const req = new Request("http://localhost/api/integrations/telegram/webhook", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-telegram-bot-api-secret-token": "bad-secret" },
+      headers: {
+        "content-type": "application/json",
+        "x-telegram-bot-api-secret-token": "bad-secret",
+      },
       body: JSON.stringify({ update_id: 1 }),
     });
 
@@ -113,7 +116,10 @@ describe("telegram webhook route", () => {
         "content-type": "application/json",
         "x-telegram-bot-api-secret-token": "expected-secret",
       },
-      body: JSON.stringify({ update_id: 100, message: { text: "/start", chat: { id: 1, type: "private" } } }),
+      body: JSON.stringify({
+        update_id: 100,
+        message: { text: "/start", chat: { id: 1, type: "private" } },
+      }),
     });
 
     const response = await POST(req as never);

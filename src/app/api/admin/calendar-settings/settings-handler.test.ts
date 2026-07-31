@@ -37,9 +37,6 @@ describe("calendar settings handlers", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(updateSettings).toHaveBeenCalledWith(
-      { role: "ADMIN" },
-      { timeZone: "Europe/Berlin" },
-    );
+    expect(updateSettings).toHaveBeenCalledWith({ role: "ADMIN" }, { timeZone: "Europe/Berlin" });
   });
 });

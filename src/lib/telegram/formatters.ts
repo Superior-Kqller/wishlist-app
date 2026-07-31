@@ -2,11 +2,7 @@ import type { TelegramReplyMarkup } from "@/lib/telegram/types";
 
 export function buildMainMenuMarkup(): TelegramReplyMarkup {
   return {
-    inline_keyboard: [
-      [
-        { text: "Мои подарки", callback_data: "menu:mine" },
-      ],
-    ],
+    inline_keyboard: [[{ text: "Мои подарки", callback_data: "menu:mine" }]],
   };
 }
 

@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  filterListsBySelectedUser,
-  getFirstOwnedListId,
-} from "./list-filter-client";
+import { filterListsBySelectedUser, getFirstOwnedListId } from "./list-filter-client";
 import type { ListWithMeta, UserWithStats } from "@/types";
 
 const lists: ListWithMeta[] = [
@@ -65,18 +62,12 @@ describe("filterListsBySelectedUser", () => {
   });
 
   it("в режиме «мои» — только подборки текущего пользователя", () => {
-    expect(filterListsBySelectedUser(lists, users, "u1", "me")).toEqual([
-      lists[0],
-    ]);
-    expect(filterListsBySelectedUser(lists, users, "u1", "u1")).toEqual([
-      lists[0],
-    ]);
+    expect(filterListsBySelectedUser(lists, users, "u1", "me")).toEqual([lists[0]]);
+    expect(filterListsBySelectedUser(lists, users, "u1", "u1")).toEqual([lists[0]]);
   });
 
   it("для выбранного другого пользователя — только его подборки", () => {
-    expect(filterListsBySelectedUser(lists, users, "u1", "u2")).toEqual([
-      lists[1],
-    ]);
+    expect(filterListsBySelectedUser(lists, users, "u1", "u2")).toEqual([lists[1]]);
   });
 
   it("если выбран неизвестный userId — fallback в режим «все»", () => {

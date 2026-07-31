@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import useSWRInfinite from "swr/infinite";
 import { fetcher } from "@/lib/fetcher";
 import type { ItemsPage } from "@/types";
@@ -22,10 +17,7 @@ export function useInfiniteWishlistItems(
       if (previousPageData && !previousPageData.pagination?.hasMore) return null;
       const params = new URLSearchParams();
       if (normalizedSelectedUserId) {
-        params.set(
-          "userId",
-          normalizedSelectedUserId === "me" ? "me" : normalizedSelectedUserId,
-        );
+        params.set("userId", normalizedSelectedUserId === "me" ? "me" : normalizedSelectedUserId);
       }
       if (selectedListId) params.set("listId", selectedListId);
       if (debouncedSearch) params.set("search", debouncedSearch);
@@ -53,9 +45,7 @@ export function useInfiniteWishlistItems(
   });
 
   const items = useMemo(() => pages?.flatMap((p) => p.items) ?? [], [pages]);
-  const hasMore = pages
-    ? (pages[pages.length - 1]?.pagination?.hasMore ?? false)
-    : false;
+  const hasMore = pages ? (pages[pages.length - 1]?.pagination?.hasMore ?? false) : false;
   const isLoadingMore = isValidating && size > 1;
 
   const sentinelRef = useRef<HTMLDivElement>(null);

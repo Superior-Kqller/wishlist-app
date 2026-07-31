@@ -51,7 +51,13 @@ function formatMyItems(items: Array<{ id: string; title: string; status: ItemSta
 }
 
 function formatAvailableItems(
-  items: Array<{ id: string; title: string; ownerName: string; price: number | null; currency: string }>
+  items: Array<{
+    id: string;
+    title: string;
+    ownerName: string;
+    price: number | null;
+    currency: string;
+  }>,
 ): string {
   if (items.length === 0) {
     return "Сейчас нет доступных подарков.";
@@ -67,7 +73,7 @@ function formatAvailableItems(
 
 function buildMyItemsMarkup(
   items: Array<{ id: string; title: string; status: ItemStatus; ownerUserId: string }>,
-  actorUserId: string
+  actorUserId: string,
 ): { inline_keyboard: Array<Array<{ text: string; callback_data: string }>> } {
   const rows: Array<Array<{ text: string; callback_data: string }>> = [];
 
@@ -133,7 +139,7 @@ async function handleMyItems(actorUserId: string, chatId: string): Promise<void>
         status: item.status,
         ownerUserId: item.userId,
       })),
-      actorUserId
+      actorUserId,
     ),
   });
 }
@@ -296,7 +302,11 @@ async function handleCallback(actorUserId: string, callback: TelegramCallbackQue
 
   const [action, itemId] = data.split(":");
   if (!itemId) {
-    await answerTelegramCallback({ callbackQueryId: callback.id, text: "Неизвестная команда", showAlert: true });
+    await answerTelegramCallback({
+      callbackQueryId: callback.id,
+      text: "Неизвестная команда",
+      showAlert: true,
+    });
     return;
   }
 
@@ -306,7 +316,11 @@ async function handleCallback(actorUserId: string, callback: TelegramCallbackQue
 
   const status = nextStatus[action];
   if (!status) {
-    await answerTelegramCallback({ callbackQueryId: callback.id, text: "Неизвестное действие", showAlert: true });
+    await answerTelegramCallback({
+      callbackQueryId: callback.id,
+      text: "Неизвестное действие",
+      showAlert: true,
+    });
     return;
   }
 
@@ -366,7 +380,10 @@ async function handleMessage(message: TelegramMessage): Promise<void> {
     return;
   }
 
-  await sendMainMenu(String(message.chat.id), "Команда не распознана. Используйте /myitems, /available или кнопки меню.");
+  await sendMainMenu(
+    String(message.chat.id),
+    "Команда не распознана. Используйте /myitems, /available или кнопки меню.",
+  );
 }
 
 export async function handleTelegramUpdate(update: TelegramUpdate): Promise<void> {
@@ -393,4 +410,3 @@ export async function handleTelegramUpdate(update: TelegramUpdate): Promise<void
     sanitizeError("Telegram update handling error", error, { updateId: update.update_id });
   }
 }
-

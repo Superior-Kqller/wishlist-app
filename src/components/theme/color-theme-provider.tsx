@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import {
   COLOR_THEME_STORAGE_KEY,
   DEFAULT_COLOR_THEME,
@@ -34,14 +27,11 @@ function applyColorTheme(theme: ColorTheme) {
 }
 
 export function ColorThemeProvider({ children }: { children: React.ReactNode }) {
-  const [colorTheme, setColorThemeState] =
-    useState<ColorTheme>(DEFAULT_COLOR_THEME);
+  const [colorTheme, setColorThemeState] = useState<ColorTheme>(DEFAULT_COLOR_THEME);
 
   useEffect(() => {
     const storedTheme = window.localStorage.getItem(COLOR_THEME_STORAGE_KEY);
-    const initialTheme = isColorTheme(storedTheme)
-      ? storedTheme
-      : DEFAULT_COLOR_THEME;
+    const initialTheme = isColorTheme(storedTheme) ? storedTheme : DEFAULT_COLOR_THEME;
 
     setColorThemeState(initialTheme);
     applyColorTheme(initialTheme);
@@ -53,16 +43,9 @@ export function ColorThemeProvider({ children }: { children: React.ReactNode }) 
     window.localStorage.setItem(COLOR_THEME_STORAGE_KEY, theme);
   }, []);
 
-  const value = useMemo(
-    () => ({ colorTheme, setColorTheme }),
-    [colorTheme, setColorTheme],
-  );
+  const value = useMemo(() => ({ colorTheme, setColorTheme }), [colorTheme, setColorTheme]);
 
-  return (
-    <ColorThemeContext.Provider value={value}>
-      {children}
-    </ColorThemeContext.Provider>
-  );
+  return <ColorThemeContext.Provider value={value}>{children}</ColorThemeContext.Provider>;
 }
 
 export function useColorTheme() {

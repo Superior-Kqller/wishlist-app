@@ -9,7 +9,7 @@ type TransitionOptions = {
 export function canTransitionStatus(
   from: ItemStatus,
   to: ItemStatus,
-  options: TransitionOptions
+  options: TransitionOptions,
 ): boolean {
   if (to === "CLAIMED") return false;
   if (from === "CLAIMED" && to === "AVAILABLE") return false;
@@ -43,4 +43,3 @@ export function hasConflictingStatusPayload(input: {
 }): boolean {
   return input.status !== undefined && input.purchased !== undefined;
 }
-

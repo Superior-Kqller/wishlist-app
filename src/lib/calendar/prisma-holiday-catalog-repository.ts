@@ -1,12 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
-import type {
-  HolidayCatalogEntry,
-  HolidayCatalogRepository,
-} from "./holiday-catalog";
-import {
-  holidayRuleSchema,
-  type HolidayRule,
-} from "./holiday-rules";
+import type { HolidayCatalogEntry, HolidayCatalogRepository } from "./holiday-catalog";
+import { holidayRuleSchema, type HolidayRule } from "./holiday-rules";
 
 function toRule(row: {
   ruleKind: "FIXED" | "NTH_WEEKDAY";

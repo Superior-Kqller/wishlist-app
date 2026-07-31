@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  canSeeClaimerIdentity,
-  canViewList,
-} from "./access-policy";
+import { canSeeClaimerIdentity, canViewList } from "./access-policy";
 
 describe("access-policy list visibility", () => {
   it("разрешает доступ владельцу", () => {
@@ -11,7 +8,7 @@ describe("access-policy list visibility", () => {
         actorUserId: "u1",
         ownerUserId: "u1",
         viewerUserIds: [],
-      })
+      }),
     ).toBe(true);
   });
 
@@ -21,7 +18,7 @@ describe("access-policy list visibility", () => {
         actorUserId: "u2",
         ownerUserId: "u1",
         viewerUserIds: ["u2"],
-      })
+      }),
     ).toBe(true);
   });
 
@@ -31,7 +28,7 @@ describe("access-policy list visibility", () => {
         actorUserId: "u3",
         ownerUserId: "u1",
         viewerUserIds: ["u2"],
-      })
+      }),
     ).toBe(false);
   });
 });
@@ -44,7 +41,7 @@ describe("access-policy claimer identity", () => {
         ownerUserId: "u1",
         claimerUserId: "u2",
         isClaimPrivate: true,
-      })
+      }),
     ).toBe(false);
   });
 
@@ -55,7 +52,7 @@ describe("access-policy claimer identity", () => {
         ownerUserId: "u1",
         claimerUserId: "u2",
         isClaimPrivate: true,
-      })
+      }),
     ).toBe(true);
 
     expect(
@@ -64,8 +61,7 @@ describe("access-policy claimer identity", () => {
         ownerUserId: "u1",
         claimerUserId: "u2",
         isClaimPrivate: true,
-      })
+      }),
     ).toBe(true);
   });
 });
-

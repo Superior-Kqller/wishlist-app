@@ -43,7 +43,9 @@ for (const scenario of scenarios) {
       if (scenario.desktop) {
         const trigger = page.getByRole("button", { name: /^Категории/ });
         await expect(trigger).toHaveAttribute("aria-expanded", "false");
-        await expect(page.getByRole("button", { name: "Добавить категорию: Техника" })).toBeHidden();
+        await expect(
+          page.getByRole("button", { name: "Добавить категорию: Техника" }),
+        ).toBeHidden();
 
         await trigger.focus();
         await page.keyboard.press("Enter");
@@ -51,7 +53,9 @@ for (const scenario of scenarios) {
 
         await page.getByRole("button", { name: "Добавить категорию: Техника" }).click();
         await expect(trigger).toHaveAccessibleName(/Категории.*1/);
-        await expect(page.getByRole("button", { name: "Убрать категорию: Техника" }).first()).toBeVisible();
+        await expect(
+          page.getByRole("button", { name: "Убрать категорию: Техника" }).first(),
+        ).toBeVisible();
         await expect(page.getByText(electronicsTitle, { exact: true })).toBeVisible();
         await expect(page.getByText(booksTitle, { exact: true })).toBeHidden();
 

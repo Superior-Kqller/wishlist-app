@@ -5,32 +5,24 @@ import {
   type PersonalEventRepository,
 } from "./personal-events";
 
-function repositoryWith(
-  initialEvents: PersonalEventRecord[] = [],
-): PersonalEventRepository {
+function repositoryWith(initialEvents: PersonalEventRecord[] = []): PersonalEventRepository {
   const events = [...initialEvents];
   return {
-    findExistingUserIds: async (userIds) =>
-      userIds.filter((id) => id !== "missing"),
-    listByOwner: async (ownerId) =>
-      events.filter((event) => event.ownerId === ownerId),
+    findExistingUserIds: async (userIds) => userIds.filter((id) => id !== "missing"),
+    listByOwner: async (ownerId) => events.filter((event) => event.ownerId === ownerId),
     create: async (event) => {
       const created = { ...event, id: `event-${events.length + 1}` };
       events.push(created);
       return created;
     },
     update: async (id, ownerId, event) => {
-      const index = events.findIndex(
-        (entry) => entry.id === id && entry.ownerId === ownerId,
-      );
+      const index = events.findIndex((entry) => entry.id === id && entry.ownerId === ownerId);
       if (index === -1) return null;
       events[index] = { ...events[index], ...event };
       return events[index];
     },
     delete: async (id, ownerId) => {
-      const index = events.findIndex(
-        (entry) => entry.id === id && entry.ownerId === ownerId,
-      );
+      const index = events.findIndex((entry) => entry.id === id && entry.ownerId === ownerId);
       if (index === -1) return false;
       events.splice(index, 1);
       return true;

@@ -79,16 +79,10 @@ export function FiltersDrawer({
   const { language, t } = useI18n();
   const listsForPicker = useMemo(() => {
     if (!currentUserId) return lists;
-    return filterListsBySelectedUser(
-      lists,
-      usersWithStats,
-      currentUserId,
-      selectedUserId,
-    );
+    return filterListsBySelectedUser(lists, usersWithStats, currentUserId, selectedUserId);
   }, [lists, usersWithStats, currentUserId, selectedUserId]);
   const otherUsers = usersWithStats.filter((user) => user.id !== currentUserId);
-  const isMyItemsSelected =
-    selectedUserId === "me" || selectedUserId === currentUserId;
+  const isMyItemsSelected = selectedUserId === "me" || selectedUserId === currentUserId;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -98,10 +92,7 @@ export function FiltersDrawer({
         bodyClassName="flex min-h-0 flex-1 flex-col gap-0 overflow-hidden p-0"
       >
         <div className="shrink-0 px-4 pb-3 pt-2 sm:px-5 sm:pt-5">
-          <div
-            className="mx-auto mb-3 h-1 w-10 rounded-full bg-border sm:hidden"
-            aria-hidden
-          />
+          <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border sm:hidden" aria-hidden />
           <DialogHeader className="pr-10 text-left">
             <div className="flex items-center gap-2">
               <DialogTitle className="text-xl">{t("Фильтры")}</DialogTitle>
@@ -111,9 +102,7 @@ export function FiltersDrawer({
                 </span>
               ) : null}
             </div>
-            <DialogDescription>
-              {t("Настройте список и порядок товаров")}
-            </DialogDescription>
+            <DialogDescription>{t("Настройте список и порядок товаров")}</DialogDescription>
           </DialogHeader>
         </div>
 
@@ -173,10 +162,7 @@ export function FiltersDrawer({
           ) : null}
 
           <section className="space-y-2.5" aria-labelledby="mobile-filter-sort">
-            <Label
-              id="mobile-filter-sort"
-              className="text-xs font-semibold text-muted-foreground"
-            >
+            <Label id="mobile-filter-sort" className="text-xs font-semibold text-muted-foreground">
               {t("Сортировка")}
             </Label>
             <div className="grid grid-cols-2 gap-2">
@@ -245,9 +231,7 @@ export function FiltersDrawer({
                   className="text-xs font-semibold text-muted-foreground"
                 >
                   {t("Категории")}
-                  {selectedCategories.length > 0
-                    ? ` · ${selectedCategories.length}`
-                    : ""}
+                  {selectedCategories.length > 0 ? ` · ${selectedCategories.length}` : ""}
                 </Label>
                 {selectedCategories.length > 0 ? (
                   <button
@@ -333,9 +317,7 @@ function FilterChoice({
     >
       {prefix ? <span className="text-base text-primary/80">{prefix}</span> : null}
       <span className="min-w-0 truncate">{label}</span>
-      {selected ? (
-        <Check className="absolute right-2.5 h-4 w-4 shrink-0 text-primary" />
-      ) : null}
+      {selected ? <Check className="absolute right-2.5 h-4 w-4 shrink-0 text-primary" /> : null}
     </button>
   );
 }

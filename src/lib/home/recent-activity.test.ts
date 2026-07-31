@@ -11,17 +11,13 @@ const activityItems = [
 describe("getVisibleRecentActivityItems", () => {
   it("показывает три последних изменения в свернутом виджете", () => {
     expect(
-      getVisibleRecentActivityItems(activityItems, { expanded: false }).map(
-        (item) => item.id,
-      ),
+      getVisibleRecentActivityItems(activityItems, { expanded: false }).map((item) => item.id),
     ).toEqual(["newest", "third", "second"]);
   });
 
   it("показывает все изменения при раскрытии", () => {
     expect(
-      getVisibleRecentActivityItems(activityItems, { expanded: true }).map(
-        (item) => item.id,
-      ),
+      getVisibleRecentActivityItems(activityItems, { expanded: true }).map((item) => item.id),
     ).toEqual(["newest", "third", "second", "oldest"]);
   });
 });

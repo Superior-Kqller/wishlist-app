@@ -8,15 +8,13 @@ export function filterListsBySelectedUser(
   lists: ListWithMeta[],
   users: UserWithStats[],
   currentUserId: string,
-  selectedUserId: string | null
+  selectedUserId: string | null,
 ): ListWithMeta[] {
   const userScope = resolveUserScope(selectedUserId, currentUserId);
   const isAllMode = userScope === "all";
   const isMyMode = userScope === "me";
   const selectedOtherUser =
-    !isAllMode && !isMyMode
-      ? users.find((u) => u.id === selectedUserId)
-      : undefined;
+    !isAllMode && !isMyMode ? users.find((u) => u.id === selectedUserId) : undefined;
   const myLists = lists.filter((l) => l.userId === currentUserId);
   if (isAllMode) return lists;
   if (isMyMode) return myLists;
@@ -27,10 +25,7 @@ export function filterListsBySelectedUser(
 }
 
 /** Первая подборка текущего пользователя по названию (например, значение по умолчанию в форме создания). */
-export function getFirstOwnedListId(
-  lists: ListWithMeta[],
-  currentUserId: string,
-): string | null {
+export function getFirstOwnedListId(lists: ListWithMeta[], currentUserId: string): string | null {
   const mine = lists
     .filter((l) => l.userId === currentUserId)
     .sort((a, b) => a.name.localeCompare(b.name, "ru"));

@@ -78,9 +78,7 @@ export function ItemActivitySection({
                     })}
                   </span>
                 </div>
-                <p className="mt-0.5 break-words whitespace-pre-wrap">
-                  {comment.text}
-                </p>
+                <p className="mt-0.5 break-words whitespace-pre-wrap">{comment.text}</p>
               </div>
               {currentUserId === comment.userId ? (
                 <Button
@@ -123,11 +121,7 @@ export function ItemActivitySection({
           className="h-11 w-full shrink-0 whitespace-nowrap sm:w-auto"
           disabled={!commentText.trim() || submittingComment}
         >
-          {submittingComment ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            t("Отправить")
-          )}
+          {submittingComment ? <Loader2 className="h-4 w-4 animate-spin" /> : t("Отправить")}
         </Button>
       </form>
     </section>

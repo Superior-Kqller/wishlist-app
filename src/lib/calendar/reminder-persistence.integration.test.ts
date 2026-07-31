@@ -34,9 +34,7 @@ describe("calendar reminder persistence with Prisma adapter", () => {
 
   it("читает настройки и атомарно заявляет доставку", async () => {
     const repository = createPrismaCalendarReminderRepository(prisma);
-    await expect(
-      repository.listEligibleRecipients(["recipient", "recipient"]),
-    ).resolves.toEqual([
+    await expect(repository.listEligibleRecipients(["recipient", "recipient"])).resolves.toEqual([
       {
         id: "recipient",
         telegramId: "10001",

@@ -23,8 +23,6 @@ describe("production container runtime security", () => {
   it("forces the fixed Hono server in the isolated Prisma CLI install", async () => {
     const dockerfile = await readFile(projectFile("Dockerfile"), "utf8");
 
-    expect(dockerfile).toContain(
-      '\"overrides\":{\"@hono/node-server\":\"^1.19.13\"}',
-    );
+    expect(dockerfile).toContain('\"overrides\":{\"@hono/node-server\":\"^1.19.13\"}');
   });
 });

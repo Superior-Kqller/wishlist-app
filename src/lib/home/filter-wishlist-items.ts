@@ -24,13 +24,9 @@ export function filterAndSortWishlistItems(
   filtered.sort((a, b) => {
     switch (sortBy) {
       case "newest":
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       case "oldest":
-        return (
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       case "priority-high":
         return b.priority - a.priority;
       case "priority-low":

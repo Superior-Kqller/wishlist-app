@@ -88,9 +88,7 @@ export function ChangePasswordDialog({
       setConfirmPassword("");
       setPasswordErrors([]);
     } catch (err: unknown) {
-      toast.error(
-        err instanceof Error ? err.message : t("Ошибка при изменении пароля"),
-      );
+      toast.error(err instanceof Error ? err.message : t("Ошибка при изменении пароля"));
     } finally {
       setSaving(false);
     }
@@ -162,10 +160,7 @@ export function ChangePasswordDialog({
             <Button
               type="submit"
               disabled={
-                saving ||
-                passwordErrors.length > 0 ||
-                password !== confirmPassword ||
-                !password
+                saving || passwordErrors.length > 0 || password !== confirmPassword || !password
               }
             >
               {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

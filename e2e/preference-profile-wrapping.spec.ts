@@ -53,7 +53,9 @@ for (const scenario of scenarios) {
       await page.goto("/preferences");
       await expect(page.locator("html")).toHaveClass(new RegExp(`theme-${scenario.theme}`));
 
-      const ownProfile = page.locator("article").filter({ has: page.getByText("Это вы", { exact: true }) });
+      const ownProfile = page
+        .locator("article")
+        .filter({ has: page.getByText("Это вы", { exact: true }) });
       await ownProfile.getByRole("button", { name: "Открыть профиль" }).click();
 
       for (const value of [longSize, longBudget, longOccasion]) {

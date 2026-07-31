@@ -57,7 +57,7 @@ export function ListFormDialog({
 
   const toggleViewer = (userId: string) => {
     setViewerIds((prev) =>
-      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId],
     );
   };
 
@@ -151,7 +151,7 @@ export function ListFormDialog({
                       "px-3 py-1.5 rounded-md text-sm font-medium transition-colors border",
                       viewerIds.includes(user.id)
                         ? "border-primary/48 bg-primary/14 text-foreground"
-                        : "bg-background border-input hover:bg-accent"
+                        : "bg-background border-input hover:bg-accent",
                     )}
                   >
                     {user.name}

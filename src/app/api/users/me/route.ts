@@ -9,12 +9,12 @@ import { normalizeGiftPreferences, giftPreferencesSchema } from "@/lib/preferenc
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { isValidCalendarDate } from "@/lib/calendar/local-date";
-import {
-  profileGenderSchema,
-  type ProfileGender,
-} from "@/lib/calendar/profile-gender";
+import { profileGenderSchema, type ProfileGender } from "@/lib/calendar/profile-gender";
 
-const telegramIdSchema = z.string().trim().regex(/^\d{5,20}$/);
+const telegramIdSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{5,20}$/);
 const birthdayAudienceSchema = z.enum(["ALL", "SELECTED", "PRIVATE"]);
 const birthdaySchema = z
   .object({
@@ -140,7 +140,7 @@ export async function PATCH(req: NextRequest) {
     if (hasOwnPasswordField(body)) {
       return NextResponse.json(
         { error: "Для смены пароля используйте отдельную форму" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -171,10 +171,7 @@ export async function PATCH(req: NextRequest) {
     if (data.avatarUrl !== undefined) {
       const normalizedAvatarUrl = normalizeAvatarUrl(data.avatarUrl);
       if (!normalizedAvatarUrl.ok) {
-        return NextResponse.json(
-          { error: "Некорректный avatarUrl" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Некорректный avatarUrl" }, { status: 400 });
       }
 
       updateData.avatarUrl = normalizedAvatarUrl.value;
@@ -208,9 +205,7 @@ export async function PATCH(req: NextRequest) {
 
     if (data.telegramId !== undefined) {
       const nextTelegramId =
-        data.telegramId === "" || data.telegramId === null
-          ? null
-          : data.telegramId;
+        data.telegramId === "" || data.telegramId === null ? null : data.telegramId;
 
       const current = await prisma.user.findUnique({
         where: { id: userId },
@@ -230,10 +225,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (Object.keys(updateData).length === 0) {
-      return NextResponse.json(
-        { error: "Нет полей для обновления" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Нет полей для обновления" }, { status: 400 });
     }
 
     const userSelect = {
@@ -310,7 +302,7 @@ export async function PATCH(req: NextRequest) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Ошибка проверки данных", details: err.issues },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -321,14 +313,11 @@ export async function PATCH(req: NextRequest) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       return NextResponse.json(
         { error: "Этот Telegram ID уже привязан к другому аккаунту" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     sanitizeError("Update profile error", err, { userId });
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

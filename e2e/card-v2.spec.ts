@@ -133,7 +133,8 @@ test("card-v2-title-tooltip-shows-full-name", async ({ page }) => {
 
   const firstCard = page.getByTestId("wishlist-card-v2").first();
   const title = firstCard.getByTestId("wishlist-card-v2-title");
-  const fullTitle = "Very long wishlist title for e2e tooltip verification and two line clamp behavior";
+  const fullTitle =
+    "Very long wishlist title for e2e tooltip verification and two line clamp behavior";
 
   await expect(title).toHaveClass(/line-clamp-2/);
   await title.focus();

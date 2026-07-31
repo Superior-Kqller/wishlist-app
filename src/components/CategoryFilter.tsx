@@ -27,9 +27,7 @@ export function CategoryFilter({
 
   if (categories.length === 0) return null;
 
-  const selectedOptions = categories.filter((category) =>
-    selectedCategories.includes(category.id),
-  );
+  const selectedOptions = categories.filter((category) => selectedCategories.includes(category.id));
 
   const renderCategoryButton = (category: ProductCategoryOption) => {
     const isSelected = selectedCategories.includes(category.id);
@@ -49,16 +47,14 @@ export function CategoryFilter({
             : "border-border bg-transparent text-foreground hover:border-primary/28 hover:bg-accent/55",
         )}
       >
-        <span aria-hidden>{category.icon}</span>{" "}
-        {label}
+        <span aria-hidden>{category.icon}</span> {label}
       </button>
     );
   };
 
   if (presentation === "disclosure") {
-    const triggerLabel = selectedOptions.length > 0
-      ? `${t("Категории")}: ${selectedOptions.length}`
-      : t("Категории");
+    const triggerLabel =
+      selectedOptions.length > 0 ? `${t("Категории")}: ${selectedOptions.length}` : t("Категории");
 
     return (
       <div className="min-w-0 space-y-2" data-slot="category-filter-disclosure">
@@ -82,7 +78,10 @@ export function CategoryFilter({
             ) : null}
             <ChevronDown
               aria-hidden
-              className={cn("h-4 w-4 text-muted-foreground transition-transform", isOpen && "rotate-180")}
+              className={cn(
+                "h-4 w-4 text-muted-foreground transition-transform",
+                isOpen && "rotate-180",
+              )}
             />
           </button>
 

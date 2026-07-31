@@ -20,12 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  WishlistItem,
-  CreateItemPayload,
-  UpdateItemPayload,
-  ListWithMeta,
-} from "@/types";
+import { WishlistItem, CreateItemPayload, UpdateItemPayload, ListWithMeta } from "@/types";
 import { getPriorityLabel, getPriorityShortLabel } from "@/lib/priority-labels";
 import {
   clampWishlistPriority,
@@ -117,7 +112,7 @@ export function ItemFormDialog({
     setPrice("");
     setCurrency("RUB");
     setPriority(3);
-    setListId(listPickerRequired ? defaultListId ?? null : null);
+    setListId(listPickerRequired ? (defaultListId ?? null) : null);
     setCategory(null);
     setNotes("");
     setImageUrl("");
@@ -142,9 +137,7 @@ export function ItemFormDialog({
       setImageUrl(item.images?.[0] ?? "");
     } else if (initialData) {
       setCreateMode("link");
-      setLinkStage(
-        !autoFillFromUrlOnce && initialData.title?.trim() ? "review" : "input",
-      );
+      setLinkStage(!autoFillFromUrlOnce && initialData.title?.trim() ? "review" : "input");
       setParseError(null);
       setTitle(initialData.title || "");
       setUrl(initialData.url || "");
@@ -263,8 +256,7 @@ export function ItemFormDialog({
       return;
     }
 
-    const effectiveListId =
-      listId || (listPickerRequired ? defaultListId : null);
+    const effectiveListId = listId || (listPickerRequired ? defaultListId : null);
     if (listPickerRequired && !effectiveListId) {
       toast.error(
         existingLists.length === 0
@@ -374,234 +366,241 @@ export function ItemFormDialog({
           ) : null}
 
           {showFullForm ? (
-          <>
-          {!isEdit && createMode === "link" && linkStage === "review" ? (
-            <div
-              role="status"
-              className="mx-4 mt-4 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm text-foreground sm:mx-5"
-            >
-              {t("Данные получены. Проверьте и дополните поля перед добавлением.")}
-            </div>
-          ) : null}
-          <div className="grid min-h-0 lg:grid-cols-[minmax(0,0.95fr)_minmax(19rem,0.72fr)]">
-            <div className="space-y-3.5 px-4 py-4 sm:px-5">
-              <div className="space-y-2">
-                <Label htmlFor="title">{t("Название")} *</Label>
-                <Input
-                  ref={titleInputRef}
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="iPhone 16 Pro Max"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2 rounded-xl border border-border/34 bg-[hsl(var(--surface-3))/0.28] p-3">
-                <Label htmlFor="url">{t("Ссылка (необязательно)")}</Label>
-                <Input
-                  id="url"
-                  type="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://…"
-                />
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                {existingLists.length > 0 && (
-                  <div className="space-y-2">
-                    <Label>{t("Подборка")}{listPickerRequired ? " *" : ""}</Label>
-                    <Select
-                      value={
-                        listPickerRequired
-                          ? (listId || defaultListId || existingLists[0]?.id || "")
-                          : (listId ?? "none")
-                      }
-                      onValueChange={(v) => setListId(v === "none" ? null : v)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder={
-                            listPickerRequired ? t("Выберите подборку") : t("Без подборки")
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {!listPickerRequired && (
-                          <SelectItem value="none">{t("Без подборки")}</SelectItem>
-                        )}
-                        {existingLists.map((list) => (
-                          <SelectItem key={list.id} value={list.id}>
-                            {list.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <Label>{t("Категория")}</Label>
-                  <Select value={category ?? "none"} onValueChange={(value) => setCategory(value === "none" ? null : value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("Выберите категорию")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">{t("Без категории")}</SelectItem>
-                      {PRODUCT_CATEGORIES.map((option) => (
-                        <SelectItem key={option.id} value={option.id}>
-                          {option.icon} {language === "en" ? option.labelEn : option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {existingLists.length > 0 && !listPickerRequired && !listId && (
-                <p className="flex items-start gap-1.5 rounded-lg border border-warning/24 bg-warning/8 px-2.5 py-2 text-xs text-warning">
-                  <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  {t("Товар без подборки будет скрыт. Привяжите его к подборке, чтобы он стал виден.")}
-                </p>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">{t("Заметка")}</Label>
-                <Textarea
-                  id="notes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder={t("Дополнительная информация…")}
-                  rows={4}
-                  className="min-h-24 resize-y"
-                />
-              </div>
-            </div>
-
-            <aside className="space-y-3.5 border-t border-border/34 bg-[hsl(var(--surface-1))/0.24] px-4 py-4 sm:px-5 lg:border-l lg:border-t-0">
-              <div className="space-y-2">
-                <Label htmlFor="item-image-url">{t("Изображение")}</Label>
-                <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border/38 bg-[hsl(var(--surface-2))/0.72] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
-                  {imageUrl.trim() ? (
-                    <>
-                      <Image
-                        src={imageUrl.trim()}
-                        alt={title.trim() || t("Изображение товара")}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 1024px) 100vw, 320px"
-                        unoptimized
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setImageUrl("")}
-                        aria-label={t("Убрать изображение")}
-                        className="absolute right-2 top-2 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border/70 bg-[hsl(var(--surface-1)/0.78)] text-foreground transition-colors backdrop-blur-md hover:bg-[hsl(var(--surface-2))/0.9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        title={t("Убрать изображение")}
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </>
-                  ) : (
-                    <div className="flex h-full flex-col items-center justify-center px-4 text-center text-muted-foreground/70">
-                      <span className="text-sm font-medium">{t("Предпросмотр")}</span>
-                      <span className="mt-1 text-xs">{t("Добавьте URL изображения ниже")}</span>
-                    </div>
-                  )}
-                </div>
-                <Input
-                  id="item-image-url"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder={t("URL изображения (необязательно)")}
-                />
-              </div>
-
-              <div className="grid grid-cols-[1fr_7.5rem] gap-2">
-                <div className="space-y-2">
-                  <Label htmlFor="price">{t("Ориентировочная цена")}</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    placeholder="0"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("Валюта")}</Label>
-                  <Select value={currency} onValueChange={setCurrency}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CURRENCIES.map((c) => (
-                        <SelectItem key={c.value} value={c.value}>
-                          {c.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>{t("Приоритет")}</Label>
+            <>
+              {!isEdit && createMode === "link" && linkStage === "review" ? (
                 <div
-                  role="group"
-                  aria-label={t("Приоритет")}
-                  data-testid="priority-select-dialog"
-                  className="grid grid-cols-2 gap-2"
+                  role="status"
+                  className="mx-4 mt-4 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm text-foreground sm:mx-5"
                 >
-                  {PRIORITY_OPTIONS.map((value) => {
-                    const isSelected = selectedPriority === value;
-                    const label = getPriorityLabel(value, language);
-                    const shortLabel = getPriorityShortLabel(value, language);
-
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        aria-pressed={isSelected}
-                        aria-label={`${t("Приоритет")} ${value}: ${label}`}
-                        onClick={() => setPriority(value)}
-                        className={cn(
-                          "flex min-h-[44px] items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-xs font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                          isSelected
-                            ? priorityBadgeToneByPriority[value]
-                            : "border-border/50 bg-[hsl(var(--surface-2))/0.58] text-muted-foreground hover:bg-accent hover:text-foreground",
-                        )}
-                      >
-                        <span
-                          aria-hidden="true"
-                          className={cn(
-                            "h-2.5 w-2.5 shrink-0 rounded-full",
-                            priorityDotClassByPriority[value],
-                          )}
-                        />
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate">{label}</span>
-                          <span className="block truncate text-[11px] font-medium text-muted-foreground/82 sm:text-xs">
-                            {t("Уровень")} {value} · {shortLabel}
-                          </span>
-                        </span>
-                        {isSelected ? (
-                          <span className="hidden shrink-0 text-xs text-muted-foreground sm:inline">
-                            {t("Выбрано")}
-                          </span>
-                        ) : null}
-                      </button>
-                    );
-                  })}
+                  {t("Данные получены. Проверьте и дополните поля перед добавлением.")}
                 </div>
-              </div>
+              ) : null}
+              <div className="grid min-h-0 lg:grid-cols-[minmax(0,0.95fr)_minmax(19rem,0.72fr)]">
+                <div className="space-y-3.5 px-4 py-4 sm:px-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">{t("Название")} *</Label>
+                    <Input
+                      ref={titleInputRef}
+                      id="title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="iPhone 16 Pro Max"
+                      required
+                    />
+                  </div>
 
-            </aside>
-          </div>
-          </>
+                  <div className="space-y-2 rounded-xl border border-border/34 bg-[hsl(var(--surface-3))/0.28] p-3">
+                    <Label htmlFor="url">{t("Ссылка (необязательно)")}</Label>
+                    <Input
+                      id="url"
+                      type="url"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      placeholder="https://…"
+                    />
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {existingLists.length > 0 && (
+                      <div className="space-y-2">
+                        <Label>
+                          {t("Подборка")}
+                          {listPickerRequired ? " *" : ""}
+                        </Label>
+                        <Select
+                          value={
+                            listPickerRequired
+                              ? listId || defaultListId || existingLists[0]?.id || ""
+                              : (listId ?? "none")
+                          }
+                          onValueChange={(v) => setListId(v === "none" ? null : v)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue
+                              placeholder={
+                                listPickerRequired ? t("Выберите подборку") : t("Без подборки")
+                              }
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {!listPickerRequired && (
+                              <SelectItem value="none">{t("Без подборки")}</SelectItem>
+                            )}
+                            {existingLists.map((list) => (
+                              <SelectItem key={list.id} value={list.id}>
+                                {list.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label>{t("Категория")}</Label>
+                      <Select
+                        value={category ?? "none"}
+                        onValueChange={(value) => setCategory(value === "none" ? null : value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("Выберите категорию")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">{t("Без категории")}</SelectItem>
+                          {PRODUCT_CATEGORIES.map((option) => (
+                            <SelectItem key={option.id} value={option.id}>
+                              {option.icon} {language === "en" ? option.labelEn : option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {existingLists.length > 0 && !listPickerRequired && !listId && (
+                    <p className="flex items-start gap-1.5 rounded-lg border border-warning/24 bg-warning/8 px-2.5 py-2 text-xs text-warning">
+                      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                      {t(
+                        "Товар без подборки будет скрыт. Привяжите его к подборке, чтобы он стал виден.",
+                      )}
+                    </p>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">{t("Заметка")}</Label>
+                    <Textarea
+                      id="notes"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder={t("Дополнительная информация…")}
+                      rows={4}
+                      className="min-h-24 resize-y"
+                    />
+                  </div>
+                </div>
+
+                <aside className="space-y-3.5 border-t border-border/34 bg-[hsl(var(--surface-1))/0.24] px-4 py-4 sm:px-5 lg:border-l lg:border-t-0">
+                  <div className="space-y-2">
+                    <Label htmlFor="item-image-url">{t("Изображение")}</Label>
+                    <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border/38 bg-[hsl(var(--surface-2))/0.72] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+                      {imageUrl.trim() ? (
+                        <>
+                          <Image
+                            src={imageUrl.trim()}
+                            alt={title.trim() || t("Изображение товара")}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 1024px) 100vw, 320px"
+                            unoptimized
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setImageUrl("")}
+                            aria-label={t("Убрать изображение")}
+                            className="absolute right-2 top-2 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border/70 bg-[hsl(var(--surface-1)/0.78)] text-foreground transition-colors backdrop-blur-md hover:bg-[hsl(var(--surface-2))/0.9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            title={t("Убрать изображение")}
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="flex h-full flex-col items-center justify-center px-4 text-center text-muted-foreground/70">
+                          <span className="text-sm font-medium">{t("Предпросмотр")}</span>
+                          <span className="mt-1 text-xs">{t("Добавьте URL изображения ниже")}</span>
+                        </div>
+                      )}
+                    </div>
+                    <Input
+                      id="item-image-url"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder={t("URL изображения (необязательно)")}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[1fr_7.5rem] gap-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="price">{t("Ориентировочная цена")}</Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{t("Валюта")}</Label>
+                      <Select value={currency} onValueChange={setCurrency}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CURRENCIES.map((c) => (
+                            <SelectItem key={c.value} value={c.value}>
+                              {c.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>{t("Приоритет")}</Label>
+                    <div
+                      role="group"
+                      aria-label={t("Приоритет")}
+                      data-testid="priority-select-dialog"
+                      className="grid grid-cols-2 gap-2"
+                    >
+                      {PRIORITY_OPTIONS.map((value) => {
+                        const isSelected = selectedPriority === value;
+                        const label = getPriorityLabel(value, language);
+                        const shortLabel = getPriorityShortLabel(value, language);
+
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            aria-pressed={isSelected}
+                            aria-label={`${t("Приоритет")} ${value}: ${label}`}
+                            onClick={() => setPriority(value)}
+                            className={cn(
+                              "flex min-h-[44px] items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-xs font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                              isSelected
+                                ? priorityBadgeToneByPriority[value]
+                                : "border-border/50 bg-[hsl(var(--surface-2))/0.58] text-muted-foreground hover:bg-accent hover:text-foreground",
+                            )}
+                          >
+                            <span
+                              aria-hidden="true"
+                              className={cn(
+                                "h-2.5 w-2.5 shrink-0 rounded-full",
+                                priorityDotClassByPriority[value],
+                              )}
+                            />
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate">{label}</span>
+                              <span className="block truncate text-[11px] font-medium text-muted-foreground/82 sm:text-xs">
+                                {t("Уровень")} {value} · {shortLabel}
+                              </span>
+                            </span>
+                            {isSelected ? (
+                              <span className="hidden shrink-0 text-xs text-muted-foreground sm:inline">
+                                {t("Выбрано")}
+                              </span>
+                            ) : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </aside>
+              </div>
+            </>
           ) : (
             <section
               aria-busy={parsingUrl}
@@ -619,16 +618,28 @@ export function ItemFormDialog({
                     setParseError(null);
                   }}
                   placeholder="https://…"
-                  aria-describedby={parseError ? "create-item-url-help create-item-url-error" : "create-item-url-help"}
+                  aria-describedby={
+                    parseError
+                      ? "create-item-url-help create-item-url-error"
+                      : "create-item-url-help"
+                  }
                   aria-invalid={Boolean(parseError)}
                   required
                   autoFocus
                 />
-                <p id="create-item-url-help" className="text-sm leading-relaxed text-muted-foreground">
-                  {t("Подтянем название, цену, изображение и описание. Перед добавлением всё можно проверить и изменить.")}
+                <p
+                  id="create-item-url-help"
+                  className="text-sm leading-relaxed text-muted-foreground"
+                >
+                  {t(
+                    "Подтянем название, цену, изображение и описание. Перед добавлением всё можно проверить и изменить.",
+                  )}
                 </p>
                 {parsingUrl ? (
-                  <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <p
+                    role="status"
+                    className="flex items-center gap-2 text-sm text-muted-foreground"
+                  >
                     <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                     {t("Получаем данные по ссылке…")}
                   </p>
@@ -656,17 +667,10 @@ export function ItemFormDialog({
           )}
 
           <DialogFooter className="grid grid-cols-2 border-t border-border/34 bg-[hsl(var(--surface-2))/0.72] px-4 py-3 sm:flex sm:px-5">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("Отмена")}
             </Button>
-            <Button
-              type="submit"
-              disabled={saving || parsingUrl || (!showFullForm && !url.trim())}
-            >
+            <Button type="submit" disabled={saving || parsingUrl || (!showFullForm && !url.trim())}>
               {(saving || parsingUrl) && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
               )}

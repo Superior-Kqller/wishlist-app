@@ -22,10 +22,7 @@ const activeListItemCount = {
 };
 
 // GET /api/lists/[id] — одна подборка (если пользователь имеет доступ)
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.read);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -63,10 +60,7 @@ export async function GET(
 }
 
 // PATCH /api/lists/[id] — только владелец
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -96,8 +90,8 @@ export async function PATCH(
             new Set(
               data.viewerIds
                 .map((uid) => uid.trim())
-                .filter((uid) => uid.length > 0 && uid !== currentUserId)
-            )
+                .filter((uid) => uid.length > 0 && uid !== currentUserId),
+            ),
           )
         : undefined;
     if (normalizedViewerIds !== undefined) {
@@ -108,7 +102,7 @@ export async function PATCH(
             error: "Указаны несуществующие пользователи",
             details: { unknownIds: viewerCheck.missing },
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -148,34 +142,25 @@ export async function PATCH(
     if (err instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Ошибка проверки данных", details: err.issues },
-        { status: 400 }
+        { status: 400 },
       );
     }
-    if (
-      err instanceof Prisma.PrismaClientKnownRequestError &&
-      err.code === "P2002"
-    ) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       return NextResponse.json(
         {
           error:
             "Конфликт при обновлении доступа к подборке. Удалите дубликаты и повторите попытку.",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
     sanitizeError("Update list error", err, { listId: id });
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }
 
 // DELETE /api/lists/[id] — только владелец; у Item обнуляем listId
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -203,9 +188,6 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (err) {
     sanitizeError("Delete list error", err, { listId: id });
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

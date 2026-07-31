@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  emptyGiftPreferences,
-  normalizeGiftPreferences,
-  splitPreferenceList,
-} from "./preferences";
+import { emptyGiftPreferences, normalizeGiftPreferences, splitPreferenceList } from "./preferences";
 
 describe("gift preferences", () => {
   it("normalizes empty values to a complete preferences object", () => {

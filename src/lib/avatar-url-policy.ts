@@ -43,7 +43,7 @@ export type AvatarUrlNormalizationResult =
 
 export function normalizeAvatarUrl(
   input: string,
-  options?: { allowedHosts?: string[] }
+  options?: { allowedHosts?: string[] },
 ): AvatarUrlNormalizationResult {
   const value = input.trim();
 

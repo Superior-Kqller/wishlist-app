@@ -13,9 +13,7 @@ import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import useSWR, { mutate } from "swr";
 import { useHeaderActions } from "@/lib/header-actions";
-import {
-  type WishlistViewMode,
-} from "@/components/wishlist/wishlist-view-toggle";
+import { type WishlistViewMode } from "@/components/wishlist/wishlist-view-toggle";
 import { WishlistWorkspace } from "@/components/wishlist/wishlist-workspace";
 import { ItemFormDialog } from "@/components/ItemFormDialog";
 import { ParseUrlDialog } from "@/components/ParseUrlDialog";
@@ -35,10 +33,7 @@ import {
 import { toast } from "sonner";
 import { fetcher } from "@/lib/fetcher";
 import { useDebounce } from "@/lib/use-debounce";
-import {
-  filterListsBySelectedUser,
-  getFirstOwnedListId,
-} from "@/lib/list-filter-client";
+import { filterListsBySelectedUser, getFirstOwnedListId } from "@/lib/list-filter-client";
 import { normalizeSelectedUserId } from "@/lib/filter-state";
 import { filterAndSortWishlistItems } from "@/lib/home/filter-wishlist-items";
 import { useInfiniteWishlistItems } from "@/hooks/use-infinite-wishlist-items";
@@ -74,8 +69,7 @@ function HomePageContent() {
   const selectedUserId = userIdParam === "me" ? "me" : userIdParam || null;
   const listIdParam = searchParams.get("listId");
   /** Конкретная подборка или null = «все подборки». Значение `all` в URL (legacy) = то же самое. */
-  const selectedListId =
-    listIdParam && listIdParam !== "all" ? listIdParam : null;
+  const selectedListId = listIdParam && listIdParam !== "all" ? listIdParam : null;
 
   // Filter states — инициализация из URL
   const [search, setSearch] = useState(() => searchParams.get("search") || "");
@@ -85,9 +79,10 @@ function HomePageContent() {
   const [viewMode, setViewMode] = useState<WishlistViewMode>(() =>
     searchParams.get("view") === "table" ? "table" : "grid",
   );
-  const viewParamValue: WishlistViewMode =
-    searchParams.get("view") === "table" ? "table" : "grid";
-  const [showPurchased, setShowPurchased] = useState(() => searchParams.get("purchased") === "show");
+  const viewParamValue: WishlistViewMode = searchParams.get("view") === "table" ? "table" : "grid";
+  const [showPurchased, setShowPurchased] = useState(
+    () => searchParams.get("purchased") === "show",
+  );
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
     const categoriesParam = searchParams.get("categories");
     return categoriesParam ? categoriesParam.split(",").filter(Boolean) : [];
@@ -101,44 +96,23 @@ function HomePageContent() {
     setViewMode(viewParamValue);
   }, [viewParamValue]);
 
-  const { data: usersStatsData } = useSWR<{ users: UserWithStats[] }>(
-    "/api/users/stats",
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: true,
-      dedupingInterval: 10000, // Статистика меняется реже
-    }
-  );
-  const usersWithStats = useMemo(
-    () => usersStatsData?.users ?? [],
-    [usersStatsData?.users]
-  );
+  const { data: usersStatsData } = useSWR<{ users: UserWithStats[] }>("/api/users/stats", fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: true,
+    dedupingInterval: 10000, // Статистика меняется реже
+  });
+  const usersWithStats = useMemo(() => usersStatsData?.users ?? [], [usersStatsData?.users]);
   const normalizedSelectedUserId = useMemo(
-    () =>
-      normalizeSelectedUserId(selectedUserId, currentUserId, usersWithStats),
-    [selectedUserId, currentUserId, usersWithStats]
+    () => normalizeSelectedUserId(selectedUserId, currentUserId, usersWithStats),
+    [selectedUserId, currentUserId, usersWithStats],
   );
 
-  const {
-    items,
-    hasMore,
-    isLoading,
-    isLoadingMore,
-    mutateItems,
-    setSize,
-    size,
-    sentinelRef,
-  } = useInfiniteWishlistItems(
-    normalizedSelectedUserId,
-    selectedListId,
-    debouncedSearch,
-  );
-  const { data: listsData, mutate: mutateLists } = useSWR<ListWithMeta[]>(
-    "/api/lists",
-    fetcher,
-    { revalidateOnFocus: false, dedupingInterval: 10000 }
-  );
+  const { items, hasMore, isLoading, isLoadingMore, mutateItems, setSize, size, sentinelRef } =
+    useInfiniteWishlistItems(normalizedSelectedUserId, selectedListId, debouncedSearch);
+  const { data: listsData, mutate: mutateLists } = useSWR<ListWithMeta[]>("/api/lists", fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 10000,
+  });
   const lists = useMemo(() => listsData ?? [], [listsData]);
 
   /** Только свои подборки — для диалога создания (подстановка первой + обязательный выбор). */
@@ -148,8 +122,7 @@ function HomePageContent() {
   }, [lists, currentUserId]);
 
   const defaultListIdForCreate = useMemo(
-    () =>
-      currentUserId ? getFirstOwnedListId(lists, currentUserId) : null,
+    () => (currentUserId ? getFirstOwnedListId(lists, currentUserId) : null),
     [lists, currentUserId],
   );
 
@@ -182,22 +155,25 @@ function HomePageContent() {
     setAddDialogOpen(true);
   }, []);
 
-  const handleExport = useCallback(async (format: "csv" | "json") => {
-    const res = await fetch(`/api/items/export?format=${format}`);
-    if (!res.ok) {
-      toast.error(t("Не удалось экспортировать каталог"));
-      return;
-    }
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download =
-      res.headers.get("Content-Disposition")?.match(/filename="(.+)"/)?.[1] ??
-      `wishlist.${format}`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [t]);
+  const handleExport = useCallback(
+    async (format: "csv" | "json") => {
+      const res = await fetch(`/api/items/export?format=${format}`);
+      if (!res.ok) {
+        toast.error(t("Не удалось экспортировать каталог"));
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download =
+        res.headers.get("Content-Disposition")?.match(/filename="(.+)"/)?.[1] ??
+        `wishlist.${format}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+    [t],
+  );
 
   const handleImport = useCallback(() => {
     importFileInputRef.current?.click();
@@ -237,9 +213,7 @@ function HomePageContent() {
         mutateItems();
         mutate("/api/users/stats");
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : t("Не удалось импортировать каталог"),
-        );
+        toast.error(err instanceof Error ? err.message : t("Не удалось импортировать каталог"));
       } finally {
         setIsImporting(false);
         event.target.value = "";
@@ -270,12 +244,9 @@ function HomePageContent() {
   const allowedListIdsForFilters = useMemo(() => {
     if (!currentUserId) return new Set(lists.map((l) => l.id));
     return new Set(
-      filterListsBySelectedUser(
-        lists,
-        usersWithStats,
-        currentUserId,
-        normalizedSelectedUserId
-      ).map((l) => l.id)
+      filterListsBySelectedUser(lists, usersWithStats, currentUserId, normalizedSelectedUserId).map(
+        (l) => l.id,
+      ),
     );
   }, [lists, usersWithStats, currentUserId, normalizedSelectedUserId]);
 
@@ -333,7 +304,7 @@ function HomePageContent() {
 
   const selectedListName = useMemo(
     () => lists.find((list) => list.id === selectedListId)?.name ?? null,
-    [lists, selectedListId]
+    [lists, selectedListId],
   );
 
   const activeFilterChips = useMemo(() => {
@@ -356,7 +327,8 @@ function HomePageContent() {
       const userName =
         normalizedSelectedUserId === "me"
           ? t("Мои")
-          : usersWithStats.find((u) => u.id === normalizedSelectedUserId)?.name ?? t("Пользователь");
+          : (usersWithStats.find((u) => u.id === normalizedSelectedUserId)?.name ??
+            t("Пользователь"));
       chips.push({
         key: "user",
         label: `${t("Владелец")}: ${userName}`,
@@ -414,19 +386,22 @@ function HomePageContent() {
   const hasActiveFilters = activeFilterChips.length > 0;
 
   // Handlers
-  const handleCreateItem = useCallback(async (data: CreateItemPayload | UpdateItemPayload) => {
-    const res = await fetch("/api/items", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || t("Ошибка при создании желания"));
-    }
-    toast.success(t("Добавлено в список!"));
-    mutateItems();
-  }, [mutateItems, t]);
+  const handleCreateItem = useCallback(
+    async (data: CreateItemPayload | UpdateItemPayload) => {
+      const res = await fetch("/api/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || t("Ошибка при создании желания"));
+      }
+      toast.success(t("Добавлено в список!"));
+      mutateItems();
+    },
+    [mutateItems, t],
+  );
 
   const handleUpdateItem = useCallback(
     async (data: CreateItemPayload | UpdateItemPayload) => {
@@ -513,17 +488,14 @@ function HomePageContent() {
           const err = await res.json().catch(() => ({}));
           throw new Error(err.error || t("Ошибка смены статуса"));
         }
-        const statusText =
-          status === "AVAILABLE"
-            ? t("Отметка снята")
-            : t("Отмечено купленным");
+        const statusText = status === "AVAILABLE" ? t("Отметка снята") : t("Отмечено купленным");
         toast.success(statusText);
         await mutateItems();
       } finally {
         setPendingStatusByItemId((prev) => ({ ...prev, [id]: false }));
       }
     },
-    [mutateItems, pendingStatusByItemId, t]
+    [mutateItems, pendingStatusByItemId, t],
   );
 
   const handleParsed = useCallback((data: ParsedProductResponse) => {
@@ -600,14 +572,13 @@ function HomePageContent() {
 
   const handleToggleCategory = useCallback((categoryId: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId]
+      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId],
     );
   }, []);
 
   const handleUserChange = useCallback(
     (userId: string | null) => {
-      const uid =
-        userId === null ? null : userId === "me" ? "me" : userId;
+      const uid = userId === null ? null : userId === "me" ? "me" : userId;
       syncFiltersToUrl({ userId: uid, listId: null });
     },
     [syncFiltersToUrl],
@@ -786,7 +757,9 @@ function HomePageContent() {
             ? `${t("Удалить подборку?")} ${listDeleteTarget.name}`
             : t("Удалить подборку?")
         }
-        description={t("Желания останутся в общем списке, но без привязки к этой подборке. Восстановить подборку будет нельзя.")}
+        description={t(
+          "Желания останутся в общем списке, но без привязки к этой подборке. Восстановить подборку будет нельзя.",
+        )}
         confirmLabel={t("Удалить подборку")}
         variant="destructive"
         onConfirm={() => {
@@ -824,11 +797,13 @@ function HomePageContent() {
 
 export default function HomePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen page-bg flex items-center justify-center min-h-[50vh]">
-        <div className="text-muted-foreground">Загрузка…</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen page-bg flex items-center justify-center min-h-[50vh]">
+          <div className="text-muted-foreground">Загрузка…</div>
+        </div>
+      }
+    >
       <HomePageContent />
     </Suspense>
   );

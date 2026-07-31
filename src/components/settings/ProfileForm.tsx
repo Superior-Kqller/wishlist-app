@@ -65,15 +65,13 @@ export function ProfileForm({
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const [telegramId, setTelegramId] = useState(initialTelegramId ?? "");
   const [telegramNotificationsEnabled, setTelegramNotificationsEnabled] = useState(
-    initialTelegramNotificationsEnabled
+    initialTelegramNotificationsEnabled,
   );
   const [calendarNotificationsEnabled, setCalendarNotificationsEnabled] = useState(
     initialCalendarNotificationsEnabled,
   );
   const [birthdayEnabled, setBirthdayEnabled] = useState(Boolean(initialBirthday));
-  const [gender, setGender] = useState<ProfileGender | "">(
-    initialGender ?? "",
-  );
+  const [gender, setGender] = useState<ProfileGender | "">(initialGender ?? "");
   const [thematicHolidayConsent, setThematicHolidayConsent] = useState(
     initialThematicHolidayConsent,
   );
@@ -93,9 +91,7 @@ export function ProfileForm({
     initialBirthday?.selectedViewerIds ?? [],
   );
   const { data: audienceData } = useSWR<{ users: AudienceOption[] }>(
-    birthdayEnabled && birthdayAudience === "SELECTED"
-      ? "/api/calendar/audience-options"
-      : null,
+    birthdayEnabled && birthdayAudience === "SELECTED" ? "/api/calendar/audience-options" : null,
     fetcher,
   );
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
@@ -189,8 +185,7 @@ export function ProfileForm({
                 month: Number(birthdayMonth),
                 year: birthdayYear ? Number(birthdayYear) : null,
                 audience: birthdayAudience,
-                selectedViewerIds:
-                  birthdayAudience === "SELECTED" ? selectedViewerIds : [],
+                selectedViewerIds: birthdayAudience === "SELECTED" ? selectedViewerIds : [],
               }
             : null,
         }),
@@ -204,9 +199,7 @@ export function ProfileForm({
       toast.success(t("Профиль обновлен"));
       onSuccess();
     } catch (err: unknown) {
-      toast.error(
-        err instanceof Error ? err.message : t("Ошибка при обновлении профиля"),
-      );
+      toast.error(err instanceof Error ? err.message : t("Ошибка при обновлении профиля"));
     } finally {
       setSaving(false);
     }
@@ -252,15 +245,8 @@ export function ProfileForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="username">{t("Логин")}</Label>
-              <Input
-                id="username"
-                value={initialUsername}
-                disabled
-                className="bg-muted/45"
-              />
-              <p className="text-xs text-muted-foreground">
-                {t("Логин нельзя изменить")}
-              </p>
+              <Input id="username" value={initialUsername} disabled className="bg-muted/45" />
+              <p className="text-xs text-muted-foreground">{t("Логин нельзя изменить")}</p>
             </div>
 
             <div className="space-y-2">
@@ -293,9 +279,7 @@ export function ProfileForm({
               <select
                 id="profileGender"
                 value={gender}
-                onChange={(event) =>
-                  setGender(event.target.value as ProfileGender | "")
-                }
+                onChange={(event) => setGender(event.target.value as ProfileGender | "")}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
                 <option value="">{t("Не указан")}</option>
@@ -313,7 +297,9 @@ export function ProfileForm({
                   {t("Появляться среди поздравляемых")}
                 </span>
                 <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
-                  {t("Ваш пол не будет показан напрямую, но появление в тематическом празднике может косвенно раскрыть выбранное значение. Согласие можно отозвать в любой момент.")}
+                  {t(
+                    "Ваш пол не будет показан напрямую, но появление в тематическом празднике может косвенно раскрыть выбранное значение. Согласие можно отозвать в любой момент.",
+                  )}
                 </span>
               </span>
               <input
@@ -471,9 +457,7 @@ export function ProfileForm({
 
             <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2))/0.36] px-3.5 py-2.5">
               <span className="min-w-0">
-                <span className="block text-sm font-medium">
-                  {t("Telegram-уведомления")}
-                </span>
+                <span className="block text-sm font-medium">{t("Telegram-уведомления")}</span>
                 <span className="mt-0.5 block text-xs text-muted-foreground">
                   {t("Получать уведомления в подключённом чате")}
                 </span>
@@ -491,9 +475,7 @@ export function ProfileForm({
             </label>
             <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2))/0.36] px-3.5 py-2.5">
               <span className="min-w-0">
-                <span className="block text-sm font-medium">
-                  {t("Напоминания календаря")}
-                </span>
+                <span className="block text-sm font-medium">{t("Напоминания календаря")}</span>
                 <span className="mt-0.5 block text-xs text-muted-foreground">
                   {t("Получать в Telegram напоминания о доступных событиях")}
                 </span>
@@ -502,21 +484,15 @@ export function ProfileForm({
                 type="checkbox"
                 className="size-4 shrink-0 accent-primary"
                 checked={calendarNotificationsEnabled}
-                onChange={(event) =>
-                  setCalendarNotificationsEnabled(event.target.checked)
-                }
+                onChange={(event) => setCalendarNotificationsEnabled(event.target.checked)}
               />
             </label>
           </div>
 
           <div className="flex justify-end">
-            <Button
-              type="submit"
-              className="w-full sm:w-auto"
-              disabled={saving || !hasChanges}
-            >
-            {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            {t("Сохранить")}
+            <Button type="submit" className="w-full sm:w-auto" disabled={saving || !hasChanges}>
+              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {t("Сохранить")}
             </Button>
           </div>
         </form>

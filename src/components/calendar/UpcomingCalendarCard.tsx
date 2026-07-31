@@ -46,9 +46,7 @@ export function UpcomingCalendarCard() {
         </div>
       ) : error ? (
         <div className="mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-destructive/25 px-1 pt-3">
-          <p className="text-sm text-destructive">
-            {t("Не удалось загрузить ближайшие события")}
-          </p>
+          <p className="text-sm text-destructive">{t("Не удалось загрузить ближайшие события")}</p>
           <button
             type="button"
             className="min-h-9 rounded-lg px-3 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"

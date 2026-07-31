@@ -6,7 +6,13 @@ import { sanitizeError } from "@/lib/logger";
 import { z } from "zod";
 
 const updateUserSchema = z.object({
-  username: z.string().trim().min(3).max(50).regex(/^[a-zA-Z0-9_]+$/, "Username может содержать только буквы, цифры и _").optional(),
+  username: z
+    .string()
+    .trim()
+    .min(3)
+    .max(50)
+    .regex(/^[a-zA-Z0-9_]+$/, "Username может содержать только буквы, цифры и _")
+    .optional(),
   name: z.string().trim().min(1).max(100).optional(),
   role: z.enum(["USER", "ADMIN"]).optional(),
 });
@@ -17,7 +23,7 @@ function adminAuthErrorResponse(err: unknown) {
   const message = err instanceof Error ? err.message : "Forbidden";
   return NextResponse.json(
     { error: message || "Forbidden" },
-    { status: message === "Unauthorized" ? 401 : 403 }
+    { status: message === "Unauthorized" ? 401 : 403 },
   );
 }
 
@@ -27,7 +33,7 @@ function adminAuthErrorResponse(err: unknown) {
  */
 async function assertLastAdminSafe(
   userId: string,
-  intent: "delete" | "demote_to_user"
+  intent: "delete" | "demote_to_user",
 ): Promise<{ ok: true } | { ok: false; reason: string }> {
   return prisma.$transaction(async (tx) => {
     const user = await tx.user.findUnique({
@@ -62,10 +68,7 @@ async function assertLastAdminSafe(
 }
 
 // GET /api/users/[id] — получение данных пользователя
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.read);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -99,10 +102,7 @@ export async function GET(
 }
 
 // PATCH /api/users/[id] — обновление пользователя (только админы)
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -134,10 +134,7 @@ export async function PATCH(
       });
 
       if (existing) {
-        return NextResponse.json(
-          { error: "Такой логин уже занят" },
-          { status: 409 }
-        );
+        return NextResponse.json({ error: "Такой логин уже занят" }, { status: 409 });
       }
     }
 
@@ -152,10 +149,7 @@ export async function PATCH(
     if (data.role !== undefined) updateData.role = data.role;
 
     if (Object.keys(updateData).length === 0) {
-      return NextResponse.json(
-        { error: "Нет полей для обновления" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Нет полей для обновления" }, { status: 400 });
     }
 
     const user = await prisma.$transaction(async (tx) => {
@@ -196,28 +190,22 @@ export async function PATCH(
     if (err instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Ошибка проверки данных", details: err.issues },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (err instanceof Error && err.message === LAST_ADMIN_BLOCK) {
       return NextResponse.json(
         { error: "Нельзя снять роль с последнего администратора" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     sanitizeError("Update user error", err, { userId: id });
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }
 
 // DELETE /api/users/[id] — удаление пользователя (только админы)
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -259,13 +247,10 @@ export async function DELETE(
     if (err instanceof Error && err.message === LAST_ADMIN_BLOCK) {
       return NextResponse.json(
         { error: "Нельзя удалить последнего администратора" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     sanitizeError("Delete user error", err, { userId: id });
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

@@ -9,11 +9,7 @@ import { fetcher } from "@/lib/fetcher";
 import type { HolidayCatalogEntry } from "@/lib/calendar/holiday-catalog";
 import type { HolidayRule } from "@/lib/calendar/holiday-rules";
 
-function changeFixedRule(
-  rule: HolidayRule,
-  field: "day" | "month",
-  value: number,
-): HolidayRule {
+function changeFixedRule(rule: HolidayRule, field: "day" | "month", value: number): HolidayRule {
   if (rule.kind !== "FIXED") return rule;
   return { ...rule, [field]: value };
 }
@@ -103,10 +99,7 @@ export function HolidayCatalog() {
       ) : (
         <div className="divide-y rounded-xl border">
           {(data?.holidays ?? []).map((holiday) => (
-            <div
-              key={holiday.id}
-              className="grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto_auto]"
-            >
+            <div key={holiday.id} className="grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
               <div>
                 <Input
                   aria-label={`Название: ${holiday.name}`}
@@ -169,11 +162,7 @@ export function HolidayCatalog() {
                       defaultValue={holiday.rule.day}
                       onBlur={(event) =>
                         void patch(holiday.id, {
-                          rule: changeFixedRule(
-                            holiday.rule,
-                            "day",
-                            Number(event.target.value),
-                          ),
+                          rule: changeFixedRule(holiday.rule, "day", Number(event.target.value)),
                         })
                       }
                     />
@@ -186,11 +175,7 @@ export function HolidayCatalog() {
                       defaultValue={holiday.rule.month}
                       onBlur={(event) =>
                         void patch(holiday.id, {
-                          rule: changeFixedRule(
-                            holiday.rule,
-                            "month",
-                            Number(event.target.value),
-                          ),
+                          rule: changeFixedRule(holiday.rule, "month", Number(event.target.value)),
                         })
                       }
                     />
@@ -255,9 +240,7 @@ export function HolidayCatalog() {
                 <input
                   type="checkbox"
                   checked={holiday.enabled}
-                  onChange={(event) =>
-                    void patch(holiday.id, { enabled: event.target.checked })
-                  }
+                  onChange={(event) => void patch(holiday.id, { enabled: event.target.checked })}
                 />
                 Включён
               </label>

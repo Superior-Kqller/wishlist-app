@@ -1,8 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  createPersonalEventItemHandlers,
-  createPersonalEventsHandlers,
-} from "./events-handler";
+import { createPersonalEventItemHandlers, createPersonalEventsHandlers } from "./events-handler";
 
 const validEvent = {
   title: "Годовщина",
@@ -15,9 +12,9 @@ const validEvent = {
 
 describe("/api/calendar/events handlers", () => {
   it("возвращает только собственные события в контексте текущего пользователя", async () => {
-    const listOwnPersonalEvents = vi.fn().mockResolvedValue([
-      { id: "own", ownerId: "actor", title: "Моё событие" },
-    ]);
+    const listOwnPersonalEvents = vi
+      .fn()
+      .mockResolvedValue([{ id: "own", ownerId: "actor", title: "Моё событие" }]);
     const { GET } = createPersonalEventsHandlers({
       getActorId: async () => "actor",
       listOwnPersonalEvents,
@@ -41,10 +38,12 @@ describe("/api/calendar/events handlers", () => {
       createPersonalEvent,
     });
 
-    const response = await POST(new Request("http://localhost/api/calendar/events", {
-      method: "POST",
-      body: JSON.stringify({ ...validEvent, ownerId: "attacker" }),
-    }));
+    const response = await POST(
+      new Request("http://localhost/api/calendar/events", {
+        method: "POST",
+        body: JSON.stringify({ ...validEvent, ownerId: "attacker" }),
+      }),
+    );
 
     expect(response.status).toBe(201);
     expect(createPersonalEvent).toHaveBeenCalledWith("actor", validEvent);
@@ -94,10 +93,12 @@ describe("/api/calendar/events handlers", () => {
       createPersonalEvent: vi.fn().mockRejectedValue(new Error("INVALID_EVENT_VIEWERS")),
     });
 
-    const response = await POST(new Request("http://localhost/api/calendar/events", {
-      method: "POST",
-      body: JSON.stringify(validEvent),
-    }));
+    const response = await POST(
+      new Request("http://localhost/api/calendar/events", {
+        method: "POST",
+        body: JSON.stringify(validEvent),
+      }),
+    );
 
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({ error: "Некорректная аудитория события" });

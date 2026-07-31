@@ -24,26 +24,20 @@ export async function POST(req: NextRequest) {
     const file = formData.get("avatar") as File | null;
 
     if (!file) {
-      return NextResponse.json(
-        { error: "Файл не выбран" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Файл не выбран" }, { status: 400 });
     }
 
     // Валидация типа файла
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
         { error: "Недопустимый тип файла. Разрешены: JPEG, PNG, WebP, GIF" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Валидация размера файла
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { error: "Файл слишком большой. Максимум: 2 МБ" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Файл слишком большой. Максимум: 2 МБ" }, { status: 400 });
     }
 
     // Определяем расширение файла на основе MIME типа (безопаснее чем имя файла)
@@ -58,13 +52,10 @@ export async function POST(req: NextRequest) {
     const filename = `${userId}.${extension}`;
     const uploadDir = join(process.cwd(), "public", "uploads", "avatars");
     const filepath = join(uploadDir, filename);
-    
+
     // Защита от path traversal: убеждаемся что путь находится в нужной директории
     if (!filepath.startsWith(uploadDir)) {
-      return NextResponse.json(
-        { error: "Недопустимый путь к файлу" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Недопустимый путь к файлу" }, { status: 400 });
     }
 
     // Создаем директорию если её нет
@@ -81,7 +72,7 @@ export async function POST(req: NextRequest) {
         sanitizeError("Failed to create upload directory", mkdirError, { uploadDir });
         return NextResponse.json(
           { error: "Не удалось создать папку для загрузок. Проверьте права на сервере." },
-          { status: 500 }
+          { status: 500 },
         );
       }
     }
@@ -97,7 +88,7 @@ export async function POST(req: NextRequest) {
     const avatarUrl = `/uploads/avatars/${filename}?v=${Date.now()}`;
     await prisma.user.update({
       where: { id: userId },
-      data: { 
+      data: {
         avatarUrl: avatarUrl,
       },
     });
@@ -105,9 +96,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ avatarUrl });
   } catch (err) {
     sanitizeError("Upload avatar error", err, { userId });
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

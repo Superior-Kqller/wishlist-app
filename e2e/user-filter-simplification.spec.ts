@@ -31,4 +31,3 @@ test("desktop-user-change-resets-list", async ({ page }) => {
   // Подборка сбрасывается на «все» — без listId в query
   await expect(page).not.toHaveURL(/(?:\?|&)listId=/);
 });
-

@@ -60,11 +60,7 @@ function EventRow({
   onToggleMuted: () => void;
 }) {
   const Icon =
-    occurrence.type === "BIRTHDAY"
-      ? Cake
-      : occurrence.type === "HOLIDAY"
-        ? PartyPopper
-        : Clock3;
+    occurrence.type === "BIRTHDAY" ? Cake : occurrence.type === "HOLIDAY" ? PartyPopper : Clock3;
   const title = getOccurrenceTitle(occurrence);
 
   return (
@@ -241,8 +237,7 @@ function MonthGrid({
                     const href =
                       entry.type === "BIRTHDAY" && !entry.isOwn
                         ? `/?userId=${entry.person.id}`
-                        : entry.type === "HOLIDAY" &&
-                            entry.congratulated[0]?.wishlists[0]
+                        : entry.type === "HOLIDAY" && entry.congratulated[0]?.wishlists[0]
                           ? thematicWishlistHref(
                               entry.congratulated[0].id,
                               entry.congratulated[0].wishlists[0].id,
@@ -381,10 +376,7 @@ export default function CalendarPage() {
     () => getCalendarSections(filtered, today),
     [filtered, today],
   );
-  const groupedUpcoming = useMemo(
-    () => groupCalendarOccurrences(upcoming),
-    [upcoming],
-  );
+  const groupedUpcoming = useMemo(() => groupCalendarOccurrences(upcoming), [upcoming]);
   const monthOccurrences = filtered.filter((occurrence) =>
     occurrence.date.startsWith(`${year}-${String(month + 1).padStart(2, "0")}`),
   );

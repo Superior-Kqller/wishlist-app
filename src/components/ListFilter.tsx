@@ -59,13 +59,7 @@ export function ListFilter({
           <Pencil className="w-4 h-4" />
         </Button>
       )}
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={onCreateClick}
-        className="h-10"
-      >
+      <Button type="button" variant="outline" size="sm" onClick={onCreateClick} className="h-10">
         <ListPlus className="w-4 h-4 mr-2" />
         {t("Создать подборку")}
       </Button>

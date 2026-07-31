@@ -60,7 +60,9 @@ export function PreferenceProfileCard({
     preferences.dislikedCategories.length +
     preferences.dislikedMaterials.length +
     preferences.doNotBuy.length;
-  const detailCount = [preferences.sizes, preferences.budget, ...preferences.occasions].filter(Boolean).length;
+  const detailCount = [preferences.sizes, preferences.budget, ...preferences.occasions].filter(
+    Boolean,
+  ).length;
 
   return (
     <motion.article
@@ -123,7 +125,10 @@ export function PreferenceProfileCard({
               aria-label={expanded ? t("Свернуть профиль") : t("Открыть профиль")}
             >
               <ChevronDown
-                className={cn("h-4 w-4 transition-transform duration-300", expanded && "rotate-180")}
+                className={cn(
+                  "h-4 w-4 transition-transform duration-300",
+                  expanded && "rotate-180",
+                )}
                 aria-hidden
               />
             </Button>
@@ -135,7 +140,9 @@ export function PreferenceProfileCard({
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <p className="text-xl font-semibold tabular-nums">{preferenceCount}</p>
-                <p className="text-sm font-medium text-muted-foreground">{t("подсказок для подарка")}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  {t("подсказок для подарка")}
+                </p>
               </div>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                 {preferenceCount === 0
@@ -159,12 +166,12 @@ export function PreferenceProfileCard({
             ) : null}
           </div>
           <div className="mt-3 h-1 overflow-hidden rounded-full bg-[hsl(var(--surface-3))]">
-              <motion.div
-                initial={reduceMotion ? false : { scaleX: 0 }}
-                animate={{ scaleX: progress / 100 }}
-                transition={{ type: "spring", stiffness: 90, damping: 20 }}
-                className="h-full origin-left rounded-full bg-primary/72"
-              />
+            <motion.div
+              initial={reduceMotion ? false : { scaleX: 0 }}
+              animate={{ scaleX: progress / 100 }}
+              transition={{ type: "spring", stiffness: 90, damping: 20 }}
+              className="h-full origin-left rounded-full bg-primary/72"
+            />
           </div>
 
           {!expanded ? (

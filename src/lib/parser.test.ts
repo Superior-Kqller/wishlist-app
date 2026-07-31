@@ -65,33 +65,31 @@ describe("validateAndResolveUrl", () => {
   it("отклоняет DNS rebinding (домен резолвится в приватный IP)", async () => {
     mockResolve4.mockResolvedValue(["192.168.1.100"]);
     mockResolve6.mockRejectedValue(new Error("no"));
-    await expect(
-      validateAndResolveUrl("http://evil.example.com"),
-    ).rejects.toThrow("Internal URLs are not allowed");
+    await expect(validateAndResolveUrl("http://evil.example.com")).rejects.toThrow(
+      "Internal URLs are not allowed",
+    );
   });
 
   it("отклоняет если IPv6 резолвится в loopback", async () => {
     mockResolve4.mockRejectedValue(new Error("no"));
     mockResolve6.mockResolvedValue(["::1"]);
-    await expect(
-      validateAndResolveUrl("http://sneaky.example.com"),
-    ).rejects.toThrow("Internal URLs are not allowed");
+    await expect(validateAndResolveUrl("http://sneaky.example.com")).rejects.toThrow(
+      "Internal URLs are not allowed",
+    );
   });
 
   it("пропускает публичные IP", async () => {
     mockResolve4.mockResolvedValue(["93.184.216.34"]);
     mockResolve6.mockRejectedValue(new Error("no"));
-    await expect(
-      validateAndResolveUrl("https://example.com"),
-    ).resolves.toBeUndefined();
+    await expect(validateAndResolveUrl("https://example.com")).resolves.toBeUndefined();
   });
 
   it("отклоняет нерезолвимый домен", async () => {
     mockResolve4.mockRejectedValue(new Error("ENOTFOUND"));
     mockResolve6.mockRejectedValue(new Error("ENOTFOUND"));
-    await expect(
-      validateAndResolveUrl("http://nonexistent.invalid"),
-    ).rejects.toThrow("Could not resolve hostname");
+    await expect(validateAndResolveUrl("http://nonexistent.invalid")).rejects.toThrow(
+      "Could not resolve hostname",
+    );
   });
 
   it("отклоняет 169.254.x.x (link-local)", async () => {
@@ -124,31 +122,27 @@ describe("resolveCanonicalProductUrl", () => {
     mockResolve4.mockResolvedValue(["93.184.216.34"]);
     mockResolve6.mockRejectedValue(new Error("no"));
 
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
-      async (input, init) => {
-        const u = typeof input === "string" ? input : (input as Request).url;
-        if (init?.method !== "HEAD") {
-          return new Response(null, { status: 200 });
-        }
-        if (u.endsWith("/short") || u.includes("/short?")) {
-          return new Response(null, {
-            status: 302,
-            headers: { location: "/step2" },
-          });
-        }
-        if (u.includes("/step2")) {
-          return new Response(null, {
-            status: 302,
-            headers: { location: "/product/final" },
-          });
-        }
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+      const u = typeof input === "string" ? input : (input as Request).url;
+      if (init?.method !== "HEAD") {
         return new Response(null, { status: 200 });
-      },
-    );
+      }
+      if (u.endsWith("/short") || u.includes("/short?")) {
+        return new Response(null, {
+          status: 302,
+          headers: { location: "/step2" },
+        });
+      }
+      if (u.includes("/step2")) {
+        return new Response(null, {
+          status: 302,
+          headers: { location: "/product/final" },
+        });
+      }
+      return new Response(null, { status: 200 });
+    });
 
-    const resolved = await resolveCanonicalProductUrl(
-      "https://shop.example.com/short",
-    );
+    const resolved = await resolveCanonicalProductUrl("https://shop.example.com/short");
     expect(resolved).toBe("https://shop.example.com/product/final");
 
     fetchSpy.mockRestore();
@@ -175,17 +169,15 @@ describe("parseProductUrl — Wildberries", () => {
       },
     };
 
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
-      async (_input, init) => {
-        if (init?.method === "HEAD") {
-          return new Response(null, { status: 200 });
-        }
-        return new Response(JSON.stringify(wbApiResponse), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      },
-    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      return new Response(JSON.stringify(wbApiResponse), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
 
     const result = await parseProductUrl(
       "https://www.wildberries.ru/catalog/123456789/detail.aspx",
@@ -204,13 +196,13 @@ describe("parseProductUrl — Wildberries", () => {
     mockResolve4.mockResolvedValue(["212.193.158.1"]);
     mockResolve6.mockRejectedValue(new Error("no"));
 
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(null, { status: 200 }),
-    );
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(null, { status: 200 }));
 
-    await expect(
-      parseProductUrl("https://www.wildberries.ru/some-page"),
-    ).rejects.toThrow("Не удалось извлечь артикул");
+    await expect(parseProductUrl("https://www.wildberries.ru/some-page")).rejects.toThrow(
+      "Не удалось извлечь артикул",
+    );
 
     fetchSpy.mockRestore();
   });
@@ -243,21 +235,17 @@ describe("parseProductUrl — Ozon", () => {
       },
     };
 
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
-      async (_input, init) => {
-        if (init?.method === "HEAD") {
-          return new Response(null, { status: 200 });
-        }
-        return new Response(JSON.stringify(ozonApiResponse), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      },
-    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      return new Response(JSON.stringify(ozonApiResponse), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
 
-    const result = await parseProductUrl(
-      "https://www.ozon.ru/product/naushniki-bluetooth-123456/",
-    );
+    const result = await parseProductUrl("https://www.ozon.ru/product/naushniki-bluetooth-123456/");
 
     expect(result.title).toBe("Наушники Bluetooth");
     expect(result.price).toBe(2199);
@@ -282,22 +270,18 @@ describe("parseProductUrl — Ozon", () => {
     `;
 
     let nonHeadCalls = 0;
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
-      async (_input, init) => {
-        if (init?.method === "HEAD") {
-          return new Response(null, { status: 200 });
-        }
-        nonHeadCalls++;
-        if (nonHeadCalls === 1) {
-          return new Response("", { status: 403 });
-        }
-        return new Response(html, { status: 200 });
-      },
-    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      nonHeadCalls++;
+      if (nonHeadCalls === 1) {
+        return new Response("", { status: 403 });
+      }
+      return new Response(html, { status: 200 });
+    });
 
-    const result = await parseProductUrl(
-      "https://www.ozon.ru/product/fallback-789/",
-    );
+    const result = await parseProductUrl("https://www.ozon.ru/product/fallback-789/");
 
     expect(result.title).toBe("Товар Ozon Fallback");
     expect(result.price).toBe(1999);
@@ -310,18 +294,16 @@ describe("parseProductUrl — Ozon", () => {
     mockResolve4.mockResolvedValue(["185.71.76.1"]);
     mockResolve6.mockRejectedValue(new Error("no"));
 
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
-      async (_input, init) => {
-        if (init?.method === "HEAD") {
-          return new Response(null, { status: 200 });
-        }
-        return new Response("", { status: 200 });
-      },
-    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      return new Response("", { status: 200 });
+    });
 
-    await expect(
-      parseProductUrl("https://www.ozon.ru/category/electronics/"),
-    ).rejects.toThrow("Не удалось извлечь ID товара");
+    await expect(parseProductUrl("https://www.ozon.ru/category/electronics/")).rejects.toThrow(
+      "Не удалось извлечь ID товара",
+    );
 
     fetchSpy.mockRestore();
   });
@@ -343,18 +325,14 @@ describe("parseProductUrl — AliExpress", () => {
       </head><body></body></html>
     `;
 
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
-      async (_input, init) => {
-        if (init?.method === "HEAD") {
-          return new Response(null, { status: 200 });
-        }
-        return new Response(html, { status: 200 });
-      },
-    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      return new Response(html, { status: 200 });
+    });
 
-    const result = await parseProductUrl(
-      "https://www.aliexpress.com/item/123456.html",
-    );
+    const result = await parseProductUrl("https://www.aliexpress.com/item/123456.html");
     expect(result.title).toBe("Test AliExpress Product");
     expect(result.price).toBe(599);
     expect(result.images).toContain("https://ae.alicdn.com/test.jpg");
@@ -372,18 +350,14 @@ describe("parseProductUrl — AliExpress", () => {
       </head><body></body></html>
     `;
 
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
-      async (_input, init) => {
-        if (init?.method === "HEAD") {
-          return new Response(null, { status: 200 });
-        }
-        return new Response(html, { status: 200 });
-      },
-    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      return new Response(html, { status: 200 });
+    });
 
-    const result = await parseProductUrl(
-      "https://aliexpress.ru/item/789.html",
-    );
+    const result = await parseProductUrl("https://aliexpress.ru/item/789.html");
     expect(result.title).toBe("Товар с Ali.ru");
 
     fetchSpy.mockRestore();
@@ -399,18 +373,14 @@ describe("parseProductUrl — AliExpress", () => {
       </head><body></body></html>
     `;
 
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
-      async (_input, init) => {
-        if (init?.method === "HEAD") {
-          return new Response(null, { status: 200 });
-        }
-        return new Response(html, { status: 200 });
-      },
-    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      return new Response(html, { status: 200 });
+    });
 
-    const result = await parseProductUrl(
-      "https://www.aliexpress.com/item/999.html",
-    );
+    const result = await parseProductUrl("https://www.aliexpress.com/item/999.html");
     expect(result.title).toBe("Классный товар");
 
     fetchSpy.mockRestore();
@@ -434,14 +404,12 @@ describe("parseProductUrl — Generic", () => {
       </body></html>
     `;
 
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
-      async (_input, init) => {
-        if (init?.method === "HEAD") {
-          return new Response(null, { status: 200 });
-        }
-        return new Response(html, { status: 200 });
-      },
-    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      return new Response(html, { status: 200 });
+    });
 
     const result = await parseProductUrl("https://shop.example.com/product/1");
     expect(result.title).toBe("Крутой гаджет");
@@ -464,14 +432,12 @@ describe("parseProductUrl — Generic", () => {
       </head><body></body></html>
     `;
 
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
-      async (_input, init) => {
-        if (init?.method === "HEAD") {
-          return new Response(null, { status: 200 });
-        }
-        return new Response(html, { status: 200 });
-      },
-    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      return new Response(html, { status: 200 });
+    });
 
     const result = await parseProductUrl("https://example.com/product");
     expect(result.title).toBe("JSON-LD Product");
@@ -485,17 +451,15 @@ describe("parseProductUrl — Generic", () => {
     mockResolve4.mockResolvedValue(["93.184.216.34"]);
     mockResolve6.mockRejectedValue(new Error("no"));
 
-    const fetchSpy = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(
-        new Response("", {
-          status: 302,
-          headers: { location: "http://127.0.0.1/internal" },
-        })
-      );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response("", {
+        status: 302,
+        headers: { location: "http://127.0.0.1/internal" },
+      }),
+    );
 
     await expect(parseProductUrl("https://example.com/product")).rejects.toThrow(
-      "Internal URLs are not allowed"
+      "Internal URLs are not allowed",
     );
 
     fetchSpy.mockRestore();
@@ -519,14 +483,12 @@ describe("parseWishlistProductUrl", () => {
       </body></html>
     `;
 
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
-      async (_input, init) => {
-        if (init?.method === "HEAD") {
-          return new Response(null, { status: 200 });
-        }
-        return new Response(html, { status: 200 });
-      },
-    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      return new Response(html, { status: 200 });
+    });
 
     const result = await parseWishlistProductUrl("https://shop.example.com/p");
     expect(result.title).toBe("Товар OG");
@@ -554,24 +516,22 @@ describe("parseWishlistProductUrl", () => {
       },
     };
 
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
-      async (input, init) => {
-        const u = typeof input === "string" ? input : (input as Request).url;
-        if (init?.method === "HEAD") {
-          return new Response(null, { status: 200 });
-        }
-        if (u.includes("card.wb.ru")) {
-          return new Response(JSON.stringify(wbApiResponse), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-        return new Response(
-          `<html><head><meta property="og:description" content="Описание с карточки WB" /></head><body></body></html>`,
-          { status: 200 },
-        );
-      },
-    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+      const u = typeof input === "string" ? input : (input as Request).url;
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      if (u.includes("card.wb.ru")) {
+        return new Response(JSON.stringify(wbApiResponse), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      return new Response(
+        `<html><head><meta property="og:description" content="Описание с карточки WB" /></head><body></body></html>`,
+        { status: 200 },
+      );
+    });
 
     const result = await parseWishlistProductUrl(
       "https://www.wildberries.ru/catalog/123456789/detail.aspx",

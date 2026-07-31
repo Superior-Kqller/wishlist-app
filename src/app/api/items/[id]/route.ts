@@ -52,10 +52,7 @@ function maskClaimedByUserForActor<
 }
 
 // GET /api/items/[id] — только если пользователь имеет доступ (через подборку)
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.read);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -89,10 +86,7 @@ export async function GET(
 }
 
 // PATCH /api/items/[id]
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
@@ -132,7 +126,7 @@ export async function PATCH(
     ) {
       return NextResponse.json(
         { error: "Нельзя одновременно передавать status и purchased" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -152,7 +146,7 @@ export async function PATCH(
     if (data.status !== undefined && hasNonStatusFields) {
       return NextResponse.json(
         { error: "Операция смены status должна быть отдельным запросом" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -196,10 +190,7 @@ export async function PATCH(
           claimerUserId,
         })
       ) {
-        return NextResponse.json(
-          { error: "Недопустимый переход статуса" },
-          { status: 409 }
-        );
+        return NextResponse.json({ error: "Недопустимый переход статуса" }, { status: 409 });
       }
 
       const now = new Date();
@@ -242,7 +233,7 @@ export async function PATCH(
       if (!updated) {
         return NextResponse.json(
           { error: "Состояние товара изменилось, обновите страницу" },
-          { status: 409 }
+          { status: 409 },
         );
       }
 
@@ -268,7 +259,10 @@ export async function PATCH(
           select: { userId: true },
         });
         if (!list || list.userId !== userId) {
-          return NextResponse.json({ error: "Подборка не найдена или доступ запрещён" }, { status: 400 });
+          return NextResponse.json(
+            { error: "Подборка не найдена или доступ запрещён" },
+            { status: 400 },
+          );
         }
       }
       updateData.listId = data.listId || null;
@@ -303,23 +297,17 @@ export async function PATCH(
     if (err instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Ошибка проверки данных", details: err.issues },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     sanitizeError("Update item error", err, { userId, itemId: id });
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }
 
 // DELETE /api/items/[id]
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 

@@ -16,7 +16,7 @@ export async function GET() {
         timestamp: new Date().toISOString(),
         database: "connected",
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     return NextResponse.json(
@@ -26,7 +26,7 @@ export async function GET() {
         database: "disconnected",
         error: process.env.NODE_ENV === "development" ? String(error) : undefined,
       },
-      { status: 503 }
+      { status: 503 },
     );
   }
 }

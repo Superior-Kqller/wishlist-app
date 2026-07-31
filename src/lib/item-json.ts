@@ -5,17 +5,11 @@ import type { ItemStatus } from "@/types";
  * Убирает поле `list` из ответа API (служебная связь для maskClaimedByUser),
  * чтобы не светить его в JSON клиенту.
  */
-export function itemResponseWithoutList<T extends { list: unknown }>(
-  masked: T,
-): Omit<T, "list"> {
+export function itemResponseWithoutList<T extends { list: unknown }>(masked: T): Omit<T, "list"> {
   const { list, ...response } = masked;
   void list;
 
-  if (
-    "status" in response &&
-    "purchased" in response &&
-    typeof response.purchased === "boolean"
-  ) {
+  if ("status" in response && "purchased" in response && typeof response.purchased === "boolean") {
     const itemResponse = response as Omit<T, "list"> & {
       status: ItemStatus;
       purchased: boolean;

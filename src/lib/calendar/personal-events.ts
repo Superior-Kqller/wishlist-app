@@ -41,10 +41,7 @@ function validateInput(input: PersonalEventInput): void {
   }
 }
 
-function normalizeInput(
-  input: PersonalEventInput,
-  actorId: string,
-): PersonalEventInput {
+function normalizeInput(input: PersonalEventInput, actorId: string): PersonalEventInput {
   validateInput(input);
   return {
     ...input,
@@ -61,9 +58,7 @@ async function assertValidAudience(
   input: PersonalEventInput,
 ): Promise<void> {
   if (input.selectedViewerIds.length === 0) return;
-  const existingIds = await repository.findExistingUserIds(
-    input.selectedViewerIds,
-  );
+  const existingIds = await repository.findExistingUserIds(input.selectedViewerIds);
   if (existingIds.length !== input.selectedViewerIds.length) {
     throw new Error("INVALID_EVENT_VIEWERS");
   }
@@ -75,10 +70,7 @@ export function createPersonalEvents(repository: PersonalEventRepository) {
       return repository.listByOwner(actorId);
     },
 
-    async create(
-      actorId: string,
-      input: PersonalEventInput,
-    ): Promise<PersonalEventRecord> {
+    async create(actorId: string, input: PersonalEventInput): Promise<PersonalEventRecord> {
       const normalized = normalizeInput(input, actorId);
       await assertValidAudience(repository, normalized);
       return repository.create({ ...normalized, ownerId: actorId });

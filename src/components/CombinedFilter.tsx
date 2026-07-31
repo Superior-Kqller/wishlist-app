@@ -59,9 +59,8 @@ export function CombinedFilter({
     userScope === "user" ? users.find((u) => u.id === selectedUserId) : null;
 
   const selectedUserLists = useMemo(
-    () =>
-      filterListsBySelectedUser(lists, users, currentUserId, selectedUserId),
-    [lists, users, currentUserId, selectedUserId]
+    () => filterListsBySelectedUser(lists, users, currentUserId, selectedUserId),
+    [lists, users, currentUserId, selectedUserId],
   );
 
   const handleSelectUser = (userId: string | null) => {
@@ -128,7 +127,7 @@ export function CombinedFilter({
               "cursor-pointer rounded-md px-2.5 py-2 text-sm",
               selectedUserId === null
                 ? "border border-primary/45 bg-primary/14 text-foreground"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
             data-testid="combined-user-option-all"
           >
@@ -140,7 +139,7 @@ export function CombinedFilter({
               "cursor-pointer rounded-md px-2.5 py-2 text-sm",
               isMyMode
                 ? "border border-primary/45 bg-primary/14 text-foreground"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
             data-testid="combined-user-option-me"
           >
@@ -155,7 +154,7 @@ export function CombinedFilter({
                 "flex cursor-pointer items-center gap-3 rounded-md p-2",
                 selectedUserId === user.id
                   ? "border border-primary/45 bg-primary/14 text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
               data-testid={`combined-user-option-${user.id}`}
             >

@@ -23,14 +23,17 @@ export default function AdminPage() {
 
   const isAdminReady = status === "authenticated" && session?.user?.role === "ADMIN";
 
-  const { data: usersData, isLoading, error, mutate } = useSWR<
-    { users: User[]; pagination?: { total?: number; page?: number } } | User[]
-  >(
+  const {
+    data: usersData,
+    isLoading,
+    error,
+    mutate,
+  } = useSWR<{ users: User[]; pagination?: { total?: number; page?: number } } | User[]>(
     isAdminReady ? "/api/users" : null,
     fetcher,
     {
       revalidateOnFocus: false,
-    }
+    },
   );
 
   const users = Array.isArray(usersData) ? usersData : usersData?.users || [];
@@ -72,17 +75,15 @@ export default function AdminPage() {
 
           {error ? (
             <div className="text-center py-12 space-y-2">
-              <p className="text-destructive font-medium">{t("Не удалось загрузить пользователей")}</p>
+              <p className="text-destructive font-medium">
+                {t("Не удалось загрузить пользователей")}
+              </p>
               <Button variant="outline" size="sm" onClick={() => mutate()}>
                 {t("Повторить")}
               </Button>
             </div>
           ) : (
-            <UserTable
-              users={users}
-              currentUserId={currentUserId}
-              onRefresh={() => mutate()}
-            />
+            <UserTable users={users} currentUserId={currentUserId} onRefresh={() => mutate()} />
           )}
           <CalendarSettings />
           <HolidayCatalog />

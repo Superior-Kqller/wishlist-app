@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
           headers: {
             "Cache-Control": "private, s-maxage=60, stale-while-revalidate=120",
           },
-        }
+        },
       );
     }
 
@@ -85,8 +85,7 @@ export async function GET(req: NextRequest) {
       const totalItems = userItems.length;
       const unpurchasedItems = userItems.filter((item) => !item.purchased).length;
 
-      const pricesByCurrency: Record<string, { unpurchased: number; purchased: number }> =
-        {};
+      const pricesByCurrency: Record<string, { unpurchased: number; purchased: number }> = {};
       const priorityCounts: Record<string, number> = {};
 
       userItems.forEach((item) => {
@@ -103,9 +102,7 @@ export async function GET(req: NextRequest) {
         }
       });
 
-      const sortedCurrencies = Object.keys(pricesByCurrency).sort((a, b) =>
-        a.localeCompare(b),
-      );
+      const sortedCurrencies = Object.keys(pricesByCurrency).sort((a, b) => a.localeCompare(b));
       const mainCurrency = sortedCurrencies[0] || "RUB";
       const mainStats = pricesByCurrency[mainCurrency] || {
         unpurchased: 0,
@@ -130,12 +127,10 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    const summaryPricesByCurrency: Record<string, { unpurchased: number; purchased: number }> =
-      {};
+    const summaryPricesByCurrency: Record<string, { unpurchased: number; purchased: number }> = {};
     const summaryPriorityCounts: Record<string, number> = {};
     for (const item of items) {
-      summaryPriorityCounts[item.priority] =
-        (summaryPriorityCounts[item.priority] ?? 0) + 1;
+      summaryPriorityCounts[item.priority] = (summaryPriorityCounts[item.priority] ?? 0) + 1;
       if (!item.price) continue;
       const currency = item.currency || "RUB";
       if (!summaryPricesByCurrency[currency]) {
@@ -178,13 +173,10 @@ export async function GET(req: NextRequest) {
         headers: {
           "Cache-Control": "private, s-maxage=60, stale-while-revalidate=120",
         },
-      }
+      },
     );
   } catch (err) {
     sanitizeError("Get users stats error", err);
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

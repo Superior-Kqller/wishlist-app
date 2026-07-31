@@ -33,23 +33,12 @@ const iconButtonVariants = cva(
 );
 
 export interface IconButtonProps
-  extends Omit<ButtonProps, "size">,
-    VariantProps<typeof iconButtonVariants> {
+  extends Omit<ButtonProps, "size">, VariantProps<typeof iconButtonVariants> {
   "aria-label": string;
 }
 
 const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
-  (
-    {
-      className,
-      variant = "outline",
-      iconSize,
-      intent,
-      type = "button",
-      ...props
-    },
-    ref,
-  ) => (
+  ({ className, variant = "outline", iconSize, intent, type = "button", ...props }, ref) => (
     <Button
       ref={ref}
       type={type}

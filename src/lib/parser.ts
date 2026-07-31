@@ -17,8 +17,7 @@ const HEADERS: Record<string, string> = {
   "User-Agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
   "Accept-Language": "ru-RU,ru;q=0.9,en;q=0.8",
-  Accept:
-    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
   "Accept-Encoding": "gzip, deflate, br",
   "Cache-Control": "no-cache",
   "Sec-Fetch-Dest": "document",
@@ -134,8 +133,7 @@ function createPinnedDispatcher(resolution: PublicUrlResolution): Dispatcher {
           return;
         }
 
-        const address =
-          resolution.addresses[nextAddressIndex % resolution.addresses.length];
+        const address = resolution.addresses[nextAddressIndex % resolution.addresses.length];
         nextAddressIndex += 1;
         callback(null, address, net.isIPv6(address) ? 6 : 4);
       },
@@ -168,9 +166,7 @@ async function fetchPublicUrl(
 
 // --- Marketplace detection ---
 
-function detectMarketplace(
-  url: string,
-): "wildberries" | "ozon" | "aliexpress" | "generic" {
+function detectMarketplace(url: string): "wildberries" | "ozon" | "aliexpress" | "generic" {
   const host = new URL(url).hostname.toLowerCase();
   if (host.includes("wildberries") || host.includes("wb.ru")) return "wildberries";
   if (host.includes("ozon")) return "ozon";
@@ -215,8 +211,7 @@ function extractJsonLd($: cheerio.CheerioAPI): JsonLdObject | null {
       const graph = raw["@graph"];
       if (Array.isArray(graph)) {
         const product = graph.find(
-          (item: unknown) =>
-            isJsonLdObject(item) && jsonLdTypeMatchesProduct(item["@type"]),
+          (item: unknown) => isJsonLdObject(item) && jsonLdTypeMatchesProduct(item["@type"]),
         );
         if (isJsonLdObject(product)) return product;
       }
@@ -349,9 +344,7 @@ function extractFromEmbeddedJson(html: string): Partial<ParsedProduct> {
   );
   if (titleMatch) {
     out.title = titleMatch[1]
-      .replace(/\\u([0-9a-fA-F]{4})/g, (_, c) =>
-        String.fromCharCode(parseInt(c, 16)),
-      )
+      .replace(/\\u([0-9a-fA-F]{4})/g, (_, c) => String.fromCharCode(parseInt(c, 16)))
       .replace(/\\"/g, '"')
       .replace(/\s+/g, " ")
       .trim()
@@ -380,20 +373,14 @@ function extractFromEmbeddedJson(html: string): Partial<ParsedProduct> {
   const imgSingle = html.match(
     /"(?:image|mainImage|photo|img|picture)"\s*:\s*"((?:https?:)?\/\/[^"]+)"/,
   );
-  const imgArray = html.match(
-    /"(?:images|gallery|photos)"\s*:\s*\[([\s\S]*?)\]/,
-  );
+  const imgArray = html.match(/"(?:images|gallery|photos)"\s*:\s*\[([\s\S]*?)\]/);
   const imageUrls: string[] = [];
   if (imgSingle)
-    imageUrls.push(
-      imgSingle[1].startsWith("http") ? imgSingle[1] : "https:" + imgSingle[1],
-    );
+    imageUrls.push(imgSingle[1].startsWith("http") ? imgSingle[1] : "https:" + imgSingle[1]);
   if (imgArray) {
     const urls = imgArray[1].match(/"((?:https?:)?\/\/[^"]+)"/g);
     if (urls)
-      urls.forEach((u) =>
-        imageUrls.push(u.replace(/^"|"$/g, "").replace(/^\/\//, "https://")),
-      );
+      urls.forEach((u) => imageUrls.push(u.replace(/^"|"$/g, "").replace(/^\/\//, "https://")));
   }
   if (imageUrls.length) out.images = [...new Set(imageUrls)].slice(0, 10);
   return out;
@@ -420,10 +407,7 @@ function extractOffersFromJsonLd(jsonLd: JsonLdObject | null): {
   return { price, currency };
 }
 
-function extractImagesFromJsonLd(
-  jsonLd: JsonLdObject | null,
-  existing: string[],
-): string[] {
+function extractImagesFromJsonLd(jsonLd: JsonLdObject | null, existing: string[]): string[] {
   if (!jsonLd) return existing;
   const imageRaw = jsonLd["image"];
   if (!imageRaw) return existing;
@@ -527,10 +511,7 @@ function parseOzonPriceString(text: string): number | null {
   return isNaN(num) ? null : num;
 }
 
-function findWidgetState(
-  widgetStates: Record<string, string>,
-  prefix: string,
-): unknown | null {
+function findWidgetState(widgetStates: Record<string, string>, prefix: string): unknown | null {
   for (const [key, value] of Object.entries(widgetStates)) {
     if (key.startsWith(prefix)) {
       try {
@@ -573,12 +554,7 @@ async function parseOzonViaApi(url: string, productPath: string): Promise<Parsed
   if (!title) return null;
 
   const price = parseOzonPriceString(
-    String(
-      priceWidget?.cardPrice ??
-        priceWidget?.price ??
-        priceWidget?.originalPrice ??
-        "",
-    ),
+    String(priceWidget?.cardPrice ?? priceWidget?.price ?? priceWidget?.originalPrice ?? ""),
   );
 
   const images: string[] = [];
@@ -588,11 +564,7 @@ async function parseOzonViaApi(url: string, productPath: string): Promise<Parsed
   if (Array.isArray(galleryImages)) {
     for (const img of galleryImages) {
       const src =
-        typeof img === "string"
-          ? img
-          : isJsonLdObject(img)
-            ? String(img.src ?? img.url ?? "")
-            : "";
+        typeof img === "string" ? img : isJsonLdObject(img) ? String(img.src ?? img.url ?? "") : "";
       if (src && !images.includes(src)) images.push(src);
     }
   }
@@ -612,8 +584,7 @@ async function parseOzonViaHtml(url: string, html: string): Promise<ParsedProduc
   const og = extractOpenGraph($);
   const embedded = extractFromEmbeddedJson(html);
 
-  let title =
-    titleFromJsonLdName(jsonLd) || og.title || embedded.title || "";
+  let title = titleFromJsonLdName(jsonLd) || og.title || embedded.title || "";
   let price: number | null = null;
   let currency = "RUB";
   let images = og.images || embedded.images || [];
@@ -655,17 +626,13 @@ async function parseOzon(url: string): Promise<ParsedProduct> {
 
 // --- AliExpress ---
 
-async function parseAliexpress(
-  url: string,
-  html: string,
-): Promise<ParsedProduct> {
+async function parseAliexpress(url: string, html: string): Promise<ParsedProduct> {
   const $ = cheerio.load(html);
   const jsonLd = extractJsonLd($);
   const og = extractOpenGraph($);
   const embedded = extractFromEmbeddedJson(html);
 
-  let title =
-    titleFromJsonLdName(jsonLd) || og.title || embedded.title || "";
+  let title = titleFromJsonLdName(jsonLd) || og.title || embedded.title || "";
   let price: number | null = null;
   let currency = "RUB";
   let images = og.images || embedded.images || [];
@@ -693,10 +660,7 @@ async function parseAliexpress(
 
 // --- Generic ---
 
-async function parseGeneric(
-  url: string,
-  html: string,
-): Promise<ParsedProduct> {
+async function parseGeneric(url: string, html: string): Promise<ParsedProduct> {
   const $ = cheerio.load(html);
   const jsonLd = extractJsonLd($);
   const og = extractOpenGraph($);
@@ -837,7 +801,7 @@ export async function resolveCanonicalProductUrl(url: string): Promise<string> {
 async function fetchWithSafeRedirects(
   url: string,
   init: RequestInit,
-  maxRedirects: number
+  maxRedirects: number,
 ): Promise<{ response: Response; finalUrl: string; close: () => Promise<void> }> {
   let currentUrl = url;
   for (let i = 0; i <= maxRedirects; i++) {
@@ -870,7 +834,7 @@ async function fetchHtml(url: string): Promise<string> {
       headers: { ...HEADERS, Referer: `${urlObj.protocol}//${urlObj.host}/` },
       signal: AbortSignal.timeout(15000),
     },
-    10
+    10,
   );
 
   if (!response.ok) {
@@ -926,10 +890,7 @@ export async function parseProductUrl(url: string): Promise<ParsedProduct> {
   return parseProductUrlResolved(resolvedUrl);
 }
 
-function mergeSpecializedWithOg(
-  specialized: ParsedProduct,
-  og: ParsedProduct,
-): ParsedProduct {
+function mergeSpecializedWithOg(specialized: ParsedProduct, og: ParsedProduct): ParsedProduct {
   const images = specialized.images.length
     ? [...new Set([...specialized.images, ...og.images])].slice(0, 10)
     : og.images.length > 0

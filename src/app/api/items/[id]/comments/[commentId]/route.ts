@@ -8,9 +8,7 @@ import { sanitizeError } from "@/lib/logger";
 // DELETE /api/items/[id]/comments/[commentId] — только автор комментария
 export async function DELETE(
   _req: NextRequest,
-  {
-    params,
-  }: { params: Promise<{ id: string; commentId: string }> }
+  { params }: { params: Promise<{ id: string; commentId: string }> },
 ) {
   const rateLimitResponse = await rateLimit(_req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
@@ -43,9 +41,6 @@ export async function DELETE(
     return NextResponse.json({ ok: true });
   } catch (err) {
     sanitizeError("Delete comment error", err, { itemId, commentId });
-    return NextResponse.json(
-      { error: "Внутренняя ошибка сервера" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Внутренняя ошибка сервера" }, { status: 500 });
   }
 }

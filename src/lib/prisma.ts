@@ -19,8 +19,7 @@ if (!databaseUrl) {
  * в отдельных случаях всё ещё провоцирует это. См. package.json → `pg`.
  */
 const pool =
-  globalForPrisma.pool ??
-  (globalForPrisma.pool = new Pool({ connectionString: databaseUrl }));
+  globalForPrisma.pool ?? (globalForPrisma.pool = new Pool({ connectionString: databaseUrl }));
 const adapter = new PrismaPg(pool);
 
 export const prisma =

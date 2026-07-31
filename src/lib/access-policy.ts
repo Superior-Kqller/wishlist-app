@@ -17,9 +17,5 @@ export function canSeeClaimerIdentity(input: {
 }): boolean {
   if (!input.claimerUserId) return false;
   if (!input.isClaimPrivate) return true;
-  return (
-    input.actorUserId === input.ownerUserId ||
-    input.actorUserId === input.claimerUserId
-  );
+  return input.actorUserId === input.ownerUserId || input.actorUserId === input.claimerUserId;
 }
-
