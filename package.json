@@ -7,6 +7,7 @@
     "build": "cross-env NODE_ENV=production next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "db:push": "prisma db push",
     "db:check-migrations": "node scripts/check-prisma-migrations.mjs",
     "db:seed": "node prisma/seed.js",

@@ -4,27 +4,32 @@ import {
   getPreferenceProfileSignals,
   type PreferenceProfile,
 } from "@/lib/preference-profiles";
+import { emptyGiftPreferences, type GiftPreferences } from "@/lib/preferences";
+
+function giftPreferences(overrides: Partial<GiftPreferences>): GiftPreferences {
+  return { ...emptyGiftPreferences, ...overrides };
+}
 
 const profiles: PreferenceProfile[] = [
   {
     id: "current",
     name: "Алексей",
     username: "alex",
-    giftPreferences: { favoriteColors: ["Зелёный"] },
+    giftPreferences: giftPreferences({ favoriteColors: ["Зелёный"] }),
     stats: { totalItems: 5 },
   },
   {
     id: "sizes",
     name: "Мария",
     username: "maria",
-    giftPreferences: { sizes: "Одежда: M" },
+    giftPreferences: giftPreferences({ sizes: "Одежда: M" }),
     stats: { totalItems: 1 },
   },
   {
     id: "avoid",
     name: "Борис",
     username: "boris",
-    giftPreferences: { doNotBuy: ["Свечи"] },
+    giftPreferences: giftPreferences({ doNotBuy: ["Свечи"] }),
     stats: { totalItems: 3 },
   },
 ];
