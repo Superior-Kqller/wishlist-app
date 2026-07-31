@@ -1,0 +1,23 @@
+node_modules
+.next
+out
+build
+output
+coverage
+playwright-report
+test-results
+postgres-data
+.codegraph
+
+# Docs are hand-tuned prose; Prettier only pads markdown tables here.
+*.md
+
+package-lock.json
+tsconfig.tsbuildinfo
+next-env.d.ts
+
+public/sw.js
+public/workbox-*.js
+public/swe-worker-*.js
+
+prisma/migrations

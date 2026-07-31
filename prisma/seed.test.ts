@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-// @ts-expect-error Vitest импортирует исходный TS-модуль для unit-тестов seed.
-import { assertSafeSeedConfig, assertSafeSeedUsernames, DEFAULT_HOLIDAYS, seedDefaultHolidays } from "./seed.ts";
+// Расширение обязательно: рядом лежит prisma/seed.js, и без него резолвер выберет его.
+import {
+  assertSafeSeedConfig,
+  assertSafeSeedUsernames,
+  DEFAULT_HOLIDAYS,
+  seedDefaultHolidays,
+} from "./seed.ts";
 
 describe("assertSafeSeedConfig", () => {
   it("throws in production when seed password uses changeme", () => {
@@ -9,7 +14,7 @@ describe("assertSafeSeedConfig", () => {
         NODE_ENV: "production",
         SEED_USER1_PASSWORD: "changeme",
         SEED_USER2_PASSWORD: "very-strong-password",
-      } as NodeJS.ProcessEnv)
+      } as NodeJS.ProcessEnv),
     ).toThrow(/Unsafe seed config for production/);
   });
 
@@ -19,7 +24,7 @@ describe("assertSafeSeedConfig", () => {
         NODE_ENV: "production",
         SEED_USER1_PASSWORD: "changeme",
         SEED_USER2_PASSWORD: "very-strong-password",
-      } as NodeJS.ProcessEnv)
+      } as NodeJS.ProcessEnv),
     ).toThrow(/Unsafe seed config for production/);
   });
 
@@ -29,7 +34,7 @@ describe("assertSafeSeedConfig", () => {
         NODE_ENV: "development",
         SEED_USER1_PASSWORD: "changeme",
         SEED_USER2_PASSWORD: "changeme",
-      } as NodeJS.ProcessEnv)
+      } as NodeJS.ProcessEnv),
     ).not.toThrow();
   });
 });
@@ -41,7 +46,7 @@ describe("assertSafeSeedUsernames", () => {
         NODE_ENV: "test",
         SEED_USER1_USERNAME: "Admin",
         SEED_USER2_USERNAME: "admin",
-      } as NodeJS.ProcessEnv)
+      } as NodeJS.ProcessEnv),
     ).toThrow(/must be different/);
   });
 });

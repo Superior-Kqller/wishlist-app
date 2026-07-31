@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths-ignore:
       - "README.md"
       - "README.ru.md"
@@ -10,7 +10,7 @@ on:
       - "**/*.md"
       - "assets/**"
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths-ignore:
       - "README.md"
       - "README.ru.md"
@@ -80,6 +80,9 @@ jobs:
           else
             echo "BASE_SHA not available (first push), skipping strict diff check."
           fi
+
+      - name: Format check
+        run: npm run format:check
 
       - name: Lint
         run: npm run lint
