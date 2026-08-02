@@ -52,7 +52,7 @@ function ThemeAccentSection({ className }: { className?: string }) {
                 "group relative min-h-32 rounded-xl border p-3.5 text-left transition-[background-color,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 selected
                   ? "border-primary/48 bg-primary/10 shadow-[inset_0_1px_0_hsl(var(--primary)/0.12)]"
-                  : "border-border/58 bg-[hsl(var(--surface-2))/0.4] hover:border-primary/28 hover:bg-[hsl(var(--surface-3))/0.62]",
+                  : "border-border/58 bg-[hsl(var(--surface-2)/0.4)] hover:border-primary/28 hover:bg-[hsl(var(--surface-3)/0.62)]",
               )}
             >
               <span className="mb-4 flex gap-1.5" aria-hidden>

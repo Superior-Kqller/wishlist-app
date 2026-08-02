@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, type KeyboardEvent } from "react";
+import { memo, useState } from "react";
 import Image from "next/image";
 import {
   Check,
@@ -86,14 +86,6 @@ export const WishCard = memo(function WishCard({
     onOpenDetail?.(item);
   };
 
-  const handleCardKeyDown = (e: KeyboardEvent) => {
-    if (!isCardInteractive) return;
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      handleCardClick();
-    }
-  };
-
   const handleMarkPurchased = () => {
     if (onSetStatus) {
       onSetStatus(item.id, item.status === "PURCHASED" ? "AVAILABLE" : "PURCHASED");
@@ -114,122 +106,137 @@ export const WishCard = memo(function WishCard({
         "group/card flex h-full flex-col overflow-hidden rounded-xl border-border/48 bg-[hsl(var(--surface-2))] shadow-none",
         isBought && "opacity-85 saturate-[0.82]",
         isCardInteractive &&
-          "cursor-pointer transition-[border-color,background-color,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/38 hover:bg-[hsl(var(--surface-3))/0.72] focus-visible:border-primary/45",
+          "transition-[border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/38",
         selectionMode && "ring-1 ring-border/80",
         isSelected && "border-primary/65 ring-2 ring-primary/45 elevation-selected-card",
       )}
-      role={isCardInteractive ? "button" : undefined}
-      tabIndex={isCardInteractive ? 0 : undefined}
-      onClick={isCardInteractive ? handleCardClick : undefined}
-      onKeyDown={isCardInteractive ? handleCardKeyDown : undefined}
     >
-      <div
-        data-testid="wishlist-card-v2-media"
-        className={cn(
-          "group relative min-h-[178px] flex-1 basis-[178px] overflow-hidden border-b border-border/30 bg-[hsl(var(--surface-1))] after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:z-[1] after:h-16 after:bg-gradient-to-t after:from-[hsl(var(--surface-2))/0.62] after:to-transparent after:content-[''] sm:min-h-[196px] sm:basis-[196px] 2xl:min-h-[210px] 2xl:basis-[210px]",
-        )}
-      >
-        <PriorityBadgeOverlay priority={item.priority} />
-        {selectionMode ? (
-          <div
+      {(() => {
+        const Wrapper = isCardInteractive ? "button" : "div";
+        return (
+          <Wrapper
+            type={isCardInteractive ? "button" : undefined}
             className={cn(
-              "absolute right-2 top-2 z-20 rounded-full border px-2 py-1 text-[11px] font-semibold backdrop-blur-sm",
-              isSelected
-                ? "border-primary/60 bg-primary/22 text-foreground"
-                : "border-border bg-card/90 text-muted-foreground",
+              "flex min-w-0 flex-1 flex-col text-left",
+              isCardInteractive &&
+                "cursor-pointer appearance-none bg-transparent transition-colors duration-200 hover:bg-[hsl(var(--surface-3)/0.72)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             )}
+            onClick={isCardInteractive ? handleCardClick : undefined}
+            aria-pressed={selectionMode ? isSelected : undefined}
           >
-            {isSelected ? t("Выбрано") : t("Выбрать")}
-          </div>
-        ) : null}
-        {showImage ? (
-          <Image
-            src={imageUrl!}
-            alt={item.title}
-            fill
-            className="wish-card-image object-contain p-2 sm:p-3"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            unoptimized
-            onError={() => setImageError(true)}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_100%)]">
-            <Globe2 className="h-10 w-10 text-muted-foreground/55 sm:h-11 sm:w-11" aria-hidden />
-          </div>
-        )}
-      </div>
-
-      <CardHeader className="space-y-2 border-0 bg-transparent p-3 pb-2 sm:p-3.5 sm:pb-2.5">
-        <CardTitle
-          data-testid="wishlist-card-v2-title"
-          className={cn(
-            "min-h-[2.25rem] line-clamp-2 text-[15px] font-semibold leading-[1.16] text-balance text-foreground sm:min-h-[2.35rem] sm:text-base 2xl:text-[17px]",
-            isBought && "line-through",
-          )}
-        >
-          {item.title}
-        </CardTitle>
-
-        {item.category || ownerName ? (
-          <div
-            data-testid="wishlist-card-v2-meta"
-            className="flex min-h-6 min-w-0 flex-wrap items-center gap-1.5 overflow-hidden"
-          >
-            {item.category ? (
-              <span
-                data-testid="wishlist-card-v2-category"
-                className={cn(cardMetaChipClass, "max-w-full truncate text-foreground/78")}
-              >
-                <span aria-hidden className="mr-1">
-                  {categoryIcon}
-                </span>
-                {categoryLabel}
-              </span>
-            ) : null}
-
-            {ownerName ? (
-              <span
-                data-testid="wishlist-card-v2-owner"
-                className="inline-flex h-6 max-w-full min-w-0 items-center gap-1.5 text-muted-foreground/82"
-              >
-                <Avatar className="h-[18px] w-[18px] shrink-0">
-                  {ownerImage && !ownerImageError ? (
-                    <Image
-                      src={ownerImage}
-                      alt={ownerName}
-                      fill
-                      className="object-cover"
-                      sizes="20px"
-                      unoptimized={ownerImage.startsWith("/uploads/")}
-                      onError={() => setOwnerImageError(true)}
-                    />
-                  ) : (
-                    <AvatarFallback
-                      className={cn(
-                        "text-[8px] font-semibold text-primary-foreground",
-                        getAvatarColor(ownerId),
-                      )}
-                    >
-                      {getInitials(ownerName)}
-                    </AvatarFallback>
+            <div
+              data-testid="wishlist-card-v2-media"
+              className={cn(
+                "group relative min-h-[178px] flex-1 basis-[178px] overflow-hidden border-b border-border/30 bg-[hsl(var(--surface-1))] after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:z-[1] after:h-16 after:bg-gradient-to-t after:from-[hsl(var(--surface-2)/0.62)] after:to-transparent after:content-[''] sm:min-h-[196px] sm:basis-[196px] 2xl:min-h-[210px] 2xl:basis-[210px]",
+              )}
+            >
+              <PriorityBadgeOverlay priority={item.priority} />
+              {selectionMode ? (
+                <div
+                  className={cn(
+                    "absolute right-2 top-2 z-20 rounded-full border px-2 py-1 text-[11px] font-semibold backdrop-blur-sm",
+                    isSelected
+                      ? "border-primary/60 bg-primary/22 text-foreground"
+                      : "border-border bg-card/90 text-muted-foreground",
                   )}
-                </Avatar>
-                <span className="min-w-0 truncate text-[11px]">{ownerName}</span>
-              </span>
-            ) : null}
-          </div>
-        ) : null}
+                >
+                  {isSelected ? t("Выбрано") : t("Выбрать")}
+                </div>
+              ) : null}
+              {showImage ? (
+                <Image
+                  src={imageUrl!}
+                  alt=""
+                  fill
+                  className="wish-card-image object-contain p-2 sm:p-3"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  unoptimized
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_100%)]">
+                  <Globe2
+                    className="h-10 w-10 text-muted-foreground/55 sm:h-11 sm:w-11"
+                    aria-hidden
+                  />
+                </div>
+              )}
+            </div>
 
-        {isBought ? (
-          <div
-            data-testid="wishlist-card-v2-purchased-label"
-            className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-success/45 bg-success/10 px-2 py-1 text-[11px] font-semibold text-success"
-          >
-            <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
-            {t("Уже куплено")}
-          </div>
-        ) : null}
-      </CardHeader>
+            <CardHeader className="space-y-2 border-0 bg-transparent p-3 pb-2 sm:p-3.5 sm:pb-2.5">
+              <CardTitle
+                data-testid="wishlist-card-v2-title"
+                className={cn(
+                  "min-h-[2.25rem] line-clamp-2 text-[15px] font-semibold leading-[1.16] text-balance text-foreground sm:min-h-[2.35rem] sm:text-base 2xl:text-[17px]",
+                  isBought && "line-through",
+                )}
+              >
+                {item.title}
+              </CardTitle>
+
+              {item.category || ownerName ? (
+                <div
+                  data-testid="wishlist-card-v2-meta"
+                  className="flex min-h-6 min-w-0 flex-wrap items-center gap-1.5 overflow-hidden"
+                >
+                  {item.category ? (
+                    <span
+                      data-testid="wishlist-card-v2-category"
+                      className={cn(cardMetaChipClass, "max-w-full truncate text-foreground/78")}
+                    >
+                      <span aria-hidden className="mr-1">
+                        {categoryIcon}
+                      </span>
+                      {categoryLabel}
+                    </span>
+                  ) : null}
+
+                  {ownerName ? (
+                    <span
+                      data-testid="wishlist-card-v2-owner"
+                      className="inline-flex h-6 max-w-full min-w-0 items-center gap-1.5 text-muted-foreground/82"
+                    >
+                      <Avatar className="h-[18px] w-[18px] shrink-0">
+                        {ownerImage && !ownerImageError ? (
+                          <Image
+                            src={ownerImage}
+                            alt={ownerName}
+                            fill
+                            className="object-cover"
+                            sizes="20px"
+                            unoptimized={ownerImage.startsWith("/uploads/")}
+                            onError={() => setOwnerImageError(true)}
+                          />
+                        ) : (
+                          <AvatarFallback
+                            className={cn(
+                              "text-[8px] font-semibold text-primary-foreground",
+                              getAvatarColor(ownerId),
+                            )}
+                          >
+                            {getInitials(ownerName)}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <span className="min-w-0 truncate text-[11px]">{ownerName}</span>
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {isBought ? (
+                <div
+                  data-testid="wishlist-card-v2-purchased-label"
+                  className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-success/45 bg-success/10 px-2 py-1 text-[11px] font-semibold text-success"
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+                  {t("Уже куплено")}
+                </div>
+              ) : null}
+            </CardHeader>
+          </Wrapper>
+        );
+      })()}
 
       {showFooter ? (
         <CardFooter

@@ -41,7 +41,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-svh page-bg p-3 sm:p-5 lg:p-7">
-      <section className="mx-auto grid min-h-[calc(100svh-1.5rem)] w-full max-w-[80rem] overflow-hidden border border-border/55 bg-[hsl(var(--surface-1))/0.66] sm:min-h-[calc(100svh-2.5rem)] sm:rounded-2xl lg:min-h-[calc(100svh-3.5rem)] lg:grid-cols-[minmax(0,1.2fr)_minmax(24rem,0.8fr)]">
+      <section className="mx-auto grid min-h-[calc(100svh-1.5rem)] w-full max-w-[80rem] overflow-hidden border border-border/55 bg-[hsl(var(--surface-1)/0.66)] sm:min-h-[calc(100svh-2.5rem)] sm:rounded-2xl lg:min-h-[calc(100svh-3.5rem)] lg:grid-cols-[minmax(0,1.2fr)_minmax(24rem,0.8fr)]">
         <div className="relative flex min-h-[18rem] flex-col justify-between overflow-hidden p-6 sm:p-9 lg:min-h-0 lg:p-12">
           <div
             className="absolute -left-24 bottom-[-10rem] h-80 w-80 rounded-full bg-primary/16 blur-3xl"
@@ -62,7 +62,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="flex flex-col border-t border-border/55 bg-[hsl(var(--surface-2))/0.76] p-6 sm:p-9 lg:border-l lg:border-t-0 lg:p-12">
+        <div className="flex flex-col border-t border-border/55 bg-[hsl(var(--surface-2)/0.76)] p-6 sm:p-9 lg:border-l lg:border-t-0 lg:p-12">
           <div className="flex justify-end">
             <LanguageSwitcher />
           </div>

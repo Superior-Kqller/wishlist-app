@@ -20,23 +20,23 @@ export const uiLayout = {
 export const uiSurface = {
   shell: "min-h-screen bg-[hsl(var(--background))] text-foreground",
   sidebar:
-    "border-r border-border/38 bg-[hsl(var(--surface-2))/0.68] elevation-sidebar backdrop-blur-xl",
+    "border-r border-border/38 bg-[hsl(var(--surface-2)/0.68)] elevation-sidebar backdrop-blur-xl",
   topHeader:
-    "border-b border-border bg-[hsl(var(--surface-2))/0.88] elevation-header backdrop-blur-xl",
+    "border-b border-border bg-[hsl(var(--surface-2)/0.88)] elevation-header backdrop-blur-xl",
   pageHeader:
-    "rounded-2xl border border-border/70 bg-[hsl(var(--surface-2))/0.88] elevation-page-header",
+    "rounded-2xl border border-border/70 bg-[hsl(var(--surface-2)/0.88)] elevation-page-header",
   contentPanel:
-    "rounded-2xl border border-border/58 bg-[hsl(var(--surface-2))/0.8] elevation-panel backdrop-blur-md",
+    "rounded-2xl border border-border/58 bg-[hsl(var(--surface-2)/0.8)] elevation-panel backdrop-blur-md",
   interactiveCard:
     "border-border/62 bg-[hsl(var(--surface-2))] elevation-interactive-card transition-[border-color,box-shadow,transform] hover:border-primary/38",
   emptyState:
-    "rounded-2xl border border-dashed border-border/70 bg-[hsl(var(--surface-2))/0.74] px-4 py-10 text-center",
+    "rounded-2xl border border-dashed border-border/70 bg-[hsl(var(--surface-2)/0.74)] px-4 py-10 text-center",
   panel: "rounded-xl border border-border bg-[hsl(var(--surface-2))] elevation-panel",
   panelInset: "rounded-lg border border-border bg-card",
   stickyPanel:
-    "sticky z-30 -mx-3 flex min-w-0 flex-col gap-1.5 border-b border-border bg-[hsl(var(--surface-2))/0.96] px-3 py-1.5 backdrop-blur-md max-sm:top-[calc(4.625rem+env(safe-area-inset-top,0px))] sm:static sm:z-auto sm:-mx-4 sm:border-0 sm:bg-transparent sm:px-4 sm:py-2 sm:backdrop-blur-none",
+    "sticky z-30 -mx-3 flex min-w-0 flex-col gap-1.5 border-b border-border bg-[hsl(var(--surface-2)/0.96)] px-3 py-1.5 backdrop-blur-md max-sm:top-[calc(4.625rem+env(safe-area-inset-top,0px))] sm:static sm:z-auto sm:-mx-4 sm:border-0 sm:bg-transparent sm:px-4 sm:py-2 sm:backdrop-blur-none",
   floatingBar:
-    "flex items-center gap-2 rounded-2xl border border-border bg-[hsl(var(--surface-2))/0.96] px-4 py-3 elevation-floating backdrop-blur-md",
+    "flex items-center gap-2 rounded-2xl border border-border bg-[hsl(var(--surface-2)/0.96)] px-4 py-3 elevation-floating backdrop-blur-md",
   chip: "border-border bg-[hsl(var(--surface-3))]",
   inputAlt: "bg-[hsl(var(--surface-3))]",
   homeSummary:
@@ -51,7 +51,7 @@ export const uiState = {
   focusVisible:
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   navBase:
-    "h-11 gap-2.5 border border-transparent px-3 text-muted-foreground/88 hover:bg-[hsl(var(--surface-3))/0.74] hover:text-foreground",
+    "h-11 gap-2.5 border border-transparent px-3 text-muted-foreground/88 hover:bg-[hsl(var(--surface-3)/0.74)] hover:text-foreground",
   navActive:
     "border-primary/28 bg-primary/10 text-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)]",
   selectionIdle:

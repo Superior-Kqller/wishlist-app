@@ -136,7 +136,7 @@ export function PasswordForm({ userId }: PasswordFormProps) {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border/55 bg-[hsl(var(--surface-2))/0.4] p-3.5">
+        <div className="rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.4)] p-3.5">
           <div className="flex gap-3">
             <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
             <div className="min-w-0">

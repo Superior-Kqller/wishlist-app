@@ -67,7 +67,7 @@ export function PreferenceChipPicker({
   };
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border/50 bg-[hsl(var(--surface-2))/0.72] p-4 sm:p-5">
+    <section className="space-y-4 rounded-2xl border border-border/50 bg-[hsl(var(--surface-2)/0.72)] p-4 sm:p-5">
       <div>
         <h2 className="text-base font-semibold tracking-tight">{t(title)}</h2>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(description)}</p>
@@ -88,7 +88,7 @@ export function PreferenceChipPicker({
                   ? warning
                     ? "border-destructive/45 bg-destructive/12 text-destructive"
                     : "border-primary/45 bg-primary/14 text-foreground"
-                  : "border-border/56 bg-[hsl(var(--surface-3))/0.5] text-muted-foreground hover:border-border hover:bg-accent/70 hover:text-foreground",
+                  : "border-border/56 bg-[hsl(var(--surface-3)/0.5)] text-muted-foreground hover:border-border hover:bg-accent/70 hover:text-foreground",
               )}
             >
               {suggestion.color ? (
@@ -117,7 +117,7 @@ export function PreferenceChipPicker({
           placeholder={t(placeholder)}
           maxLength={100}
           disabled={value.length >= max}
-          className="min-w-0 border-border/56 bg-[hsl(var(--surface-3))/0.6]"
+          className="min-w-0 border-border/56 bg-[hsl(var(--surface-3)/0.6)]"
           aria-label={t("Добавить свой вариант")}
         />
         <Button

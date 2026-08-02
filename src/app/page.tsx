@@ -426,6 +426,18 @@ function HomePageContent() {
     setDeletingItemId(id);
   }, []);
 
+  const handleEditItem = useCallback((item: WishlistItem) => {
+    setEditingItem(item);
+    setParsedData(null);
+    setDetailItem(null);
+  }, []);
+
+  const handleEmptyAdd = useCallback(() => {
+    setParsedData(null);
+    setAddDialogAutoFill(false);
+    setAddDialogOpen(true);
+  }, []);
+
   const confirmDeleteItem = useCallback(async () => {
     if (!deletingItemId) return;
     const res = await fetch(`/api/items/${deletingItemId}`, { method: "DELETE" });
@@ -594,6 +606,7 @@ function HomePageContent() {
   return (
     <div className="min-h-screen page-bg">
       <div className={uiLayout.catalogCanvas}>
+        <h1 className="sr-only">{t("Список желаний")}</h1>
         <UpcomingCalendarCard />
         <WishlistWorkspace
           search={search}
@@ -653,20 +666,12 @@ function HomePageContent() {
           items={items}
           filteredItems={filteredItems}
           isLoading={isLoading}
-          onEditItem={(item) => {
-            setEditingItem(item);
-            setParsedData(null);
-            setDetailItem(null);
-          }}
+          onEditItem={handleEditItem}
           onDeleteItem={handleDeleteItem}
           onTogglePurchased={handleTogglePurchased}
           onSetStatus={handleSetItemStatus}
           pendingStatusByItemId={pendingStatusByItemId}
-          onEmptyAdd={() => {
-            setParsedData(null);
-            setAddDialogAutoFill(false);
-            setAddDialogOpen(true);
-          }}
+          onEmptyAdd={handleEmptyAdd}
           onOpenDetail={setDetailItem}
           onToggleSelect={handleToggleSelect}
           ownedListsForCreate={ownedListsForCreate}

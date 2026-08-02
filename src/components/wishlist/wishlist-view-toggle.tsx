@@ -29,8 +29,8 @@ export function WishlistViewToggle({ value, onValueChange, className }: Wishlist
         className={cn(
           "h-8 w-8 rounded-md border-0",
           value === "grid"
-            ? "bg-[hsl(var(--surface-4))/0.86] text-foreground hover:bg-[hsl(var(--surface-4))/0.9]"
-            : "hover:bg-[hsl(var(--surface-4))/0.62]",
+            ? "bg-[hsl(var(--surface-4)/0.86)] text-foreground hover:bg-[hsl(var(--surface-4)/0.9)]"
+            : "hover:bg-[hsl(var(--surface-4)/0.62)]",
         )}
         aria-label={t("Показать карточками")}
         aria-pressed={value === "grid"}
@@ -45,8 +45,8 @@ export function WishlistViewToggle({ value, onValueChange, className }: Wishlist
         className={cn(
           "h-8 w-8 rounded-md border-0",
           value === "table"
-            ? "bg-[hsl(var(--surface-4))/0.86] text-foreground hover:bg-[hsl(var(--surface-4))/0.9]"
-            : "hover:bg-[hsl(var(--surface-4))/0.62]",
+            ? "bg-[hsl(var(--surface-4)/0.86)] text-foreground hover:bg-[hsl(var(--surface-4)/0.9)]"
+            : "hover:bg-[hsl(var(--surface-4)/0.62)]",
         )}
         aria-label={t("Показать таблицей")}
         aria-pressed={value === "table"}

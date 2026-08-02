@@ -65,7 +65,7 @@ export function CategoryFilter({
             aria-controls={contentId}
             aria-label={triggerLabel}
             onClick={() => setIsOpen((open) => !open)}
-            className="flex min-h-9 items-center gap-2 rounded-lg border border-border/80 bg-[hsl(var(--surface-3))/0.78] px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/28 hover:bg-[hsl(var(--surface-4))/0.86] focus-ring"
+            className="flex min-h-9 items-center gap-2 rounded-lg border border-border/80 bg-[hsl(var(--surface-3)/0.78)] px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/28 hover:bg-[hsl(var(--surface-4)/0.86)] focus-ring"
           >
             <span>{t("Категории")}</span>
             {selectedOptions.length > 0 ? (
@@ -119,7 +119,7 @@ export function CategoryFilter({
           hidden={!isOpen}
           role="group"
           aria-label={t("Категории")}
-          className="flex flex-wrap gap-1.5 rounded-xl border border-border/70 bg-[hsl(var(--surface-2))/0.58] p-2"
+          className="flex flex-wrap gap-1.5 rounded-xl border border-border/70 bg-[hsl(var(--surface-2)/0.58)] p-2"
         >
           {categories.map(renderCategoryButton)}
         </div>

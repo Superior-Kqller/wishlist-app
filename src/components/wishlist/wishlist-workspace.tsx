@@ -180,7 +180,7 @@ export function WishlistWorkspace({
               "relative h-11 w-11 shrink-0 rounded-xl p-0",
               hasActiveFilters
                 ? "border-primary/40 bg-primary/12 text-foreground"
-                : "border-border/58 bg-[hsl(var(--surface-3))/0.58]",
+                : "border-border/58 bg-[hsl(var(--surface-3)/0.58)]",
             )}
             onClick={() => onMobileFiltersOpenChange(true)}
             title={t("Фильтры")}
@@ -303,7 +303,7 @@ export function WishlistWorkspace({
                   size="sm"
                   className={`${filterBarTriggerClass} gap-2 px-3 text-muted-foreground hover:text-foreground ${
                     selectionMode
-                      ? "border-primary/45 bg-[hsl(var(--surface-4))/0.86] text-foreground disabled:pointer-events-none disabled:opacity-100"
+                      ? "border-primary/45 bg-[hsl(var(--surface-4)/0.86)] text-foreground disabled:pointer-events-none disabled:opacity-100"
                       : ""
                   }`}
                   onClick={onToggleSelectionMode}

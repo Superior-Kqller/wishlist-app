@@ -132,7 +132,7 @@ export function ListFormDialog({
             <div className="space-y-2">
               <Label>{t("Кто увидит подборку")}</Label>
               {isEdit ? (
-                <div className="rounded-lg border border-border bg-[hsl(var(--surface-2))/0.55] p-2">
+                <div className="rounded-lg border border-border bg-[hsl(var(--surface-2)/0.55)] p-2">
                   <MemberList
                     users={users}
                     ownerId={list.userId}

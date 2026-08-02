@@ -192,7 +192,7 @@ export function FiltersDrawer({
                 "flex min-h-12 w-full touch-manipulation items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 showPurchased
                   ? "border-primary/45 bg-primary/12 text-foreground"
-                  : "border-border/65 bg-[hsl(var(--surface-2))/0.46] text-muted-foreground",
+                  : "border-border/65 bg-[hsl(var(--surface-2)/0.46)] text-muted-foreground",
               )}
               aria-pressed={showPurchased}
               onClick={onTogglePurchased}
@@ -309,7 +309,7 @@ function FilterChoice({
         fill ? "w-full min-w-0" : "shrink-0",
         selected
           ? "border-primary/50 bg-primary/13 pr-8 text-foreground"
-          : "border-border/65 bg-[hsl(var(--surface-2))/0.46] text-muted-foreground hover:bg-accent/65 hover:text-foreground",
+          : "border-border/65 bg-[hsl(var(--surface-2)/0.46)] text-muted-foreground hover:bg-accent/65 hover:text-foreground",
       )}
       aria-pressed={selected}
       onClick={onClick}

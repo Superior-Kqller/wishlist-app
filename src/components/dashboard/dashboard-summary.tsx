@@ -75,7 +75,7 @@ export function DashboardSummary({
       label: t("Общая стоимость"),
       value: formattedValue,
       icon: WalletCards,
-      tone: "border-border/42 bg-[hsl(var(--surface-4))/0.58] text-foreground",
+      tone: "border-border/42 bg-[hsl(var(--surface-4)/0.58)] text-foreground",
     },
   ];
 
@@ -106,7 +106,7 @@ export function DashboardSummary({
           {summary.purchased > 0 ? ` · ${summary.purchased} ${t("Куплено").toLowerCase()}` : ""}
         </p>
         {summary.total > 0 ? (
-          <div className="mt-2 flex h-1.5 overflow-hidden rounded-full bg-[hsl(var(--surface-1))/0.86]">
+          <div className="mt-2 flex h-1.5 overflow-hidden rounded-full bg-[hsl(var(--surface-1)/0.86)]">
             {distribution.map((segment) =>
               segment.value > 0 ? (
                 <span
@@ -146,8 +146,8 @@ export function DashboardSummary({
         </div>
 
         {summary.total > 0 ? (
-          <div className="mt-4 rounded-xl border border-border/26 bg-[hsl(var(--surface-2))/0.36] p-2.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
-            <div className="flex h-2 overflow-hidden rounded-full bg-[hsl(var(--surface-1))/0.88] shadow-[inset_0_1px_2px_rgba(0,0,0,0.32)]">
+          <div className="mt-4 rounded-xl border border-border/26 bg-[hsl(var(--surface-2)/0.36)] p-2.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+            <div className="flex h-2 overflow-hidden rounded-full bg-[hsl(var(--surface-1)/0.88)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.32)]">
               {distribution.map((segment) =>
                 segment.value > 0 ? (
                   <span
@@ -163,7 +163,7 @@ export function DashboardSummary({
               {distribution.map((segment) => (
                 <span
                   key={segment.label}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border/26 bg-[hsl(var(--surface-3))/0.46] px-2 py-1"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border/26 bg-[hsl(var(--surface-3)/0.46)] px-2 py-1"
                 >
                   <span className={`h-2 w-2 rounded-full ${segment.className}`} aria-hidden />
                   {segment.label}: {segment.value}%

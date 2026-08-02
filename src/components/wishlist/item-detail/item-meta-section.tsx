@@ -85,7 +85,7 @@ export function ItemMetaSection({
       ) : null}
 
       {noteParagraphs?.length ? (
-        <section className="max-w-[38rem] space-y-2.5 sm:rounded-lg sm:border sm:border-border/34 sm:bg-[hsl(var(--surface-3))/0.38] sm:px-3.5 sm:py-3">
+        <section className="max-w-[38rem] space-y-2.5 sm:rounded-lg sm:border sm:border-border/34 sm:bg-[hsl(var(--surface-3)/0.38)] sm:px-3.5 sm:py-3">
           <h3 className="text-sm font-semibold text-foreground">{t("Описание")}</h3>
           <div
             className={cn(

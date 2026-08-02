@@ -106,7 +106,7 @@ export const ProductRow = memo(function ProductRow({
             {showImage ? (
               <Image
                 src={imageUrl!}
-                alt={item.title}
+                alt=""
                 fill
                 className="object-cover"
                 sizes="56px"

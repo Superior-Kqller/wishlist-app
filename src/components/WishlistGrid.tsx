@@ -98,10 +98,12 @@ export function WishlistGrid({
     return (
       <div
         role="region"
-        aria-live="polite"
-        aria-label={`${t("Таблица желаний")}: ${items.length} ${getItemWord(language, items.length)}`}
+        aria-label={t("Таблица желаний")}
         className={cn(uiSurface.contentPanel, "overflow-hidden")}
       >
+        <p aria-live="polite" className="sr-only">
+          {items.length} {getItemWord(language, items.length)}
+        </p>
         <Table>
           <TableHeader>
             <TableRow>
@@ -139,10 +141,12 @@ export function WishlistGrid({
   return (
     <div
       role="region"
-      aria-live="polite"
-      aria-label={`${t("Список желаний")}: ${items.length} ${getItemWord(language, items.length)}`}
+      aria-label={t("Список желаний")}
       className={cn(catalogGridClassName, "items-stretch")}
     >
+      <p aria-live="polite" className="sr-only">
+        {items.length} {getItemWord(language, items.length)}
+      </p>
       {items.map((item) => (
         <WishCard
           key={item.id}

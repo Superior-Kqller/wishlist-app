@@ -43,7 +43,7 @@ export function PreferenceProfileControls({
   const { t } = useI18n();
 
   return (
-    <div className="rounded-xl border border-border/56 bg-[hsl(var(--surface-2))/0.7] p-3 sm:p-4">
+    <div className="rounded-xl border border-border/56 bg-[hsl(var(--surface-2)/0.7)] p-3 sm:p-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <div className="relative min-w-0 flex-1">
           <Search
