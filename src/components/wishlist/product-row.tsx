@@ -117,8 +117,8 @@ export const ProductRow = memo(function ProductRow({
                   handleRowClick();
                 }}
                 className={cn(
-                  "line-clamp-1 rounded-sm text-left text-sm font-semibold text-foreground outline-none",
-                  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                  "line-clamp-1 rounded-sm text-left text-sm font-semibold text-foreground",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   isBought && "line-through",
                 )}
               >
