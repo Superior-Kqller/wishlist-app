@@ -21,6 +21,7 @@ const en: Dictionary = {
   "Планируйте внимание и подарки к значимым датам":
     "Plan attention and gifts around meaningful dates",
   "Фильтры календаря": "Calendar filters",
+  "Управление календарём": "Calendar controls",
   "Все события": "All events",
   "Дни рождения": "Birthdays",
   "Общие праздники": "Shared holidays",
@@ -160,6 +161,8 @@ const en: Dictionary = {
   "Распределение по приоритетам": "Priority distribution",
   "Самые дорогие желания": "Most expensive wishes",
   "Нет товаров с ценой": "No priced items",
+  "Пока нечего распределять": "Nothing to break down yet",
+  из: "of",
   "Не удалось загрузить статистику": "Could not load stats",
   "Проверьте подключение и попробуйте обновить данные.":
     "Check the connection and try refreshing the data.",
@@ -236,7 +239,12 @@ const en: Dictionary = {
   Статус: "Status",
   Действия: "Actions",
   "Таблица желаний": "Wishlist table",
-  "Список желаний": "Wishlist list",
+  "Список желаний": "Wishlist",
+  Желания: "Wishes",
+  "Всё, что вы хотите, и всё, что вы можете подарить другим.":
+    "Everything you want, and everything you could give to others.",
+  "Что подойдёт этому человеку и что уже кто-то взял на себя.":
+    "What suits this person, and what someone has already taken on.",
   "Хочу при случае": "Nice to have",
   "Было бы классно": "Would be great",
   "Сильно нужно": "Really needed",
@@ -251,9 +259,8 @@ const en: Dictionary = {
   Подтвердить: "Confirm",
   Отмена: "Cancel",
   "Добавление недоступно": "Adding is unavailable",
-  "Новый лот в коллекции": "New item in the collection",
-  "Добавьте товар по ссылке или заполните карточку вручную.":
-    "Add an item by link or fill in the card manually.",
+  "Добавить желание": "Add a wish",
+  "По ссылке на товар или вручную.": "By product link or by hand.",
   Выбрано: "Selected",
   "Без категории": "No category",
   "Нажмите на карточку, чтобы": "Press the card to",
@@ -411,6 +418,7 @@ const en: Dictionary = {
   "Поиск профилей": "Search profiles",
   "Очистить поиск": "Clear search",
   Сначала: "Sort",
+  "Порядок профилей": "Profile order",
   Показывать: "Show",
   Найдено: "Found",
   "Подходящих профилей не найдено": "No matching profiles found",

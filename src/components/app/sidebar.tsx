@@ -1,5 +1,6 @@
 "use client";
 
+import { motion, useReducedMotion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import useSWR from "swr";
@@ -44,6 +45,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
+  const reduceMotion = useReducedMotion();
   const { data: profile } = useSWR<SidebarUser>(session?.user ? "/api/users/me" : null, fetcher);
   const { data: lists = [] } = useSWR<ListWithMeta[]>(
     session?.user ? "/api/lists" : null,
@@ -89,8 +91,13 @@ export function AppSidebar() {
         <BrandLockup />
       </button>
 
+      {/*
+       * Активный раздел отмечен одной подложкой, которая переезжает между
+       * пунктами (`layoutId`), а не появляется и исчезает на каждом. Так
+       * переход между разделами читается как перемещение внутри одного меню.
+       */}
       <nav
-        className="flex flex-1 flex-col gap-1 border-b border-border/35 pb-5"
+        className="flex flex-col gap-0.5 border-b border-border/35 pb-5"
         aria-label={t("Разделы")}
       >
         {navItems.map((item) => {
@@ -103,9 +110,9 @@ export function AppSidebar() {
               type="button"
               variant="ghost"
               className={cn(
-                "justify-start rounded-lg font-medium",
+                "relative justify-start rounded-lg font-medium",
                 uiState.navBase,
-                active && uiState.navActive,
+                active && "text-foreground hover:bg-transparent",
               )}
               aria-current={active ? "page" : undefined}
               title={item.label}
@@ -113,6 +120,16 @@ export function AppSidebar() {
                 router.push(item.href);
               }}
             >
+              {active ? (
+                <motion.span
+                  layoutId="sidebar-nav-active"
+                  aria-hidden
+                  transition={
+                    reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }
+                  }
+                  className="absolute inset-0 -z-10 rounded-lg border border-primary/28 bg-primary/10 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)]"
+                />
+              ) : null}
               <Icon className="h-4 w-4" />
               {item.label}
             </Button>
@@ -120,7 +137,7 @@ export function AppSidebar() {
         })}
       </nav>
 
-      <section className="py-4" aria-label={t("Подборки")}>
+      <section className="mt-6 flex-1 overflow-y-auto py-1" aria-label={t("Подборки")}>
         <div className="mb-2 flex items-center justify-between gap-2">
           <p className="text-xs font-medium text-muted-foreground">{t("Подборки")}</p>
           <span className="font-mono text-[11px] text-muted-foreground/70">{totalListItems}</span>

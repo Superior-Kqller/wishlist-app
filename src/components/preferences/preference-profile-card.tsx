@@ -47,7 +47,6 @@ export function PreferenceProfileCard({
   const reduceMotion = useReducedMotion();
   const preferences = normalizeGiftPreferences(rawPreferences);
   const preferenceCount = countGiftPreferences(preferences);
-  const progress = Math.min(100, Math.round((preferenceCount / 12) * 100));
   const likedCount =
     preferences.favoriteBrands.length +
     preferences.favoriteColors.length +
@@ -69,7 +68,7 @@ export function PreferenceProfileCard({
       layout
       transition={{ type: "spring", stiffness: 120, damping: 22 }}
       className={cn(
-        "group overflow-hidden rounded-xl border bg-[hsl(var(--surface-2))] shadow-none",
+        "group overflow-hidden rounded-2xl border bg-[hsl(var(--surface-2))] shadow-none",
         isCurrent ? "border-primary/42" : "border-border/58",
         expanded && "border-primary/52",
       )}
@@ -95,7 +94,7 @@ export function PreferenceProfileCard({
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="truncate text-base font-semibold tracking-tight sm:text-lg">{name}</h2>
               {isCurrent ? (
-                <span className="rounded-md border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-primary">
+                <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
                   {t("Это вы")}
                 </span>
               ) : null}
@@ -165,15 +164,6 @@ export function PreferenceProfileCard({
               </div>
             ) : null}
           </div>
-          <div className="mt-3 h-1 overflow-hidden rounded-full bg-[hsl(var(--surface-3))]">
-            <motion.div
-              initial={reduceMotion ? false : { scaleX: 0 }}
-              animate={{ scaleX: progress / 100 }}
-              transition={{ type: "spring", stiffness: 90, damping: 20 }}
-              className="h-full origin-left rounded-full bg-primary/72"
-            />
-          </div>
-
           {!expanded ? (
             <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border/34 pt-3 text-xs">
               <span className="inline-flex min-w-0 items-center gap-1.5 text-muted-foreground">

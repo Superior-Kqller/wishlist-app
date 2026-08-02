@@ -46,6 +46,28 @@
   --animate-fade-in: fade-in 0.3s ease-out;
 }
 
+/*
+ * Motion contract:
+ * - `expo` — прибытие контента: быстро стартует, мягко останавливается.
+ * - `soft` — смена состояния у элементов, за которыми следит курсор.
+ * Подтверждающие моменты используют тот же `expo`: их отличает не перелёт,
+ * а расходящееся кольцо вокруг метки. Длительности растут вместе с
+ * расстоянием, которое проходит элемент.
+ */
+:root {
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 420ms;
+  --dur-reveal: 620ms;
+
+  /* Типографическая шкала страницы: один шаг заголовка на все разделы. */
+  --text-display: clamp(1.875rem, 1.24rem + 2.1vw, 2.5rem);
+  --text-page-lede: clamp(0.9375rem, 0.89rem + 0.22vw, 1.0625rem);
+}
+
 @layer base {
   :root,
   .dark {
@@ -641,6 +663,97 @@
   @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
 }
 
+/*
+ * Заголовок страницы: единственный крупный типографический шаг в продукте.
+ * Он же делает разделы узнаваемо одинаковыми — поэтому размер и трекинг
+ * заданы здесь, а не в разметке каждой страницы.
+ */
+.page-title {
+  font-size: var(--text-display);
+  font-weight: 600;
+  line-height: 1.06;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
+}
+
+.page-lede {
+  font-size: var(--text-page-lede);
+  line-height: 1.55;
+  max-width: 62ch;
+  color: hsl(var(--muted-foreground));
+  text-wrap: pretty;
+}
+
+/* Раздел внутри страницы: на шаг тише заголовка, но всё ещё структурный. */
+.section-title {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.008em;
+}
+
+/*
+ * Прибытие контента. Элемент начинает видимым в разметке (без JS он просто
+ * остаётся на месте) и анимируется только тогда, когда получил `data-reveal`.
+ */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+
+[data-reveal] {
+  animation: rise-in var(--dur-reveal) var(--ease-expo) both;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+/* Подтверждение покупки: единственный «пружинный» момент в продукте. */
+@keyframes seal-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes seal-ring {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.75);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+
+.seal-in {
+  animation: seal-in var(--dur-slow) var(--ease-expo) both;
+}
+
+.seal-ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid hsl(var(--success) / 0.7);
+  animation: seal-ring 720ms var(--ease-expo) both;
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto !important;
@@ -650,6 +763,15 @@
   .animate-spin,
   .animate-pulse {
     animation: none !important;
+  }
+
+  [data-reveal],
+  .seal-in {
+    animation: none !important;
+  }
+
+  .seal-ring::after {
+    display: none;
   }
 
   .wish-card-image {

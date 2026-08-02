@@ -79,6 +79,7 @@ type WishlistWorkspaceProps = {
   onTogglePurchased: (id: string, purchased: boolean) => void;
   onSetStatus: (id: string, status: "AVAILABLE" | "PURCHASED") => void;
   pendingStatusByItemId: Record<string, boolean>;
+  justPurchasedId?: string | null;
   onEmptyAdd: () => void;
   onOpenDetail: (item: WishlistItem) => void;
   onToggleSelect: (id: string) => void;
@@ -135,6 +136,7 @@ export function WishlistWorkspace({
   onTogglePurchased,
   onSetStatus,
   pendingStatusByItemId,
+  justPurchasedId,
   onEmptyAdd,
   onOpenDetail,
   onToggleSelect,
@@ -410,6 +412,7 @@ export function WishlistWorkspace({
         onTogglePurchased={onTogglePurchased}
         onSetStatus={onSetStatus}
         pendingStatusByItemId={pendingStatusByItemId}
+        justPurchasedId={justPurchasedId}
         viewMode={viewMode}
         onEmptyAdd={onEmptyAdd}
         onOpenDetail={onOpenDetail}

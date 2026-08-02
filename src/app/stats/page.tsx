@@ -5,15 +5,7 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  BarChart3,
-  ChevronDown,
-  CircleDollarSign,
-  Loader2,
-  Package,
-  Target,
-  Users,
-} from "lucide-react";
+import { BarChart3, ChevronDown, Loader2, Package, Target, Users } from "lucide-react";
 import { ItemsPage, StatsSummary, UserStats, UserWithStats } from "@/types";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -28,7 +20,7 @@ import {
   statsHasPurchasedPrices,
 } from "@/lib/utils";
 import { fetcher } from "@/lib/fetcher";
-import { uiLayout, uiSurface } from "@/lib/ui-contract";
+import { uiSurface } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";
 
 type StatsResponse = {
@@ -175,8 +167,8 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
     <section className="min-w-0 border-t border-border/55 pt-4 [grid-area:participants] sm:pt-5">
       <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h2 className="text-sm font-semibold text-foreground">{t("Участники")}</h2>
-          <p className="mt-0.5 max-w-[62ch] text-xs text-muted-foreground">
+          <h2 className="section-title text-foreground">{t("Участники")}</h2>
+          <p className="mt-1 max-w-[62ch] text-sm text-muted-foreground">
             {t("Личные итоги по товарам, активным желаниям и уже закрытым покупкам")}
           </p>
         </div>
@@ -192,7 +184,12 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
         ))}
       </div>
 
-      <div className="hidden gap-3 md:grid md:grid-cols-2 2xl:grid-cols-3 min-[2200px]:grid-cols-4">
+      {/*
+       * `auto-fit` вместо фиксированных колонок: при одном участнике пустые
+       * дорожки схлопываются, и карточка занимает ширину секции, а не треть
+       * её с большой пустотой справа.
+       */}
+      <div className="hidden gap-3 md:grid md:grid-cols-[repeat(auto-fit,minmax(17rem,1fr))]">
         {users.map((user) => (
           <Card
             key={user.id}
@@ -298,20 +295,17 @@ function formatSummaryValues(
   return entries.map(([currency, value]) => formatPrice(value.unpurchased, currency, language));
 }
 
-function getPriorityGradient(priorityCounts: StatsSummary["priorityCounts"]) {
+function getPriorityShares(priorityCounts: StatsSummary["priorityCounts"]) {
   const total = Object.values(priorityCounts).reduce((sum, count) => sum + count, 0);
-  if (total === 0) return "hsl(var(--surface-4))";
+  if (total === 0) return { total, shares: [] as { priority: number; count: number }[] };
 
-  let cursor = 0;
-  const segments = PRIORITY_ORDER.flatMap((priority) => {
-    const count = priorityCounts[String(priority)] ?? 0;
-    if (count === 0) return [];
-    const start = cursor;
-    const end = cursor + (count / total) * 100;
-    cursor = end;
-    return [`hsl(var(--priority-${priority}) / 0.94) ${start.toFixed(2)}% ${end.toFixed(2)}%`];
-  });
-  return `conic-gradient(${segments.join(", ")})`;
+  return {
+    total,
+    shares: PRIORITY_ORDER.map((priority) => ({
+      priority,
+      count: priorityCounts[String(priority)] ?? 0,
+    })).filter((entry) => entry.count > 0),
+  };
 }
 
 function StatsOverview({ summary }: { summary: StatsSummary }) {
@@ -322,17 +316,19 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
     0,
   );
 
+  const { shares } = getPriorityShares(summary.priorityCounts);
+
   return (
-    <section className={cn(uiSurface.contentPanel, "overflow-hidden p-3.5 sm:p-5 lg:p-6")}>
-      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)] lg:gap-0">
-        <div className="space-y-4 sm:space-y-5 lg:pr-6">
-          <div>
+    <section className={cn(uiSurface.contentPanel, "overflow-hidden p-4 sm:p-5 lg:p-6")}>
+      <div className="flex flex-col gap-6 sm:gap-7">
+        <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
+          <div className="min-w-0">
             <p className="text-sm font-medium text-muted-foreground">{t("Итого к покупке")}</p>
-            <div className="mt-1.5 space-y-0.5 sm:mt-2 sm:space-y-1">
+            <div className="mt-2 space-y-1">
               {totalValues.map((value) => (
                 <p
                   key={value}
-                  className="text-[1.75rem] font-semibold leading-tight tracking-tight tabular-nums sm:text-4xl"
+                  className="text-[clamp(1.75rem,1.2rem+1.8vw,2.5rem)] font-semibold leading-[1.05] tracking-[-0.02em] tabular-nums"
                 >
                   {value}
                 </p>
@@ -340,96 +336,107 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 border-y border-border/55 py-2.5 sm:py-3">
-            <div className="min-w-0 pr-2.5 sm:pr-3">
-              <Package className="mb-1.5 h-4 w-4 text-info sm:mb-2" aria-hidden />
-              <p className="text-xl font-semibold tabular-nums sm:text-2xl">{summary.totalItems}</p>
-              <p className="text-[11px] leading-tight text-muted-foreground sm:text-xs">
+          <dl className="flex shrink-0 items-start gap-5 sm:gap-7">
+            <div className="min-w-0">
+              <dt className="flex items-center gap-1.5 text-[11px] text-muted-foreground sm:text-xs">
+                <Package className="size-3.5 text-info" aria-hidden />
                 {t("Всего товаров")}
-              </p>
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold tabular-nums">{summary.totalItems}</dd>
             </div>
-            <div className="min-w-0 border-l border-border/55 px-2.5 sm:px-3">
-              <Target className="mb-1.5 h-4 w-4 text-warning sm:mb-2" aria-hidden />
-              <p className="text-xl font-semibold tabular-nums sm:text-2xl">
-                {summary.unpurchasedItems}
-              </p>
-              <p className="text-[11px] leading-tight text-muted-foreground sm:text-xs">
+            <div className="min-w-0 border-l border-border/55 pl-5 sm:pl-7">
+              <dt className="flex items-center gap-1.5 text-[11px] text-muted-foreground sm:text-xs">
+                <Target className="size-3.5 text-warning" aria-hidden />
                 {t("Активных желаний")}
-              </p>
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold tabular-nums">
+                {summary.unpurchasedItems}
+              </dd>
             </div>
-            <div className="min-w-0 border-l border-border/55 pl-2.5 sm:pl-3">
-              <Users className="mb-1.5 h-4 w-4 text-primary sm:mb-2" aria-hidden />
-              <p className="text-xl font-semibold tabular-nums sm:text-2xl">
-                {summary.memberCount}
-              </p>
-              <p className="text-[11px] leading-tight text-muted-foreground sm:text-xs">
+            <div className="min-w-0 border-l border-border/55 pl-5 sm:pl-7">
+              <dt className="flex items-center gap-1.5 text-[11px] text-muted-foreground sm:text-xs">
+                <Users className="size-3.5 text-primary" aria-hidden />
                 {t("Участников")}
-              </p>
+              </dt>
+              <dd className="mt-1 text-2xl font-semibold tabular-nums">{summary.memberCount}</dd>
             </div>
-          </div>
+          </dl>
         </div>
 
-        <div className="grid gap-4 border-t border-border/55 pt-4 sm:grid-cols-2 sm:gap-5 sm:pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-          <div className="min-w-0">
-            <div className="flex items-center gap-3 sm:gap-4">
+        {/*
+         * Распределение показано полосой, а не кольцом: кольцо требует легенды
+         * сбоку, а в узкой колонке подписи приоритетов обрезались до «Нуж…».
+         * Полоса занимает всю ширину, а подписи ложатся под ней и всегда
+         * читаются целиком.
+         */}
+        <div className="border-t border-border/55 pt-5">
+          <p className="section-title">{t("Распределение по приоритетам")}</p>
+          {shares.length > 0 ? (
+            <>
               <div
-                className="relative h-[4.5rem] w-[4.5rem] shrink-0 rounded-full shadow-[inset_0_0_0_1px_hsl(var(--foreground)/0.08)] sm:h-24 sm:w-24"
-                style={{ background: getPriorityGradient(summary.priorityCounts) }}
-                aria-hidden
+                className="mt-3 flex h-2.5 w-full overflow-hidden rounded-full bg-[hsl(var(--surface-4))]"
+                role="img"
+                aria-label={shares
+                  .map(
+                    (entry) =>
+                      `${getPriorityLabel(entry.priority, language)}: ${entry.count} ${t("из")} ${totalPriorityItems}`,
+                  )
+                  .join(", ")}
               >
-                <div className="absolute inset-4 rounded-full bg-[hsl(var(--surface-2))] sm:inset-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold">{t("Распределение по приоритетам")}</p>
-                <div className="mt-2 space-y-1 sm:mt-3 sm:space-y-1.5">
-                  {PRIORITY_ORDER.map((priority) => {
-                    const count = summary.priorityCounts[String(priority)] ?? 0;
-                    if (count === 0) return null;
-                    return (
-                      <div
-                        key={priority}
-                        className="flex items-center justify-between gap-2 text-xs"
-                      >
-                        <span className="truncate text-muted-foreground">
-                          {getPriorityLabel(priority, language)}
-                        </span>
-                        <span className="font-semibold tabular-nums">
-                          {count}/{totalPriorityItems}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="min-w-0 border-t border-border/55 pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
-            <div className="mb-2.5 flex items-center gap-2 sm:mb-3">
-              <CircleDollarSign className="h-4 w-4 text-success" aria-hidden />
-              <p className="text-sm font-semibold">{t("Самые дорогие желания")}</p>
-            </div>
-            {summary.topItems.length > 0 ? (
-              <div className="space-y-2 sm:space-y-2.5">
-                {summary.topItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-md py-0.5 text-sm"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate font-medium">{item.title}</p>
-                      <p className="truncate text-xs text-muted-foreground">{item.userName}</p>
-                    </div>
-                    <p className="font-semibold tabular-nums text-foreground">
-                      {formatPrice(item.price, item.currency, language)}
-                    </p>
-                  </div>
+                {shares.map((entry) => (
+                  <span
+                    key={entry.priority}
+                    className="h-full transition-[flex-grow] duration-[var(--dur-slow)] ease-[var(--ease-expo)]"
+                    style={{
+                      flexGrow: entry.count,
+                      backgroundColor: `hsl(var(--priority-${entry.priority}))`,
+                    }}
+                  />
                 ))}
               </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">{t("Нет товаров с ценой")}</p>
-            )}
-          </div>
+              <ul className="mt-3.5 flex flex-wrap gap-x-5 gap-y-2">
+                {shares.map((entry) => (
+                  <li key={entry.priority} className="flex items-center gap-2 text-xs">
+                    <span
+                      aria-hidden
+                      className="size-2 shrink-0 rounded-full"
+                      style={{ backgroundColor: `hsl(var(--priority-${entry.priority}))` }}
+                    />
+                    <span className="text-muted-foreground">
+                      {getPriorityLabel(entry.priority, language)}
+                    </span>
+                    <span className="font-semibold tabular-nums">{entry.count}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p className="mt-2 text-sm text-muted-foreground">{t("Пока нечего распределять")}</p>
+          )}
+        </div>
+
+        <div className="border-t border-border/55 pt-5">
+          <p className="section-title">{t("Самые дорогие желания")}</p>
+          {summary.topItems.length > 0 ? (
+            <ul className="mt-3 divide-y divide-border/40">
+              {summary.topItems.map((item) => (
+                <li
+                  key={item.id}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 py-2.5 text-sm first:pt-0 last:pb-0"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{item.title}</p>
+                    <p className="truncate text-xs text-muted-foreground">{item.userName}</p>
+                  </div>
+                  <p className="shrink-0 font-semibold tabular-nums text-foreground">
+                    {formatPrice(item.price, item.currency, language)}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-2 text-sm text-muted-foreground">{t("Нет товаров с ценой")}</p>
+          )}
         </div>
       </div>
     </section>
@@ -452,10 +459,6 @@ export default function StatsPage() {
     dedupingInterval: 30000,
   });
 
-  const { data: versionData } = useSWR<{ version: string }>("/api/version", fetcher, {
-    revalidateOnFocus: false,
-    dedupingInterval: 60000,
-  });
   const { data: recentItemsData } = useSWR<ItemsPage>(
     status === "authenticated" ? "/api/items?limit=8" : null,
     fetcher,
@@ -478,7 +481,7 @@ export default function StatsPage() {
   if (error || !statsData) {
     return (
       <PageShell>
-        <PageMain className={uiLayout.workspaceCanvas}>
+        <PageMain>
           <EmptyState
             icon={<BarChart3 className="h-5 w-5" aria-hidden />}
             title={t("Не удалось загрузить статистику")}
@@ -496,8 +499,8 @@ export default function StatsPage() {
 
   return (
     <PageShell>
-      <PageMain className={uiLayout.workspaceCanvas}>
-        <div className="space-y-4 sm:space-y-5">
+      <PageMain>
+        <div>
           <PageIntro
             title={t("Статистика")}
             description={t("Товары в общих подборках и ориентировочная стоимость по участникам")}
@@ -520,15 +523,6 @@ export default function StatsPage() {
               <div className="min-w-0 [grid-area:activity] xl:sticky xl:top-6 xl:self-start">
                 <RecentActivityPanel items={recentItemsData?.items ?? []} />
               </div>
-            </div>
-          )}
-
-          {/* Version info */}
-          {versionData?.version && (
-            <div className="pt-6 border-t border-border/50 text-center">
-              <p className="text-xs text-muted-foreground">
-                {t("Вишлист")} v{versionData.version}
-              </p>
             </div>
           )}
         </div>

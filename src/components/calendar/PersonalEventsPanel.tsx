@@ -17,8 +17,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { fetcher } from "@/lib/fetcher";
-import { cn } from "@/lib/utils";
+import { capitalizeFirst, cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import type {
   CalendarAudience,
@@ -42,7 +50,7 @@ const EMPTY_EVENT: PersonalEventInput = {
 };
 
 export function PersonalEventsPanel() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { mutate } = useSWRConfig();
   const { data, isLoading, error } = useSWR<{ events: PersonalEventRecord[] }>(
     "/api/calendar/events",
@@ -169,7 +177,17 @@ export function PersonalEventsPanel() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{event.title}</p>
                   <p className="text-sm text-muted-foreground">
-                    {event.date} · {event.recurrence === "YEARLY" ? t("Ежегодно") : t("Однократно")}
+                    <time dateTime={event.date}>
+                      {capitalizeFirst(
+                        new Date(`${event.date}T12:00:00`).toLocaleDateString(locale, {
+                          day: "numeric",
+                          month: "long",
+                          ...(event.recurrence === "YEARLY" ? {} : { year: "numeric" }),
+                        }),
+                        locale,
+                      )}
+                    </time>{" "}
+                    · {event.recurrence === "YEARLY" ? t("Ежегодно") : t("Однократно")}
                   </p>
                 </div>
                 <Button
@@ -247,34 +265,42 @@ export function PersonalEventsPanel() {
               />
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
-              <label className="grid gap-2 text-sm font-medium">
-                {t("Повторение")}
-                <select
-                  className="h-11 rounded-md border border-input bg-background px-3"
+              <div className="grid gap-2">
+                <Label htmlFor="personal-event-recurrence">{t("Повторение")}</Label>
+                <Select
                   value={form.recurrence}
-                  onChange={(event) =>
+                  onValueChange={(value) =>
                     setForm((current) => ({
                       ...current,
-                      recurrence: event.target.value as PersonalEventRecurrence,
+                      recurrence: value as PersonalEventRecurrence,
                     }))
                   }
                 >
-                  <option value="ONCE">{t("Однократно")}</option>
-                  <option value="YEARLY">{t("Ежегодно")}</option>
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm font-medium">
-                {t("Аудитория")}
-                <select
-                  className="h-11 rounded-md border border-input bg-background px-3"
+                  <SelectTrigger id="personal-event-recurrence" className="h-11">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ONCE">{t("Однократно")}</SelectItem>
+                    <SelectItem value="YEARLY">{t("Ежегодно")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="personal-event-audience">{t("Аудитория")}</Label>
+                <Select
                   value={form.audience}
-                  onChange={(event) => setAudience(event.target.value as CalendarAudience)}
+                  onValueChange={(value) => setAudience(value as CalendarAudience)}
                 >
-                  <option value="ALL">{t("Всем")}</option>
-                  <option value="SELECTED">{t("Выбранным")}</option>
-                  <option value="PRIVATE">{t("Только мне")}</option>
-                </select>
-              </label>
+                  <SelectTrigger id="personal-event-audience" className="h-11">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">{t("Всем")}</SelectItem>
+                    <SelectItem value="SELECTED">{t("Выбранным")}</SelectItem>
+                    <SelectItem value="PRIVATE">{t("Только мне")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             {form.audience === "SELECTED" ? (
               <fieldset className="grid gap-2">
@@ -285,8 +311,7 @@ export function PersonalEventsPanel() {
                       key={user.id}
                       className="flex min-h-10 items-center gap-3 rounded-md px-2 hover:bg-accent"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={form.selectedViewerIds.includes(user.id)}
                         onChange={(event) =>
                           setForm((current) => ({

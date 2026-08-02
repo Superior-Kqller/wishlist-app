@@ -40,7 +40,7 @@ import { PreferenceProfileControls } from "@/components/preferences/preference-p
 import { PreferenceProfileCard } from "@/components/preferences/preference-profile-card";
 import { fetcher } from "@/lib/fetcher";
 import { cn } from "@/lib/utils";
-import { uiLayout, uiSurface } from "@/lib/ui-contract";
+import { uiSurface } from "@/lib/ui-contract";
 import {
   type GiftPreferences,
   countGiftPreferences,
@@ -471,7 +471,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
 function PreferencesPageSkeleton() {
   return (
     <PageShell>
-      <PageMain className={uiLayout.workspaceCanvas}>
+      <PageMain>
         <div className="space-y-5 animate-pulse">
           <div className="h-24 rounded-2xl bg-muted/50" />
           <div className="grid gap-4 md:grid-cols-2">
@@ -632,7 +632,7 @@ export default function PreferencesPage() {
 
   return (
     <PageShell>
-      <PageMain className={uiLayout.workspaceCanvas}>
+      <PageMain>
         <div className="space-y-5">
           <PageIntro
             title={t("Подарочные профили")}
@@ -667,13 +667,11 @@ export default function PreferencesPage() {
             </div>
           ) : (
             <section className="space-y-4" aria-labelledby="circle-title">
-              <div className="flex flex-col gap-2 px-1 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <h2 id="circle-title" className="text-lg font-semibold tracking-tight sm:text-xl">
-                    {t("Что порадует каждого")}
-                  </h2>
-                </div>
-                <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+              <div className="min-w-0">
+                <h2 id="circle-title" className="section-title">
+                  {t("Что порадует каждого")}
+                </h2>
+                <p className="mt-1 max-w-[62ch] text-sm text-muted-foreground">
                   {t(
                     "Откройте карточку, чтобы посмотреть весь профиль. Ваша карточка всегда идёт первой.",
                   )}
@@ -705,7 +703,7 @@ export default function PreferencesPage() {
               {circleUsers.length > 0 ? (
                 <motion.div
                   layout
-                  className="grid items-start gap-3 md:grid-cols-2 2xl:grid-cols-3 min-[2200px]:grid-cols-4"
+                  className="grid items-start gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
                 >
                   {circleUsers.map((user, index) => {
                     const isCurrent = user.id === data?.id;

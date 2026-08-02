@@ -13,6 +13,7 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components
 import { RotateCcw } from "lucide-react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getItemWord } from "@/lib/i18n";
+import { Reveal } from "@/components/ui/reveal";
 
 const catalogGridClassName =
   "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 min-[1600px]:grid-cols-5 min-[2200px]:grid-cols-6";
@@ -25,6 +26,8 @@ interface WishlistGridProps {
   onTogglePurchased: (id: string, purchased: boolean) => void;
   onSetStatus?: (id: string, status: "AVAILABLE" | "PURCHASED") => void;
   pendingStatusByItemId?: Record<string, boolean>;
+  /** Товар, только что отмеченный купленным: получает подтверждающую анимацию. */
+  justPurchasedId?: string | null;
   onEmptyAdd?: () => void;
   emptyAddDisabled?: boolean;
   emptyAddDisabledHint?: string;
@@ -51,6 +54,7 @@ export function WishlistGrid({
   onTogglePurchased,
   onSetStatus,
   pendingStatusByItemId,
+  justPurchasedId,
   onEmptyAdd,
   emptyAddDisabled,
   emptyAddDisabledHint,
@@ -147,22 +151,24 @@ export function WishlistGrid({
       <p aria-live="polite" className="sr-only">
         {items.length} {getItemWord(language, items.length)}
       </p>
-      {items.map((item) => (
-        <WishCard
-          key={item.id}
-          item={item}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onTogglePurchased={onTogglePurchased}
-          onSetStatus={onSetStatus}
-          statusPending={!!pendingStatusByItemId?.[item.id]}
-          onOpenDetail={onOpenDetail}
-          selectionMode={selectionMode}
-          isSelected={selectedIds?.has(item.id)}
-          onToggleSelect={onToggleSelect}
-          currentUserId={currentUserId}
-          currentUserRole={currentUserRole}
-        />
+      {items.map((item, index) => (
+        <Reveal key={item.id} index={index} className="h-full">
+          <WishCard
+            item={item}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onTogglePurchased={onTogglePurchased}
+            onSetStatus={onSetStatus}
+            statusPending={!!pendingStatusByItemId?.[item.id]}
+            justPurchased={justPurchasedId === item.id}
+            onOpenDetail={onOpenDetail}
+            selectionMode={selectionMode}
+            isSelected={selectedIds?.has(item.id)}
+            onToggleSelect={onToggleSelect}
+            currentUserId={currentUserId}
+            currentUserRole={currentUserRole}
+          />
+        </Reveal>
       ))}
       {onEmptyAdd && (
         <AddItemCard

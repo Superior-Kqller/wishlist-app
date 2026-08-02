@@ -8,14 +8,6 @@ export const PRIORITY_LABELS: Record<number, string> = {
   5: "Нужно вчера",
 };
 
-export const PRIORITY_EMOJIS: Record<number, string> = {
-  1: "👀",
-  2: "✨",
-  3: "⚡",
-  4: "🔥",
-  5: "🚀",
-};
-
 export function getPriorityLabel(priority: number, language: Language = "ru"): string {
   const label = PRIORITY_LABELS[priority];
   return label ? translate(language, label) : `${translate(language, "Приоритет")} ${priority}`;
@@ -32,8 +24,4 @@ export const PRIORITY_SHORT_LABELS: Record<number, string> = {
 export function getPriorityShortLabel(priority: number, language: Language = "ru"): string {
   const label = PRIORITY_SHORT_LABELS[priority];
   return label ? translate(language, label) : `P${priority}`;
-}
-
-export function getPriorityEmoji(priority: number): string {
-  return PRIORITY_EMOJIS[priority] ?? "🎯";
 }

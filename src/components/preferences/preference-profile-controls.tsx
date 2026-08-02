@@ -2,6 +2,13 @@
 
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useI18n } from "@/components/i18n/language-provider";
 import { cn } from "@/lib/utils";
 import type { PreferenceProfileFilter, PreferenceProfileSort } from "@/lib/preference-profiles";
@@ -69,20 +76,34 @@ export function PreferenceProfileControls({
           ) : null}
         </div>
 
-        <label className="flex min-w-0 items-center gap-2 text-xs font-semibold text-muted-foreground lg:w-52">
-          <span className="shrink-0">{t("Сначала")}</span>
-          <select
+        {/*
+         * Общий Select вместо нативного: подпись «По заполненности» не влезала
+         * в фиксированную ширину и обрезалась браузером до «По заполненно»,
+         * а рамка и стрелка не совпадали с остальными полями продукта.
+         */}
+        <div className="flex min-w-0 shrink-0 items-center gap-2 lg:w-[15.5rem]">
+          <span className="shrink-0 text-xs font-semibold text-muted-foreground">
+            {t("Сначала")}
+          </span>
+          <Select
             value={sort}
-            onChange={(event) => onSortChange(event.target.value as PreferenceProfileSort)}
-            className="h-11 min-w-0 flex-1 rounded-lg border border-border/56 bg-background/72 px-3 text-sm font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-10"
+            onValueChange={(value) => onSortChange(value as PreferenceProfileSort)}
           >
-            {sortOptions.map((option) => (
-              <option key={option.id} value={option.id}>
-                {t(option.label)}
-              </option>
-            ))}
-          </select>
-        </label>
+            <SelectTrigger
+              aria-label={t("Порядок профилей")}
+              className="h-11 min-w-0 flex-1 border-border/56 bg-background/72 font-medium sm:h-10"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {sortOptions.map((option) => (
+                <SelectItem key={option.id} value={option.id}>
+                  {t(option.label)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="mt-3 border-t border-border/44 pt-3">

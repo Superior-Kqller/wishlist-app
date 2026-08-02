@@ -6,14 +6,13 @@ import {
   Check,
   CheckCircle2,
   ExternalLink,
-  Globe2,
+  Gift,
   MoreHorizontal,
   Pencil,
   Trash2,
   Undo2,
 } from "lucide-react";
-import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -28,7 +27,8 @@ import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import { PriorityBadgeOverlay } from "./priority-badge";
 import { IconButton } from "@/components/ui/icon-button";
 import { useI18n } from "@/components/i18n/language-provider";
-import { getProductCategoryIcon, getProductCategoryLabel } from "@/lib/categories";
+import { getProductCategoryLabel } from "@/lib/categories";
+import { ProductCategoryIcon } from "@/lib/category-icons";
 
 export interface WishCardProps {
   item: WishlistItem;
@@ -37,6 +37,8 @@ export interface WishCardProps {
   onTogglePurchased: (id: string, purchased: boolean) => void;
   onSetStatus?: (id: string, status: "AVAILABLE" | "PURCHASED") => void;
   statusPending?: boolean;
+  /** Товар только что отмечен купленным в этой сессии. */
+  justPurchased?: boolean;
   onOpenDetail?: (item: WishlistItem) => void;
   selectionMode?: boolean;
   isSelected?: boolean;
@@ -45,9 +47,6 @@ export interface WishCardProps {
   currentUserRole?: "ADMIN" | "USER" | null;
 }
 
-const cardMetaChipClass =
-  "inline-flex h-6 max-w-full items-center text-[11px] font-medium leading-none text-muted-foreground";
-
 export const WishCard = memo(function WishCard({
   item,
   onEdit,
@@ -55,6 +54,7 @@ export const WishCard = memo(function WishCard({
   onTogglePurchased,
   onSetStatus,
   statusPending = false,
+  justPurchased = false,
   onOpenDetail,
   selectionMode,
   isSelected,
@@ -95,18 +95,16 @@ export const WishCard = memo(function WishCard({
   };
 
   const showImage = Boolean(imageUrl && !imageError);
-
   const categoryLabel = getProductCategoryLabel(item.category, language);
-  const categoryIcon = getProductCategoryIcon(item.category);
 
   return (
     <Card
       data-testid="wishlist-card-v2"
       className={cn(
-        "group/card flex h-full flex-col overflow-hidden rounded-xl border-border/48 bg-[hsl(var(--surface-2))] shadow-none",
-        isBought && "opacity-85 saturate-[0.82]",
+        "group/card flex h-full flex-col overflow-hidden rounded-2xl border-border/45 bg-[hsl(var(--surface-2))] shadow-none",
+        isBought && "opacity-[0.88] saturate-[0.85]",
         isCardInteractive &&
-          "transition-[border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/38",
+          "transition-[border-color,transform,box-shadow] duration-[var(--dur-base)] ease-[var(--ease-soft)] hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-interactive-card-hover)]",
         selectionMode && "ring-1 ring-border/80",
         isSelected && "border-primary/65 ring-2 ring-primary/45 elevation-selected-card",
       )}
@@ -119,7 +117,7 @@ export const WishCard = memo(function WishCard({
             className={cn(
               "flex min-w-0 flex-1 flex-col text-left",
               isCardInteractive &&
-                "cursor-pointer appearance-none bg-transparent transition-colors duration-200 hover:bg-[hsl(var(--surface-3)/0.72)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                "cursor-pointer appearance-none bg-transparent transition-colors duration-[var(--dur-base)] hover:bg-[hsl(var(--surface-3)/0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             )}
             onClick={isCardInteractive ? handleCardClick : undefined}
             aria-pressed={selectionMode ? isSelected : undefined}
@@ -127,76 +125,105 @@ export const WishCard = memo(function WishCard({
             <div
               data-testid="wishlist-card-v2-media"
               className={cn(
-                "group relative min-h-[178px] flex-1 basis-[178px] overflow-hidden border-b border-border/30 bg-[hsl(var(--surface-1))] after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:z-[1] after:h-16 after:bg-gradient-to-t after:from-[hsl(var(--surface-2)/0.62)] after:to-transparent after:content-[''] sm:min-h-[196px] sm:basis-[196px] 2xl:min-h-[210px] 2xl:basis-[210px]",
+                // На узком экране карточки идут в один столбец, поэтому кадр
+                // здесь шире: иначе один товар занимает пол-экрана по высоте.
+                "relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-[hsl(var(--surface-1))]",
+                "sm:aspect-[4/3]",
               )}
             >
+              {/*
+               * Фотографии товаров приходят с чужих сайтов: разные пропорции и
+               * разные фоны. Размытая копия снимка заполняет кадр целиком, а
+               * резкая версия остаётся целой поверх — так карточки выстраиваются
+               * в ровную сетку, и ни один товар не обрезается.
+               */}
+              {showImage ? (
+                <>
+                  <Image
+                    src={imageUrl!}
+                    alt=""
+                    fill
+                    aria-hidden
+                    className="scale-125 object-cover opacity-40 blur-2xl"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                    unoptimized
+                  />
+                  <Image
+                    src={imageUrl!}
+                    alt=""
+                    fill
+                    className="wish-card-image relative object-contain p-4 sm:p-5"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                    unoptimized
+                    onError={() => setImageError(true)}
+                  />
+                </>
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(140deg,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_100%)]">
+                  <Gift className="size-9 text-muted-foreground/40" aria-hidden />
+                </div>
+              )}
+
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[hsl(var(--surface-2))] via-[hsl(var(--surface-2)/0.55)] to-transparent"
+              />
+
               <PriorityBadgeOverlay priority={item.priority} />
+
               {selectionMode ? (
                 <div
                   className={cn(
-                    "absolute right-2 top-2 z-20 rounded-full border px-2 py-1 text-[11px] font-semibold backdrop-blur-sm",
+                    "absolute right-2.5 top-2.5 z-20 rounded-full border px-2.5 py-1 text-[11px] font-semibold backdrop-blur-md",
                     isSelected
-                      ? "border-primary/60 bg-primary/22 text-foreground"
-                      : "border-border bg-card/90 text-muted-foreground",
+                      ? "border-primary/60 bg-primary/25 text-foreground"
+                      : "border-white/20 bg-zinc-950/70 text-white/90",
                   )}
                 >
                   {isSelected ? t("Выбрано") : t("Выбрать")}
                 </div>
               ) : null}
-              {showImage ? (
-                <Image
-                  src={imageUrl!}
-                  alt=""
-                  fill
-                  className="wish-card-image object-contain p-2 sm:p-3"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  unoptimized
-                  onError={() => setImageError(true)}
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_100%)]">
-                  <Globe2
-                    className="h-10 w-10 text-muted-foreground/55 sm:h-11 sm:w-11"
-                    aria-hidden
-                  />
-                </div>
-              )}
             </div>
 
-            <CardHeader className="space-y-2 border-0 bg-transparent p-3 pb-2 sm:p-3.5 sm:pb-2.5">
-              <CardTitle
+            <div className="flex min-w-0 flex-1 flex-col gap-2 px-3.5 pb-3 pt-3 sm:px-4">
+              <h3
                 data-testid="wishlist-card-v2-title"
                 className={cn(
-                  "min-h-[2.25rem] line-clamp-2 text-[15px] font-semibold leading-[1.16] text-balance text-foreground sm:min-h-[2.35rem] sm:text-base 2xl:text-[17px]",
-                  isBought && "line-through",
+                  "line-clamp-2 min-h-[2.5rem] text-[15px] font-semibold leading-[1.25] tracking-[-0.008em] text-balance text-foreground sm:text-base",
+                  isBought && "line-through decoration-muted-foreground/60",
                 )}
               >
                 {item.title}
-              </CardTitle>
+              </h3>
 
               {item.category || ownerName ? (
                 <div
                   data-testid="wishlist-card-v2-meta"
-                  className="flex min-h-6 min-w-0 flex-wrap items-center gap-1.5 overflow-hidden"
+                  className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-muted-foreground"
                 >
                   {item.category ? (
                     <span
                       data-testid="wishlist-card-v2-category"
-                      className={cn(cardMetaChipClass, "max-w-full truncate text-foreground/78")}
+                      className="inline-flex min-w-0 items-center gap-1.5"
                     >
-                      <span aria-hidden className="mr-1">
-                        {categoryIcon}
-                      </span>
-                      {categoryLabel}
+                      <ProductCategoryIcon
+                        category={item.category}
+                        className="size-3.5 shrink-0 text-muted-foreground/70"
+                      />
+                      <span className="truncate">{categoryLabel}</span>
                     </span>
+                  ) : null}
+
+                  {item.category && ownerName ? (
+                    <span aria-hidden className="size-0.5 rounded-full bg-muted-foreground/45" />
                   ) : null}
 
                   {ownerName ? (
                     <span
                       data-testid="wishlist-card-v2-owner"
-                      className="inline-flex h-6 max-w-full min-w-0 items-center gap-1.5 text-muted-foreground/82"
+                      className="inline-flex min-w-0 items-center gap-1.5"
                     >
-                      <Avatar className="h-[18px] w-[18px] shrink-0">
+                      <Avatar className="size-[18px] shrink-0">
                         {ownerImage && !ownerImageError ? (
                           <Image
                             src={ownerImage}
@@ -218,7 +245,7 @@ export const WishCard = memo(function WishCard({
                           </AvatarFallback>
                         )}
                       </Avatar>
-                      <span className="min-w-0 truncate text-[11px]">{ownerName}</span>
+                      <span className="min-w-0 truncate">{ownerName}</span>
                     </span>
                   ) : null}
                 </div>
@@ -227,132 +254,134 @@ export const WishCard = memo(function WishCard({
               {isBought ? (
                 <div
                   data-testid="wishlist-card-v2-purchased-label"
-                  className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-success/45 bg-success/10 px-2 py-1 text-[11px] font-semibold text-success"
+                  className={cn(
+                    "relative inline-flex w-fit items-center gap-1.5 rounded-full border border-success/40 bg-success/10 px-2.5 py-1 text-[11px] font-semibold text-success",
+                    // Печать проигрывается только по действию пользователя, а не
+                    // при каждом появлении уже купленной карточки в списке.
+                    justPurchased && "seal-in seal-ring",
+                  )}
                 >
-                  <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+                  <CheckCircle2 className="size-3.5" aria-hidden />
                   {t("Уже куплено")}
                 </div>
               ) : null}
-            </CardHeader>
+            </div>
           </Wrapper>
         );
       })()}
 
       {showFooter ? (
-        <CardFooter
+        <div
           data-testid="wishlist-card-v2-footer"
-          className="mt-auto flex min-h-[3.5rem] flex-row items-center gap-2 border-t border-border/24 bg-transparent p-2.5 sm:min-h-[3.75rem] sm:p-3"
+          className="mt-auto flex min-h-[3.25rem] items-center justify-between gap-2 border-t border-border/30 px-3.5 py-2.5 sm:px-4"
         >
           {selectionMode ? (
             <p className="text-xs text-muted-foreground">
               {t("Нажмите на карточку, чтобы")} {isSelected ? t("снять выбор") : t("выбрать")}.
             </p>
-          ) : null}
-          {item.url || canManage ? (
-            <TooltipProvider delayDuration={450} skipDelayDuration={200}>
-              <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-                {item.price != null ? (
-                  <p
-                    data-testid="wishlist-card-v2-price"
-                    className="min-w-0 truncate text-[16px] font-bold leading-none tabular-nums text-foreground sm:text-[17px] 2xl:text-[18px]"
-                  >
-                    {formatPrice(item.price, item.currency, language)}
-                  </p>
-                ) : (
-                  <span className="min-w-0 flex-1" aria-hidden />
-                )}
-                <div className="flex shrink-0 flex-row items-center gap-1.5">
-                  {item.url ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          asChild
-                          className="h-11 min-h-[44px] min-w-0 flex-1 justify-center gap-2 rounded-r-none border-primary/24 bg-primary/9 px-3 text-sm font-semibold shadow-none hover:border-primary/40 hover:bg-primary/15 active:scale-[0.98] sm:h-10 sm:min-h-10 sm:flex-none sm:px-4"
-                        >
-                          <a
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+          ) : (
+            <>
+              {item.price != null ? (
+                <p
+                  data-testid="wishlist-card-v2-price"
+                  className="min-w-0 flex-1 truncate text-[17px] font-semibold leading-none tabular-nums tracking-[-0.01em] text-foreground"
+                >
+                  {formatPrice(item.price, item.currency, language)}
+                </p>
+              ) : (
+                <span className="min-w-0 flex-1" aria-hidden />
+              )}
+
+              {item.url || canManage ? (
+                <TooltipProvider delayDuration={450} skipDelayDuration={200}>
+                  <div className="flex shrink-0 items-center gap-1">
+                    {/*
+                     * Действия — иконки, а не подписанные кнопки: повторённое
+                     * восемь раз в сетке слово «Открыть» весит больше, чем
+                     * названия самих товаров. Подписи остаются во всплывающей
+                     * подсказке и в `aria-label`.
+                     */}
+                    {item.url ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <IconButton
+                            asChild
+                            iconSize="sm"
                             aria-label={t("Открыть ссылку на товар в новой вкладке")}
+                            className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-transparent text-muted-foreground hover:border-primary/30 hover:bg-primary/12 hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
+                          >
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <ExternalLink aria-hidden />
+                            </a>
+                          </IconButton>
+                        </TooltipTrigger>
+                        <TooltipContent>{t("Открыть в новой вкладке")}</TooltipContent>
+                      </Tooltip>
+                    ) : null}
+
+                    {canManage ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <IconButton
+                            type="button"
+                            data-testid="wishlist-card-actions"
+                            iconSize="sm"
+                            aria-label={t("Действия с карточкой")}
+                            className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-transparent text-muted-foreground hover:border-primary/30 hover:bg-primary/12 hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <ExternalLink className="h-4 w-4" aria-hidden />
-                            {t("Открыть")}
-                          </a>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>{t("Открыть в новой вкладке")}</TooltipContent>
-                    </Tooltip>
-                  ) : null}
-
-                  {canManage && !selectionMode ? (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <IconButton
-                          type="button"
-                          data-testid="wishlist-card-actions"
-                          intent="default"
-                          aria-label={t("Действия с карточкой")}
-                          className={cn(
-                            "size-11 min-w-[44px] shrink-0 sm:size-10 sm:min-w-10",
-                            item.url && "-ml-px rounded-l-none",
-                          )}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MoreHorizontal className="h-5 w-5" />
-                        </IconButton>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleMarkPurchased();
-                          }}
-                          disabled={statusPending}
-                        >
-                          {isBought ? (
-                            <Undo2 className="mr-2 h-4 w-4" />
-                          ) : (
-                            <Check className="mr-2 h-4 w-4" />
-                          )}
-                          {isBought ? t("Вернуть в доступные") : t("Отметить купленным")}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit(item);
-                          }}
-                          disabled={statusPending}
-                        >
-                          <Pencil className="mr-2 h-4 w-4" />
-                          {t("Редактировать")}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(item.id);
-                          }}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          {t("Удалить")}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  ) : null}
-                </div>
-              </div>
-            </TooltipProvider>
-          ) : item.price != null ? (
-            <p
-              data-testid="wishlist-card-v2-price"
-              className="min-w-0 truncate text-[16px] font-bold leading-none tabular-nums text-foreground sm:text-[17px] 2xl:text-[18px]"
-            >
-              {formatPrice(item.price, item.currency, language)}
-            </p>
-          ) : null}
-        </CardFooter>
+                            <MoreHorizontal aria-hidden />
+                          </IconButton>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMarkPurchased();
+                            }}
+                            disabled={statusPending}
+                          >
+                            {isBought ? (
+                              <Undo2 className="mr-2 h-4 w-4" />
+                            ) : (
+                              <Check className="mr-2 h-4 w-4" />
+                            )}
+                            {isBought ? t("Вернуть в доступные") : t("Отметить купленным")}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEdit(item);
+                            }}
+                            disabled={statusPending}
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            {t("Редактировать")}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDelete(item.id);
+                            }}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            {t("Удалить")}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : null}
+                  </div>
+                </TooltipProvider>
+              ) : null}
+            </>
+          )}
+        </div>
       ) : null}
     </Card>
   );

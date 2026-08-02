@@ -1,5 +1,6 @@
 "use client";
 
+import { motion, useReducedMotion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -27,17 +28,28 @@ import {
 
 const mobileNavButtonClass = (active: boolean) =>
   cn(
-    "h-11 min-w-0 flex-col gap-0.5 rounded-xl border px-1 py-1.5 text-[10px] font-semibold leading-none transition-[background-color,border-color,color,box-shadow] active:bg-accent/45 sm:flex-row sm:gap-1.5 sm:px-3 sm:text-xs",
-    active
-      ? "border-primary/32 bg-primary/12 text-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.055)]"
-      : "border-transparent text-muted-foreground hover:border-border/45 hover:bg-accent/40 hover:text-foreground",
+    "relative h-11 min-w-0 flex-col gap-0.5 rounded-xl border border-transparent px-1 py-1.5 text-[10px] font-semibold leading-none transition-[color] active:bg-accent/45 sm:flex-row sm:gap-1.5 sm:px-3 sm:text-xs",
+    active ? "text-foreground" : "text-muted-foreground hover:bg-accent/40 hover:text-foreground",
   );
+
+/** Та же подложка активного раздела, что и в боковом меню, только для узких экранов. */
+function MobileNavIndicator({ reduceMotion }: { reduceMotion: boolean | null }) {
+  return (
+    <motion.span
+      layoutId="mobile-nav-active"
+      aria-hidden
+      transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }}
+      className="absolute inset-0 -z-10 rounded-xl border border-primary/32 bg-primary/12 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.055)]"
+    />
+  );
+}
 
 export function Header() {
   const { t } = useI18n();
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const reduceMotion = useReducedMotion();
   const isAdmin = session?.user?.role === "ADMIN";
 
   const primaryNavItems = [
@@ -96,6 +108,7 @@ export function Header() {
                   aria-current={active ? "page" : undefined}
                   onClick={() => router.push(item.href)}
                 >
+                  {active ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
                   <Icon className="h-4 w-4 shrink-0" />
                   <span className="min-w-0 truncate">{item.label}</span>
                 </Button>
@@ -111,6 +124,7 @@ export function Header() {
                   aria-label={t("Ещё")}
                   aria-current={secondaryNavActive ? "page" : undefined}
                 >
+                  {secondaryNavActive ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
                   <MoreHorizontal className="h-4 w-4 shrink-0" />
                   <span className="min-w-0 truncate">{t("Ещё")}</span>
                 </Button>

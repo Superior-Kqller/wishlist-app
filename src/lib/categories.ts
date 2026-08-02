@@ -18,22 +18,22 @@ export type ProductCategoryOption = {
   id: ProductCategory;
   label: string;
   labelEn: string;
-  icon: string;
 };
 
+/** Иконки категорий живут в `lib/category-icons`: этот модуль остаётся без JSX. */
 export const PRODUCT_CATEGORIES: ProductCategoryOption[] = [
-  { id: "electronics", label: "Техника", labelEn: "Electronics", icon: "⌁" },
-  { id: "gaming", label: "Игры и ПК", labelEn: "Gaming and PC", icon: "◆" },
-  { id: "books", label: "Книги", labelEn: "Books", icon: "◫" },
-  { id: "fashion", label: "Одежда", labelEn: "Fashion", icon: "◈" },
-  { id: "beauty", label: "Красота", labelEn: "Beauty", icon: "✦" },
-  { id: "home", label: "Дом", labelEn: "Home", icon: "⌂" },
-  { id: "kitchen", label: "Кухня", labelEn: "Kitchen", icon: "◇" },
-  { id: "sports", label: "Спорт", labelEn: "Sports", icon: "●" },
-  { id: "hobby", label: "Хобби", labelEn: "Hobby", icon: "✧" },
-  { id: "kids", label: "Дети", labelEn: "Kids", icon: "◌" },
-  { id: "gift-cards", label: "Сертификаты", labelEn: "Gift cards", icon: "□" },
-  { id: "other", label: "Другое", labelEn: "Other", icon: "…" },
+  { id: "electronics", label: "Техника", labelEn: "Electronics" },
+  { id: "gaming", label: "Игры и ПК", labelEn: "Gaming and PC" },
+  { id: "books", label: "Книги", labelEn: "Books" },
+  { id: "fashion", label: "Одежда", labelEn: "Fashion" },
+  { id: "beauty", label: "Красота", labelEn: "Beauty" },
+  { id: "home", label: "Дом", labelEn: "Home" },
+  { id: "kitchen", label: "Кухня", labelEn: "Kitchen" },
+  { id: "sports", label: "Спорт", labelEn: "Sports" },
+  { id: "hobby", label: "Хобби", labelEn: "Hobby" },
+  { id: "kids", label: "Дети", labelEn: "Kids" },
+  { id: "gift-cards", label: "Сертификаты", labelEn: "Gift cards" },
+  { id: "other", label: "Другое", labelEn: "Other" },
 ];
 
 const CATEGORY_IDS = new Set(PRODUCT_CATEGORIES.map((category) => category.id));
@@ -61,8 +61,4 @@ export function getProductCategoryLabel(
   const option = getProductCategoryOption(category);
   if (!option) return language === "en" ? "No category" : "Без категории";
   return language === "en" ? option.labelEn : option.label;
-}
-
-export function getProductCategoryIcon(category: string | null | undefined): string {
-  return getProductCategoryOption(category)?.icon ?? "…";
 }

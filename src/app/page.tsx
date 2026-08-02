@@ -21,7 +21,7 @@ import { ListFormDialog } from "@/components/ListFormDialog";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { BulkActionBar } from "@/components/BulkActionBar";
-import { uiLayout } from "@/lib/ui-contract";
+import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import {
   WishlistItem,
   CreateItemPayload,
@@ -231,6 +231,19 @@ function HomePageContent() {
     }
     return usersWithStats.find((user) => user.id === normalizedSelectedUserId) ?? null;
   }, [normalizedSelectedUserId, usersWithStats]);
+
+  /**
+   * Заголовок называет то, на что человек сейчас смотрит: свой список, чужой
+   * или конкретную подборку. Раньше он был скрыт, и страница начиналась сразу
+   * с панели инструментов — из-за этого главная выпадала из ритма разделов.
+   */
+  const pageTitle = selectedWishlistUser
+    ? `${t("Желания")}: ${selectedWishlistUser.name}`
+    : t("Список желаний");
+
+  const pageDescription = selectedWishlistUser
+    ? t("Что подойдёт этому человеку и что уже кто-то взял на себя.")
+    : t("Всё, что вы хотите, и всё, что вы можете подарить другим.");
 
   const { setActions } = useHeaderActions();
   useEffect(() => {
@@ -481,6 +494,8 @@ function HomePageContent() {
     [mutateItems, t],
   );
 
+  const [justPurchasedId, setJustPurchasedId] = useState<string | null>(null);
+
   const handleSetItemStatus = useCallback(
     async (id: string, status: "AVAILABLE" | "PURCHASED") => {
       if (pendingStatusByItemId[id]) return;
@@ -502,6 +517,15 @@ function HomePageContent() {
         }
         const statusText = status === "AVAILABLE" ? t("Отметка снята") : t("Отмечено купленным");
         toast.success(statusText);
+        // Подтверждение покупки — единственный момент, который празднуется:
+        // карточка получает печать. Отметка держится ровно на время анимации,
+        // чтобы она не проигрывалась заново при каждой перерисовке списка.
+        if (status === "PURCHASED") {
+          setJustPurchasedId(id);
+          window.setTimeout(() => {
+            setJustPurchasedId((current) => (current === id ? null : current));
+          }, 1200);
+        }
         await mutateItems();
       } finally {
         setPendingStatusByItemId((prev) => ({ ...prev, [id]: false }));
@@ -604,10 +628,13 @@ function HomePageContent() {
   );
 
   return (
-    <div className="min-h-screen page-bg">
-      <div className={uiLayout.catalogCanvas}>
-        <h1 className="sr-only">{t("Список желаний")}</h1>
-        <UpcomingCalendarCard />
+    <PageShell>
+      <PageMain>
+        <PageIntro
+          title={pageTitle}
+          description={pageDescription}
+          meta={<UpcomingCalendarCard />}
+        />
         <WishlistWorkspace
           search={search}
           onSearchChange={setSearch}
@@ -671,6 +698,7 @@ function HomePageContent() {
           onTogglePurchased={handleTogglePurchased}
           onSetStatus={handleSetItemStatus}
           pendingStatusByItemId={pendingStatusByItemId}
+          justPurchasedId={justPurchasedId}
           onEmptyAdd={handleEmptyAdd}
           onOpenDetail={setDetailItem}
           onToggleSelect={handleToggleSelect}
@@ -684,7 +712,7 @@ function HomePageContent() {
             void setSize(nextSize);
           }}
         />
-      </div>
+      </PageMain>
 
       <input
         ref={importFileInputRef}
@@ -796,7 +824,7 @@ function HomePageContent() {
         onClearSelection={handleClearSelection}
         isProcessing={bulkProcessing}
       />
-    </div>
+    </PageShell>
   );
 }
 
@@ -804,8 +832,8 @@ export default function HomePage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen page-bg flex items-center justify-center min-h-[50vh]">
-          <div className="text-muted-foreground">Загрузка…</div>
+        <div className="page-bg flex min-h-[60svh] items-center justify-center">
+          <span className="text-sm text-muted-foreground">Загрузка…</span>
         </div>
       }
     >

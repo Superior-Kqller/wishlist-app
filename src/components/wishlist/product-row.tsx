@@ -17,7 +17,8 @@ import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import { cn, formatPrice } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
-import { getProductCategoryIcon, getProductCategoryLabel } from "@/lib/categories";
+import { getProductCategoryLabel } from "@/lib/categories";
+import { ProductCategoryIcon } from "@/lib/category-icons";
 
 export interface ProductRowProps {
   item: WishlistItem;
@@ -60,7 +61,6 @@ export const ProductRow = memo(function ProductRow({
   const showImage = Boolean(imageUrl && !imageError);
   const isInteractive = Boolean(onOpenDetail || selectionMode);
   const categoryLabel = getProductCategoryLabel(item.category, language);
-  const categoryIcon = getProductCategoryIcon(item.category);
 
   const handleRowClick = () => {
     if (selectionMode) {
@@ -189,7 +189,7 @@ export const ProductRow = memo(function ProductRow({
       <TableCell>
         {item.category ? (
           <Badge variant="outline" className="max-w-[10rem] gap-1.5 truncate text-[10px]">
-            <span aria-hidden>{categoryIcon}</span>
+            <ProductCategoryIcon category={item.category} className="size-3.5 shrink-0" />
             {categoryLabel}
           </Badge>
         ) : (

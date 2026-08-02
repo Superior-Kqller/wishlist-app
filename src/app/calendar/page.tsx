@@ -23,8 +23,15 @@ import { PersonalEventsPanel } from "@/components/calendar/PersonalEventsPanel";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { fetcher } from "@/lib/fetcher";
-import { cn } from "@/lib/utils";
+import { capitalizeFirst, cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import {
   filterCalendarOccurrences,
@@ -95,7 +102,7 @@ function EventRow({
           </div>
           <time
             dateTime={occurrence.date}
-            className="shrink-0 text-sm font-medium capitalize text-muted-foreground max-sm:hidden"
+            className="shrink-0 text-sm font-medium text-muted-foreground max-sm:hidden"
           >
             {new Date(`${occurrence.date}T12:00:00`).toLocaleDateString(locale, {
               day: "numeric",
@@ -173,6 +180,9 @@ function MonthGrid({
   const weekdayLabels = Array.from({ length: 7 }, (_, index) =>
     new Date(2026, 0, 5 + index).toLocaleDateString(locale, { weekday: "short" }),
   );
+  /** Сетка всегда закрывает последнюю неделю целиком, иначе месяц обрывается рваной строкой. */
+  const trailingDays = (7 - ((leadingDays + daysInMonth) % 7)) % 7;
+  const isWeekendColumn = (columnIndex: number) => columnIndex % 7 >= 5;
 
   return (
     <div
@@ -186,7 +196,7 @@ function MonthGrid({
           {weekdayLabels.map((label) => (
             <div
               key={label}
-              className="px-0.5 pb-1.5 text-center text-[10px] font-semibold capitalize text-muted-foreground sm:px-2 sm:pb-2 sm:text-left sm:text-xs"
+              className="px-0.5 pb-1.5 text-center text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/75 sm:px-2 sm:pb-2 sm:text-left sm:text-xs"
               role="columnheader"
             >
               {label}
@@ -196,9 +206,13 @@ function MonthGrid({
         <div className="grid grid-cols-7" role="rowgroup">
           {Array.from({ length: leadingDays }, (_, index) => (
             <div
-              key={`empty:${index}`}
-              className="min-h-14 border-b border-r border-border/35 sm:min-h-28"
+              key={`empty-lead:${index}`}
+              className={cn(
+                "min-h-14 border-b border-r border-border/35 bg-[hsl(var(--surface-1)/0.45)] sm:min-h-28",
+                isWeekendColumn(index) && "bg-[hsl(var(--surface-1)/0.7)]",
+              )}
               role="gridcell"
+              aria-hidden
             />
           ))}
           {Array.from({ length: daysInMonth }, (_, index) => {
@@ -210,8 +224,10 @@ function MonthGrid({
               <div
                 key={date}
                 className={cn(
-                  "min-h-14 border-b border-r border-border/35 p-1 last:border-r-0 sm:min-h-28 sm:p-2",
-                  entries.length > 0 && "bg-primary/[0.035]",
+                  "min-h-14 border-b border-r border-border/35 p-1 transition-colors duration-[var(--dur-base)] sm:min-h-28 sm:p-2",
+                  isWeekendColumn(leadingDays + index) && "bg-[hsl(var(--surface-1)/0.4)]",
+                  entries.length > 0 && "bg-primary/[0.05]",
+                  isToday && "bg-primary/[0.08]",
                 )}
                 role="gridcell"
                 aria-label={[
@@ -286,6 +302,18 @@ function MonthGrid({
               </div>
             );
           })}
+          {Array.from({ length: trailingDays }, (_, index) => (
+            <div
+              key={`empty-trail:${index}`}
+              className={cn(
+                "min-h-14 border-b border-r border-border/35 bg-[hsl(var(--surface-1)/0.45)] sm:min-h-28",
+                isWeekendColumn(leadingDays + daysInMonth + index) &&
+                  "bg-[hsl(var(--surface-1)/0.7)]",
+              )}
+              role="gridcell"
+              aria-hidden
+            />
+          ))}
         </div>
       </div>
       {groupedMonth.length > 0 ? (
@@ -422,7 +450,7 @@ export default function CalendarPage() {
 
   return (
     <PageShell>
-      <PageMain className="max-w-6xl max-sm:px-3 max-sm:py-4">
+      <PageMain>
         {/* Extension of the existing product world: a scan-first planning surface,
             not a decorative calendar. The list leads on mobile; month context leads
             on wide screens. Filters and history stay visible without hiding tasks. */}
@@ -430,10 +458,9 @@ export default function CalendarPage() {
           <PageIntro
             title={t("Календарь")}
             description={t("Планируйте внимание и подарки к значимым датам")}
-            className="max-sm:border-0 max-sm:bg-transparent max-sm:px-1 max-sm:py-0 max-sm:shadow-none [&_p]:max-sm:hidden"
           />
 
-          <section className={cn(uiSurface.contentPanel, "p-2.5 sm:p-4")}>
+          <section aria-label={t("Управление календарём")}>
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div
                 className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] max-sm:hidden [&::-webkit-scrollbar]:hidden"
@@ -453,20 +480,24 @@ export default function CalendarPage() {
                   </Button>
                 ))}
               </div>
-              <label className="grid gap-1 text-xs font-medium text-muted-foreground sm:hidden">
-                <span>{t("Фильтр")}</span>
-                <select
+              <div className="grid gap-1 sm:hidden">
+                <span className="text-xs font-medium text-muted-foreground">{t("Фильтр")}</span>
+                <Select
                   value={filter}
-                  onChange={(event) => setFilter(event.target.value as CalendarFilter)}
-                  className="h-11 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-foreground"
+                  onValueChange={(value) => setFilter(value as CalendarFilter)}
                 >
-                  {FILTERS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {t(option.label)}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  <SelectTrigger aria-label={t("Фильтр")} className="h-11 font-semibold">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FILTERS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {t(option.label)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="flex items-center justify-between gap-2">
                 <div className="inline-flex rounded-lg border border-border/55 p-0.5">
                   <Button
@@ -490,20 +521,21 @@ export default function CalendarPage() {
                     {t("Месяц")}
                   </Button>
                 </div>
-                <label className="flex items-center gap-2 text-sm">
-                  <span className="sr-only">{t("Год")}</span>
-                  <select
-                    value={year}
-                    onChange={(event) => setYear(Number(event.target.value))}
-                    className="h-9 rounded-md border border-input bg-background px-2.5 text-sm"
+                <Select value={String(year)} onValueChange={(value) => setYear(Number(value))}>
+                  <SelectTrigger
+                    aria-label={t("Год")}
+                    className="h-9 w-auto gap-2 tabular-nums max-sm:h-11"
                   >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
                     {[currentYear - 1, currentYear, currentYear + 1].map((option) => (
-                      <option key={option} value={option}>
+                      <SelectItem key={option} value={String(option)}>
                         {option}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
-                </label>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </section>
@@ -535,7 +567,7 @@ export default function CalendarPage() {
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
-                <h2 className="text-lg font-semibold capitalize">{monthLabel}</h2>
+                <h2 className="section-title">{capitalizeFirst(monthLabel, locale)}</h2>
                 <Button
                   type="button"
                   size="icon"
@@ -569,12 +601,15 @@ export default function CalendarPage() {
             <div className="space-y-3">
               {groupedUpcoming.map(([date, entries]) => (
                 <section key={date} className={cn(uiSurface.contentPanel, "p-3 sm:p-5")}>
-                  <h2 className="mb-2 text-xs font-semibold capitalize text-muted-foreground sm:mb-3 sm:text-sm">
-                    {new Date(`${date}T12:00:00`).toLocaleDateString(locale, {
-                      day: "numeric",
-                      month: "long",
-                      weekday: "long",
-                    })}
+                  <h2 className="mb-2 text-xs font-semibold text-muted-foreground sm:mb-3 sm:text-sm">
+                    {capitalizeFirst(
+                      new Date(`${date}T12:00:00`).toLocaleDateString(locale, {
+                        day: "numeric",
+                        month: "long",
+                        weekday: "long",
+                      }),
+                      locale,
+                    )}
                   </h2>
                   <div className="divide-y divide-border/55">
                     {entries.map((entry) => (

@@ -16,7 +16,8 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { formatPrice, cn } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
-import { getProductCategoryIcon, getProductCategoryLabel } from "@/lib/categories";
+import { getProductCategoryLabel } from "@/lib/categories";
+import { ProductCategoryIcon } from "@/lib/category-icons";
 
 type ItemMetaSectionProps = {
   item: WishlistItem;
@@ -39,7 +40,6 @@ export function ItemMetaSection({
   const [showFullNotes, setShowFullNotes] = useState(false);
   const hasLongNotes = Boolean(item.notes && item.notes.length > 180);
   const categoryLabel = getProductCategoryLabel(item.category, language);
-  const categoryIcon = getProductCategoryIcon(item.category);
   const noteParagraphs = item.notes
     ?.split(/\n\s*\n/)
     .map((paragraph) => paragraph.trim())
@@ -117,7 +117,7 @@ export function ItemMetaSection({
             variant="outline"
             className="gap-1.5 border-border/58 px-2 py-1 text-xs font-medium text-muted-foreground"
           >
-            <span aria-hidden>{categoryIcon}</span>
+            <ProductCategoryIcon category={item.category} className="size-3.5 shrink-0" />
             {categoryLabel}
           </Badge>
         </div>

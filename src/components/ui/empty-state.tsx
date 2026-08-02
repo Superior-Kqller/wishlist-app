@@ -15,6 +15,16 @@ export interface EmptyStateProps extends React.HTMLAttributes<HTMLElement> {
   secondaryIcon?: React.ReactNode;
 }
 
+function revealDelay(ms: number) {
+  return { "--reveal-delay": `${ms}ms` } as React.CSSProperties;
+}
+
+/**
+ * Пустое состояние — не заглушка, а первый экран раздела: чаще всего человек
+ * видит его раньше, чем заполненный список. Поэтому у него есть собственный
+ * свет — мягкое пятно за иконкой в цвете темы — и содержимое проявляется
+ * по очереди, а не всё разом.
+ */
 function EmptyState({
   className,
   icon,
@@ -27,41 +37,68 @@ function EmptyState({
   secondaryIcon,
   ...props
 }: EmptyStateProps) {
+  const hasActions = Boolean((actionLabel && onAction) || (secondaryLabel && onSecondaryAction));
+
   return (
     <section
       role="status"
       aria-live="polite"
       className={cn(
-        "flex min-h-[240px] flex-col items-center justify-center sm:min-h-[320px]",
+        "relative flex min-h-[260px] flex-col items-center justify-center overflow-hidden sm:min-h-[340px]",
         uiSurface.emptyState,
         className,
       )}
       {...props}
     >
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-card text-muted-foreground">
-        {icon ?? <Inbox className="h-5 w-5" aria-hidden />}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-1/2 size-[22rem] max-w-full -translate-x-1/2 -translate-y-[72%] rounded-full bg-[radial-gradient(circle,hsl(var(--theme-cool)/0.14),transparent_66%)] blur-2xl"
+      />
+
+      <div
+        data-reveal=""
+        className="relative mb-5 flex size-14 items-center justify-center rounded-2xl border border-border/70 bg-[hsl(var(--surface-3)/0.8)] text-primary/85 shadow-[var(--shadow-interactive-card)] [&_svg]:size-6"
+      >
+        {icon ?? <Inbox aria-hidden />}
       </div>
-      <h2 className="text-lg font-semibold text-balance">{title}</h2>
+
+      <h2
+        data-reveal=""
+        style={revealDelay(60)}
+        className="relative max-w-[28ch] text-balance text-lg font-semibold tracking-[-0.01em]"
+      >
+        {title}
+      </h2>
+
       {description ? (
-        <p className="mt-2 max-w-md text-sm text-pretty text-muted-foreground">{description}</p>
+        <p
+          data-reveal=""
+          style={revealDelay(110)}
+          className="relative mt-2 max-w-[46ch] text-pretty text-sm leading-relaxed text-muted-foreground"
+        >
+          {description}
+        </p>
       ) : null}
-      <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-        {actionLabel && onAction ? (
-          <Button type="button" onClick={onAction}>
-            {actionLabel}
-          </Button>
-        ) : null}
-        {secondaryLabel && onSecondaryAction ? (
-          <Button type="button" variant="outline" onClick={onSecondaryAction}>
-            {secondaryIcon ? (
-              <span className="mr-2 inline-flex h-4 w-4 items-center justify-center">
-                {secondaryIcon}
-              </span>
-            ) : null}
-            {secondaryLabel}
-          </Button>
-        ) : null}
-      </div>
+
+      {hasActions ? (
+        <div
+          data-reveal=""
+          style={revealDelay(170)}
+          className="relative mt-6 flex flex-col gap-2 sm:flex-row"
+        >
+          {actionLabel && onAction ? (
+            <Button type="button" onClick={onAction}>
+              {actionLabel}
+            </Button>
+          ) : null}
+          {secondaryLabel && onSecondaryAction ? (
+            <Button type="button" variant="outline" onClick={onSecondaryAction}>
+              {secondaryIcon}
+              {secondaryLabel}
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -5,6 +5,7 @@ import { ChevronDown, X } from "lucide-react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { cn } from "@/lib/utils";
 import type { ProductCategoryOption } from "@/lib/categories";
+import { ProductCategoryIcon } from "@/lib/category-icons";
 
 interface CategoryFilterProps {
   categories: ProductCategoryOption[];
@@ -41,13 +42,17 @@ export function CategoryFilter({
         aria-pressed={isSelected}
         aria-label={`${isSelected ? t("Убрать категорию") : t("Добавить категорию")}: ${label}`}
         className={cn(
-          "min-h-9 shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors focus-ring",
+          "inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors focus-ring",
           isSelected
             ? "border-primary/36 bg-primary/14 text-foreground"
             : "border-border bg-transparent text-foreground hover:border-primary/28 hover:bg-accent/55",
         )}
       >
-        <span aria-hidden>{category.icon}</span> {label}
+        <ProductCategoryIcon
+          category={category.id}
+          className="size-3.5 shrink-0 text-muted-foreground/75"
+        />
+        <span className="min-w-0 truncate">{label}</span>
       </button>
     );
   };
@@ -95,7 +100,10 @@ export function CategoryFilter({
                 aria-label={`${t("Убрать категорию")}: ${label}`}
                 className="flex min-h-9 items-center gap-1.5 rounded-full border border-primary/36 bg-primary/14 px-2.5 py-1 text-[11px] font-semibold text-foreground transition-colors hover:bg-primary/20 focus-ring"
               >
-                <span aria-hidden>{category.icon}</span>
+                <ProductCategoryIcon
+                  category={category.id}
+                  className="size-3.5 shrink-0 text-muted-foreground/75"
+                />
                 <span>{label}</span>
                 <X aria-hidden className="h-3 w-3 text-muted-foreground" />
               </button>

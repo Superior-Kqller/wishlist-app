@@ -16,6 +16,7 @@ import type { UserWithStats, ListWithMeta } from "@/types";
 import { filterListsBySelectedUser } from "@/lib/list-filter-client";
 import { useI18n } from "@/components/i18n/language-provider";
 import type { ProductCategoryOption } from "@/lib/categories";
+import { ProductCategoryIcon } from "@/lib/category-icons";
 import { cn } from "@/lib/utils";
 
 interface FiltersDrawerProps {
@@ -250,7 +251,12 @@ export function FiltersDrawer({
                     selected={selectedCategories.includes(category.id)}
                     onClick={() => onToggleCategory(category.id)}
                     label={language === "en" ? category.labelEn : category.label}
-                    prefix={category.icon}
+                    prefix={
+                      <ProductCategoryIcon
+                        category={category.id}
+                        className="size-4 shrink-0 text-primary/80"
+                      />
+                    }
                     testId={`mobile-category-${category.id}`}
                     fill
                   />
@@ -297,7 +303,7 @@ function FilterChoice({
   selected: boolean;
   onClick: () => void;
   label: string;
-  prefix?: string;
+  prefix?: React.ReactNode;
   testId: string;
   fill?: boolean;
 }) {
@@ -315,7 +321,7 @@ function FilterChoice({
       onClick={onClick}
       data-testid={testId}
     >
-      {prefix ? <span className="text-base text-primary/80">{prefix}</span> : null}
+      {prefix}
       <span className="min-w-0 truncate">{label}</span>
       {selected ? <Check className="absolute right-2.5 h-4 w-4 shrink-0 text-primary" /> : null}
     </button>

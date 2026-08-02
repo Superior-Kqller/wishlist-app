@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { uiSurface } from "@/lib/ui-contract";
+import { Reveal } from "@/components/ui/reveal";
 
 interface PageShellProps {
   children: ReactNode;
@@ -8,7 +8,7 @@ interface PageShellProps {
 }
 
 export function PageShell({ children, className }: PageShellProps) {
-  return <div className={cn("min-h-screen page-bg", className)}>{children}</div>;
+  return <div className={cn("min-h-full page-bg", className)}>{children}</div>;
 }
 
 interface PageMainProps {
@@ -16,31 +16,101 @@ interface PageMainProps {
   className?: string;
 }
 
+/**
+ * Единая рамка контента для всех разделов.
+ *
+ * Ширина и горизонтальные отступы заданы здесь и только здесь: раньше каждая
+ * страница выбирала свои (`max-w-5xl`, `max-w-6xl`, полная ширина), из-за чего
+ * заголовки разделов не совпадали по вертикали при переходах. Страницам,
+ * которым нужна узкая колонка чтения, следует сузить собственный контент,
+ * а не рамку.
+ *
+ * Элемент намеренно `div`: `<main>` уже объявлен в оболочке приложения.
+ */
 export function PageMain({ children, className }: PageMainProps) {
-  return <main className={cn("container mx-auto px-4 py-6 lg:py-8", className)}>{children}</main>;
+  return (
+    <div
+      className={cn(
+        "mx-auto w-full max-w-[92rem] px-4 pb-10 pt-5 sm:px-6 sm:pb-14 sm:pt-7 xl:px-8",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
 }
 
 interface PageIntroProps {
   title: string;
   description?: string;
   actions?: ReactNode;
+  /** Дополнительная строка под заголовком: счётчики, статус, метаданные. */
+  meta?: ReactNode;
   className?: string;
 }
 
-export function PageIntro({ title, description, actions, className }: PageIntroProps) {
+/**
+ * Заголовок страницы. Это единственный крупный типографический шаг в
+ * продукте, поэтому он не панель и не карточка: тонкая линия снизу отделяет
+ * его от контента дешевле, чем рамка, и не создаёт вложенных поверхностей.
+ */
+export function PageIntro({ title, description, actions, meta, className }: PageIntroProps) {
   return (
-    <section className={cn(uiSurface.pageHeader, "px-4 py-4 sm:px-5", className)}>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <Reveal
+      className={cn("relative mb-6 border-b border-border/45 pb-6 sm:mb-8 sm:pb-7", className)}
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-4 -top-6 h-40 w-[28rem] max-w-full bg-[radial-gradient(ellipse_at_left,hsl(var(--theme-cool)/0.16),transparent_70%)] blur-2xl sm:-left-6"
+      />
+      <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
         <div className="min-w-0">
-          <h1 className="text-2xl font-semibold leading-tight tracking-tight">{title}</h1>
-          {description ? (
-            <p className="mt-1 max-w-[65ch] text-sm text-muted-foreground sm:text-base">
-              {description}
-            </p>
-          ) : null}
+          <h1 className="page-title text-foreground">{title}</h1>
+          {description ? <p className="page-lede mt-3">{description}</p> : null}
+          {meta ? <div className="mt-4">{meta}</div> : null}
         </div>
-        {actions ? <div className="w-full sm:w-auto">{actions}</div> : null}
+        {actions ? <div className="shrink-0 sm:pb-1">{actions}</div> : null}
       </div>
-    </section>
+    </Reveal>
+  );
+}
+
+interface PageSectionProps {
+  title?: string;
+  description?: string;
+  actions?: ReactNode;
+  children: ReactNode;
+  className?: string;
+  index?: number;
+}
+
+/**
+ * Раздел внутри страницы. Заголовок раздела живёт над поверхностью, а не
+ * внутри неё — так соседние блоки не превращаются в цепочку одинаковых
+ * карточек и сохраняется различие между «что это» и «содержимое».
+ */
+export function PageSection({
+  title,
+  description,
+  actions,
+  children,
+  className,
+  index = 1,
+}: PageSectionProps) {
+  return (
+    <Reveal index={index} className={cn("mt-8 first:mt-0 sm:mt-10", className)}>
+      {title || actions ? (
+        <div className="mb-3.5 flex flex-wrap items-end justify-between gap-3">
+          <div className="min-w-0">
+            {title ? <h2 className="section-title text-foreground">{title}</h2> : null}
+            {description ? (
+              <p className="mt-1 max-w-[62ch] text-sm text-muted-foreground">{description}</p>
+            ) : null}
+          </div>
+          {actions ? <div className="shrink-0">{actions}</div> : null}
+        </div>
+      ) : null}
+      {children}
+    </Reveal>
   );
 }

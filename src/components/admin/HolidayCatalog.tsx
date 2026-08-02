@@ -5,6 +5,14 @@ import useSWR from "swr";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { fetcher } from "@/lib/fetcher";
 import type { HolidayCatalogEntry } from "@/lib/calendar/holiday-catalog";
 import type { HolidayRule } from "@/lib/calendar/holiday-rules";
@@ -112,14 +120,12 @@ export function HolidayCatalog() {
                   }}
                 />
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <select
-                    aria-label={`Тип правила: ${holiday.name}`}
-                    className="h-9 rounded-md border bg-background px-2 text-sm"
+                  <Select
                     value={holiday.rule.kind}
-                    onChange={(event) =>
+                    onValueChange={(value) =>
                       void patch(holiday.id, {
                         rule:
-                          event.target.value === "FIXED"
+                          value === "FIXED"
                             ? { kind: "FIXED", month: 1, day: 1 }
                             : {
                                 kind: "NTH_WEEKDAY",
@@ -130,26 +136,34 @@ export function HolidayCatalog() {
                       })
                     }
                   >
-                    <option value="FIXED">Фиксированная дата</option>
-                    <option value="NTH_WEEKDAY">N-й день недели</option>
-                  </select>
-                  <select
-                    aria-label={`Тематика: ${holiday.name}`}
-                    className="h-9 rounded-md border bg-background px-2 text-sm"
-                    value={holiday.theme ?? ""}
-                    onChange={(event) =>
+                    <SelectTrigger
+                      aria-label={`Тип правила: ${holiday.name}`}
+                      className="h-9 w-auto"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="FIXED">Фиксированная дата</SelectItem>
+                      <SelectItem value="NTH_WEEKDAY">N-й день недели</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={holiday.theme ?? "none"}
+                    onValueChange={(value) =>
                       void patch(holiday.id, {
-                        theme:
-                          event.target.value === ""
-                            ? null
-                            : (event.target.value as "MALE" | "FEMALE"),
+                        theme: value === "none" ? null : (value as "MALE" | "FEMALE"),
                       })
                     }
                   >
-                    <option value="">Без тематики</option>
-                    <option value="MALE">Мужская</option>
-                    <option value="FEMALE">Женская</option>
-                  </select>
+                    <SelectTrigger aria-label={`Тематика: ${holiday.name}`} className="h-9 w-auto">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Без тематики</SelectItem>
+                      <SelectItem value="MALE">Мужская</SelectItem>
+                      <SelectItem value="FEMALE">Женская</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 {holiday.rule.kind === "FIXED" ? (
                   <div className="mt-2 flex gap-2">
@@ -236,17 +250,15 @@ export function HolidayCatalog() {
                   </div>
                 )}
               </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
+              <label className="flex min-h-11 cursor-pointer items-center gap-2.5 text-sm">
+                <Switch
                   checked={holiday.enabled}
                   onChange={(event) => void patch(holiday.id, { enabled: event.target.checked })}
                 />
                 Включён
               </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
+              <label className="flex min-h-11 cursor-pointer items-center gap-2.5 text-sm">
+                <Switch
                   checked={holiday.remindersEnabled}
                   onChange={(event) =>
                     void patch(holiday.id, {

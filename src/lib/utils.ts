@@ -6,6 +6,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Заглавная только у первой буквы строки.
+ *
+ * CSS-класс `capitalize` поднимает регистр у каждого слова, поэтому
+ * `toLocaleDateString` в русской локали превращался в «Август 2026 Г.» —
+ * сокращение «г.» получало заглавную букву. Здесь регистр меняется один раз
+ * и с учётом локали.
+ */
+export function capitalizeFirst(value: string, locale?: string): string {
+  if (!value) return value;
+  const [first, ...rest] = Array.from(value);
+  return first.toLocaleUpperCase(locale) + rest.join("");
+}
+
 export function formatPrice(
   price: number,
   currency: string = "RUB",

@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { useI18n } from "@/components/i18n/language-provider";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
+import { ProductCategoryIcon } from "@/lib/category-icons";
 
 interface ItemFormDialogProps {
   open: boolean;
@@ -449,7 +450,13 @@ export function ItemFormDialog({
                           <SelectItem value="none">{t("Без категории")}</SelectItem>
                           {PRODUCT_CATEGORIES.map((option) => (
                             <SelectItem key={option.id} value={option.id}>
-                              {option.icon} {language === "en" ? option.labelEn : option.label}
+                              <span className="inline-flex items-center gap-2">
+                                <ProductCategoryIcon
+                                  category={option.id}
+                                  className="size-4 shrink-0 text-muted-foreground/75"
+                                />
+                                {language === "en" ? option.labelEn : option.label}
+                              </span>
                             </SelectItem>
                           ))}
                         </SelectContent>

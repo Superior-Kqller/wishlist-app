@@ -137,7 +137,7 @@ export default function SettingsPage() {
 
   return (
     <PageShell>
-      <PageMain className="max-w-5xl">
+      <PageMain>
         <div className="space-y-4">
           <PageIntro
             title={t("Настройки")}
@@ -158,19 +158,15 @@ export default function SettingsPage() {
                 </span>
               </div>
             }
-            className="sm:px-5"
           />
 
           <Tabs
             defaultValue="profile"
-            className="grid gap-4 lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:items-start"
+            className="grid gap-5 lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-start lg:gap-8"
           >
             <TabsList
               aria-label={t("Разделы настроек")}
-              className={cn(
-                uiSurface.contentPanel,
-                "grid h-auto grid-cols-3 gap-1 bg-transparent p-1.5 lg:sticky lg:top-6 lg:flex lg:flex-col lg:items-stretch",
-              )}
+              className="grid h-auto grid-cols-3 gap-1 rounded-xl border border-border/50 bg-[hsl(var(--surface-2)/0.6)] p-1.5 lg:sticky lg:top-6 lg:flex lg:flex-col lg:items-stretch"
             >
               <TabsTrigger
                 value="profile"

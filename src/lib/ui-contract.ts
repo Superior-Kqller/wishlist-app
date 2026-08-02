@@ -10,13 +10,11 @@
  * - status: badge/marker/control states only.
  * - neutral: all base surfaces.
  */
-export const uiLayout = {
-  catalogCanvas:
-    "w-full space-y-2.5 px-2.5 py-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] sm:space-y-5 sm:px-5 sm:py-5 sm:pb-6 xl:px-6 2xl:px-8",
-  workspaceCanvas:
-    "w-full max-w-none px-3 py-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:px-5 sm:py-5 lg:py-6 xl:px-6 2xl:px-8",
-} as const;
-
+/**
+ * Ширина и отступы страницы живут в `PageMain` (`components/ui/page-shell`),
+ * а не в наборах утилит на каждый раздел: единая рамка — это то, что делает
+ * переходы между разделами непрерывными.
+ */
 export const uiSurface = {
   shell: "min-h-screen bg-[hsl(var(--background))] text-foreground",
   sidebar:

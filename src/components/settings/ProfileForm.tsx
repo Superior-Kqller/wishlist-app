@@ -5,6 +5,15 @@ import useSWR, { mutate as mutateCache } from "swr";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CalendarDays, Camera, Loader2, Send, UserRound, UsersRound } from "lucide-react";
 import { toast } from "sonner";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -276,16 +285,21 @@ export function ProfileForm({
 
             <div className="space-y-2">
               <Label htmlFor="profileGender">{t("Пол профиля")}</Label>
-              <select
-                id="profileGender"
-                value={gender}
-                onChange={(event) => setGender(event.target.value as ProfileGender | "")}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              <Select
+                value={gender === "" ? "none" : gender}
+                onValueChange={(value) =>
+                  setGender(value === "none" ? "" : (value as ProfileGender))
+                }
               >
-                <option value="">{t("Не указан")}</option>
-                <option value="MALE">{t("Мужской")}</option>
-                <option value="FEMALE">{t("Женский")}</option>
-              </select>
+                <SelectTrigger id="profileGender">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{t("Не указан")}</SelectItem>
+                  <SelectItem value="MALE">{t("Мужской")}</SelectItem>
+                  <SelectItem value="FEMALE">{t("Женский")}</SelectItem>
+                </SelectContent>
+              </Select>
               <p className="text-xs text-muted-foreground">
                 {t("Значение видно только вам и не отображается в чужом профиле.")}
               </p>
@@ -302,9 +316,8 @@ export function ProfileForm({
                   )}
                 </span>
               </span>
-              <input
-                type="checkbox"
-                className="mt-1 size-4 shrink-0 accent-primary"
+              <Switch
+                className="mt-1"
                 checked={thematicHolidayConsent}
                 onChange={(event) => setThematicHolidayConsent(event.target.checked)}
               />
@@ -322,12 +335,10 @@ export function ProfileForm({
                   {t("Год и возраст видны только вам")}
                 </p>
               </div>
-              <input
-                type="checkbox"
+              <Switch
                 checked={birthdayEnabled}
                 onChange={(event) => setBirthdayEnabled(event.target.checked)}
                 aria-label={t("Добавить день рождения")}
-                className="mt-1 size-4 accent-primary"
               />
             </div>
 
@@ -372,18 +383,19 @@ export function ProfileForm({
 
                 <div className="space-y-2">
                   <Label htmlFor="birthdayAudience">{t("Кто видит событие")}</Label>
-                  <select
-                    id="birthdayAudience"
+                  <Select
                     value={birthdayAudience}
-                    onChange={(event) =>
-                      setBirthdayAudience(event.target.value as BirthdayAudience)
-                    }
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    onValueChange={(value) => setBirthdayAudience(value as BirthdayAudience)}
                   >
-                    <option value="ALL">{t("Все пользователи")}</option>
-                    <option value="SELECTED">{t("Выбранные пользователи")}</option>
-                    <option value="PRIVATE">{t("Только я")}</option>
-                  </select>
+                    <SelectTrigger id="birthdayAudience">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALL">{t("Все пользователи")}</SelectItem>
+                      <SelectItem value="SELECTED">{t("Выбранные пользователи")}</SelectItem>
+                      <SelectItem value="PRIVATE">{t("Только я")}</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {birthdayAudience === "SELECTED" ? (
@@ -397,8 +409,7 @@ export function ProfileForm({
                           key={user.id}
                           className="flex min-h-10 cursor-pointer items-center gap-2 rounded-md px-2 hover:bg-accent/45"
                         >
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={selectedViewerIds.includes(user.id)}
                             onChange={(event) =>
                               setSelectedViewerIds((current) =>
@@ -407,7 +418,6 @@ export function ProfileForm({
                                   : current.filter((id) => id !== user.id),
                               )
                             }
-                            className="size-4 accent-primary"
                           />
                           <UserAvatar
                             avatarUrl={user.avatarUrl}
@@ -462,15 +472,9 @@ export function ProfileForm({
                   {t("Получать уведомления в подключённом чате")}
                 </span>
               </span>
-              <input
-                type="checkbox"
-                className="peer sr-only"
+              <Switch
                 checked={telegramNotificationsEnabled}
                 onChange={(e) => setTelegramNotificationsEnabled(e.target.checked)}
-              />
-              <span
-                aria-hidden
-                className="relative h-6 w-11 shrink-0 rounded-full border border-border/70 bg-muted transition-colors after:absolute after:left-0.5 after:top-0.5 after:size-5 after:rounded-full after:bg-foreground/75 after:shadow-sm after:transition-transform peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-checked:border-primary/50 peer-checked:bg-primary/70 peer-checked:after:translate-x-5 peer-checked:after:bg-primary-foreground"
               />
             </label>
             <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.36)] px-3.5 py-2.5">
@@ -480,9 +484,7 @@ export function ProfileForm({
                   {t("Получать в Telegram напоминания о доступных событиях")}
                 </span>
               </span>
-              <input
-                type="checkbox"
-                className="size-4 shrink-0 accent-primary"
+              <Switch
                 checked={calendarNotificationsEnabled}
                 onChange={(event) => setCalendarNotificationsEnabled(event.target.checked)}
               />
