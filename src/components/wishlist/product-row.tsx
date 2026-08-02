@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, type KeyboardEvent, useState } from "react";
+import { memo, useState } from "react";
 import Image from "next/image";
 import { Check, ExternalLink, Globe2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -70,14 +70,6 @@ export const ProductRow = memo(function ProductRow({
     onOpenDetail?.(item);
   };
 
-  const handleRowKeyDown = (event: KeyboardEvent<HTMLTableRowElement>) => {
-    if (!isInteractive) return;
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      handleRowClick();
-    }
-  };
-
   const handleMarkPurchased = () => {
     if (onSetStatus) {
       onSetStatus(item.id, item.status === "PURCHASED" ? "AVAILABLE" : "PURCHASED");
@@ -91,14 +83,11 @@ export const ProductRow = memo(function ProductRow({
       data-testid="wishlist-product-row"
       className={cn(
         "group/row outline-none",
-        isInteractive &&
-          "cursor-pointer focus-visible:bg-muted/45 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+        isInteractive && "cursor-pointer",
         isSelected && "bg-primary/10",
         isBought && "opacity-55",
       )}
-      tabIndex={isInteractive ? 0 : undefined}
       onClick={isInteractive ? handleRowClick : undefined}
-      onKeyDown={handleRowKeyDown}
     >
       <TableCell className="min-w-[22rem]">
         <div className="flex min-w-0 items-center gap-3">
@@ -120,14 +109,31 @@ export const ProductRow = memo(function ProductRow({
             )}
           </div>
           <div className="min-w-0">
-            <p
-              className={cn(
-                "line-clamp-1 text-sm font-semibold text-foreground",
-                isBought && "line-through",
-              )}
-            >
-              {item.title}
-            </p>
+            {isInteractive ? (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleRowClick();
+                }}
+                className={cn(
+                  "line-clamp-1 rounded-sm text-left text-sm font-semibold text-foreground outline-none",
+                  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                  isBought && "line-through",
+                )}
+              >
+                {item.title}
+              </button>
+            ) : (
+              <p
+                className={cn(
+                  "line-clamp-1 text-sm font-semibold text-foreground",
+                  isBought && "line-through",
+                )}
+              >
+                {item.title}
+              </p>
+            )}
             {item.url ? (
               <a
                 href={item.url}
