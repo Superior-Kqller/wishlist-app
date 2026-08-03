@@ -25,6 +25,16 @@ public/uploads/
 docs/
 wishlist-brandbook.pdf
 
+# Локальные отчёты и артефакты Codex Security
+/security-report*.md
+/report.md
+/fix_report.md
+/findings.json
+/coverage.json
+/scan-manifest.json
+/results.sarif
+/artifacts/
+
 # Локальные материалы редизайна Impeccable
 /PRODUCT.md
 /.impeccable/
