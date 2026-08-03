@@ -41,6 +41,8 @@ async function sendMainMenu(chatId: string, text: string): Promise<void> {
   });
 }
 
+const PRIVATE_CHAT_ONLY_MESSAGE = "Команда доступна только в личном чате.";
+
 function formatMyItems(items: Array<{ id: string; title: string; status: ItemStatus }>): string {
   if (items.length === 0) {
     return "У вас пока нет подарков.";
@@ -285,6 +287,15 @@ async function handleCallback(actorUserId: string, callback: TelegramCallbackQue
   const chatId = callback.message?.chat?.id ? String(callback.message.chat.id) : null;
 
   if (data === "menu:mine") {
+    if (callback.message && callback.message.chat.type !== "private") {
+      await answerTelegramCallback({
+        callbackQueryId: callback.id,
+        text: PRIVATE_CHAT_ONLY_MESSAGE,
+        showAlert: true,
+      });
+      return;
+    }
+
     if (chatId) {
       await handleMyItems(actorUserId, chatId);
     }
@@ -293,6 +304,15 @@ async function handleCallback(actorUserId: string, callback: TelegramCallbackQue
   }
 
   if (data === "menu:available") {
+    if (callback.message && callback.message.chat.type !== "private") {
+      await answerTelegramCallback({
+        callbackQueryId: callback.id,
+        text: PRIVATE_CHAT_ONLY_MESSAGE,
+        showAlert: true,
+      });
+      return;
+    }
+
     if (chatId) {
       await handleAvailableItems(actorUserId, chatId);
     }
@@ -371,11 +391,27 @@ async function handleMessage(message: TelegramMessage): Promise<void> {
   }
 
   if (text === "/myitems") {
+    if (message.chat.type !== "private") {
+      await sendTelegramMessage({
+        chatId: String(message.chat.id),
+        text: PRIVATE_CHAT_ONLY_MESSAGE,
+      });
+      return;
+    }
+
     await handleMyItems(actor.id, String(message.chat.id));
     return;
   }
 
   if (text === "/available") {
+    if (message.chat.type !== "private") {
+      await sendTelegramMessage({
+        chatId: String(message.chat.id),
+        text: PRIVATE_CHAT_ONLY_MESSAGE,
+      });
+      return;
+    }
+
     await handleAvailableItems(actor.id, String(message.chat.id));
     return;
   }

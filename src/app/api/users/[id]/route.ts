@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { Prisma } from "@prisma/client";
 import { requireAdmin } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
@@ -18,6 +19,11 @@ const updateUserSchema = z.object({
 });
 
 const LAST_ADMIN_BLOCK = "LAST_ADMIN_BLOCK";
+const ADMIN_INVARIANT_LOCK = "wishlist.admin.invariant";
+
+async function lockAdminInvariant(tx: Prisma.TransactionClient): Promise<void> {
+  await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${ADMIN_INVARIANT_LOCK}))`;
+}
 
 function adminAuthErrorResponse(err: unknown) {
   const message = err instanceof Error ? err.message : "Forbidden";
@@ -154,6 +160,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     const user = await prisma.$transaction(async (tx) => {
       if (updateData.role === "USER") {
+        await lockAdminInvariant(tx);
+
         const currentUser = await tx.user.findUnique({
           where: { id },
           select: { role: true },
@@ -224,6 +232,9 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   try {
     await prisma.$transaction(async (tx) => {
+      // PostgreSQL/PGlite advisory lock makes the role/count check and delete one serialized boundary.
+      await lockAdminInvariant(tx);
+
       const user = await tx.user.findUnique({
         where: { id },
         select: { role: true },

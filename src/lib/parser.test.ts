@@ -17,6 +17,52 @@ import {
 
 const mockResolve4 = dns.resolve4 as ReturnType<typeof vi.fn>;
 const mockResolve6 = dns.resolve6 as ReturnType<typeof vi.fn>;
+const MAX_RESPONSE_BYTES = 5 * 1024 * 1024;
+
+function createStreamingResponse(
+  chunks: Uint8Array[],
+  headers: Record<string, string> = {},
+): {
+  response: Response;
+  enqueuedChunks: () => number;
+  cancelled: () => boolean;
+  pullsAfterCancel: () => number;
+} {
+  let nextChunk = 0;
+  let enqueuedChunkCount = 0;
+  let wasCancelled = false;
+  let pullCountAfterCancel = 0;
+
+  const body = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      if (wasCancelled) {
+        pullCountAfterCancel += 1;
+        return;
+      }
+      if (nextChunk >= chunks.length) {
+        return new Promise<void>((resolve) => {
+          setTimeout(() => {
+            if (!wasCancelled) controller.close();
+            resolve();
+          }, 0);
+        });
+      }
+      controller.enqueue(chunks[nextChunk]);
+      nextChunk += 1;
+      enqueuedChunkCount += 1;
+    },
+    cancel() {
+      wasCancelled = true;
+    },
+  });
+
+  return {
+    response: new Response(body, { status: 200, headers }),
+    enqueuedChunks: () => enqueuedChunkCount,
+    cancelled: () => wasCancelled,
+    pullsAfterCancel: () => pullCountAfterCancel,
+  };
+}
 
 beforeEach(() => {
   mockResolve4.mockReset();
@@ -52,6 +98,20 @@ describe("validateAndResolveUrl", () => {
     await expect(validateAndResolveUrl("http://172.16.0.1")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
+  });
+
+  it("отклоняет IPv4-mapped loopback в сжатой и полной IPv6 записи", async () => {
+    await expect(validateAndResolveUrl("http://[::ffff:7f00:1]")).rejects.toThrow(
+      "Internal URLs are not allowed",
+    );
+    await expect(validateAndResolveUrl("http://[0:0:0:0:0:ffff:7f00:1]")).rejects.toThrow(
+      "Internal URLs are not allowed",
+    );
+  });
+
+  it("пропускает публичные IPv4-mapped и IPv6 адреса", async () => {
+    await expect(validateAndResolveUrl("https://[::ffff:5db8:d822]")).resolves.toBeUndefined();
+    await expect(validateAndResolveUrl("https://[2001:4860:4860::8888]")).resolves.toBeUndefined();
   });
 
   it("отклоняет localhost", async () => {
@@ -144,6 +204,30 @@ describe("resolveCanonicalProductUrl", () => {
 
     const resolved = await resolveCanonicalProductUrl("https://shop.example.com/short");
     expect(resolved).toBe("https://shop.example.com/product/final");
+
+    fetchSpy.mockRestore();
+  });
+
+  it("блокирует редирект на IPv4-mapped loopback до сетевого запроса", async () => {
+    mockResolve4.mockResolvedValue(["93.184.216.34"]);
+    mockResolve6.mockRejectedValue(new Error("no"));
+
+    let headCalls = 0;
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+      headCalls += 1;
+      if (headCalls === 1) {
+        return new Response(null, {
+          status: 302,
+          headers: { location: "http://[::ffff:7f00:1]/internal" },
+        });
+      }
+      return new Response(null, { status: 200 });
+    });
+
+    await expect(resolveCanonicalProductUrl("https://shop.example.com/short")).rejects.toThrow(
+      "Internal URLs are not allowed",
+    );
+    expect(headCalls).toBe(1);
 
     fetchSpy.mockRestore();
   });
@@ -443,6 +527,117 @@ describe("parseProductUrl — Generic", () => {
     expect(result.title).toBe("JSON-LD Product");
     expect(result.price).toBe(1299);
     expect(result.currency).toBe("USD");
+
+    fetchSpy.mockRestore();
+  });
+
+  it("отменяет поток сразу после превышения лимита даже при ложном content-length", async () => {
+    mockResolve4.mockResolvedValue(["93.184.216.34"]);
+    mockResolve6.mockRejectedValue(new Error("no"));
+
+    const encoder = new TextEncoder();
+    const prefix = encoder.encode(
+      '<html><head><meta property="og:title" content="Слишком большая страница" /></head><body>',
+    );
+    const withinLimit = new Uint8Array(MAX_RESPONSE_BYTES - prefix.byteLength);
+    withinLimit.fill(0x20);
+    const overflow = new Uint8Array([0x20]);
+    const streamed = createStreamingResponse([prefix, withinLimit, overflow], {
+      "content-length": "1",
+      "content-type": "text/html; charset=utf-8",
+    });
+
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      return streamed.response;
+    });
+
+    await expect(parseProductUrl("https://example.com/streamed-too-large")).rejects.toThrow(
+      "Page too large to parse",
+    );
+    expect(streamed.cancelled()).toBe(true);
+    expect(streamed.enqueuedChunks()).toBe(3);
+    expect(streamed.pullsAfterCancel()).toBe(0);
+
+    fetchSpy.mockRestore();
+  });
+
+  it.each([
+    {
+      name: "одним большим chunk",
+      chunks: () => [new Uint8Array(MAX_RESPONSE_BYTES + 1)],
+      expectedChunks: 1,
+    },
+    {
+      name: "на границе лимита",
+      chunks: () => [new Uint8Array(MAX_RESPONSE_BYTES - 1), new Uint8Array(2)],
+      expectedChunks: 2,
+    },
+  ])("останавливает чтение для варианта $name", async ({ chunks, expectedChunks }) => {
+    mockResolve4.mockResolvedValue(["93.184.216.34"]);
+    mockResolve6.mockRejectedValue(new Error("no"));
+
+    const streamed = createStreamingResponse(chunks(), {
+      "content-length": "2",
+      "content-type": "text/html",
+    });
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      return streamed.response;
+    });
+
+    await expect(parseProductUrl("https://example.com/streamed-boundary")).rejects.toThrow(
+      "Page too large to parse",
+    );
+    expect(streamed.cancelled()).toBe(true);
+    expect(streamed.enqueuedChunks()).toBe(expectedChunks);
+    expect(streamed.pullsAfterCancel()).toBe(0);
+
+    fetchSpy.mockRestore();
+  });
+
+  it("сохраняет небольшое и ровно предельное HTML-тело с UTF-8", async () => {
+    mockResolve4.mockResolvedValue(["93.184.216.34"]);
+    mockResolve6.mockRejectedValue(new Error("no"));
+
+    const encoder = new TextEncoder();
+    const small = createStreamingResponse(
+      [
+        encoder.encode(
+          '<html><head><meta property="og:title" content="Небольшая UTF-8 страница" /></head>',
+        ),
+        encoder.encode("<body></body></html>"),
+      ],
+      { "content-length": "1", "content-type": "text/html; charset=utf-8" },
+    );
+    const exactPrefix = encoder.encode(
+      '<html><head><meta property="og:title" content="Ровно пять MiB" /></head><body>',
+    );
+    const exactFiller = new Uint8Array(MAX_RESPONSE_BYTES - exactPrefix.byteLength);
+    exactFiller.fill(0x20);
+    const exact = createStreamingResponse([exactPrefix, exactFiller], {
+      "content-length": String(MAX_RESPONSE_BYTES),
+      "content-type": "text/html; charset=utf-8",
+    });
+
+    let getCount = 0;
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_input, init) => {
+      if (init?.method === "HEAD") {
+        return new Response(null, { status: 200 });
+      }
+      getCount += 1;
+      return getCount === 1 ? small.response : exact.response;
+    });
+
+    const smallResult = await parseProductUrl("https://example.com/streamed-small");
+    expect(smallResult.title).toBe("Небольшая UTF-8 страница");
+
+    const exactResult = await parseProductUrl("https://example.com/streamed-exact-limit");
+    expect(exactResult.title).toBe("Ровно пять MiB");
 
     fetchSpy.mockRestore();
   });

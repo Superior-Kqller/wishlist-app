@@ -32,6 +32,58 @@ const JSON_HEADERS: Record<string, string> = {
 
 // --- SSRF protection ---
 
+function parseIPv6Hextets(ip: string): number[] | null {
+  const sections = ip.toLowerCase().split("::");
+  if (sections.length > 2) return null;
+
+  const parseSection = (section: string): number[] | null => {
+    if (!section) return [];
+
+    const parts = section.split(":");
+    const values: number[] = [];
+    for (const [index, part] of parts.entries()) {
+      if (part.includes(".")) {
+        if (index !== parts.length - 1 || !net.isIPv4(part)) return null;
+        const octets = part.split(".").map(Number);
+        values.push((octets[0] << 8) | octets[1], (octets[2] << 8) | octets[3]);
+        continue;
+      }
+
+      if (!/^[0-9a-f]{1,4}$/.test(part)) return null;
+      values.push(Number.parseInt(part, 16));
+    }
+    return values;
+  };
+
+  const left = parseSection(sections[0]);
+  const right = sections.length === 2 ? parseSection(sections[1]) : [];
+  if (!left || !right) return null;
+
+  if (sections.length === 2) {
+    const missing = 8 - left.length - right.length;
+    if (missing < 1) return null;
+    return [...left, ...Array.from({ length: missing }, () => 0), ...right];
+  }
+
+  return left.length === 8 ? left : null;
+}
+
+function extractMappedIPv4(ip: string): string | null {
+  const hextets = parseIPv6Hextets(ip);
+  if (
+    !hextets ||
+    hextets.length !== 8 ||
+    hextets.slice(0, 5).some((hextet) => hextet !== 0) ||
+    hextets[5] !== 0xffff
+  ) {
+    return null;
+  }
+
+  const high = hextets[6];
+  const low = hextets[7];
+  return `${high >> 8}.${high & 0xff}.${low >> 8}.${low & 0xff}`;
+}
+
 function isPrivateIP(ip: string): boolean {
   if (net.isIPv4(ip)) {
     const parts = ip.split(".").map(Number);
@@ -61,10 +113,8 @@ function isPrivateIP(ip: string): boolean {
     if (lower === "::1" || lower === "::") return true;
     if (lower.startsWith("fe80:")) return true;
     if (lower.startsWith("fc") || lower.startsWith("fd")) return true;
-    if (lower.startsWith("::ffff:")) {
-      const v4 = lower.slice(7);
-      if (net.isIPv4(v4)) return isPrivateIP(v4);
-    }
+    const mappedIPv4 = extractMappedIPv4(lower);
+    if (mappedIPv4) return isPrivateIP(mappedIPv4);
     return false;
   }
   return false;
@@ -798,6 +848,42 @@ export async function resolveCanonicalProductUrl(url: string): Promise<string> {
 
 // --- Fetch HTML helper ---
 
+const MAX_RESPONSE_BYTES = 5 * 1024 * 1024;
+
+async function readResponseTextWithLimit(response: Response): Promise<string> {
+  if (!response.body) return "";
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = value;
+      if (totalBytes + chunk.byteLength > MAX_RESPONSE_BYTES) {
+        await reader.cancel().catch(() => undefined);
+        throw new Error("Page too large to parse");
+      }
+
+      chunks.push(chunk);
+      totalBytes += chunk.byteLength;
+    }
+
+    const bytes = new Uint8Array(totalBytes);
+    let offset = 0;
+    for (const chunk of chunks) {
+      bytes.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    return new TextDecoder().decode(bytes);
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 async function fetchWithSafeRedirects(
   url: string,
   init: RequestInit,
@@ -844,15 +930,15 @@ async function fetchHtml(url: string): Promise<string> {
 
   const contentLength = response.headers.get("content-length");
   const size = contentLength ? Number(contentLength) : NaN;
-  if (Number.isFinite(size) && size > 5 * 1024 * 1024) {
+  if (Number.isFinite(size) && size > MAX_RESPONSE_BYTES) {
     await discardResponseBody(response);
     await close();
     throw new Error("Page too large to parse");
   }
 
   try {
-    const html = await response.text();
-    if (html.length > 5 * 1024 * 1024) {
+    const html = await readResponseTextWithLimit(response);
+    if (html.length > MAX_RESPONSE_BYTES) {
       throw new Error("Page too large to parse");
     }
 
