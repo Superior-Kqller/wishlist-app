@@ -161,7 +161,11 @@ export function WishlistWorkspace({
       ? t("Отменить выбор")
       : t("Выбрать карточки");
   return (
-    <>
+    // Вертикальный ритм принадлежит рабочей области, а не странице: у неё
+    // несколько соседних блоков подряд (панель инструментов, подсказки
+    // профиля, режим выбора, сетка), и расстояние между ними не должно
+    // зависеть от того, кто её отрисовал.
+    <div className="flex min-w-0 flex-col gap-3 sm:gap-5">
       <div
         className={`${uiSurface.homeToolbar} overflow-hidden max-sm:rounded-xl max-sm:px-2 max-sm:py-2`}
       >
@@ -453,7 +457,7 @@ export function WishlistWorkspace({
         }
       />
 
-      <div ref={sentinelRef} className="flex justify-center py-4 sm:py-6">
+      <div ref={sentinelRef} className="flex justify-center">
         {isLoadingMore ? <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /> : null}
         {!isLoadingMore && hasMore ? (
           <Button variant="outline" onClick={() => setSize(size + 1)}>
@@ -461,6 +465,6 @@ export function WishlistWorkspace({
           </Button>
         ) : null}
       </div>
-    </>
+    </div>
   );
 }
