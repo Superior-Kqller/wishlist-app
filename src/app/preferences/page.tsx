@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import useSWR, { mutate as mutateCache } from "swr";
@@ -35,6 +35,7 @@ import {
   PreferenceChipPicker,
   type PreferenceSuggestion,
 } from "@/components/preferences/preference-chip-picker";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
 import { PreferenceProfileControls } from "@/components/preferences/preference-profile-controls";
 import { PreferenceProfileCard } from "@/components/preferences/preference-profile-card";
@@ -486,6 +487,8 @@ function PreferencesPageSkeleton() {
   );
 }
 
+const DRAFT_STORAGE_PREFIX = "wishlist:gift-preferences-draft:";
+
 export default function PreferencesPage() {
   const { t } = useI18n();
   const router = useRouter();
@@ -498,7 +501,6 @@ export default function PreferencesPage() {
   );
   const {
     data: circleData,
-    isLoading: isCircleLoading,
     error: circleError,
     mutate: mutateCircle,
   } = useSWR<CircleUsersResponse>(status === "authenticated" ? "/api/users/stats" : null, fetcher, {
@@ -511,21 +513,61 @@ export default function PreferencesPage() {
   const [draft, setDraft] = useState<GiftPreferences>(emptyGiftPreferences);
   const [activeSection, setActiveSection] = useState<EditorSection>("likes");
   const [profileFilter, setProfileFilter] = useState<PreferenceProfileFilter>("all");
-  const [profileSort, setProfileSort] = useState<PreferenceProfileSort>("filled");
+  // По имени, а не «по заполненности»: сортировка по откровенности анкеты
+  // превращает круг близких людей в таблицу лидеров.
+  const [profileSort, setProfileSort] = useState<PreferenceProfileSort>("name");
   const [profileSearch, setProfileSearch] = useState("");
   const [saving, setSaving] = useState(false);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
+
+  const draftStorageKey = data?.id ? `${DRAFT_STORAGE_PREFIX}${data.id}` : null;
+
+  const clearStoredDraft = useCallback(() => {
+    if (!draftStorageKey) return;
+    try {
+      window.sessionStorage.removeItem(draftStorageKey);
+    } catch {
+      /* приватный режим — переживём без черновика */
+    }
+  }, [draftStorageKey]);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
   }, [router, status]);
 
+  // Восстановление важнее инициализации: если в этой сессии остался черновик,
+  // он побеждает сохранённые значения — иначе перезагрузка страницы посреди
+  // заполнения молча стёрла бы работу.
   useEffect(() => {
-    if (data) setDraft(preferences);
-  }, [data, preferences]);
+    if (!data || !draftStorageKey) return;
+    try {
+      const stored = window.sessionStorage.getItem(draftStorageKey);
+      if (stored) {
+        setDraft(normalizeGiftPreferences(JSON.parse(stored)));
+        return;
+      }
+    } catch {
+      /* повреждённый черновик игнорируем */
+    }
+    setDraft(preferences);
+  }, [data, draftStorageKey, preferences]);
 
   const hasChanges = JSON.stringify(draft) !== JSON.stringify(preferences);
+
+  useEffect(() => {
+    if (!draftStorageKey) return;
+    try {
+      if (hasChanges) {
+        window.sessionStorage.setItem(draftStorageKey, JSON.stringify(draft));
+      } else {
+        window.sessionStorage.removeItem(draftStorageKey);
+      }
+    } catch {
+      /* приватный режим — переживём без черновика */
+    }
+  }, [draft, draftStorageKey, hasChanges]);
   const preferenceCount = countGiftPreferences(draft);
   const allCircleUsers = useMemo(() => {
     if (!data) return circleData?.users ?? [];
@@ -535,12 +577,15 @@ export default function PreferencesPage() {
       username: data.username,
       name: data.name,
       avatarUrl: data.avatarUrl,
-      giftPreferences: draft,
+      // Пока редактор открыт — показываем черновик, чтобы правки были видны
+      // сразу. Как только он закрыт, карточка обязана говорить правду о том,
+      // что реально сохранено.
+      giftPreferences: editorOpen ? draft : preferences,
       stats: currentFromCircle?.stats ?? { totalItems: data._count?.items ?? 0 },
     };
 
     return [currentUser, ...(circleData?.users.filter((user) => user.id !== data.id) ?? [])];
-  }, [circleData?.users, data, draft]);
+  }, [circleData?.users, data, draft, editorOpen, preferences]);
   const circleUsers = useMemo(
     () =>
       filterAndSortPreferenceProfiles(allCircleUsers, {
@@ -610,6 +655,7 @@ export default function PreferencesPage() {
       await mutate();
       await mutateCache("/api/users/stats");
       await mutateCircle();
+      clearStoredDraft();
       setEditorOpen(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("Не удалось сохранить предпочтения"));
@@ -629,7 +675,35 @@ export default function PreferencesPage() {
     setEditorOpen(true);
   };
 
-  if (status === "loading" || isLoading || isCircleLoading) return <PreferencesPageSkeleton />;
+  /**
+   * Закрытие редактора с несохранёнными правками.
+   *
+   * Раньше Esc и клик по фону закрывали окно молча, при этом `draft` оставался
+   * в состоянии и карточка продолжала показывать несохранённое как сохранённое.
+   * Человек видел свои ответы на месте и терял их при следующей загрузке.
+   */
+  const requestCloseEditor = (open: boolean) => {
+    if (open) {
+      setEditorOpen(true);
+      return;
+    }
+    if (hasChanges) {
+      setDiscardOpen(true);
+      return;
+    }
+    setEditorOpen(false);
+  };
+
+  const discardDraft = () => {
+    setDraft(preferences);
+    clearStoredDraft();
+    setDiscardOpen(false);
+    setEditorOpen(false);
+  };
+
+  // Свой профиль не ждёт загрузки всего круга: падение /api/users/stats
+  // раньше держало пустой скелет, хотя собственные данные уже пришли.
+  if (status === "loading" || isLoading) return <PreferencesPageSkeleton />;
 
   return (
     <PageShell>
@@ -771,7 +845,7 @@ export default function PreferencesPage() {
                 </div>
               )}
 
-              <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
+              <Dialog open={editorOpen} onOpenChange={requestCloseEditor}>
                 <DialogContent
                   className="max-w-[min(86rem,calc(100vw-1rem))]"
                   bodyClassName="gap-5 p-4 sm:p-5"
@@ -1041,6 +1115,22 @@ export default function PreferencesPage() {
                   </div>
                 </DialogContent>
               </Dialog>
+
+              {/*
+               * Третьего исхода «продолжить редактирование» тут не нужно:
+               * отмена диалога и есть возврат в редактор с сохранёнными в
+               * состоянии правками.
+               */}
+              <ConfirmDialog
+                open={discardOpen}
+                onOpenChange={setDiscardOpen}
+                title={t("Закрыть без сохранения?")}
+                description={t("Заполненные подсказки не сохранятся.")}
+                confirmLabel={t("Отменить правки")}
+                cancelLabel={t("Продолжить редактирование")}
+                variant="destructive"
+                onConfirm={discardDraft}
+              />
             </section>
           )}
         </div>

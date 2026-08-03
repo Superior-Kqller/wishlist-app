@@ -2,7 +2,7 @@ import type { ListWithMeta, UserWithStats } from "@/types";
 import { resolveUserScope } from "@/lib/filter-state";
 
 /**
- * Подборки, доступные в селекте при текущем выборе пользователя (как на десктопе в CombinedFilter).
+ * Подборки, доступные в селекте при текущем выборе пользователя (как в переключателе контекста и в панели фильтров).
  */
 export function filterListsBySelectedUser(
   lists: ListWithMeta[],

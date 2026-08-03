@@ -88,7 +88,7 @@ export function FiltersDrawer({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        id="mobile-filter-drawer"
+        id="wishlist-filters"
         className="dialog-modal-surface bottom-0 left-0 top-auto max-h-[92dvh] min-h-0 w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl border border-border bg-popover/95 p-0 backdrop-blur-[18px] sm:bottom-auto sm:left-[50%] sm:top-[50%] sm:max-h-[min(88dvh,48rem)] sm:w-[min(95vw,calc(100vw-1rem))] sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl"
         bodyClassName="flex min-h-0 flex-1 flex-col gap-0 overflow-hidden p-0"
       >

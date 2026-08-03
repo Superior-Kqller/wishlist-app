@@ -5,6 +5,7 @@ import {
   CheckSquare,
   Download,
   Loader2,
+  Link as LinkIcon,
   MoreHorizontal,
   Plus,
   SlidersHorizontal,
@@ -17,12 +18,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WishlistGrid } from "@/components/WishlistGrid";
-import { WishlistSearchInput, WishlistToolbarControls } from "@/components/SearchAndFilter";
-import { CategoryFilter } from "@/components/CategoryFilter";
-import { CombinedFilter } from "@/components/CombinedFilter";
+import { WishlistSearchInput } from "@/components/SearchAndFilter";
 import { FiltersDrawer } from "@/components/FiltersDrawer";
 import {
   WishlistViewToggle,
@@ -32,6 +32,7 @@ import {
   ActiveFilterChips,
   type ActiveFilterChip,
 } from "@/components/wishlist/active-filter-chips";
+import { WishlistScopePicker } from "@/components/wishlist/wishlist-scope-picker";
 import { uiSurface } from "@/lib/ui-contract";
 import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
 import type { ListWithMeta, UserWithStats, WishlistItem } from "@/types";
@@ -45,8 +46,10 @@ type WishlistWorkspaceProps = {
   hasActiveFilters: boolean;
   activeFilterCount: number;
   activeFilterChips: ActiveFilterChip[];
-  mobileFiltersOpen: boolean;
-  onMobileFiltersOpenChange: (open: boolean) => void;
+  filtersOpen: boolean;
+  onFiltersOpenChange: (open: boolean) => void;
+  /** Открывает диалог разбора ссылки на товар. */
+  onParseUrl?: () => void;
   currentUserId?: string;
   currentUserRole?: "ADMIN" | "USER" | null;
   usersWithStats: UserWithStats[];
@@ -103,8 +106,9 @@ export function WishlistWorkspace({
   hasActiveFilters,
   activeFilterCount,
   activeFilterChips,
-  mobileFiltersOpen,
-  onMobileFiltersOpenChange,
+  filtersOpen,
+  onFiltersOpenChange,
+  onParseUrl,
   currentUserId,
   currentUserRole,
   usersWithStats,
@@ -172,10 +176,16 @@ export function WishlistWorkspace({
     // профиля, режим выбора, сетка), и расстояние между ними не должно
     // зависеть от того, кто её отрисовал.
     <div className="flex min-w-0 flex-col gap-3 sm:gap-5">
+      {/*
+       * Панель реагирует на собственную ширину, а не на ширину окна.
+       * Ширина контента здесь немонотонна: на 1023px сайдбара ещё нет и под
+       * контент остаётся ~975px, а на 1024px он появляется и остаётся ~712px.
+       * Любой viewport-брейкпоинт на этом ломается, container query — нет.
+       */}
       <div
-        className={`${uiSurface.homeToolbar} overflow-hidden max-sm:rounded-xl max-sm:px-2 max-sm:py-2`}
+        className={`@container ${uiSurface.homeToolbar} overflow-hidden @max-[52rem]:rounded-xl @max-[52rem]:px-2 @max-[52rem]:py-2`}
       >
-        <div className="flex min-w-0 items-center gap-2 sm:hidden">
+        <div className="flex min-w-0 items-center gap-2 @min-[52rem]:hidden">
           <SearchField
             value={search}
             onValueChange={onSearchChange}
@@ -194,10 +204,10 @@ export function WishlistWorkspace({
                 ? "border-primary/40 bg-primary/12 text-foreground"
                 : "border-border/58 bg-[hsl(var(--surface-3)/0.58)]",
             )}
-            onClick={() => onMobileFiltersOpenChange(true)}
+            onClick={() => onFiltersOpenChange(true)}
             title={t("Фильтры")}
-            aria-controls="mobile-filter-drawer"
-            aria-expanded={mobileFiltersOpen}
+            aria-controls="wishlist-filters"
+            aria-expanded={filtersOpen}
             aria-label={hasActiveFilters ? `${t("Фильтры")}: ${activeFilterCount}` : t("Фильтры")}
           >
             <SlidersHorizontal className="h-4 w-4 shrink-0" />
@@ -233,7 +243,16 @@ export function WishlistWorkspace({
                 <MoreHorizontal className="h-4 w-4 shrink-0" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuContent align="end" className="w-52">
+              {onParseUrl ? (
+                <>
+                  <DropdownMenuItem onClick={onParseUrl}>
+                    <LinkIcon className="mr-2 h-4 w-4" aria-hidden />
+                    {t("Вставить ссылку на товар")}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              ) : null}
               <DropdownMenuItem onClick={onImport} disabled={isImporting}>
                 {isImporting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -254,127 +273,137 @@ export function WishlistWorkspace({
           </DropdownMenu>
         </div>
 
-        <div className="hidden min-w-0 w-full flex-col gap-2.5 sm:flex">
-          <div className="relative">
-            <div className="grid min-w-0 gap-2 xl:grid-cols-[minmax(24rem,1fr)_auto] xl:items-center">
-              <WishlistSearchInput
-                search={search}
-                onSearchChange={onSearchChange}
-                className="min-w-0"
+        {/*
+         * Десктопный ярус — один. Раньше их было четыре (поиск, фильтры,
+         * категории, чипы), и между заголовком страницы и первой карточкой
+         * стояло до одиннадцати контролов. Порядок слева направо повторяет
+         * вопросы, которые человек задаёт по очереди: чей список → что ищу →
+         * чем сузить → как показать → добавить своё.
+         */}
+        <div className="hidden min-w-0 w-full flex-col gap-2.5 @min-[52rem]:flex">
+          <div className="flex min-w-0 items-center gap-2">
+            {currentUserId && usersWithStats.length > 0 ? (
+              <WishlistScopePicker
+                currentUserId={currentUserId}
+                users={usersWithStats}
+                lists={lists}
+                selectedUserId={normalizedSelectedUserId}
+                selectedListId={selectedListId}
+                onUserChange={onUserChange}
+                onListChange={onListChange}
+                onCreateList={onCreateList}
+                onEditList={onEditSelectedList}
+                className="shrink-0"
               />
+            ) : null}
+
+            <WishlistSearchInput
+              search={search}
+              onSearchChange={onSearchChange}
+              // Поиск больше не растягивается во всю ширину: в списке из
+              // десятков элементов он вторичен, а 22rem хватает на запрос
+              // из четырёх-пяти слов.
+              className="min-w-[11rem] max-w-[22rem] flex-1"
+            />
+
+            <div className="ml-auto flex shrink-0 items-center gap-2">
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
-                className={`${filterBarTriggerClass} h-12 gap-2 px-4 text-foreground`}
-                onClick={onAddItem}
+                className={cn(
+                  filterBarTriggerClass,
+                  "gap-2 px-3",
+                  hasActiveFilters
+                    ? "border-primary/45 bg-primary/12 text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+                onClick={() => onFiltersOpenChange(true)}
+                aria-controls="wishlist-filters"
+                aria-expanded={filtersOpen}
+                aria-label={
+                  hasActiveFilters ? `${t("Фильтры")}: ${activeFilterCount}` : t("Фильтры")
+                }
               >
-                <Plus className="h-4 w-4" />
+                <SlidersHorizontal className="h-4 w-4 shrink-0" aria-hidden />
+                {t("Фильтры")}
+                {hasActiveFilters ? (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground">
+                    {activeFilterCount}
+                  </span>
+                ) : null}
+              </Button>
+
+              <WishlistViewToggle value={viewMode} onValueChange={onViewModeChange} />
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={cn(
+                      filterBarTriggerClass,
+                      "w-10 px-0 text-muted-foreground hover:text-foreground",
+                      selectionMode && "border-primary/45 bg-primary/12 text-foreground",
+                    )}
+                    aria-label={t("Ещё действия")}
+                    title={t("Ещё действия")}
+                  >
+                    <MoreHorizontal className="h-4 w-4" aria-hidden />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                  <DropdownMenuItem onClick={onToggleSelectionMode} disabled={hasSelectedCards}>
+                    <CheckSquare className="mr-2 h-4 w-4" aria-hidden />
+                    {selectionMode ? t("Отменить выбор") : t("Выбрать несколько")}
+                  </DropdownMenuItem>
+                  {onParseUrl ? (
+                    <DropdownMenuItem onClick={onParseUrl}>
+                      <LinkIcon className="mr-2 h-4 w-4" aria-hidden />
+                      {t("Вставить ссылку на товар")}
+                    </DropdownMenuItem>
+                  ) : null}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={onImport} disabled={isImporting}>
+                    {isImporting ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+                    ) : (
+                      <Upload className="mr-2 h-4 w-4" aria-hidden />
+                    )}
+                    {t("Импорт JSON")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onExport("csv")}>
+                    <Download className="mr-2 h-4 w-4" aria-hidden />
+                    {t("Экспорт CSV")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onExport("json")}>
+                    <Download className="mr-2 h-4 w-4" aria-hidden />
+                    {t("Экспорт JSON")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Единственное залитое действие в панели — то, ради которого сюда приходят добавлять. */}
+              <Button type="button" className="h-10 min-w-[11.5rem] gap-2 px-4" onClick={onAddItem}>
+                <Plus className="h-4 w-4" aria-hidden />
                 {t("Добавить желание")}
               </Button>
             </div>
-
-            <div className="mt-2.5 flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border/32 pt-2.5">
-              <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                {currentUserId && usersWithStats.length > 0 ? (
-                  <CombinedFilter
-                    currentUserId={currentUserId}
-                    users={usersWithStats}
-                    lists={lists}
-                    selectedUserId={normalizedSelectedUserId}
-                    selectedListId={selectedListId}
-                    onUserChange={onUserChange}
-                    onListChange={onListChange}
-                    onCreateList={onCreateList}
-                    onEditList={onEditSelectedList}
-                  />
-                ) : null}
-                <WishlistToolbarControls
-                  sortBy={sortBy}
-                  onSortChange={onSortChange}
-                  showPurchased={showPurchased}
-                  onTogglePurchased={onTogglePurchasedVisibility}
-                  selectionMode={selectionMode}
-                  onToggleSelection={onToggleSelectionMode}
-                  showSelectionButton={false}
-                />
-                <WishlistViewToggle
-                  value={viewMode}
-                  onValueChange={onViewModeChange}
-                  // Виден везде, где видна сама панель. Раньше начинался с lg,
-                  // и на 768–1023px режим таблицы из URL продолжал работать,
-                  // а переключиться обратно было нечем.
-                  className="inline-flex"
-                />
-              </div>
-              <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className={`${filterBarTriggerClass} gap-2 px-3 text-muted-foreground hover:text-foreground ${
-                    selectionMode
-                      ? "border-primary/45 bg-[hsl(var(--surface-4)/0.86)] text-foreground disabled:pointer-events-none disabled:opacity-100"
-                      : ""
-                  }`}
-                  onClick={onToggleSelectionMode}
-                  disabled={hasSelectedCards}
-                  aria-label={hasSelectedCards ? t("Режим выбора") : undefined}
-                >
-                  <CheckSquare className="h-4 w-4 shrink-0" />
-                  {selectionMode ? t("Режим выбора") : t("Выбрать")}
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className={`${filterBarTriggerClass} gap-2 px-3 text-muted-foreground hover:text-foreground`}
-                    >
-                      <Download className="h-4 w-4" />
-                      {t("Импорт и экспорт")}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-44">
-                    <DropdownMenuItem onClick={onImport} disabled={isImporting}>
-                      {isImporting ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Upload className="mr-2 h-4 w-4" />
-                      )}
-                      {t("Импорт JSON")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onExport("csv")}>
-                      {t("Экспорт CSV")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onExport("json")}>
-                      {t("Экспорт JSON")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
           </div>
 
-          <CategoryFilter
-            categories={categoriesForFilters}
-            selectedCategories={effectiveSelectedCategories}
-            onToggleCategory={onToggleCategory}
-            onClearCategories={onClearCategories}
-            presentation="disclosure"
-          />
-
-          <ActiveFilterChips
-            chips={activeFilterChips}
-            onClearAll={onClearAllFilters}
-            className="border-t border-border/32 pt-2.5"
-          />
+          {/* Второй ярус существует только когда есть что показать. */}
+          {hasActiveFilters ? (
+            <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border/32 pt-2.5">
+              <ActiveFilterChips chips={activeFilterChips} onClearAll={onClearAllFilters} />
+              <span className="shrink-0 text-xs text-muted-foreground-subtle tabular-nums">
+                {t("Найдено")}: {filteredItems.length}
+              </span>
+            </div>
+          ) : null}
         </div>
 
         <FiltersDrawer
-          open={mobileFiltersOpen}
-          onOpenChange={onMobileFiltersOpenChange}
+          open={filtersOpen}
+          onOpenChange={onFiltersOpenChange}
           currentUserId={currentUserId}
           usersWithStats={usersWithStats}
           selectedUserId={normalizedSelectedUserId}

@@ -24,6 +24,8 @@ type PreferenceChipPickerProps = {
   onChange: (value: string[]) => void;
 };
 
+const SUGGESTION_PREVIEW_COUNT = 12;
+
 function normalizeKey(value: string) {
   return value.trim().toLocaleLowerCase("ru-RU");
 }
@@ -41,7 +43,22 @@ export function PreferenceChipPicker({
   const { t } = useI18n();
   const reduceMotion = useReducedMotion();
   const [customValue, setCustomValue] = useState("");
+  const [showAllSuggestions, setShowAllSuggestions] = useState(false);
   const selectedKeys = new Set(value.map(normalizeKey));
+
+  /*
+   * Подсказок в одном разделе набиралось до 28 на пикер и до 79 на экран —
+   * это читается как тест, а не как разговор. Показываем первую дюжину плюс
+   * всё уже выбранное, остальное — по запросу.
+   */
+  const visibleSuggestions =
+    showAllSuggestions || suggestions.length <= SUGGESTION_PREVIEW_COUNT
+      ? suggestions
+      : suggestions.filter(
+          (suggestion, index) =>
+            index < SUGGESTION_PREVIEW_COUNT || selectedKeys.has(normalizeKey(suggestion.label)),
+        );
+  const hiddenSuggestionCount = suggestions.length - visibleSuggestions.length;
 
   const toggleValue = (nextValue: string) => {
     const key = normalizeKey(nextValue);
@@ -74,7 +91,7 @@ export function PreferenceChipPicker({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {suggestions.map((suggestion) => {
+        {visibleSuggestions.map((suggestion) => {
           const active = selectedKeys.has(normalizeKey(suggestion.label));
           return (
             <button
@@ -103,6 +120,15 @@ export function PreferenceChipPicker({
             </button>
           );
         })}
+        {hiddenSuggestionCount > 0 ? (
+          <button
+            type="button"
+            onClick={() => setShowAllSuggestions(true)}
+            className="inline-flex min-h-10 items-center rounded-xl px-3 text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            {t("Показать все")} · {hiddenSuggestionCount}
+          </button>
+        ) : null}
       </div>
 
       <div className="flex gap-2">

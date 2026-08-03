@@ -12,7 +12,6 @@ import {
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import useSWR, { mutate } from "swr";
-import { useHeaderActions } from "@/lib/header-actions";
 import { type WishlistViewMode } from "@/components/wishlist/wishlist-view-toggle";
 import { WishlistWorkspace } from "@/components/wishlist/wishlist-workspace";
 import { ItemFormDialog } from "@/components/ItemFormDialog";
@@ -135,7 +134,7 @@ function HomePageContent() {
   const [listDialogOpen, setListDialogOpen] = useState(false);
   const [editingList, setEditingList] = useState<ListWithMeta | null>(null);
   const [detailItem, setDetailItem] = useState<WishlistItem | null>(null);
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [listDeleteTarget, setListDeleteTarget] = useState<{
@@ -246,15 +245,6 @@ function HomePageContent() {
     ? t("Что подойдёт этому человеку и что уже кто-то взял на себя.")
     : t("Всё, что вы хотите, и всё, что вы можете подарить другим.");
 
-  const { setActions } = useHeaderActions();
-  useEffect(() => {
-    setActions({
-      onAddItem: handleOpenAddItem,
-      onParseUrl: () => setParseDialogOpen(true),
-    });
-    return () => setActions({});
-  }, [handleOpenAddItem, setActions]);
-
   const allowedListIdsForFilters = useMemo(() => {
     if (!currentUserId) return new Set(lists.map((l) => l.id));
     return new Set(
@@ -323,13 +313,6 @@ function HomePageContent() {
 
   const activeFilterChips = useMemo(() => {
     const chips: Array<{ key: string; label: string; onRemove: () => void }> = [];
-    if (search.trim()) {
-      chips.push({
-        key: "search",
-        label: `${t("Поиск")}: ${search.trim()}`,
-        onRemove: () => setSearch(""),
-      });
-    }
     if (selectedListName) {
       chips.push({
         key: "list",
@@ -386,7 +369,6 @@ function HomePageContent() {
     });
     return chips;
   }, [
-    search,
     selectedListName,
     normalizedSelectedUserId,
     usersWithStats,
@@ -397,7 +379,9 @@ function HomePageContent() {
     t,
   ]);
 
-  const hasActiveFilters = activeFilterChips.length > 0;
+  // Поиск не превращается в чип: его значение видно в самом поле рядом.
+  // Но счётчик результата он включает — именно при поиске он нужнее всего.
+  const hasActiveFilters = activeFilterChips.length > 0 || Boolean(search.trim());
 
   const deletingItemTitle = deletingItemId
     ? (items.find((item) => item.id === deletingItemId)?.title ?? null)
@@ -681,8 +665,9 @@ function HomePageContent() {
           hasActiveFilters={hasActiveFilters}
           activeFilterCount={activeFilterChips.length}
           activeFilterChips={activeFilterChips}
-          mobileFiltersOpen={mobileFiltersOpen}
-          onMobileFiltersOpenChange={setMobileFiltersOpen}
+          filtersOpen={filtersOpen}
+          onFiltersOpenChange={setFiltersOpen}
+          onParseUrl={() => setParseDialogOpen(true)}
           currentUserId={currentUserId}
           currentUserRole={session?.user?.role ?? null}
           usersWithStats={usersWithStats}

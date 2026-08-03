@@ -3,7 +3,6 @@
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
-import { HeaderActionsProvider } from "@/lib/header-actions";
 import { type Language } from "@/lib/i18n";
 import { LanguageProvider } from "@/components/i18n/language-provider";
 import { ColorThemeProvider } from "@/components/theme/color-theme-provider";
@@ -26,9 +25,7 @@ export function Providers({
           enableSystem={false}
         >
           <ColorThemeProvider>
-            <TooltipProvider delayDuration={300}>
-              <HeaderActionsProvider>{children}</HeaderActionsProvider>
-            </TooltipProvider>
+            <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
           </ColorThemeProvider>
           <Toaster
             position="bottom-right"

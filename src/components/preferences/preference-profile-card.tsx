@@ -45,6 +45,10 @@ export function PreferenceProfileCard({
 }: PreferenceProfileCardProps) {
   const { t } = useI18n();
   const reduceMotion = useReducedMotion();
+  // Обе кнопки управляют одной областью, значит объявляют одно и то же
+  // состояние и указывают на один и тот же регион: раньше aria-expanded был
+  // только у имени, и озвучка зависела от того, куда попал фокус.
+  const panelId = `preference-profile-panel-${id}`;
   const preferences = normalizeGiftPreferences(rawPreferences);
   const preferenceCount = countGiftPreferences(preferences);
   const likedCount =
@@ -89,6 +93,7 @@ export function PreferenceProfileCard({
             type="button"
             onClick={onToggle}
             aria-expanded={expanded}
+            aria-controls={panelId}
             className="min-w-0 flex-1 rounded-lg text-left active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <div className="flex flex-wrap items-center gap-2">
@@ -121,6 +126,8 @@ export function PreferenceProfileCard({
               size="icon"
               variant="ghost"
               onClick={onToggle}
+              aria-expanded={expanded}
+              aria-controls={panelId}
               aria-label={expanded ? t("Свернуть профиль") : t("Открыть профиль")}
             >
               <ChevronDown
@@ -195,6 +202,7 @@ export function PreferenceProfileCard({
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            id={panelId}
             className="border-t border-border/48 px-4 py-4 sm:px-5 sm:py-5"
           >
             {children}
