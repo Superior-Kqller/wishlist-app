@@ -109,7 +109,7 @@ export function PreferenceSignalRow({
           {hiddenCount > 0 ? <span className="text-muted-foreground">+{hiddenCount}</span> : null}
         </div>
       ) : (
-        <span className="truncate text-sm text-muted-foreground/72">{t(empty)}</span>
+        <span className="truncate text-sm text-muted-foreground-subtle">{t(empty)}</span>
       )}
     </div>
   );

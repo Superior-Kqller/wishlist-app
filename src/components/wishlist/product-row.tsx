@@ -143,7 +143,7 @@ export const ProductRow = memo(function ProductRow({
                 onClick={(event) => event.stopPropagation()}
               >
                 <ExternalLink className="h-3 w-3" />
-                {t("Открыть товар")}
+                {t("Открыть в магазине")}
               </a>
             ) : null}
           </div>
@@ -205,7 +205,7 @@ export const ProductRow = memo(function ProductRow({
                 type="button"
                 variant="ghost"
                 size="iconToolbar"
-                aria-label={t("Действия с товаром")}
+                aria-label={t("Действия с желанием")}
                 onClick={(event) => event.stopPropagation()}
               >
                 <MoreHorizontal className="h-4 w-4" />
@@ -245,9 +245,25 @@ export const ProductRow = memo(function ProductRow({
             </DropdownMenuContent>
           </DropdownMenu>
         ) : selectionMode ? (
-          <span className="text-xs text-muted-foreground">
+          // Раньше здесь стоял неинтерактивный <span>: он выглядел как контрол,
+          // не получал фокус и не сообщал состояние выбора скринридеру.
+          <button
+            type="button"
+            aria-pressed={isSelected}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleSelect?.(item.id);
+            }}
+            className={cn(
+              "rounded-md px-2 py-1 text-xs transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              isSelected
+                ? "bg-primary/12 text-foreground"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
             {isSelected ? t("Выбрано") : t("Выбрать")}
-          </span>
+          </button>
         ) : null}
       </TableCell>
     </TableRow>

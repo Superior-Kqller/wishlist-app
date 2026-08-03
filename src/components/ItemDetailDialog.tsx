@@ -146,10 +146,20 @@ export function ItemDetailDialog({
             ? `, ${t("Ориентировочная стоимость").toLowerCase()} ${formatPrice(item.price, item.currency, language)}`
             : ""}
         </DialogDescription>
-        <div
-          className="pointer-events-none absolute left-1/2 top-2 z-20 h-1 w-10 -translate-x-1/2 rounded-full bg-foreground/18 sm:hidden"
-          aria-hidden
-        />
+        {/*
+         * Полоска-хват была декоративной (`pointer-events-none`): выглядела как
+         * управляемый элемент и ничего не делала. Теперь это настоящая кнопка
+         * закрытия с полноразмерной областью нажатия — ближе к большому пальцу,
+         * чем крестик в правом верхнем углу.
+         */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t("Закрыть")}
+          className="absolute left-1/2 top-0 z-20 flex h-6 w-16 -translate-x-1/2 items-center justify-center rounded-b-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 sm:hidden"
+        >
+          <span className="h-1 w-10 rounded-full bg-foreground/18" aria-hidden />
+        </button>
         <div className="item-detail-dialog-frame grid min-h-0 flex-1 overflow-y-auto overscroll-contain sm:flex-none sm:overflow-visible md:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)]">
           <ItemMediaSection item={item} className="md:border-r md:border-border/34" />
           <div className="flex min-h-0 min-w-0 flex-col bg-[hsl(var(--surface-2))]">

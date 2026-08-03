@@ -139,14 +139,16 @@ export const WishCard = memo(function WishCard({
                */}
               {showImage ? (
                 <>
-                  <Image
-                    src={imageUrl!}
-                    alt=""
-                    fill
+                  {/*
+                   * Подложка — CSS-фон, а не второй <Image>: адрес тот же, браузер
+                   * берёт уже раскодированный снимок из кэша. Сетка из двух
+                   * десятков карточек иначе платила за вдвое больше декодирований
+                   * ради изображения, которое всё равно размыто.
+                   */}
+                  <div
                     aria-hidden
-                    className="scale-125 object-cover opacity-40 blur-2xl"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
-                    unoptimized
+                    style={{ backgroundImage: `url(${JSON.stringify(imageUrl!)})` }}
+                    className="absolute inset-0 scale-125 bg-cover bg-center opacity-40 blur-2xl"
                   />
                   <Image
                     src={imageUrl!}

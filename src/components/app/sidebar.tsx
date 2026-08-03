@@ -140,7 +140,9 @@ export function AppSidebar() {
       <section className="mt-6 flex-1 overflow-y-auto py-1" aria-label={t("Подборки")}>
         <div className="mb-2 flex items-center justify-between gap-2">
           <p className="text-xs font-medium text-muted-foreground">{t("Подборки")}</p>
-          <span className="font-mono text-[11px] text-muted-foreground/70">{totalListItems}</span>
+          <span className="font-mono text-[11px] text-muted-foreground-subtle">
+            {totalListItems}
+          </span>
         </div>
         {pinnedLists.length > 0 ? (
           <div className="space-y-1">
@@ -154,7 +156,7 @@ export function AppSidebar() {
               >
                 <Folder className="h-4 w-4 shrink-0" aria-hidden />
                 <span className="min-w-0 flex-1 truncate">{list.name}</span>
-                <span className="font-mono text-[11px] text-muted-foreground/70">
+                <span className="font-mono text-[11px] text-muted-foreground-subtle">
                   {list._count.items}
                 </span>
               </button>
@@ -182,15 +184,17 @@ export function AppSidebar() {
           />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-foreground">{currentUserName}</p>
-            <p className="mt-0.5 truncate text-xs text-muted-foreground/78">{currentUsername}</p>
+            <p className="mt-0.5 truncate text-xs text-muted-foreground-subtle">
+              {currentUsername}
+            </p>
           </div>
         </button>
-        <LanguageSwitcher className="mt-3 h-11 w-full justify-start px-2 text-muted-foreground/82 hover:text-foreground" />
+        <LanguageSwitcher className="mt-3 h-11 w-full justify-start px-2 text-muted-foreground-subtle hover:text-foreground" />
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="mt-1 h-11 w-full justify-start gap-2 px-2 text-muted-foreground/82 hover:text-foreground"
+          className="mt-1 h-11 w-full justify-start gap-2 px-2 text-muted-foreground-subtle hover:text-foreground"
           onClick={signOutToLogin}
         >
           <LogOut className="h-4 w-4" />

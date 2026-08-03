@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
@@ -110,7 +111,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
         </span>
         <span className="min-w-0 max-w-[7.75rem] text-right">
           <span className="block text-[10px] leading-tight text-muted-foreground">
-            {t("Итого к покупке")}
+            {t("Сумма всех желаний")}
           </span>
           <span className="mt-0.5 block truncate text-sm font-semibold tabular-nums text-foreground">
             {wishlistValue}
@@ -132,7 +133,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
 
         <div className="grid grid-cols-3 divide-x divide-border/55">
           <div className="pr-2.5">
-            <p className="text-[10px] leading-tight text-muted-foreground">{t("Всего товаров")}</p>
+            <p className="text-[10px] leading-tight text-muted-foreground">{t("Всего желаний")}</p>
             <p className="mt-1 text-base font-semibold tabular-nums">{user.stats.totalItems}</p>
           </div>
           <div className="px-2.5">
@@ -169,7 +170,7 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
         <div className="min-w-0">
           <h2 className="section-title text-foreground">{t("Участники")}</h2>
           <p className="mt-1 max-w-[62ch] text-sm text-muted-foreground">
-            {t("Личные итоги по товарам, активным желаниям и уже закрытым покупкам")}
+            {t("Личные итоги по желаниям, активным идеям и уже закрытым покупкам")}
           </p>
         </div>
         <span className="inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-muted-foreground tabular-nums">
@@ -215,7 +216,7 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 border-y border-border/60 py-2.5 text-sm">
                 <div className="pr-3">
-                  <p className="text-xs text-muted-foreground">{t("Всего товаров")}</p>
+                  <p className="text-xs text-muted-foreground">{t("Всего желаний")}</p>
                   <p className="mt-1 text-lg font-semibold tabular-nums">{user.stats.totalItems}</p>
                 </div>
                 <div className="border-l border-border/60 pl-3">
@@ -308,7 +309,14 @@ function getPriorityShares(priorityCounts: StatsSummary["priorityCounts"]) {
   };
 }
 
-function StatsOverview({ summary }: { summary: StatsSummary }) {
+function StatsOverview({
+  summary,
+  topItemsAvailable,
+}: {
+  summary: StatsSummary;
+  /** Локальная сводка складывается из счётчиков участников и не знает отдельных желаний. */
+  topItemsAvailable: boolean;
+}) {
   const { language, t } = useI18n();
   const totalValues = formatSummaryValues(summary.pricesByCurrency, language);
   const totalPriorityItems = Object.values(summary.priorityCounts).reduce(
@@ -323,7 +331,7 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
       <div className="flex flex-col gap-6 sm:gap-7">
         <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
           <div className="min-w-0">
-            <p className="text-sm font-medium text-muted-foreground">{t("Итого к покупке")}</p>
+            <p className="text-sm font-medium text-muted-foreground">{t("Сумма всех желаний")}</p>
             <div className="mt-2 space-y-1">
               {totalValues.map((value) => (
                 <p
@@ -340,7 +348,7 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
             <div className="min-w-0">
               <dt className="flex items-center gap-1.5 text-[11px] text-muted-foreground sm:text-xs">
                 <Package className="size-3.5 text-info" aria-hidden />
-                {t("Всего товаров")}
+                {t("Всего желаний")}
               </dt>
               <dd className="mt-1 text-2xl font-semibold tabular-nums">{summary.totalItems}</dd>
             </div>
@@ -435,7 +443,9 @@ function StatsOverview({ summary }: { summary: StatsSummary }) {
               ))}
             </ul>
           ) : (
-            <p className="mt-2 text-sm text-muted-foreground">{t("Нет товаров с ценой")}</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {topItemsAvailable ? t("Нет желаний с ценой") : t("Подборка недоступна офлайн")}
+            </p>
           )}
         </div>
       </div>
@@ -465,8 +475,16 @@ export default function StatsPage() {
     { revalidateOnFocus: false, dedupingInterval: 30000 },
   );
 
+  // Навигация — побочный эффект, а не результат рендера: вызов router.push
+  // прямо в теле компонента предупреждает React и на других страницах
+  // проекта уже сделан через эффект.
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
   if (status === "unauthenticated") {
-    router.push("/login");
     return null;
   }
 
@@ -503,19 +521,19 @@ export default function StatsPage() {
         <div>
           <PageIntro
             title={t("Статистика")}
-            description={t("Товары в общих подборках и ориентировочная стоимость по участникам")}
+            description={t("Желания в общих подборках и ориентировочная стоимость по участникам")}
           />
 
           {users.length === 0 ? (
             <EmptyState
               icon={<BarChart3 className="h-5 w-5" aria-hidden />}
               title={t("Нет данных для отображения")}
-              description={t("Статистика появится, когда в общих списках будут товары.")}
+              description={t("Статистика появится, когда в общих списках будут желания.")}
             />
           ) : (
             <div className="grid grid-cols-1 [grid-template-areas:'overview'_'activity'_'participants'] gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] xl:[grid-template-areas:'overview_activity'_'participants_activity'] 2xl:gap-5">
               <div className="min-w-0 [grid-area:overview]">
-                <StatsOverview summary={summary} />
+                <StatsOverview summary={summary} topItemsAvailable={Boolean(statsData.summary)} />
               </div>
 
               <ParticipantsSection users={users} />

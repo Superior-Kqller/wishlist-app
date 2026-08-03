@@ -31,6 +31,7 @@ wishlist-brandbook.pdf
 
 # Локальная память агента / правила — не в репозитории
 AGENTS.md
+.claude/
 .codegraph/
 .commitshow/
 .hallmark/

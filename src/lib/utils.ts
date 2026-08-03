@@ -124,15 +124,3 @@ export function priorityBgColor(priority: number): string {
   };
   return colors[priority] || colors[3];
 }
-
-/** Класс для левой полоски приоритета на карточке (светлая и тёмная тема) */
-export function priorityBorderClass(priority: number): string {
-  const borders: Record<number, string> = {
-    1: "border-l-[hsl(var(--priority-1))]",
-    2: "border-l-[hsl(var(--priority-2))]",
-    3: "border-l-[hsl(var(--priority-3))]",
-    4: "border-l-[hsl(var(--priority-4))]",
-    5: "border-l-[hsl(var(--priority-5))]",
-  };
-  return "border-l-4 " + (borders[priority] || borders[3]);
-}

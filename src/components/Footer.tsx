@@ -18,7 +18,7 @@ export function Footer() {
   });
 
   return (
-    <footer className="border-t border-border/45 py-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] text-center text-xs text-muted-foreground/65 sm:pb-4">
+    <footer className="border-t border-border/45 py-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] text-center text-xs text-muted-foreground-subtle sm:pb-4">
       {t("Вишлист")}&nbsp;·&nbsp;v{data?.version ?? packageJson.version}
     </footer>
   );

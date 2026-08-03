@@ -147,6 +147,7 @@ function HomePageContent() {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkProcessing, setBulkProcessing] = useState(false);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [pendingStatusByItemId, setPendingStatusByItemId] = useState<Record<string, boolean>>({});
 
   const handleOpenAddItem = useCallback(() => {
@@ -159,7 +160,7 @@ function HomePageContent() {
     async (format: "csv" | "json") => {
       const res = await fetch(`/api/items/export?format=${format}`);
       if (!res.ok) {
-        toast.error(t("Не удалось экспортировать каталог"));
+        toast.error(t("Не удалось экспортировать желания"));
         return;
       }
       const blob = await res.blob();
@@ -398,6 +399,23 @@ function HomePageContent() {
 
   const hasActiveFilters = activeFilterChips.length > 0;
 
+  const deletingItemTitle = deletingItemId
+    ? (items.find((item) => item.id === deletingItemId)?.title ?? null)
+    : null;
+
+  /** Подтверждение называет то, что исчезнет: числа без имён не удерживают от ошибки. */
+  const bulkDeleteDescription = useMemo(() => {
+    const titles = Array.from(selectedIds)
+      .map((id) => items.find((item) => item.id === id)?.title)
+      .filter((title): title is string => Boolean(title));
+    const shown = titles.slice(0, 3).join(", ");
+    const rest = titles.length - 3;
+    const list = rest > 0 ? `${shown} ${t("и ещё")} ${rest}` : shown;
+    return list
+      ? `${list}. ${t("Это действие нельзя отменить.")}`
+      : t("Это действие нельзя отменить.");
+  }, [selectedIds, items, t]);
+
   // Handlers
   const handleCreateItem = useCallback(
     async (data: CreateItemPayload | UpdateItemPayload) => {
@@ -460,23 +478,21 @@ function HomePageContent() {
     setDeletingItemId(null);
   }, [deletingItemId, mutateItems, t]);
 
+  // Ошибку намеренно не глотаем: её ловит ConfirmDialog и показывает внутри
+  // окна, оставляя его открытым. Тост здесь закрыл бы диалог как при успехе.
   const confirmDeleteList = useCallback(async () => {
     if (!listDeleteTarget) return;
     const { id } = listDeleteTarget;
-    try {
-      const res = await fetch(`/api/lists/${id}`, { method: "DELETE" });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || t("Не удалось удалить подборку"));
-      }
-      toast.success(t("Подборка удалена"));
-      await mutateLists();
-      await mutateItems();
-      if (selectedListId === id) {
-        syncFiltersToUrl({ listId: null });
-      }
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("Ошибка удаления"));
+    const res = await fetch(`/api/lists/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || t("Не удалось удалить подборку"));
+    }
+    toast.success(t("Подборка удалена"));
+    await mutateLists();
+    await mutateItems();
+    if (selectedListId === id) {
+      syncFiltersToUrl({ listId: null });
     }
   }, [listDeleteTarget, selectedListId, syncFiltersToUrl, mutateItems, mutateLists, t]);
 
@@ -557,20 +573,44 @@ function HomePageContent() {
     });
   }, []);
 
+  // Массовое удаление необратимо, поэтому провал не маскируется под успех:
+  // уцелевшие желания остаются выбранными, чтобы попытку можно было повторить
+  // ровно по ним, а не по всему исходному набору.
   const handleBulkDelete = useCallback(async () => {
     if (selectedIds.size === 0) return;
     setBulkProcessing(true);
-    const ids = Array.from(selectedIds);
-    const results = await Promise.allSettled(
-      ids.map((id) => fetch(`/api/items/${id}`, { method: "DELETE" })),
-    );
-    const ok = results.filter((r) => r.status === "fulfilled" && (r.value as Response).ok).length;
-    toast.success(`${t("Удалено")} ${ok} / ${ids.length}`);
-    setSelectedIds(new Set());
-    setSelectionMode(false);
-    setBulkProcessing(false);
-    mutateItems();
-  }, [selectedIds, mutateItems, t]);
+    try {
+      const ids = Array.from(selectedIds);
+      const results = await Promise.allSettled(
+        ids.map((id) => fetch(`/api/items/${id}`, { method: "DELETE" })),
+      );
+      const failedIds = ids.filter((_, index) => {
+        const result = results[index];
+        return result.status === "rejected" || !result.value.ok;
+      });
+
+      await mutateItems();
+
+      if (failedIds.length > 0) {
+        setSelectedIds(new Set(failedIds));
+        const failedTitles = failedIds
+          .map((id) => items.find((item) => item.id === id)?.title)
+          .filter((title): title is string => Boolean(title))
+          .slice(0, 3);
+        throw new Error(
+          `${t("Не удалось удалить")}: ${failedIds.length} ${t("из")} ${ids.length}. ${
+            failedTitles.length > 0 ? failedTitles.join(", ") : ""
+          }`.trim(),
+        );
+      }
+
+      toast.success(`${t("Удалено желаний")}: ${ids.length}`);
+      setSelectedIds(new Set());
+      setSelectionMode(false);
+    } finally {
+      setBulkProcessing(false);
+    }
+  }, [selectedIds, items, mutateItems, t]);
 
   const handleBulkMarkPurchased = useCallback(async () => {
     if (selectedIds.size === 0) return;
@@ -640,6 +680,7 @@ function HomePageContent() {
           onSearchChange={setSearch}
           hasActiveFilters={hasActiveFilters}
           activeFilterCount={activeFilterChips.length}
+          activeFilterChips={activeFilterChips}
           mobileFiltersOpen={mobileFiltersOpen}
           onMobileFiltersOpenChange={setMobileFiltersOpen}
           currentUserId={currentUserId}
@@ -775,11 +816,24 @@ function HomePageContent() {
       <ConfirmDialog
         open={!!deletingItemId}
         onOpenChange={(open) => !open && setDeletingItemId(null)}
-        title={t("Удалить желание?")}
+        title={
+          deletingItemTitle ? `${t("Удалить")} «${deletingItemTitle}»?` : t("Удалить желание?")
+        }
         description={t("Это действие нельзя отменить.")}
         confirmLabel={t("Удалить")}
         variant="destructive"
         onConfirm={confirmDeleteItem}
+      />
+
+      {/* Confirm bulk delete dialog */}
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        onOpenChange={setBulkDeleteOpen}
+        title={`${t("Удалить желаний")}: ${selectedIds.size}?`}
+        description={bulkDeleteDescription}
+        confirmLabel={t("Удалить")}
+        variant="destructive"
+        onConfirm={handleBulkDelete}
       />
 
       <ConfirmDialog
@@ -819,7 +873,7 @@ function HomePageContent() {
       {/* Bulk action bar */}
       <BulkActionBar
         selectedCount={selectedIds.size}
-        onDelete={handleBulkDelete}
+        onDelete={() => setBulkDeleteOpen(true)}
         onMarkPurchased={handleBulkMarkPurchased}
         onClearSelection={handleClearSelection}
         isProcessing={bulkProcessing}
@@ -828,12 +882,18 @@ function HomePageContent() {
   );
 }
 
+/** Единственная строка в цепочке загрузки, которая раньше шла мимо словаря. */
+function HomeLoadingLabel() {
+  const { t } = useI18n();
+  return <span className="text-sm text-muted-foreground">{t("Загрузка…")}</span>;
+}
+
 export default function HomePage() {
   return (
     <Suspense
       fallback={
         <div className="page-bg flex min-h-[60svh] items-center justify-center">
-          <span className="text-sm text-muted-foreground">Загрузка…</span>
+          <HomeLoadingLabel />
         </div>
       }
     >

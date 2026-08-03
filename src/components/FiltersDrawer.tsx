@@ -103,7 +103,7 @@ export function FiltersDrawer({
                 </span>
               ) : null}
             </div>
-            <DialogDescription>{t("Настройте список и порядок товаров")}</DialogDescription>
+            <DialogDescription>{t("Настройте список и порядок желаний")}</DialogDescription>
           </DialogHeader>
         </div>
 

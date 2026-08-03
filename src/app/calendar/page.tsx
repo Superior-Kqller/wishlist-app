@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import useSWR from "swr";
 import Link from "next/link";
 import {
@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetcher } from "@/lib/fetcher";
+import { useIsomorphicLayoutEffect } from "@/lib/use-isomorphic-layout-effect";
 import { capitalizeFirst, cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import {
@@ -191,12 +192,12 @@ function MonthGrid({
       aria-label={t("Месячная сетка календаря")}
       tabIndex={0}
     >
-      <div className="min-w-0 sm:min-w-[42rem]" role="grid">
+      <div className="min-w-0 sm:min-w-[42rem]" role="table">
         <div className="grid grid-cols-7 border-b border-border/55" role="row">
           {weekdayLabels.map((label) => (
             <div
               key={label}
-              className="px-0.5 pb-1.5 text-center text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/75 sm:px-2 sm:pb-2 sm:text-left sm:text-xs"
+              className="px-0.5 pb-1.5 text-center text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground-subtle sm:px-2 sm:pb-2 sm:text-left sm:text-xs"
               role="columnheader"
             >
               {label}
@@ -211,7 +212,7 @@ function MonthGrid({
                 "min-h-14 border-b border-r border-border/35 bg-[hsl(var(--surface-1)/0.45)] sm:min-h-28",
                 isWeekendColumn(index) && "bg-[hsl(var(--surface-1)/0.7)]",
               )}
-              role="gridcell"
+              role="cell"
               aria-hidden
             />
           ))}
@@ -229,7 +230,7 @@ function MonthGrid({
                   entries.length > 0 && "bg-primary/[0.05]",
                   isToday && "bg-primary/[0.08]",
                 )}
-                role="gridcell"
+                role="cell"
                 aria-label={[
                   new Date(`${date}T12:00:00`).toLocaleDateString(locale, {
                     day: "numeric",
@@ -310,7 +311,7 @@ function MonthGrid({
                 isWeekendColumn(leadingDays + daysInMonth + index) &&
                   "bg-[hsl(var(--surface-1)/0.7)]",
               )}
-              role="gridcell"
+              role="cell"
               aria-hidden
             />
           ))}
@@ -413,7 +414,10 @@ export default function CalendarPage() {
     year: "numeric",
   });
 
-  useEffect(() => {
+  // Раньше это был обычный useEffect: на мобильном успевала отрисоваться
+  // месячная сетка, и только потом вид дёргался в список. Layout-эффект
+  // выполняется до отрисовки кадра, поэтому подмена больше не видна.
+  useIsomorphicLayoutEffect(() => {
     setView(getInitialCalendarView(window.matchMedia("(max-width: 767px)").matches));
   }, []);
 
@@ -464,6 +468,7 @@ export default function CalendarPage() {
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div
                 className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] max-sm:hidden [&::-webkit-scrollbar]:hidden"
+                role="group"
                 aria-label={t("Фильтры календаря")}
               >
                 {FILTERS.map((option) => (

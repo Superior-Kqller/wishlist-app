@@ -322,7 +322,7 @@ export function ItemFormDialog({
         <div className="border-b border-border/34 bg-[hsl(var(--surface-2)/0.72)] px-4 py-3 sm:px-5">
           <DialogHeader className="space-y-1 pr-10 sm:pr-12">
             <DialogTitle className="text-xl leading-tight">
-              {isEdit ? t("Редактировать") : t("Добавить товар")}
+              {isEdit ? t("Редактировать") : t("Добавить желание")}
             </DialogTitle>
             <DialogDescription className="max-w-3xl text-sm leading-snug">
               {isEdit
@@ -591,7 +591,7 @@ export function ItemFormDialog({
                             />
                             <span className="min-w-0 flex-1">
                               <span className="block truncate">{label}</span>
-                              <span className="block truncate text-[11px] font-medium text-muted-foreground/82 sm:text-xs">
+                              <span className="block truncate text-[11px] font-medium text-muted-foreground-subtle sm:text-xs">
                                 {t("Уровень")} {value} · {shortLabel}
                               </span>
                             </span>

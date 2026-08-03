@@ -166,7 +166,7 @@ export function PreferenceChipPicker({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-xs text-muted-foreground/74"
+              className="text-xs text-muted-foreground-subtle"
             >
               {t("Пока ничего не выбрано")}
             </motion.p>

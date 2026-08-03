@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ChevronDown, Clock3 } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
@@ -59,7 +60,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
             <h2 className="text-sm font-semibold leading-tight text-foreground/94">
               {t("Активность")}
             </h2>
-            <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground/70">
+            <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground-subtle">
               {t("Последние изменения")}
             </p>
           </div>
@@ -88,10 +89,16 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
           {visibleItems.map((item) => {
             const actor = item.user;
 
+            const ownerId = actor?.id ?? item.userId;
+
             return (
-              <div
+              // Запись рассказывала о желании, но никуда не вела: единственный
+              // путь к нему был через поиск руками. Ведём к вишлисту владельца —
+              // отдельного маршрута у желания нет.
+              <Link
                 key={item.id}
-                className="relative grid grid-cols-[auto_minmax(0,1fr)] gap-2.5 rounded-xl px-2 py-2.5 transition-colors duration-200 after:absolute after:bottom-[-0.45rem] after:left-[1.15rem] after:top-9 after:w-px after:bg-border/28 last:after:hidden hover:bg-[hsl(var(--surface-3)/0.42)]"
+                href={ownerId ? `/?userId=${ownerId}` : "/"}
+                className="relative grid grid-cols-[auto_minmax(0,1fr)] gap-2.5 rounded-xl px-2 py-2.5 transition-colors duration-200 after:absolute after:bottom-[-0.45rem] after:left-[1.15rem] after:top-9 after:w-px after:bg-border/28 last:after:hidden hover:bg-[hsl(var(--surface-3)/0.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
               >
                 {actor ? (
                   <UserAvatar
@@ -121,7 +128,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
                       {getItemStatusLabel(item.status, language)}
                     </Badge>
                   </div>
-                  <p className="mt-0.5 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-snug text-muted-foreground/62">
+                  <p className="mt-0.5 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-snug text-muted-foreground-subtle">
                     <span>{getActivityLabel(item, t)}</span>
                     {actor ? (
                       <>
@@ -135,7 +142,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
                     </time>
                   </p>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -148,7 +155,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
         >
           <p className="text-sm font-medium text-foreground">{t("Пока нет активности")}</p>
           <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1">
-            {t("Добавленные и обновленные товары появятся здесь.")}
+            {t("Добавленные и обновлённые желания появятся здесь.")}
           </p>
         </div>
       )}

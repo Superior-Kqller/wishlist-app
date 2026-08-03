@@ -68,7 +68,7 @@ export function ItemActivitySection({
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{comment.user.name}</span>
-                  <span className="text-xs text-muted-foreground/72">
+                  <span className="text-xs text-muted-foreground-subtle">
                     {new Date(comment.createdAt).toLocaleString(locale, {
                       day: "2-digit",
                       month: "2-digit",

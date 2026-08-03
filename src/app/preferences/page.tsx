@@ -39,6 +39,7 @@ import { GiftPreferencesSummary } from "@/components/preferences/gift-preference
 import { PreferenceProfileControls } from "@/components/preferences/preference-profile-controls";
 import { PreferenceProfileCard } from "@/components/preferences/preference-profile-card";
 import { fetcher } from "@/lib/fetcher";
+import { staggerDelayMs } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import {
@@ -716,7 +717,10 @@ export default function PreferencesPage() {
                         key={user.id}
                         initial={reduceMotion ? false : { opacity: 0, y: 14 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: reduceMotion ? 0 : index * 0.055, duration: 0.3 }}
+                        transition={{
+                          delay: reduceMotion ? 0 : staggerDelayMs(index) / 1000,
+                          duration: 0.3,
+                        }}
                       >
                         <PreferenceProfileCard
                           id={user.id}

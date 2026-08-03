@@ -38,11 +38,15 @@ function EmptyState({
   ...props
 }: EmptyStateProps) {
   const hasActions = Boolean((actionLabel && onAction) || (secondaryLabel && onSecondaryAction));
+  const headingId = React.useId();
 
   return (
+    // Раньше здесь стояли role="status" + aria-live: live-region поглощала
+    // заголовок, и раздел выпадал из карты документа. Это не транзиентный
+    // статус, а полноценный первый экран раздела — значит, обычный регион
+    // с заголовком, по которому можно навигировать.
     <section
-      role="status"
-      aria-live="polite"
+      aria-labelledby={headingId}
       className={cn(
         "relative flex min-h-[260px] flex-col items-center justify-center overflow-hidden sm:min-h-[340px]",
         uiSurface.emptyState,
@@ -63,6 +67,7 @@ function EmptyState({
       </div>
 
       <h2
+        id={headingId}
         data-reveal=""
         style={revealDelay(60)}
         className="relative max-w-[28ch] text-balance text-lg font-semibold tracking-[-0.01em]"

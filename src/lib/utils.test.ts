@@ -4,7 +4,6 @@ import {
   formatStatsPurchasedSummary,
   formatStatsUnpurchasedSummary,
   priorityColor,
-  priorityBorderClass,
   sortCurrencyTotalsEntries,
   statsHasPurchasedPrices,
 } from "./utils";
@@ -129,11 +128,5 @@ describe("priorityColor", () => {
   it("возвращает дефолт для неизвестного приоритета", () => {
     expect(priorityColor(0)).toBe(priorityColor(3));
     expect(priorityColor(99)).toBe(priorityColor(3));
-  });
-});
-
-describe("priorityBorderClass", () => {
-  it("содержит border-l-4", () => {
-    expect(priorityBorderClass(1)).toContain("border-l-4");
   });
 });

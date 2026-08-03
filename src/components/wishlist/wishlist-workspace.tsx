@@ -28,6 +28,10 @@ import {
   WishlistViewToggle,
   type WishlistViewMode,
 } from "@/components/wishlist/wishlist-view-toggle";
+import {
+  ActiveFilterChips,
+  type ActiveFilterChip,
+} from "@/components/wishlist/active-filter-chips";
 import { uiSurface } from "@/lib/ui-contract";
 import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
 import type { ListWithMeta, UserWithStats, WishlistItem } from "@/types";
@@ -40,6 +44,7 @@ type WishlistWorkspaceProps = {
   onSearchChange: (value: string) => void;
   hasActiveFilters: boolean;
   activeFilterCount: number;
+  activeFilterChips: ActiveFilterChip[];
   mobileFiltersOpen: boolean;
   onMobileFiltersOpenChange: (open: boolean) => void;
   currentUserId?: string;
@@ -97,6 +102,7 @@ export function WishlistWorkspace({
   onSearchChange,
   hasActiveFilters,
   activeFilterCount,
+  activeFilterChips,
   mobileFiltersOpen,
   onMobileFiltersOpenChange,
   currentUserId,
@@ -177,7 +183,7 @@ export function WishlistWorkspace({
             aria-label={t("Поиск")}
             wrapperClassName="group min-w-0 flex-1"
             iconClassName="left-3.5 text-muted-foreground/62 transition-colors duration-200 group-focus-within:text-primary/88"
-            inputClassName="h-11 min-h-[44px] rounded-xl border-border/52 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] placeholder:text-muted-foreground/54 focus-visible:border-primary/48 focus-visible:ring-2 focus-visible:ring-primary/18 focus-visible:ring-offset-0"
+            inputClassName="h-11 min-h-[44px] rounded-xl border-border/52 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] placeholder:text-muted-foreground-subtle focus-visible:border-primary/48 focus-visible:ring-2 focus-visible:ring-primary/18 focus-visible:ring-offset-0"
           />
           <Button
             type="button"
@@ -228,10 +234,6 @@ export function WishlistWorkspace({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuItem onClick={onAddItem}>
-                <Plus className="mr-2 h-4 w-4" />
-                {t("Добавить товар")}
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={onImport} disabled={isImporting}>
                 {isImporting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -268,7 +270,7 @@ export function WishlistWorkspace({
                 onClick={onAddItem}
               >
                 <Plus className="h-4 w-4" />
-                {t("Добавить товар")}
+                {t("Добавить желание")}
               </Button>
             </div>
 
@@ -299,7 +301,10 @@ export function WishlistWorkspace({
                 <WishlistViewToggle
                   value={viewMode}
                   onValueChange={onViewModeChange}
-                  className="hidden lg:inline-flex"
+                  // Виден везде, где видна сама панель. Раньше начинался с lg,
+                  // и на 768–1023px режим таблицы из URL продолжал работать,
+                  // а переключиться обратно было нечем.
+                  className="inline-flex"
                 />
               </div>
               <div className="flex min-w-0 flex-wrap items-center gap-1.5">
@@ -328,7 +333,7 @@ export function WishlistWorkspace({
                       className={`${filterBarTriggerClass} gap-2 px-3 text-muted-foreground hover:text-foreground`}
                     >
                       <Download className="h-4 w-4" />
-                      {t("Данные")}
+                      {t("Импорт и экспорт")}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-44">
@@ -358,6 +363,12 @@ export function WishlistWorkspace({
             onToggleCategory={onToggleCategory}
             onClearCategories={onClearCategories}
             presentation="disclosure"
+          />
+
+          <ActiveFilterChips
+            chips={activeFilterChips}
+            onClearAll={onClearAllFilters}
+            className="border-t border-border/32 pt-2.5"
           />
         </div>
 
@@ -431,15 +442,15 @@ export function WishlistWorkspace({
         emptyDescription={
           items.length === 0
             ? ownedListsForCreate.length === 0
-              ? t("Сначала создайте подборку, затем добавьте первый товар.")
-              : t("Добавьте первый товар вручную или вставьте ссылку на страницу товара.")
+              ? t("Сначала создайте подборку, затем добавьте первое желание.")
+              : t("Добавьте первое желание вручную или вставьте ссылку на страницу товара.")
             : t("Попробуйте сбросить часть фильтров или изменить поиск.")
         }
         emptyActionLabel={
           items.length === 0
             ? ownedListsForCreate.length === 0
               ? t("Создать подборку")
-              : t("Добавить товар")
+              : t("Добавить желание")
             : undefined
         }
         onEmptyAction={
@@ -465,6 +476,23 @@ export function WishlistWorkspace({
           </Button>
         ) : null}
       </div>
+
+      {/*
+       * Главное действие раздела на мобильном. В панели инструментов оно
+       * оказывалось в правом верхнем углу, внутри меню «ещё» — дальше всего
+       * от большого пальца. Скрывается в режиме выбора: там нижнюю кромку
+       * занимает панель массовых действий.
+       */}
+      {!selectionMode ? (
+        <Button
+          type="button"
+          onClick={onAddItem}
+          aria-label={t("Добавить желание")}
+          className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-4 z-40 h-14 w-14 rounded-full p-0 shadow-[var(--shadow-floating)] sm:hidden"
+        >
+          <Plus className="h-6 w-6" aria-hidden />
+        </Button>
+      ) : null}
     </div>
   );
 }
