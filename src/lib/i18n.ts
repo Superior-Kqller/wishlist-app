@@ -111,6 +111,11 @@ const en: Dictionary = {
   "Импорт и экспорт": "Import & export",
   "Активные фильтры": "Active filters",
   "Чей список": "Whose list",
+  "К предпочтениям": "Back to preferences",
+  "Уйти без сохранения?": "Leave without saving?",
+  "Продолжить заполнение": "Continue filling in",
+  "Разделите бренды, цвета, категории, стоп-лист и детали. Это подсказки для тех, кто выбирает вам подарок.":
+    "Separate brands, colours, categories, the do-not-buy list and details. These are hints for whoever is choosing your gift.",
   "Показать все": "Show all",
   "Выбрать несколько": "Select several",
   "Вставить ссылку на товар": "Paste a product link",

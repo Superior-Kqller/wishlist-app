@@ -26,6 +26,8 @@ type PreferenceProfileCardProps = {
   editing?: boolean;
   onToggle: () => void;
   onEdit?: () => void;
+  /** Подпись кнопки редактирования: меняется, если остался незаконченный черновик. */
+  editLabel?: string;
   children?: ReactNode;
 };
 
@@ -41,6 +43,7 @@ export function PreferenceProfileCard({
   editing = false,
   onToggle,
   onEdit,
+  editLabel,
   children,
 }: PreferenceProfileCardProps) {
   const { t } = useI18n();
@@ -115,10 +118,10 @@ export function PreferenceProfileCard({
                 variant={editing ? "default" : "outline"}
                 className="gap-1.5"
                 onClick={onEdit}
-                aria-label={editing ? t("Закрыть") : t("Настроить")}
+                aria-label={editLabel ?? t("Настроить")}
               >
                 <Pencil className="h-3.5 w-3.5" aria-hidden />
-                <span className="hidden sm:inline">{editing ? t("Закрыть") : t("Настроить")}</span>
+                <span className="hidden sm:inline">{editLabel ?? t("Настроить")}</span>
               </Button>
             ) : null}
             <Button
