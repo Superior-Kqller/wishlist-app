@@ -6,6 +6,7 @@ import { CalendarPlus, Loader2, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/components/i18n/language-provider";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
   Dialog,
   DialogContent,
@@ -64,6 +65,7 @@ export function PersonalEventsPanel() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<PersonalEventInput>(EMPTY_EVENT);
   const [saving, setSaving] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<PersonalEventRecord | null>(null);
 
   const openCreate = () => {
     setEditingId(null);
@@ -116,9 +118,15 @@ export function PersonalEventsPanel() {
     }
   };
 
-  const remove = async (event: PersonalEventRecord) => {
-    if (!window.confirm(t("Удалить событие «{title}»?").replace("{title}", event.title))) return;
-    const response = await fetch(`/api/calendar/events/${event.id}`, { method: "DELETE" });
+  /*
+   * Подтверждение — общий `ConfirmDialog` продукта, а не нативный
+   * `window.confirm`: тот игнорирует тему и язык интерфейса и выглядит
+   * системным предупреждением там, где речь про свою же годовщину.
+   */
+  const remove = async () => {
+    if (!pendingDelete) return;
+    const response = await fetch(`/api/calendar/events/${pendingDelete.id}`, { method: "DELETE" });
+    setPendingDelete(null);
     if (!response.ok) {
       toast.error(t("Не удалось удалить событие"));
       return;
@@ -126,6 +134,13 @@ export function PersonalEventsPanel() {
     await refresh();
     toast.success(t("Событие удалено"));
   };
+
+  /*
+   * «Выбранным» без единого отмеченного человека раньше сохранялось: событие
+   * создавалось, не видел его никто, и об этом не сообщалось.
+   */
+  const audienceIsEmpty = form.audience === "SELECTED" && form.selectedViewerIds.length === 0;
+  const canSubmit = Boolean(form.title.trim()) && Boolean(form.date) && !audienceIsEmpty;
 
   const setAudience = (audience: CalendarAudience) => {
     setForm((current) => ({
@@ -145,11 +160,14 @@ export function PersonalEventsPanel() {
               {t("Годовщины и другие важные даты с выбранной вами аудиторией")}
             </p>
           </div>
+          {/* Вторичная кнопка: `default` на этой странице принадлежит переходу
+              к вишлисту именинника, а не созданию своей годовщины. */}
           <Button
             type="button"
+            variant="outline"
             onClick={openCreate}
             disabled={!!error}
-            className="max-sm:h-11 max-sm:px-3"
+            className="max-sm:px-3"
           >
             <CalendarPlus className="h-4 w-4 sm:mr-2" aria-hidden />
             <span className="max-sm:sr-only">{t("Добавить событие")}</span>
@@ -203,7 +221,7 @@ export function PersonalEventsPanel() {
                   type="button"
                   variant="ghost"
                   size="icon"
-                  onClick={() => remove(event)}
+                  onClick={() => setPendingDelete(event)}
                   aria-label={t("Удалить событие")}
                 >
                   <Trash2 className="h-4 w-4" aria-hidden />
@@ -326,6 +344,11 @@ export function PersonalEventsPanel() {
                     </label>
                   ))}
                 </div>
+                {audienceIsEmpty ? (
+                  <p className="text-sm text-destructive">
+                    {t("Отметьте хотя бы одного человека, иначе событие не увидит никто.")}
+                  </p>
+                ) : null}
               </fieldset>
             ) : null}
           </div>
@@ -333,17 +356,26 @@ export function PersonalEventsPanel() {
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               {t("Отмена")}
             </Button>
-            <Button
-              type="button"
-              onClick={save}
-              disabled={saving || !form.title.trim() || !form.date}
-            >
+            <Button type="button" onClick={save} disabled={saving || !canSubmit}>
               {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden /> : null}
               {editingId ? t("Сохранить") : t("Создать")}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(next) => {
+          if (!next) setPendingDelete(null);
+        }}
+        title={t("Удалить событие?")}
+        description={pendingDelete ? `«${pendingDelete.title}»` : ""}
+        confirmLabel={t("Удалить")}
+        cancelLabel={t("Отмена")}
+        variant="destructive"
+        onConfirm={() => void remove()}
+      />
     </>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { motion, useReducedMotion } from "framer-motion";
@@ -59,9 +59,22 @@ function PreferencesPageSkeleton() {
   );
 }
 
+/**
+ * Статистика и другие поверхности ссылаются сюда с `?userId=`, чтобы человек
+ * попадал не в общий список, а сразу на профиль того, кому выбирает подарок.
+ */
 export default function PreferencesPage() {
+  return (
+    <Suspense fallback={<PreferencesPageSkeleton />}>
+      <PreferencesPageContent />
+    </Suspense>
+  );
+}
+
+function PreferencesPageContent() {
   const { t } = useI18n();
   const router = useRouter();
+  const requestedUserId = useSearchParams().get("userId");
   const reduceMotion = useReducedMotion();
   const { status } = useSession();
   const { data, isLoading, error, mutate } = useSWR<PreferencesUser>(
@@ -81,7 +94,7 @@ export default function PreferencesPage() {
     [data?.giftPreferences],
   );
   const [profileSearch, setProfileSearch] = useState("");
-  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(requestedUserId);
   const [hasStoredDraft, setHasStoredDraft] = useState(false);
 
   useEffect(() => {

@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, ChevronDown, Loader2, Package, Target, Users } from "lucide-react";
+import Link from "next/link";
+import { BarChart3, ChevronDown, Gift, Heart, Package, Target, Users } from "lucide-react";
 import { ItemsPage, StatsSummary, UserStats, UserWithStats } from "@/types";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -78,7 +79,7 @@ function StatsPurchasedValueBlock({ stats }: { stats: UserStats }) {
       <div className="space-y-1">
         {purchasedEntries.map(([c, v]) => (
           <p key={c} className="text-lg font-semibold text-muted-foreground tabular-nums">
-            {formatPrice(v.purchased, c)}
+            {formatPrice(v.purchased, c, language)}
           </p>
         ))}
       </div>
@@ -156,8 +157,39 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
             </p>
           </div>
         ) : null}
+
+        {/* Ссылки живут в раскрытой части, а не в summary: вложенная ссылка
+            внутри summary ломает и раскрытие, и клавиатуру. */}
+        <ParticipantLinks userId={user.id} className="mt-3 border-t border-border/55 pt-3" />
       </div>
     </details>
+  );
+}
+
+/**
+ * Выход из цифр к человеку.
+ *
+ * Карточка участника показывала «14 не куплено · 42 000 ₽» и не вела никуда:
+ * ни ссылки, ни обработчика. Человек, пришедший узнать, что подарить, упирался
+ * в тупик и возвращался на главную вручную. Механика перехода в продукте уже
+ * была — ею пользуются лента активности и строка дня рождения в календаре.
+ */
+function ParticipantLinks({ userId, className }: { userId: string; className?: string }) {
+  const { t } = useI18n();
+  const linkClassName =
+    "inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border/60 px-3 text-xs font-semibold transition-colors hover:border-primary/35 hover:bg-primary/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55";
+
+  return (
+    <div className={cn("flex flex-wrap gap-2", className)}>
+      <Link href={`/?userId=${userId}`} className={linkClassName}>
+        <Gift className="h-3.5 w-3.5" aria-hidden />
+        {t("Желания")}
+      </Link>
+      <Link href={`/preferences?userId=${userId}`} className={linkClassName}>
+        <Heart className="h-3.5 w-3.5" aria-hidden />
+        {t("Что подойдёт")}
+      </Link>
+    </div>
   );
 }
 
@@ -190,14 +222,19 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
        * дорожки схлопываются, и карточка занимает ширину секции, а не треть
        * её с большой пустотой справа.
        */}
-      <div className="hidden gap-3 md:grid md:grid-cols-[repeat(auto-fit,minmax(17rem,1fr))]">
+      {/*
+       * Минимум 16rem, а не 17: на 1280px левая колонка страницы становится
+       * 552px, а двум дорожкам по 17rem нужно 556 — сетка схлопывалась
+       * с трёх колонок в одну ровно на переходе через брейкпоинт.
+       */}
+      <div className="hidden gap-3 md:grid md:grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
         {users.map((user) => (
+          /* `interactiveCard` убран: он давал hover рамки на узле, который
+             никуда не ведёт — карточка выглядела нажимаемой и ею не была.
+             Нажимаемы теперь имя и две ссылки в подвале. */
           <Card
             key={user.id}
-            className={cn(
-              uiSurface.interactiveCard,
-              "h-full border-border/58 bg-[hsl(var(--surface-2))] shadow-none",
-            )}
+            className="flex h-full flex-col border-border/58 bg-[hsl(var(--surface-2))] shadow-none"
           >
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
@@ -208,12 +245,19 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
                   size="lg"
                 />
                 <div className="min-w-0 flex-1">
-                  <CardTitle className="truncate text-lg">{user.name}</CardTitle>
+                  <CardTitle className="truncate text-lg">
+                    <Link
+                      href={`/?userId=${user.id}`}
+                      className="rounded transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
+                    >
+                      {user.name}
+                    </Link>
+                  </CardTitle>
                   <p className="truncate text-sm text-muted-foreground">@{user.username}</p>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="flex flex-1 flex-col space-y-3">
               <div className="grid grid-cols-2 border-y border-border/60 py-2.5 text-sm">
                 <div className="pr-3">
                   <p className="text-xs text-muted-foreground">{t("Всего желаний")}</p>
@@ -240,6 +284,11 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
                   <StatsPurchasedValueBlock stats={user.stats} />
                 </div>
               ) : null}
+
+              <ParticipantLinks
+                userId={user.id}
+                className="mt-auto border-t border-border/70 pt-3"
+              />
             </CardContent>
           </Card>
         ))}
@@ -453,6 +502,32 @@ function StatsOverview({
   );
 }
 
+/**
+ * Скелет вместо центрированного спиннера.
+ *
+ * Спиннер занимал всю страницу, терял `PageIntro` и не имел ни `role="status"`,
+ * ни доступного имени — а при `prefers-reduced-motion` глобальное правило
+ * останавливает `animate-spin`, и от загрузки оставалась немая застывшая
+ * иконка. Соседняя `/preferences` для того же случая давно рисует скелет.
+ */
+function StatsPageSkeleton() {
+  return (
+    <PageShell>
+      <PageMain>
+        <div className="space-y-4 animate-pulse" role="status" aria-live="polite">
+          <span className="sr-only">Загрузка статистики</span>
+          <div className="h-24 rounded-2xl bg-muted/50" />
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)]">
+            <div className="h-72 rounded-2xl bg-muted/40" />
+            <div className="h-72 rounded-2xl bg-muted/35 xl:row-span-2" />
+            <div className="h-56 rounded-2xl bg-muted/35" />
+          </div>
+        </div>
+      </PageMain>
+    </PageShell>
+  );
+}
+
 export default function StatsPage() {
   const { t } = useI18n();
   const { status } = useSession();
@@ -469,7 +544,9 @@ export default function StatsPage() {
     dedupingInterval: 30000,
   });
 
-  const { data: recentItemsData } = useSWR<ItemsPage>(
+  // Ошибка ленты читается: без неё падение запроса давало пустой массив,
+  // визуально неотличимый от «активности пока нет».
+  const { data: recentItemsData, error: recentItemsError } = useSWR<ItemsPage>(
     status === "authenticated" ? "/api/items?limit=8" : null,
     fetcher,
     { revalidateOnFocus: false, dedupingInterval: 30000 },
@@ -489,11 +566,7 @@ export default function StatsPage() {
   }
 
   if (status === "loading" || isLoading) {
-    return (
-      <PageShell className="flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-      </PageShell>
-    );
+    return <StatsPageSkeleton />;
   }
 
   if (error || !statsData) {
@@ -539,7 +612,13 @@ export default function StatsPage() {
               <ParticipantsSection users={users} />
 
               <div className="min-w-0 [grid-area:activity] xl:sticky xl:top-6 xl:self-start">
-                <RecentActivityPanel items={recentItemsData?.items ?? []} />
+                {recentItemsError ? (
+                  <div className="rounded-xl border border-destructive/24 bg-destructive/7 px-4 py-3 text-sm">
+                    {t("Не удалось загрузить активность. Остальная статистика доступна.")}
+                  </div>
+                ) : (
+                  <RecentActivityPanel items={recentItemsData?.items ?? []} />
+                )}
               </div>
             </div>
           )}
