@@ -114,8 +114,6 @@ const en: Dictionary = {
   "К предпочтениям": "Back to preferences",
   "Уйти без сохранения?": "Leave without saving?",
   "Продолжить заполнение": "Continue filling in",
-  "Разделите бренды, цвета, категории, стоп-лист и детали. Это подсказки для тех, кто выбирает вам подарок.":
-    "Separate brands, colours, categories, the do-not-buy list and details. These are hints for whoever is choosing your gift.",
   "Показать все": "Show all",
   "Выбрать несколько": "Select several",
   "Вставить ссылку на товар": "Paste a product link",
@@ -422,38 +420,28 @@ const en: Dictionary = {
   "Подарочные профили": "Gift profiles",
   "Подарочный профиль": "Gift profile",
   "Подарочный профиль сохранён": "Gift profile saved",
-  "Загляните в подсказки друзей перед выбором подарка. Свой профиль можно настроить прямо здесь.":
-    "Check friends' hints before choosing a gift. You can edit your own profile right here.",
-  "Профилей в круге": "Profiles in your circle",
+  "Что подойдёт каждому в вашем кругу. Откройте карточку, чтобы увидеть профиль целиком.":
+    "What suits everyone in your circle. Open a card to see the whole profile.",
   "Ваш круг": "Your circle",
-  "Что порадует каждого": "What will delight everyone",
-  "Откройте карточку, чтобы посмотреть весь профиль. Ваша карточка всегда идёт первой.":
-    "Open a card to see the full profile. Your card always appears first.",
   "Не удалось загрузить профили друзей. Ваш профиль по-прежнему доступен.":
     "Could not load friends' profiles. Your profile is still available.",
   Все: "All",
-  Заполненные: "Filled in",
-  "С размерами": "With sizes",
-  "Со стоп-листом": "With a stop list",
-  "По заполненности": "Most complete",
-  "По желаниям": "Most wishes",
-  "По имени": "By name",
   "Найти по имени или логину": "Find by name or username",
   "Поиск профилей": "Search profiles",
   "Очистить поиск": "Clear search",
-  Сначала: "Sort",
-  "Порядок профилей": "Profile order",
-  Показывать: "Show",
   Найдено: "Found",
-  "Подходящих профилей не найдено": "No matching profiles found",
-  "Измените запрос или сбросьте фильтры.": "Change the query or clear the filters.",
-  "Настройка вашего профиля": "Your profile setup",
-  "Изменения сразу видны в карточке выше": "Changes appear in the card above immediately",
+  "Никого не нашли": "Nobody found",
+  "Проверьте имя или логин.": "Check the name or username.",
+  Подойдёт: "Suits them",
+  "Не дарить": "Do not gift",
+  "Подсказок пока нет.": "No hints yet.",
+  "Расскажите о себе — друзьям будет проще выбрать подарок.":
+    "Tell others about yourself — it makes choosing a gift easier.",
+  "Раздел заполнен": "Section filled in",
+  "Не сохранено": "Not saved",
+  Сохранено: "Saved",
   Сохраняем: "Saving",
-  Заполнено: "Filled",
   Нравится: "Likes",
-  Избегать: "Avoid",
-  "подсказок для подарка": "gift hints",
   "Свернуть профиль": "Collapse profile",
   "Любимые вещи пока не указаны": "No favorites added yet",
   "Ограничений пока нет": "No restrictions added yet",
@@ -502,9 +490,6 @@ const en: Dictionary = {
     "Allergies, delivery, packaging, or any detail that a button cannot capture.",
   "Например: люблю практичные подарки и не люблю сюрпризы с доставкой на работу":
     "Example: I like practical gifts and dislike surprise deliveries to work",
-  "Кто это увидит": "Who will see this",
-  "Только пользователи, у которых есть доступ к вашим общим подборкам.":
-    "Only users who have access to your shared lists.",
   вам: "you",
   "Что понравится": "What works for",
   "Можно смело выбирать": "Safe picks",
@@ -519,16 +504,12 @@ const en: Dictionary = {
   Настроить: "Edit",
   "Открыть профиль": "Open profile",
   Подсказки: "Hints",
-  "Профиль ждёт первых подсказок": "The profile is waiting for its first hints",
-  "Уже есть за что зацепиться": "There is already something to work with",
-  "Можно выбирать подарок увереннее": "You can choose a gift with more confidence",
   Понравится: "Will like",
   "Пока без любимых брендов и интересов": "No favorite brands or interests yet",
   "Не подойдёт": "Will not fit",
   "Стоп-лист пока пуст": "The stop list is empty",
   "Важных деталей": "Important details",
   "Детали не указаны": "No details listed",
-  "Желаний в подборках": "Wishes in lists",
   "Добавить свой вариант": "Add a custom option",
   "Пока ничего не выбрано": "Nothing selected yet",
   Убрать: "Remove",
@@ -751,6 +732,15 @@ export function translateWithValues(
 
 export function getLanguageLocale(language: Language): string {
   return languageLocales[language];
+}
+
+export function getWishWord(language: Language, count: number): string {
+  if (language === "en") return count === 1 ? "wish" : "wishes";
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return "желание";
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "желания";
+  return "желаний";
 }
 
 export function getItemWord(language: Language, count: number): string {

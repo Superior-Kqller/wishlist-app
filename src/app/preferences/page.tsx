@@ -5,14 +5,12 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { motion, useReducedMotion } from "framer-motion";
-import { Search, UsersRound } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {} from "@/components/ui/dialog";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { useI18n } from "@/components/i18n/language-provider";
-import {} from "@/components/preferences/preference-chip-picker";
 import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
-import { PreferenceProfileControls } from "@/components/preferences/preference-profile-controls";
+import { PreferenceProfileSearch } from "@/components/preferences/preference-profile-search";
 import { PreferenceProfileCard } from "@/components/preferences/preference-profile-card";
 import { fetcher } from "@/lib/fetcher";
 import { giftPreferencesDraftKey } from "@/lib/preferences-draft";
@@ -20,12 +18,7 @@ import { staggerDelayMs } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import { type GiftPreferences, normalizeGiftPreferences } from "@/lib/preferences";
-import {
-  filterAndSortPreferenceProfiles,
-  getPreferenceProfileSignals,
-  type PreferenceProfileFilter,
-  type PreferenceProfileSort,
-} from "@/lib/preference-profiles";
+import { PROFILE_SEARCH_THRESHOLD, searchPreferenceProfiles } from "@/lib/preference-profiles";
 
 type PreferencesUser = {
   id: string;
@@ -87,10 +80,6 @@ export default function PreferencesPage() {
     () => normalizeGiftPreferences(data?.giftPreferences),
     [data?.giftPreferences],
   );
-  const [profileFilter, setProfileFilter] = useState<PreferenceProfileFilter>("all");
-  // По имени, а не «по заполненности»: сортировка по откровенности анкеты
-  // превращает круг близких людей в таблицу лидеров.
-  const [profileSort, setProfileSort] = useState<PreferenceProfileSort>("name");
   const [profileSearch, setProfileSearch] = useState("");
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [hasStoredDraft, setHasStoredDraft] = useState(false);
@@ -127,30 +116,15 @@ export default function PreferencesPage() {
   }, [circleData?.users, data, preferences]);
   const circleUsers = useMemo(
     () =>
-      filterAndSortPreferenceProfiles(allCircleUsers, {
-        filter: profileFilter,
-        sort: profileSort,
+      searchPreferenceProfiles(allCircleUsers, {
         query: profileSearch,
         currentUserId: data?.id,
       }),
-    [allCircleUsers, data?.id, profileFilter, profileSearch, profileSort],
+    [allCircleUsers, data?.id, profileSearch],
   );
-  const profileFilterCounts = useMemo(
-    () =>
-      allCircleUsers.reduce(
-        (counts, user) => {
-          const signals = getPreferenceProfileSignals(user);
-          counts.all += 1;
-          if (signals.preferenceCount > 0) counts.filled += 1;
-          if (signals.hasSizes) counts.sizes += 1;
-          if (signals.avoidCount > 0) counts.avoid += 1;
-          return counts;
-        },
-        { all: 0, filled: 0, sizes: 0, avoid: 0 },
-      ),
-    [allCircleUsers],
-  );
-  const hasProfileControls = profileFilter !== "all" || profileSearch.trim().length > 0;
+  // Поиск появляется только когда круг перестаёт помещаться в один взгляд.
+  const showProfileSearch =
+    allCircleUsers.length > PROFILE_SEARCH_THRESHOLD || profileSearch.trim().length > 0;
 
   const toggleProfile = (userId: string) => {
     setExpandedUserId((current) => (current === userId ? null : userId));
@@ -168,22 +142,14 @@ export default function PreferencesPage() {
     <PageShell>
       <PageMain>
         <div className="space-y-5">
+          {/* Один заголовок и одно описание: раньше здесь стояли PageIntro и
+              второй заголовок секции, каждый со своей фразой, плюс плашка
+              «Профилей в круге: N» — счётчик того, что видно ниже глазами. */}
           <PageIntro
             title={t("Подарочные профили")}
             description={t(
-              "Загляните в подсказки друзей перед выбором подарка. Свой профиль можно настроить прямо здесь.",
+              "Что подойдёт каждому в вашем кругу. Откройте карточку, чтобы увидеть профиль целиком.",
             )}
-            actions={
-              <div className="flex items-center gap-2.5 px-1 py-1">
-                <div className="flex size-8 items-center justify-center text-primary">
-                  <UsersRound className="h-4 w-4" aria-hidden />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">{t("Профилей в круге")}</p>
-                  <p className="text-sm font-semibold tabular-nums">{allCircleUsers.length}</p>
-                </div>
-              </div>
-            }
           />
 
           {error ? (
@@ -200,18 +166,7 @@ export default function PreferencesPage() {
               </Button>
             </div>
           ) : (
-            <section className="space-y-4" aria-labelledby="circle-title">
-              <div className="min-w-0">
-                <h2 id="circle-title" className="section-title">
-                  {t("Что порадует каждого")}
-                </h2>
-                <p className="mt-1 max-w-[62ch] text-sm text-muted-foreground">
-                  {t(
-                    "Откройте карточку, чтобы посмотреть весь профиль. Ваша карточка всегда идёт первой.",
-                  )}
-                </p>
-              </div>
-
+            <section className="space-y-4" aria-label={t("Подарочные профили")}>
               {circleError ? (
                 <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/7 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
                   <span>
@@ -223,16 +178,13 @@ export default function PreferencesPage() {
                 </div>
               ) : null}
 
-              <PreferenceProfileControls
-                filter={profileFilter}
-                sort={profileSort}
-                search={profileSearch}
-                counts={profileFilterCounts}
-                resultCount={circleUsers.length}
-                onFilterChange={setProfileFilter}
-                onSortChange={setProfileSort}
-                onSearchChange={setProfileSearch}
-              />
+              {showProfileSearch ? (
+                <PreferenceProfileSearch
+                  search={profileSearch}
+                  resultCount={circleUsers.length}
+                  onSearchChange={setProfileSearch}
+                />
+              ) : null}
 
               {circleUsers.length > 0 ? (
                 <motion.div
@@ -283,24 +235,19 @@ export default function PreferencesPage() {
               ) : (
                 <div className={cn(uiSurface.emptyState, "px-4 py-10 text-center")}>
                   <Search className="mx-auto h-5 w-5 text-muted-foreground" aria-hidden />
-                  <p className="mt-3 text-sm font-semibold">
-                    {t("Подходящих профилей не найдено")}
-                  </p>
+                  <p className="mt-3 text-sm font-semibold">{t("Никого не нашли")}</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {t("Измените запрос или сбросьте фильтры.")}
+                    {t("Проверьте имя или логин.")}
                   </p>
-                  {hasProfileControls ? (
+                  {profileSearch.trim() ? (
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       className="mt-4"
-                      onClick={() => {
-                        setProfileFilter("all");
-                        setProfileSearch("");
-                      }}
+                      onClick={() => setProfileSearch("")}
                     >
-                      {t("Сбросить")}
+                      {t("Очистить поиск")}
                     </Button>
                   ) : null}
                 </div>

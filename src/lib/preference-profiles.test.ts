@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  filterAndSortPreferenceProfiles,
-  getPreferenceProfileSignals,
+  getPreferenceHighlights,
+  searchPreferenceProfiles,
   type PreferenceProfile,
 } from "@/lib/preference-profiles";
 import { emptyGiftPreferences, type GiftPreferences } from "@/lib/preferences";
@@ -35,32 +35,8 @@ const profiles: PreferenceProfile[] = [
 ];
 
 describe("preference profile directory", () => {
-  it("keeps only profiles with sizes when the sizes filter is active", () => {
-    const result = filterAndSortPreferenceProfiles(profiles, {
-      filter: "sizes",
-      sort: "filled",
-      query: "",
-      currentUserId: "current",
-    });
-
-    expect(result.map((profile) => profile.id)).toEqual(["sizes"]);
-  });
-
-  it("keeps only profiles with exclusions when the stop-list filter is active", () => {
-    const result = filterAndSortPreferenceProfiles(profiles, {
-      filter: "avoid",
-      sort: "filled",
-      query: "",
-      currentUserId: "current",
-    });
-
-    expect(result.map((profile) => profile.id)).toEqual(["avoid"]);
-  });
-
   it("searches by name or username and pins a matching current profile", () => {
-    const result = filterAndSortPreferenceProfiles(profiles, {
-      filter: "all",
-      sort: "name",
+    const result = searchPreferenceProfiles(profiles, {
       query: "alex",
       currentUserId: "current",
     });
@@ -68,12 +44,68 @@ describe("preference profile directory", () => {
     expect(result.map((profile) => profile.id)).toEqual(["current"]);
   });
 
-  it("exposes counts used by filter badges", () => {
-    expect(getPreferenceProfileSignals(profiles[1])).toMatchObject({
-      preferenceCount: 1,
-      hasSizes: true,
-      avoidCount: 0,
+  it("orders the circle by name and keeps the current profile first", () => {
+    const result = searchPreferenceProfiles(profiles, { query: "", currentUserId: "current" });
+
+    expect(result.map((profile) => profile.id)).toEqual(["current", "avoid", "sizes"]);
+  });
+
+  it("matches a username even when the query differs in case", () => {
+    const result = searchPreferenceProfiles(profiles, { query: "  MARIA " });
+
+    expect(result.map((profile) => profile.id)).toEqual(["sizes"]);
+  });
+});
+
+describe("preference highlights", () => {
+  it("spreads the preview across sources instead of draining the longest one", () => {
+    const highlights = getPreferenceHighlights(
+      giftPreferences({
+        hobbies: ["Книги", "Кофе", "Растения", "Готовка", "Игры", "Спорт"],
+        favoriteCategories: ["Книги и хобби"],
+        favoriteBrands: ["Muji"],
+      }),
+    );
+
+    expect(highlights.likes).toEqual(["Книги и хобби", "Книги", "Muji", "Кофе", "Растения"]);
+    expect(highlights.likesHidden).toBe(3);
+  });
+
+  it("puts the stop list ahead of milder dislikes", () => {
+    const highlights = getPreferenceHighlights(
+      giftPreferences({
+        dislikedBrands: ["Zara"],
+        dislikedCategories: ["Косметика"],
+        doNotBuy: ["Свечи"],
+      }),
+    );
+
+    expect(highlights.avoid).toEqual(["Свечи", "Косметика", "Zara"]);
+    expect(highlights.avoidHidden).toBe(0);
+  });
+
+  it("counts what the preview leaves out", () => {
+    const highlights = getPreferenceHighlights(
+      giftPreferences({
+        doNotBuy: ["Свечи", "Парфюм", "Сладости", "Сертификаты"],
+        favoriteColors: ["Зелёный", "Синий", "Белый", "Бежевый", "Серый", "Чёрный"],
+      }),
+    );
+
+    expect(highlights.avoid).toHaveLength(3);
+    expect(highlights.avoidHidden).toBe(1);
+    expect(highlights.colors).toHaveLength(5);
+  });
+
+  it("returns an empty preview for a profile without hints", () => {
+    const highlights = getPreferenceHighlights(null);
+
+    expect(highlights).toEqual({
+      likes: [],
+      likesHidden: 0,
+      colors: [],
+      avoid: [],
+      avoidHidden: 0,
     });
-    expect(getPreferenceProfileSignals(profiles[2]).avoidCount).toBe(1);
   });
 });

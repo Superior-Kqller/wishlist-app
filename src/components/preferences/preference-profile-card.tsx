@@ -2,17 +2,15 @@
 
 import type { ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ChevronDown, Heart, Pencil, Ruler, ShieldAlert } from "lucide-react";
+import { ChevronDown, Pencil } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { getPreferenceColor } from "@/components/preferences/preference-signal-row";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
+import { getWishWord } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import {
-  countGiftPreferences,
-  normalizeGiftPreferences,
-  type GiftPreferences,
-} from "@/lib/preferences";
+import { getPreferenceHighlights } from "@/lib/preference-profiles";
+import { type GiftPreferences } from "@/lib/preferences";
 
 type PreferenceProfileCardProps = {
   id: string;
@@ -36,7 +34,7 @@ export function PreferenceProfileCard({
   name,
   username,
   avatarUrl,
-  preferences: rawPreferences,
+  preferences,
   wishCount,
   isCurrent = false,
   expanded,
@@ -46,29 +44,24 @@ export function PreferenceProfileCard({
   editLabel,
   children,
 }: PreferenceProfileCardProps) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const reduceMotion = useReducedMotion();
   // Обе кнопки управляют одной областью, значит объявляют одно и то же
   // состояние и указывают на один и тот же регион: раньше aria-expanded был
   // только у имени, и озвучка зависела от того, куда попал фокус.
   const panelId = `preference-profile-panel-${id}`;
-  const preferences = normalizeGiftPreferences(rawPreferences);
-  const preferenceCount = countGiftPreferences(preferences);
-  const likedCount =
-    preferences.favoriteBrands.length +
-    preferences.favoriteColors.length +
-    preferences.favoriteCategories.length +
-    preferences.favoriteMaterials.length +
-    preferences.hobbies.length;
-  const avoidCount =
-    preferences.dislikedBrands.length +
-    preferences.dislikedColors.length +
-    preferences.dislikedCategories.length +
-    preferences.dislikedMaterials.length +
-    preferences.doNotBuy.length;
-  const detailCount = [preferences.sizes, preferences.budget, ...preferences.occasions].filter(
-    Boolean,
-  ).length;
+
+  /*
+   * Свёрнутая карточка раньше показывала пять чисел и одну строку смысла:
+   * крупный счётчик «подсказок для подарка», оценочную фразу под ним и
+   * три счётчика разделов. Это метрика откровенности анкеты, выставленная
+   * на общий обзор родне, — и ни одно из чисел не помогает выбрать подарок.
+   * Теперь на её месте стоит то, ради чего профиль открывают: что человеку
+   * подойдёт и чего дарить нельзя.
+   */
+  const highlights = getPreferenceHighlights(preferences);
+  const hasHighlights =
+    highlights.likes.length > 0 || highlights.colors.length > 0 || highlights.avoid.length > 0;
 
   return (
     <motion.article
@@ -107,7 +100,15 @@ export function PreferenceProfileCard({
                 </span>
               ) : null}
             </div>
-            <p className="mt-0.5 text-xs text-muted-foreground">@{username}</p>
+            {/* Число желаний — единственный счётчик, который остался: он говорит,
+                есть ли вообще куда идти дальше. Место ему в подписи, не в теле,
+                и формулировка короткая — иначе строка обрезается рядом с кнопкой. */}
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
+              @{username}
+              {typeof wishCount === "number"
+                ? ` · ${wishCount} ${getWishWord(language, wishCount)}`
+                : null}
+            </p>
           </button>
 
           <div className="flex shrink-0 items-center gap-1.5">
@@ -144,57 +145,71 @@ export function PreferenceProfileCard({
           </div>
         </div>
 
-        <div className="mt-5 border-t border-border/42 pt-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <p className="text-xl font-semibold tabular-nums">{preferenceCount}</p>
-                <p className="text-sm font-medium text-muted-foreground">
-                  {t("подсказок для подарка")}
-                </p>
-              </div>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                {preferenceCount === 0
-                  ? t("Профиль ждёт первых подсказок")
-                  : preferenceCount < 6
-                    ? t("Уже есть за что зацепиться")
-                    : t("Можно выбирать подарок увереннее")}
-              </p>
-            </div>
-            {preferences.favoriteColors.length > 0 ? (
-              <div className="flex -space-x-1.5 pt-1" aria-label={t("Любимые цвета")}>
-                {preferences.favoriteColors.slice(0, 5).map((color) => (
-                  <span
-                    key={color}
-                    title={t(color)}
-                    className="size-5 rounded-full border-2 border-[hsl(var(--surface-2))]"
-                    style={{ backgroundColor: getPreferenceColor(color) }}
-                  />
-                ))}
-              </div>
-            ) : null}
-          </div>
-          {!expanded ? (
-            <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border/34 pt-3 text-xs">
-              <span className="inline-flex min-w-0 items-center gap-1.5 text-muted-foreground">
-                <Heart className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
-                <span className="truncate">{`${t("Нравится")}: ${likedCount}`}</span>
-              </span>
-              <span className="inline-flex min-w-0 items-center gap-1.5 text-muted-foreground">
-                <ShieldAlert className="h-3.5 w-3.5 shrink-0 text-destructive/80" aria-hidden />
-                <span className="truncate">{`${t("Избегать")}: ${avoidCount}`}</span>
-              </span>
-              <span className="inline-flex min-w-0 items-center gap-1.5 text-muted-foreground">
-                <Ruler className="h-3.5 w-3.5 shrink-0 text-warning/85" aria-hidden />
-                <span className="truncate">{`${t("Детали")}: ${detailCount}`}</span>
-              </span>
-            </div>
-          ) : null}
+        {!expanded ? (
+          <div className="mt-4 space-y-2 border-t border-border/42 pt-4 text-sm">
+            {hasHighlights ? (
+              <>
+                {/* Обычный inline-поток, а не flex: подпись и значения переносятся
+                    как одно предложение, а кружки цветов встают следом за
+                    последним словом, а не отдельной висящей строкой. */}
+                {highlights.likes.length > 0 || highlights.colors.length > 0 ? (
+                  <p className="min-w-0 leading-relaxed [overflow-wrap:anywhere]">
+                    <span className="text-muted-foreground">
+                      {highlights.likes.length > 0 ? t("Подойдёт") : t("Любимые цвета")}:{" "}
+                    </span>
+                    <span className="text-foreground/88">
+                      {highlights.likes.map((value) => t(value)).join(", ")}
+                    </span>
+                    {highlights.likesHidden > 0 ? (
+                      <span className="text-muted-foreground"> +{highlights.likesHidden}</span>
+                    ) : null}
+                    {highlights.colors.length > 0 ? (
+                      <span
+                        className={cn(
+                          "inline-flex -space-x-1.5 align-text-bottom",
+                          highlights.likes.length > 0 && "ml-2",
+                        )}
+                        aria-label={`${t("Любимые цвета")}: ${highlights.colors
+                          .map((color) => t(color))
+                          .join(", ")}`}
+                      >
+                        {highlights.colors.map((color) => (
+                          <span
+                            key={color}
+                            title={t(color)}
+                            className="size-4 rounded-full border-2 border-[hsl(var(--surface-2))]"
+                            style={{ backgroundColor: getPreferenceColor(color) }}
+                          />
+                        ))}
+                      </span>
+                    ) : null}
+                  </p>
+                ) : null}
 
-          {typeof wishCount === "number" ? (
-            <p className="mt-3 text-xs text-muted-foreground">{`${t("Желаний в подборках")}: ${wishCount}`}</p>
-          ) : null}
-        </div>
+                {highlights.avoid.length > 0 ? (
+                  <p className="min-w-0 leading-relaxed [overflow-wrap:anywhere]">
+                    <span className="text-muted-foreground">{t("Не дарить")}: </span>
+                    <span className="font-medium text-destructive">
+                      {highlights.avoid.map((value) => t(value)).join(", ")}
+                    </span>
+                    {highlights.avoidHidden > 0 ? (
+                      <span className="text-muted-foreground"> +{highlights.avoidHidden}</span>
+                    ) : null}
+                  </p>
+                ) : null}
+              </>
+            ) : (
+              /* Пустой профиль чужого человека — просто факт, а не упрёк:
+                 фраза «Профиль ждёт первых подсказок» оценивала того, кто
+                 ничего не обещал заполнять. */
+              <p className="text-muted-foreground">
+                {isCurrent
+                  ? t("Расскажите о себе — друзьям будет проще выбрать подарок.")
+                  : t("Подсказок пока нет.")}
+              </p>
+            )}
+          </div>
+        ) : null}
       </div>
 
       <AnimatePresence initial={false}>

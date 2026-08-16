@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import useSWR, { mutate as mutateCache } from "swr";
-import { ArrowLeft, Gift, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -21,7 +21,6 @@ import { uiSurface } from "@/lib/ui-contract";
 import { cn } from "@/lib/utils";
 import {
   type GiftPreferences,
-  countGiftPreferences,
   emptyGiftPreferences,
   normalizeGiftPreferences,
 } from "@/lib/preferences";
@@ -119,21 +118,22 @@ export default function GiftProfilePage() {
     return () => window.removeEventListener("beforeunload", warn);
   }, [hasChanges]);
 
-  const preferenceCount = countGiftPreferences(draft);
-
-  const sectionCounts: Record<EditorSection, number> = {
-    likes:
-      draft.favoriteBrands.length +
-      draft.favoriteColors.length +
-      draft.favoriteCategories.length +
-      draft.hobbies.length +
+  const sectionFilled: Record<EditorSection, boolean> = {
+    likes: Boolean(
+      draft.favoriteBrands.length ||
+      draft.favoriteColors.length ||
+      draft.favoriteCategories.length ||
+      draft.hobbies.length ||
       draft.favoriteMaterials.length,
-    avoid: draft.dislikedColors.length + draft.dislikedBrands.length + draft.doNotBuy.length,
-    details:
-      Number(Boolean(draft.sizes)) +
-      draft.occasions.length +
-      Number(Boolean(draft.budget)) +
-      Number(Boolean(draft.notes)),
+    ),
+    avoid: Boolean(
+      draft.dislikedColors.length ||
+      draft.dislikedBrands.length ||
+      draft.dislikedCategories.length ||
+      draft.dislikedMaterials.length ||
+      draft.doNotBuy.length,
+    ),
+    details: Boolean(draft.sizes || draft.occasions.length || draft.budget || draft.notes),
   };
 
   const updateList = (key: ListPreferenceKey, value: string[]) => {
@@ -197,10 +197,17 @@ export default function GiftProfilePage() {
   return (
     <PageShell>
       <PageMain>
+        {/*
+         * Три сложенных блока до первого поля стали одним. «Кто это увидит»
+         * никуда не делось — это единственная опора, снимающая неловкость
+         * публичного рассказа о себе, — но ему хватает строки описания, а не
+         * собственной панели с заголовком. Плашка «Заполнено подсказок: N»
+         * убрана целиком: она измеряла откровенность анкеты числом.
+         */}
         <PageIntro
           title={t("Подарочный профиль")}
           description={t(
-            "Разделите бренды, цвета, категории, стоп-лист и детали. Это подсказки для тех, кто выбирает вам подарок.",
+            "Подсказки для тех, кто выбирает вам подарок. Их видят только участники, у которых есть доступ к вашим общим подборкам.",
           )}
           actions={
             <Button type="button" variant="outline" className="gap-2" onClick={requestLeave}>
@@ -210,58 +217,45 @@ export default function GiftProfilePage() {
           }
         />
 
-        {/*
-         * «Кто это увидит» стоит до первого поля, а не в хвосте правой
-         * колонки: это единственная опора, снимающая неловкость публичного
-         * рассказа о себе, и нужна она раньше, чем человек начнёт отвечать.
-         */}
-        <div className="mb-5 rounded-xl border border-border/42 bg-[hsl(var(--surface-2)/0.44)] px-4 py-3 text-sm text-muted-foreground">
-          <p className="font-semibold text-foreground">{t("Кто это увидит")}</p>
-          <p className="mt-1 leading-relaxed">
-            {t("Только пользователи, у которых есть доступ к вашим общим подборкам.")}
-          </p>
-        </div>
-
-        <div
-          className={cn(
-            uiSurface.contentPanel,
-            "mb-5 flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
-          )}
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
-              <Gift className="h-4 w-4" aria-hidden />
-            </div>
-            <div>
-              <p className="text-sm font-semibold">{t("Ваш профиль")}</p>
-              <p className="text-xs text-muted-foreground">
-                {t("Заполнено подсказок")}: <span className="tabular-nums">{preferenceCount}</span>
-              </p>
-            </div>
-          </div>
-          <Button
-            type="button"
-            className="w-full gap-2 sm:w-auto"
-            disabled={!hasChanges || saving}
-            onClick={handleSubmit}
-          >
-            {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-            ) : (
-              <Save className="h-4 w-4" aria-hidden />
-            )}
-            {saving ? t("Сохраняем") : t("Сохранить")}
-          </Button>
-        </div>
-
         <GiftProfileEditor
           draft={draft}
           activeSection={activeSection}
           onSectionChange={setActiveSection}
-          sectionCounts={sectionCounts}
+          sectionFilled={sectionFilled}
           updateList={updateList}
           updateText={updateText}
         />
+
+        {/*
+         * Сохранение больше не уезжает вверх вместе с прокруткой: анкета
+         * длинная, и кнопка, до которой надо возвращаться, — это шаг, который
+         * форма может не требовать.
+         */}
+        <div className="sticky bottom-0 z-20 -mx-4 mt-5 bg-gradient-to-t from-background via-background to-transparent px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-5 sm:-mx-6 sm:px-6 xl:-mx-8 xl:px-8">
+          <div
+            className={cn(
+              uiSurface.contentPanel,
+              "flex items-center justify-between gap-3 bg-[hsl(var(--surface-2))] px-4 py-3",
+            )}
+          >
+            <p className="min-w-0 truncate text-sm text-muted-foreground" aria-live="polite">
+              {hasChanges ? t("Не сохранено") : t("Сохранено")}
+            </p>
+            <Button
+              type="button"
+              className="shrink-0 gap-2"
+              disabled={!hasChanges || saving}
+              onClick={handleSubmit}
+            >
+              {saving ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              ) : (
+                <Save className="h-4 w-4" aria-hidden />
+              )}
+              {saving ? t("Сохраняем") : t("Сохранить")}
+            </Button>
+          </div>
+        </div>
 
         <ConfirmDialog
           open={discardOpen}

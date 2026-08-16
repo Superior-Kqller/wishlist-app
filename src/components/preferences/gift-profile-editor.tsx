@@ -411,7 +411,7 @@ type GiftProfileEditorProps = {
   draft: GiftPreferences;
   activeSection: EditorSection;
   onSectionChange: (section: EditorSection) => void;
-  sectionCounts: Record<EditorSection, number>;
+  sectionFilled: Record<EditorSection, boolean>;
   updateList: (key: ListPreferenceKey, value: string[]) => void;
   updateText: (key: "sizes" | "budget" | "notes", value: string) => void;
 };
@@ -428,7 +428,7 @@ export function GiftProfileEditor({
   draft,
   activeSection,
   onSectionChange,
-  sectionCounts,
+  sectionFilled,
   updateList,
   updateText,
 }: GiftProfileEditorProps) {
@@ -460,9 +460,15 @@ export function GiftProfileEditor({
                   {t(section.hint)}
                 </span>
               </span>
-              <span className="min-w-5 rounded-md bg-[hsl(var(--surface-3)/0.78)] px-1.5 py-0.5 text-center text-[10px] font-semibold tabular-nums">
-                {sectionCounts[section.id]}
-              </span>
+              {/* Точка вместо счётчика: человеку нужно знать, что раздел он уже
+                  трогал, а не сколько чипов в нём набралось. Число превращало
+                  рассказ о себе в результат теста. */}
+              {sectionFilled[section.id] ? (
+                <span
+                  className="size-1.5 shrink-0 rounded-full bg-primary"
+                  aria-label={t("Раздел заполнен")}
+                />
+              ) : null}
             </button>
           );
         })}
