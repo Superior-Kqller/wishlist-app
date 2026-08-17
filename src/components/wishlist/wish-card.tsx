@@ -28,6 +28,7 @@ import { PriorityBadgeOverlay } from "./priority-badge";
 import { IconButton } from "@/components/ui/icon-button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getProductCategoryLabel } from "@/lib/categories";
+import { getPurchaseToggleTarget, isItemPurchased } from "@/lib/item-status";
 import { ProductCategoryIcon } from "@/lib/category-icons";
 
 export interface WishCardProps {
@@ -67,7 +68,7 @@ export const WishCard = memo(function WishCard({
   const [ownerImageError, setOwnerImageError] = useState(false);
 
   const imageUrl = item.images?.[0] ?? null;
-  const isBought = item.purchased || item.status === "PURCHASED";
+  const isBought = isItemPurchased(item);
 
   const canManage = currentUserId === item.userId || currentUserRole === "ADMIN";
   const showFooter = selectionMode || Boolean(item.price != null || item.url || canManage);
@@ -88,7 +89,7 @@ export const WishCard = memo(function WishCard({
 
   const handleMarkPurchased = () => {
     if (onSetStatus) {
-      onSetStatus(item.id, item.status === "PURCHASED" ? "AVAILABLE" : "PURCHASED");
+      onSetStatus(item.id, getPurchaseToggleTarget(item));
     } else {
       onTogglePurchased(item.id, !item.purchased);
     }

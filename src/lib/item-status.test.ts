@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   canTransitionStatus,
   getNextStatusActionLabel,
+  getPurchaseToggleTarget,
   hasConflictingStatusPayload,
+  isItemPurchased,
   normalizeItemStatus,
 } from "./item-status";
 
@@ -96,6 +98,26 @@ describe("legacy item-status normalization", () => {
     expect(normalizeItemStatus("CLAIMED", true)).toBe("PURCHASED");
     expect(normalizeItemStatus("AVAILABLE", false)).toBe("AVAILABLE");
     expect(normalizeItemStatus("PURCHASED", true)).toBe("PURCHASED");
+  });
+});
+
+describe("покупка как один факт", () => {
+  it("считает товар купленным по любому из двух полей", () => {
+    expect(isItemPurchased({ status: "PURCHASED", purchased: true })).toBe(true);
+    expect(isItemPurchased({ status: "PURCHASED", purchased: false })).toBe(true);
+    expect(isItemPurchased({ status: "AVAILABLE", purchased: true })).toBe(true);
+    expect(isItemPurchased({ status: "CLAIMED", purchased: true })).toBe(true);
+  });
+
+  it("считает товар доступным, когда молчат оба поля", () => {
+    expect(isItemPurchased({ status: "AVAILABLE", purchased: false })).toBe(false);
+    expect(isItemPurchased({ status: "CLAIMED", purchased: false })).toBe(false);
+  });
+
+  it("ведёт переключатель от факта, а не от одного поля", () => {
+    expect(getPurchaseToggleTarget({ status: "AVAILABLE", purchased: false })).toBe("PURCHASED");
+    expect(getPurchaseToggleTarget({ status: "PURCHASED", purchased: false })).toBe("AVAILABLE");
+    expect(getPurchaseToggleTarget({ status: "AVAILABLE", purchased: true })).toBe("AVAILABLE");
   });
 });
 

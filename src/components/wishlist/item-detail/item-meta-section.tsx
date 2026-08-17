@@ -18,6 +18,7 @@ import type { WishlistItem } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getProductCategoryLabel } from "@/lib/categories";
 import { ProductCategoryIcon } from "@/lib/category-icons";
+import { isItemPurchased } from "@/lib/item-status";
 
 type ItemMetaSectionProps = {
   item: WishlistItem;
@@ -40,6 +41,7 @@ export function ItemMetaSection({
   const [showFullNotes, setShowFullNotes] = useState(false);
   const hasLongNotes = Boolean(item.notes && item.notes.length > 180);
   const categoryLabel = getProductCategoryLabel(item.category, language);
+  const isBought = isItemPurchased(item);
   const noteParagraphs = item.notes
     ?.split(/\n\s*\n/)
     .map((paragraph) => paragraph.trim())
@@ -56,7 +58,7 @@ export function ItemMetaSection({
           <DialogTitle
             className={cn(
               "min-w-0 break-words [overflow-wrap:anywhere] text-left text-2xl font-semibold leading-[1.12] tracking-tight sm:text-[1.75rem]",
-              item.purchased && "line-through",
+              isBought && "line-through",
             )}
           >
             {item.title}
@@ -159,6 +161,7 @@ export function ItemDetailActions({
   mobileDock = false,
 }: ItemDetailActionsProps) {
   const { t } = useI18n();
+  const isBought = isItemPurchased(item);
   const actionButtonClass = cn(
     "justify-center whitespace-nowrap border-border/58 text-foreground hover:border-primary/34 hover:bg-accent",
     mobileDock ? "h-12 min-h-12 min-w-0 px-3" : "h-10 min-h-10 w-auto px-3",
@@ -197,12 +200,12 @@ export function ItemDetailActions({
               {t("Редактировать")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onTogglePurchased} disabled={statusPending}>
-              {item.status === "PURCHASED" ? (
+              {isBought ? (
                 <Undo2 className="mr-2 h-4 w-4" />
               ) : (
                 <ShoppingCart className="mr-2 h-4 w-4" />
               )}
-              {item.status === "PURCHASED" ? t("Снять отметку") : t("Отметить купленным")}
+              {isBought ? t("Снять отметку") : t("Отметить купленным")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={onDelete}

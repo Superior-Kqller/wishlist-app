@@ -16,6 +16,7 @@ import {
 } from "@/components/wishlist/item-detail/item-meta-section";
 import { ItemActivitySection } from "@/components/wishlist/item-detail/item-activity-section";
 import { useI18n } from "@/components/i18n/language-provider";
+import { getPurchaseToggleTarget } from "@/lib/item-status";
 
 const fetcher = (url: string) =>
   fetch(url).then((r) => {
@@ -124,8 +125,7 @@ export function ItemDetailDialog({
   const handleTogglePurchased = () => {
     if (statusPending) return;
     if (onSetStatus) {
-      const nextStatus = item.status === "PURCHASED" ? "AVAILABLE" : "PURCHASED";
-      onSetStatus(item.id, nextStatus);
+      onSetStatus(item.id, getPurchaseToggleTarget(item));
       return;
     }
     onTogglePurchased(item.id, !item.purchased);

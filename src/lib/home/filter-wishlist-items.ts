@@ -1,4 +1,5 @@
 import type { WishlistItem } from "@/types";
+import { isItemPurchased } from "@/lib/item-status";
 
 export function filterAndSortWishlistItems(
   source: WishlistItem[],
@@ -12,7 +13,7 @@ export function filterAndSortWishlistItems(
   let filtered = [...source];
 
   if (!showPurchased) {
-    filtered = filtered.filter((item) => !item.purchased && item.status !== "PURCHASED");
+    filtered = filtered.filter((item) => !isItemPurchased(item));
   }
 
   if (effectiveSelectedCategories.length > 0) {
