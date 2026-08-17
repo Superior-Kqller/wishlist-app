@@ -20,6 +20,7 @@ export class CalendarEventsError extends Error {
 
 export interface BirthdayOccurrence {
   id: string;
+  sourceId: string;
   type: "BIRTHDAY";
   date: string;
   person: {
@@ -43,6 +44,7 @@ export interface PersonalEventOccurrence {
 
 export interface HolidayOccurrence {
   id: string;
+  sourceId: string;
   type: "HOLIDAY";
   date: string;
   name: string;
@@ -174,6 +176,7 @@ export function createCalendarEvents(source: CalendarEventSource) {
           return [
             {
               id: `birthday:${person.id}:${date}`,
+              sourceId: person.id,
               type: "BIRTHDAY" as const,
               date,
               person: {
@@ -219,6 +222,7 @@ export function createCalendarEvents(source: CalendarEventSource) {
             return [
               {
                 id: `holiday:${holiday.id}:${date}`,
+                sourceId: holiday.id,
                 type: "HOLIDAY" as const,
                 date,
                 name: holiday.name,

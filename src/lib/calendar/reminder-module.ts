@@ -1,5 +1,6 @@
 import { parseLocalDate } from "./local-date";
 import type { CalendarEventSourceType, CalendarRange, ReminderEventFact } from "./calendar-events";
+import { reminderEventKey } from "./reminder-event-key";
 
 export type CalendarReminderSourceType = CalendarEventSourceType;
 export type CalendarReminderCheckpoint = 30 | 21 | 7 | 0;
@@ -108,7 +109,7 @@ export function createCalendarReminderModule(
         const checkpoint = daysBetween(input.localDate, event.occurrenceDate);
         if (checkpoint === null) continue;
         const recipients = await repository.listEligibleRecipients(event.audienceUserIds);
-        const eventKey = `${event.sourceType}:${event.sourceId}`;
+        const eventKey = reminderEventKey(event);
 
         for (const recipient of recipients) {
           if (

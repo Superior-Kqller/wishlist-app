@@ -46,6 +46,7 @@ import {
   type CalendarOccurrence,
   type CalendarView,
 } from "@/lib/calendar/client-calendar";
+import { occurrenceReminderKey } from "@/lib/calendar/reminder-event-key";
 import { thematicWishlistHref } from "@/lib/calendar/wishlist-link";
 
 const FILTERS: Array<{ value: CalendarFilter; label: string }> = [
@@ -473,16 +474,6 @@ export default function CalendarPage() {
     setMonth(next.getMonth());
   }
 
-  function reminderKey(occurrence: CalendarOccurrence): string {
-    const sourceId =
-      occurrence.type === "PERSONAL"
-        ? occurrence.sourceId
-        : occurrence.type === "BIRTHDAY"
-          ? occurrence.person.id
-          : occurrence.id.split(":")[1];
-    return `${occurrence.type}:${sourceId}`;
-  }
-
   /*
    * Ответ проверяется, отказ называется вслух.
    *
@@ -491,7 +482,7 @@ export default function CalendarPage() {
    * заглушить болезненную дату, оставался в уверенности, что заглушил.
    */
   async function toggleReminderMute(occurrence: CalendarOccurrence) {
-    const key = reminderKey(occurrence);
+    const key = occurrenceReminderKey(occurrence);
     const muted = muteData?.mutedEventKeys.includes(key) ?? false;
     try {
       const res = await fetch("/api/calendar/reminder-mutes", {
@@ -499,7 +490,7 @@ export default function CalendarPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sourceType: occurrence.type,
-          sourceId: key.slice(key.indexOf(":") + 1),
+          sourceId: occurrence.sourceId,
           muted: !muted,
         }),
       });
@@ -710,7 +701,9 @@ export default function CalendarPage() {
                         occurrence={entry}
                         locale={locale}
                         t={t}
-                        muted={muteData?.mutedEventKeys.includes(reminderKey(entry)) ?? false}
+                        muted={
+                          muteData?.mutedEventKeys.includes(occurrenceReminderKey(entry)) ?? false
+                        }
                         onToggleMuted={() => void toggleReminderMute(entry)}
                       />
                     ))}
@@ -754,7 +747,9 @@ export default function CalendarPage() {
                       occurrence={entry}
                       locale={locale}
                       t={t}
-                      muted={muteData?.mutedEventKeys.includes(reminderKey(entry)) ?? false}
+                      muted={
+                        muteData?.mutedEventKeys.includes(occurrenceReminderKey(entry)) ?? false
+                      }
                       onToggleMuted={() => void toggleReminderMute(entry)}
                     />
                   ))}

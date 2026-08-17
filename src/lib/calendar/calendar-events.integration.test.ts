@@ -99,6 +99,7 @@ describe("CalendarEvents with Prisma adapter", () => {
     ).resolves.toEqual([
       {
         id: "birthday:person:2027-03-01",
+        sourceId: "person",
         type: "BIRTHDAY",
         date: "2027-03-01",
         person: { id: "person", name: "Анна", avatarUrl: null },
@@ -116,6 +117,7 @@ describe("CalendarEvents with Prisma adapter", () => {
       },
       {
         id: "holiday:holiday:2027-03-08",
+        sourceId: "holiday",
         type: "HOLIDAY",
         date: "2027-03-08",
         name: "Женский день",

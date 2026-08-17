@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
+import { reminderEventKey } from "@/lib/calendar/reminder-event-key";
 
 const muteSchema = z.object({
   sourceType: z.enum(["BIRTHDAY", "PERSONAL", "HOLIDAY"]),
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     select: { sourceType: true, sourceId: true },
   });
   return NextResponse.json({
-    mutedEventKeys: mutes.map((mute) => `${mute.sourceType}:${mute.sourceId}`),
+    mutedEventKeys: mutes.map(reminderEventKey),
   });
 }
 

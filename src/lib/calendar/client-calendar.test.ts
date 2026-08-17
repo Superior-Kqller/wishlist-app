@@ -21,6 +21,7 @@ const occurrences: CalendarOccurrence[] = [
   },
   {
     id: "birthday",
+    sourceId: "user-1",
     type: "BIRTHDAY",
     date: "2026-07-28",
     person: { id: "user-1", name: "Анна", avatarUrl: null },
@@ -28,6 +29,7 @@ const occurrences: CalendarOccurrence[] = [
   },
   {
     id: "holiday",
+    sourceId: "holiday",
     type: "HOLIDAY",
     date: "2026-07-29",
     name: "Общий праздник",
@@ -45,6 +47,7 @@ const occurrences: CalendarOccurrence[] = [
   },
   {
     id: "fourth",
+    sourceId: "fourth",
     type: "HOLIDAY",
     date: "2026-08-01",
     name: "Четвёртое событие",

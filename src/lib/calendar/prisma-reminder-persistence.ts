@@ -1,5 +1,6 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 import type { CalendarReminderRepository } from "./reminder-module";
+import { reminderEventKey } from "./reminder-event-key";
 
 export function createPrismaCalendarReminderRepository(
   prisma: PrismaClient,
@@ -22,9 +23,7 @@ export function createPrismaCalendarReminderRepository(
         telegramId: user.telegramConfirmedAt ? user.telegramId : null,
         telegramNotificationsEnabled: user.telegramNotificationsEnabled,
         calendarNotificationsEnabled: user.calendarNotificationsEnabled,
-        mutedEventKeys: user.calendarEventMutes.map(
-          (mute) => `${mute.sourceType}:${mute.sourceId}`,
-        ),
+        mutedEventKeys: user.calendarEventMutes.map(reminderEventKey),
       }));
     },
 
