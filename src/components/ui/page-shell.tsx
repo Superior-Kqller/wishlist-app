@@ -31,7 +31,7 @@ export function PageMain({ children, className }: PageMainProps) {
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-[92rem] px-4 pb-10 pt-5 sm:px-6 sm:pb-14 sm:pt-7 xl:px-8",
+        "mx-auto w-full max-w-[92rem] px-4 pb-10 pt-4 sm:px-6 sm:pb-14 sm:pt-7 xl:px-8",
         className,
       )}
     >
@@ -53,11 +53,16 @@ interface PageIntroProps {
  * Заголовок страницы. Это единственный крупный типографический шаг в
  * продукте, поэтому он не панель и не карточка: тонкая линия снизу отделяет
  * его от контента дешевле, чем рамка, и не создаёт вложенных поверхностей.
+ *
+ * На телефоне шапка ужимается: подзаголовок — ориентирующая строка для
+ * первого знакомства, и на узком экране он оттеснял сам контент раздела
+ * почти на треть экрана. Ниже `sm` он остаётся в разметке для скринридеров
+ * (`sr-only`), но не занимает места, а вертикальные отступы сокращаются.
  */
 export function PageIntro({ title, description, actions, meta, className }: PageIntroProps) {
   return (
     <Reveal
-      className={cn("relative mb-6 border-b border-border/45 pb-6 sm:mb-8 sm:pb-7", className)}
+      className={cn("relative mb-5 border-b border-border/45 pb-4 sm:mb-8 sm:pb-7", className)}
     >
       <div
         aria-hidden
@@ -66,8 +71,8 @@ export function PageIntro({ title, description, actions, meta, className }: Page
       <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
         <div className="min-w-0">
           <h1 className="page-title text-foreground">{title}</h1>
-          {description ? <p className="page-lede mt-3">{description}</p> : null}
-          {meta ? <div className="mt-4">{meta}</div> : null}
+          {description ? <p className="page-lede max-sm:sr-only sm:mt-3">{description}</p> : null}
+          {meta ? <div className="mt-3 sm:mt-4">{meta}</div> : null}
         </div>
         {actions ? <div className="shrink-0 sm:pb-1">{actions}</div> : null}
       </div>

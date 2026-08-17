@@ -28,9 +28,17 @@ import {
 
 const mobileNavButtonClass = (active: boolean) =>
   cn(
-    "relative h-11 min-w-0 flex-col gap-0.5 rounded-xl border border-transparent px-1 py-1.5 text-[10px] font-semibold leading-none transition-[color] active:bg-accent/45 sm:flex-row sm:gap-1.5 sm:px-3 sm:text-xs",
+    "relative h-11 min-w-0 flex-col gap-0.5 rounded-xl border border-transparent px-0.5 py-1.5 text-[10px] font-semibold leading-none tracking-[-0.01em] transition-[color] active:bg-accent/45 sm:flex-row sm:gap-1.5 sm:px-3 sm:text-xs sm:tracking-normal",
     active ? "text-foreground" : "text-muted-foreground hover:bg-accent/40 hover:text-foreground",
   );
+
+/**
+ * Подпись вкладки. В колонке `flex-col` элемент по умолчанию шириной по
+ * содержимому, поэтому `truncate` не срабатывал и длинная подпись
+ * («Предпочтения») выезжала за подложку вкладки в соседние. Ширина по ячейке
+ * возвращает обрезку и делает её страховкой для любого языка.
+ */
+const mobileNavLabelClass = "w-full truncate text-center sm:w-auto";
 
 /** Та же подложка активного раздела, что и в боковом меню, только для узких экранов. */
 function MobileNavIndicator({ reduceMotion }: { reduceMotion: boolean | null }) {
@@ -52,11 +60,27 @@ export function Header() {
   const reduceMotion = useReducedMotion();
   const isAdmin = session?.user?.role === "ADMIN";
 
-  const primaryNavItems = [
+  /**
+   * `shortLabel` — подпись для узкой вкладки. «Предпочтения» не помещаются в
+   * пятую часть телефонного экрана ни в одном кегле, а раздел и на самой
+   * странице называется «Подарочные профили», поэтому короткая подпись
+   * ведёт к тому же смыслу, а не к обрезку слова.
+   */
+  const primaryNavItems: Array<{
+    label: string;
+    shortLabel?: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }> = [
     { label: t("Главная"), href: "/", icon: Home },
     { label: t("Календарь"), href: "/calendar", icon: CalendarDays },
     { label: t("Статистика"), href: "/stats", icon: BarChart3 },
-    { label: t("Предпочтения"), href: "/preferences", icon: SlidersHorizontal },
+    {
+      label: t("Предпочтения"),
+      shortLabel: t("Профили"),
+      href: "/preferences",
+      icon: SlidersHorizontal,
+    },
   ];
   const secondaryNavItems = [
     { label: t("Настройки"), href: "/settings", icon: Settings },
@@ -106,11 +130,12 @@ export function Header() {
                   size="sm"
                   className={mobileNavButtonClass(active)}
                   aria-current={active ? "page" : undefined}
+                  aria-label={item.shortLabel ? item.label : undefined}
                   onClick={() => router.push(item.href)}
                 >
                   {active ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
                   <Icon className="h-4 w-4 shrink-0" />
-                  <span className="min-w-0 truncate">{item.label}</span>
+                  <span className={mobileNavLabelClass}>{item.shortLabel ?? item.label}</span>
                 </Button>
               );
             })}
@@ -126,7 +151,7 @@ export function Header() {
                 >
                   {secondaryNavActive ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
                   <MoreHorizontal className="h-4 w-4 shrink-0" />
-                  <span className="min-w-0 truncate">{t("Ещё")}</span>
+                  <span className={mobileNavLabelClass}>{t("Ещё")}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">

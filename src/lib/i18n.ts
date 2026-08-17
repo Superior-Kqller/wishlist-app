@@ -92,6 +92,7 @@ const en: Dictionary = {
   "Месячная сетка календаря": "Calendar month grid",
   Статистика: "Stats",
   Предпочтения: "Preferences",
+  Профили: "Profiles",
   Настройки: "Settings",
   Админка: "Admin",
   Подборки: "Lists",
