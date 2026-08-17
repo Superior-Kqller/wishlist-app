@@ -11,9 +11,17 @@ import {
 } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import { type WishlistViewMode } from "@/components/wishlist/wishlist-view-toggle";
-import { WishlistWorkspace } from "@/components/wishlist/wishlist-workspace";
+import {
+  WishlistWorkspace,
+  type WishlistCatalogActions,
+  type WishlistFeed,
+  type WishlistFilters,
+  type WishlistItemActions,
+  type WishlistScope,
+  type WishlistSelection,
+} from "@/components/wishlist/wishlist-workspace";
 import { ItemFormDialog } from "@/components/ItemFormDialog";
 import { ParseUrlDialog } from "@/components/ParseUrlDialog";
 import { ListFormDialog } from "@/components/ListFormDialog";
@@ -36,6 +44,7 @@ import { filterListsBySelectedUser, getFirstOwnedListId } from "@/lib/list-filte
 import { normalizeSelectedUserId } from "@/lib/filter-state";
 import { filterAndSortWishlistItems } from "@/lib/home/filter-wishlist-items";
 import { useInfiniteWishlistItems } from "@/hooks/use-infinite-wishlist-items";
+import { BulkDeleteFailure, useWishlistItemEditor } from "@/hooks/use-wishlist-item-editor";
 import { useWishlistUrlSync } from "@/hooks/use-wishlist-url-sync";
 import { useWishlistAddUrlDeepLink } from "@/hooks/use-wishlist-add-url-deeplink";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -125,6 +134,9 @@ function HomePageContent() {
     [lists, currentUserId],
   );
 
+  /** Вся правка желаний — за одним швом: сеть, исходы и их состояние живут там. */
+  const editor = useWishlistItemEditor({ mutateItems, t });
+
   // Dialog states
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [addDialogAutoFill, setAddDialogAutoFill] = useState(false);
@@ -136,7 +148,6 @@ function HomePageContent() {
   const [detailItem, setDetailItem] = useState<WishlistItem | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
-  const [isImporting, setIsImporting] = useState(false);
   const [listDeleteTarget, setListDeleteTarget] = useState<{
     id: string;
     name: string;
@@ -145,35 +156,13 @@ function HomePageContent() {
   // Bulk selection
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [bulkProcessing, setBulkProcessing] = useState(false);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
-  const [pendingStatusByItemId, setPendingStatusByItemId] = useState<Record<string, boolean>>({});
 
   const handleOpenAddItem = useCallback(() => {
     setParsedData(null);
     setAddDialogAutoFill(false);
     setAddDialogOpen(true);
   }, []);
-
-  const handleExport = useCallback(
-    async (format: "csv" | "json") => {
-      const res = await fetch(`/api/items/export?format=${format}`);
-      if (!res.ok) {
-        toast.error(t("Не удалось экспортировать желания"));
-        return;
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download =
-        res.headers.get("Content-Disposition")?.match(/filename="(.+)"/)?.[1] ??
-        `wishlist.${format}`;
-      a.click();
-      URL.revokeObjectURL(url);
-    },
-    [t],
-  );
 
   const handleImport = useCallback(() => {
     importFileInputRef.current?.click();
@@ -183,43 +172,17 @@ function HomePageContent() {
     async (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
-      setIsImporting(true);
+      const targetListId =
+        selectedListId && ownedListsForCreate.some((list) => list.id === selectedListId)
+          ? selectedListId
+          : defaultListIdForCreate;
       try {
-        const parsed = JSON.parse(await file.text()) as unknown;
-        const targetListId =
-          selectedListId && ownedListsForCreate.some((list) => list.id === selectedListId)
-            ? selectedListId
-            : defaultListIdForCreate;
-        const payload = Array.isArray(parsed)
-          ? { items: parsed, listId: targetListId }
-          : {
-              ...(parsed && typeof parsed === "object" ? parsed : { items: parsed }),
-              listId:
-                parsed && typeof parsed === "object" && "listId" in parsed
-                  ? (parsed as { listId?: unknown }).listId
-                  : targetListId,
-            };
-
-        const res = await fetch("/api/items/import", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        const body = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          throw new Error(body.error || t("Не удалось импортировать каталог"));
-        }
-        toast.success(`${t("Импортировано желаний")}: ${body.imported}`);
-        mutateItems();
-        mutate("/api/users/stats");
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : t("Не удалось импортировать каталог"));
+        await editor.handleImportFile(file, targetListId);
       } finally {
-        setIsImporting(false);
         event.target.value = "";
       }
     },
-    [defaultListIdForCreate, mutateItems, ownedListsForCreate, selectedListId, t],
+    [defaultListIdForCreate, editor, ownedListsForCreate, selectedListId],
   );
   const selectedWishlistUser = useMemo(() => {
     if (
@@ -401,40 +364,13 @@ function HomePageContent() {
   }, [selectedIds, items, t]);
 
   // Handlers
-  const handleCreateItem = useCallback(
-    async (data: CreateItemPayload | UpdateItemPayload) => {
-      const res = await fetch("/api/items", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || t("Ошибка при создании желания"));
-      }
-      toast.success(t("Добавлено в список!"));
-      mutateItems();
-    },
-    [mutateItems, t],
-  );
-
   const handleUpdateItem = useCallback(
     async (data: CreateItemPayload | UpdateItemPayload) => {
       if (!editingItem) return;
-      const res = await fetch(`/api/items/${editingItem.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || t("Ошибка при обновлении желания"));
-      }
-      toast.success(t("Сохранено!"));
-      mutateItems();
+      await editor.updateItemById(editingItem.id, data);
       setEditingItem(null);
     },
-    [editingItem, mutateItems, t],
+    [editingItem, editor],
   );
 
   const handleDeleteItem = useCallback((id: string) => {
@@ -455,12 +391,9 @@ function HomePageContent() {
 
   const confirmDeleteItem = useCallback(async () => {
     if (!deletingItemId) return;
-    const res = await fetch(`/api/items/${deletingItemId}`, { method: "DELETE" });
-    if (!res.ok) throw new Error(t("Ошибка при удалении желания"));
-    toast.success(t("Удалено"));
-    mutateItems();
+    await editor.confirmDeleteItem(deletingItemId);
     setDeletingItemId(null);
-  }, [deletingItemId, mutateItems, t]);
+  }, [deletingItemId, editor]);
 
   // Ошибку намеренно не глотаем: её ловит ConfirmDialog и показывает внутри
   // окна, оставляя его открытым. Тост здесь закрыл бы диалог как при успехе.
@@ -479,60 +412,6 @@ function HomePageContent() {
       syncFiltersToUrl({ listId: null });
     }
   }, [listDeleteTarget, selectedListId, syncFiltersToUrl, mutateItems, mutateLists, t]);
-
-  const handleTogglePurchased = useCallback(
-    async (id: string, purchased: boolean) => {
-      const res = await fetch(`/api/items/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ purchased }),
-      });
-      if (!res.ok) throw new Error(t("Ошибка при обновлении желания"));
-      toast.success(purchased ? t("Отмечено как купленное") : t("Отметка снята"));
-      mutateItems();
-    },
-    [mutateItems, t],
-  );
-
-  const [justPurchasedId, setJustPurchasedId] = useState<string | null>(null);
-
-  const handleSetItemStatus = useCallback(
-    async (id: string, status: "AVAILABLE" | "PURCHASED") => {
-      if (pendingStatusByItemId[id]) return;
-      setPendingStatusByItemId((prev) => ({ ...prev, [id]: true }));
-      try {
-        const res = await fetch(`/api/items/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status }),
-        });
-        if (!res.ok) {
-          if (res.status === 409) {
-            await mutateItems();
-            toast.error(t("Статус уже изменился, список обновлён"));
-            return;
-          }
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || t("Ошибка смены статуса"));
-        }
-        const statusText = status === "AVAILABLE" ? t("Отметка снята") : t("Отмечено купленным");
-        toast.success(statusText);
-        // Подтверждение покупки — единственный момент, который празднуется:
-        // карточка получает печать. Отметка держится ровно на время анимации,
-        // чтобы она не проигрывалась заново при каждой перерисовке списка.
-        if (status === "PURCHASED") {
-          setJustPurchasedId(id);
-          window.setTimeout(() => {
-            setJustPurchasedId((current) => (current === id ? null : current));
-          }, 1200);
-        }
-        await mutateItems();
-      } finally {
-        setPendingStatusByItemId((prev) => ({ ...prev, [id]: false }));
-      }
-    },
-    [mutateItems, pendingStatusByItemId, t],
-  );
 
   const handleParsed = useCallback((data: ParsedProductResponse) => {
     const firstImage = data.images?.[0];
@@ -557,65 +436,29 @@ function HomePageContent() {
     });
   }, []);
 
-  // Массовое удаление необратимо, поэтому провал не маскируется под успех:
-  // уцелевшие желания остаются выбранными, чтобы попытку можно было повторить
-  // ровно по ним, а не по всему исходному набору.
+  /*
+   * Ошибка намеренно не глотается: её ловит ConfirmDialog и показывает внутри
+   * окна. Уцелевшие желания остаются выбранными — повтор идёт ровно по ним.
+   */
   const handleBulkDelete = useCallback(async () => {
     if (selectedIds.size === 0) return;
-    setBulkProcessing(true);
+    const titleOf = (id: string) => items.find((item) => item.id === id)?.title;
     try {
-      const ids = Array.from(selectedIds);
-      const results = await Promise.allSettled(
-        ids.map((id) => fetch(`/api/items/${id}`, { method: "DELETE" })),
-      );
-      const failedIds = ids.filter((_, index) => {
-        const result = results[index];
-        return result.status === "rejected" || !result.value.ok;
-      });
-
-      await mutateItems();
-
-      if (failedIds.length > 0) {
-        setSelectedIds(new Set(failedIds));
-        const failedTitles = failedIds
-          .map((id) => items.find((item) => item.id === id)?.title)
-          .filter((title): title is string => Boolean(title))
-          .slice(0, 3);
-        throw new Error(
-          `${t("Не удалось удалить")}: ${failedIds.length} ${t("из")} ${ids.length}. ${
-            failedTitles.length > 0 ? failedTitles.join(", ") : ""
-          }`.trim(),
-        );
-      }
-
-      toast.success(`${t("Удалено желаний")}: ${ids.length}`);
+      await editor.handleBulkDelete(Array.from(selectedIds), titleOf);
       setSelectedIds(new Set());
       setSelectionMode(false);
-    } finally {
-      setBulkProcessing(false);
+    } catch (err) {
+      if (err instanceof BulkDeleteFailure) setSelectedIds(new Set(err.failedIds));
+      throw err;
     }
-  }, [selectedIds, items, mutateItems, t]);
+  }, [selectedIds, items, editor]);
 
   const handleBulkMarkPurchased = useCallback(async () => {
     if (selectedIds.size === 0) return;
-    setBulkProcessing(true);
-    const ids = Array.from(selectedIds);
-    const results = await Promise.allSettled(
-      ids.map((id) =>
-        fetch(`/api/items/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ purchased: true }),
-        }),
-      ),
-    );
-    const ok = results.filter((r) => r.status === "fulfilled" && (r.value as Response).ok).length;
-    toast.success(`${t("Отмечено купленным")}: ${ok} / ${ids.length}`);
+    await editor.handleBulkMarkPurchased(Array.from(selectedIds));
     setSelectedIds(new Set());
     setSelectionMode(false);
-    setBulkProcessing(false);
-    mutateItems();
-  }, [selectedIds, mutateItems, t]);
+  }, [selectedIds, editor]);
 
   const handleClearSelection = useCallback(() => {
     setSelectedIds(new Set());
@@ -651,6 +494,174 @@ function HomePageContent() {
     [syncFiltersToUrl],
   );
 
+  const handleCreateList = useCallback(() => {
+    setEditingList(null);
+    setListDialogOpen(true);
+  }, []);
+
+  const handleEditSelectedList = useCallback(() => {
+    const list = lists.find((l) => l.id === selectedListId);
+    if (list) {
+      setEditingList(list);
+      setListDialogOpen(true);
+    }
+  }, [lists, selectedListId]);
+
+  const handleClearCategories = useCallback(() => setSelectedCategories([]), []);
+
+  const handleTogglePurchasedVisibility = useCallback(() => setShowPurchased((prev) => !prev), []);
+
+  // Апдейтер состояния обязан быть чистым: побочный сброс выбора вынесен наружу.
+  const handleToggleSelectionMode = useCallback(() => {
+    if (selectionMode) setSelectedIds(new Set());
+    setSelectionMode(!selectionMode);
+  }, [selectionMode]);
+
+  const handleLoadMore = useCallback(
+    (nextSize: number) => {
+      void setSize(nextSize);
+    },
+    [setSize],
+  );
+
+  const handleOpenParseUrl = useCallback(() => setParseDialogOpen(true), []);
+
+  /*
+   * Шесть связок вместо полусотни пропсов россыпью. Каждая меняется как целое,
+   * поэтому и передаётся целиком — см. типы в wishlist-workspace.
+   */
+  const scope = useMemo<WishlistScope>(
+    () => ({
+      currentUserId,
+      currentUserRole: session?.user?.role ?? null,
+      usersWithStats,
+      selectedWishlistUser,
+      lists,
+      ownedListsForCreate,
+      normalizedSelectedUserId,
+      selectedListId,
+      onUserChange: handleUserChange,
+      onListChange: handleListChange,
+      onCreateList: handleCreateList,
+      onEditSelectedList: selectedListId ? handleEditSelectedList : undefined,
+    }),
+    [
+      currentUserId,
+      session?.user?.role,
+      usersWithStats,
+      selectedWishlistUser,
+      lists,
+      ownedListsForCreate,
+      normalizedSelectedUserId,
+      selectedListId,
+      handleUserChange,
+      handleListChange,
+      handleCreateList,
+      handleEditSelectedList,
+    ],
+  );
+
+  const filters = useMemo<WishlistFilters>(
+    () => ({
+      search,
+      onSearchChange: setSearch,
+      hasActiveFilters,
+      activeFilterChips,
+      filtersOpen,
+      onFiltersOpenChange: setFiltersOpen,
+      categories: PRODUCT_CATEGORIES,
+      selectedCategories: effectiveSelectedCategories,
+      onToggleCategory: handleToggleCategory,
+      onClearCategories: handleClearCategories,
+      sortBy,
+      onSortChange: setSortBy,
+      showPurchased,
+      onTogglePurchasedVisibility: handleTogglePurchasedVisibility,
+      onClearAll: handleClearAllFilters,
+    }),
+    [
+      search,
+      hasActiveFilters,
+      activeFilterChips,
+      filtersOpen,
+      effectiveSelectedCategories,
+      handleToggleCategory,
+      handleClearCategories,
+      sortBy,
+      showPurchased,
+      handleTogglePurchasedVisibility,
+      handleClearAllFilters,
+    ],
+  );
+
+  const selection = useMemo<WishlistSelection>(
+    () => ({
+      selectionMode,
+      selectedIds,
+      onToggle: handleToggleSelect,
+      onToggleMode: handleToggleSelectionMode,
+      onClearMode: handleClearSelection,
+    }),
+    [
+      selectionMode,
+      selectedIds,
+      handleToggleSelect,
+      handleToggleSelectionMode,
+      handleClearSelection,
+    ],
+  );
+
+  const feed = useMemo<WishlistFeed>(
+    () => ({
+      items,
+      filteredItems,
+      isLoading,
+      hasMore,
+      isLoadingMore,
+      sentinelRef,
+      size,
+      setSize: handleLoadMore,
+      viewMode,
+      onViewModeChange: setViewMode,
+    }),
+    [
+      items,
+      filteredItems,
+      isLoading,
+      hasMore,
+      isLoadingMore,
+      sentinelRef,
+      size,
+      handleLoadMore,
+      viewMode,
+    ],
+  );
+
+  const itemActions = useMemo<WishlistItemActions>(
+    () => ({
+      onEdit: handleEditItem,
+      onDelete: handleDeleteItem,
+      onTogglePurchased: editor.handleTogglePurchased,
+      onSetStatus: editor.handleSetItemStatus,
+      pendingStatusByItemId: editor.pendingStatusByItemId,
+      justPurchasedId: editor.justPurchasedId,
+      onOpenDetail: setDetailItem,
+      onEmptyAdd: handleEmptyAdd,
+    }),
+    [handleEditItem, handleDeleteItem, editor, handleEmptyAdd],
+  );
+
+  const catalogActions = useMemo<WishlistCatalogActions>(
+    () => ({
+      onAddItem: handleOpenAddItem,
+      onParseUrl: handleOpenParseUrl,
+      onExport: editor.handleExport,
+      onImport: handleImport,
+      isImporting: editor.isImporting,
+    }),
+    [handleOpenAddItem, handleOpenParseUrl, editor, handleImport],
+  );
+
   return (
     <PageShell>
       <PageMain>
@@ -660,83 +671,12 @@ function HomePageContent() {
           meta={<UpcomingCalendarCard />}
         />
         <WishlistWorkspace
-          search={search}
-          onSearchChange={setSearch}
-          hasActiveFilters={hasActiveFilters}
-          activeFilterCount={activeFilterChips.length}
-          activeFilterChips={activeFilterChips}
-          filtersOpen={filtersOpen}
-          onFiltersOpenChange={setFiltersOpen}
-          onParseUrl={() => setParseDialogOpen(true)}
-          currentUserId={currentUserId}
-          currentUserRole={session?.user?.role ?? null}
-          usersWithStats={usersWithStats}
-          selectedWishlistUser={selectedWishlistUser}
-          lists={lists}
-          normalizedSelectedUserId={normalizedSelectedUserId}
-          selectedListId={selectedListId}
-          onUserChange={handleUserChange}
-          onListChange={handleListChange}
-          onCreateList={() => {
-            setEditingList(null);
-            setListDialogOpen(true);
-          }}
-          onEditSelectedList={
-            selectedListId
-              ? () => {
-                  const list = lists.find((l) => l.id === selectedListId);
-                  if (list) {
-                    setEditingList(list);
-                    setListDialogOpen(true);
-                  }
-                }
-              : undefined
-          }
-          categoriesForFilters={PRODUCT_CATEGORIES}
-          effectiveSelectedCategories={effectiveSelectedCategories}
-          onToggleCategory={handleToggleCategory}
-          onClearCategories={() => setSelectedCategories([])}
-          onAddItem={handleOpenAddItem}
-          onExport={handleExport}
-          onImport={handleImport}
-          isImporting={isImporting}
-          sortBy={sortBy}
-          onSortChange={setSortBy}
-          showPurchased={showPurchased}
-          onTogglePurchasedVisibility={() => setShowPurchased(!showPurchased)}
-          selectionMode={selectionMode}
-          selectedIds={selectedIds}
-          onToggleSelectionMode={() => {
-            setSelectionMode(!selectionMode);
-            if (selectionMode) setSelectedIds(new Set());
-          }}
-          onClearSelectionMode={() => {
-            setSelectionMode(false);
-            setSelectedIds(new Set());
-          }}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-          items={items}
-          filteredItems={filteredItems}
-          isLoading={isLoading}
-          onEditItem={handleEditItem}
-          onDeleteItem={handleDeleteItem}
-          onTogglePurchased={handleTogglePurchased}
-          onSetStatus={handleSetItemStatus}
-          pendingStatusByItemId={pendingStatusByItemId}
-          justPurchasedId={justPurchasedId}
-          onEmptyAdd={handleEmptyAdd}
-          onOpenDetail={setDetailItem}
-          onToggleSelect={handleToggleSelect}
-          ownedListsForCreate={ownedListsForCreate}
-          onClearAllFilters={handleClearAllFilters}
-          hasMore={hasMore}
-          isLoadingMore={isLoadingMore}
-          sentinelRef={sentinelRef}
-          size={size}
-          setSize={(nextSize) => {
-            void setSize(nextSize);
-          }}
+          scope={scope}
+          filters={filters}
+          selection={selection}
+          feed={feed}
+          itemActions={itemActions}
+          catalogActions={catalogActions}
         />
       </PageMain>
 
@@ -756,7 +696,7 @@ function HomePageContent() {
           setAddDialogOpen(open);
           if (!open) setAddDialogAutoFill(false);
         }}
-        onSave={handleCreateItem}
+        onSave={editor.handleCreateItem}
         initialData={parsedData || undefined}
         existingLists={ownedListsForCreate}
         autoFillFromUrlOnce={addDialogAutoFill}
@@ -792,9 +732,9 @@ function HomePageContent() {
           setParsedData(null);
         }}
         onDelete={handleDeleteItem}
-        onTogglePurchased={handleTogglePurchased}
-        onSetStatus={handleSetItemStatus}
-        statusPending={detailItem ? !!pendingStatusByItemId[detailItem.id] : false}
+        onTogglePurchased={editor.handleTogglePurchased}
+        onSetStatus={editor.handleSetItemStatus}
+        statusPending={detailItem ? !!editor.pendingStatusByItemId[detailItem.id] : false}
       />
 
       {/* Confirm delete dialog */}
@@ -861,7 +801,7 @@ function HomePageContent() {
         onDelete={() => setBulkDeleteOpen(true)}
         onMarkPurchased={handleBulkMarkPurchased}
         onClearSelection={handleClearSelection}
-        isProcessing={bulkProcessing}
+        isProcessing={editor.bulkProcessing}
       />
     </PageShell>
   );

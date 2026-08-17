@@ -40,125 +40,187 @@ import { GiftPreferencesSummary } from "@/components/preferences/gift-preference
 import type { ProductCategoryOption } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 
-type WishlistWorkspaceProps = {
-  search: string;
-  onSearchChange: (value: string) => void;
-  hasActiveFilters: boolean;
-  activeFilterCount: number;
-  activeFilterChips: ActiveFilterChip[];
-  filtersOpen: boolean;
-  onFiltersOpenChange: (open: boolean) => void;
-  /** Открывает диалог разбора ссылки на товар. */
-  onParseUrl?: () => void;
+/*
+ * Мастерская принимает шесть связок, а не полсотни россыпью.
+ *
+ * Пропсы здесь никогда не были независимыми: охват, фильтры, выбор, лента и два
+ * набора действий меняются каждый как целое. Пока они лежали плоским списком,
+ * вызов занимал восемьдесят строк, а добавление одного поля к любой из связок
+ * требовало трогать и тип, и деструктуризацию, и место вызова. Внутри имена
+ * остаются плоскими: разметке всё равно, откуда пришло значение.
+ */
+
+/** Чей список смотрим и в какой подборке. */
+export type WishlistScope = {
   currentUserId?: string;
   currentUserRole?: "ADMIN" | "USER" | null;
   usersWithStats: UserWithStats[];
   selectedWishlistUser: UserWithStats | null;
   lists: ListWithMeta[];
+  /** Только свои подборки: пустой список меняет текст пустого состояния. */
+  ownedListsForCreate: ListWithMeta[];
   normalizedSelectedUserId: string | null;
   selectedListId: string | null;
   onUserChange: (userId: string | null) => void;
   onListChange: (listId: string | null) => void;
   onCreateList: () => void;
   onEditSelectedList?: () => void;
-  categoriesForFilters: ProductCategoryOption[];
-  effectiveSelectedCategories: string[];
+};
+
+/** Чем сузили выдачу и как её отсортировали. */
+export type WishlistFilters = {
+  search: string;
+  onSearchChange: (value: string) => void;
+  hasActiveFilters: boolean;
+  activeFilterChips: ActiveFilterChip[];
+  filtersOpen: boolean;
+  onFiltersOpenChange: (open: boolean) => void;
+  categories: ProductCategoryOption[];
+  selectedCategories: string[];
   onToggleCategory: (categoryId: string) => void;
   onClearCategories: () => void;
-  onAddItem: () => void;
-  onExport: (format: "csv" | "json") => void;
-  onImport: () => void;
-  isImporting: boolean;
   sortBy: string;
   onSortChange: (value: string) => void;
   showPurchased: boolean;
   onTogglePurchasedVisibility: () => void;
+  onClearAll: () => void;
+};
+
+/** Режим выбора нескольких карточек. */
+export type WishlistSelection = {
   selectionMode: boolean;
   selectedIds: Set<string>;
-  onToggleSelectionMode: () => void;
-  onClearSelectionMode: () => void;
-  viewMode: WishlistViewMode;
-  onViewModeChange: (mode: WishlistViewMode) => void;
+  onToggle: (id: string) => void;
+  onToggleMode: () => void;
+  onClearMode: () => void;
+};
+
+/** Сама лента: что показываем и как дочитываем. */
+export type WishlistFeed = {
+  /** Всё загруженное — по нему отличается «список пуст» от «фильтры пусты». */
   items: WishlistItem[];
   filteredItems: WishlistItem[];
   isLoading: boolean | undefined;
-  onEditItem: (item: WishlistItem) => void;
-  onDeleteItem: (id: string) => void;
-  onTogglePurchased: (id: string, purchased: boolean) => void;
-  onSetStatus: (id: string, status: "AVAILABLE" | "PURCHASED") => void;
-  pendingStatusByItemId: Record<string, boolean>;
-  justPurchasedId?: string | null;
-  onEmptyAdd: () => void;
-  onOpenDetail: (item: WishlistItem) => void;
-  onToggleSelect: (id: string) => void;
-  ownedListsForCreate: ListWithMeta[];
-  onClearAllFilters: () => void;
   hasMore: boolean;
   isLoadingMore: boolean;
   sentinelRef: RefObject<HTMLDivElement | null>;
   size: number;
   setSize: (size: number) => void;
+  viewMode: WishlistViewMode;
+  onViewModeChange: (mode: WishlistViewMode) => void;
+};
+
+/** Действия над одним желанием — ровно то, что отдаёт useWishlistItemEditor. */
+export type WishlistItemActions = {
+  onEdit: (item: WishlistItem) => void;
+  onDelete: (id: string) => void;
+  onTogglePurchased: (id: string, purchased: boolean) => void;
+  onSetStatus: (id: string, status: "AVAILABLE" | "PURCHASED") => void;
+  pendingStatusByItemId: Record<string, boolean>;
+  justPurchasedId?: string | null;
+  onOpenDetail: (item: WishlistItem) => void;
+  onEmptyAdd: () => void;
+};
+
+/** Действия над каталогом целиком. */
+export type WishlistCatalogActions = {
+  onAddItem: () => void;
+  /** Открывает диалог разбора ссылки на товар. */
+  onParseUrl?: () => void;
+  onExport: (format: "csv" | "json") => void;
+  onImport: () => void;
+  isImporting: boolean;
+};
+
+type WishlistWorkspaceProps = {
+  scope: WishlistScope;
+  filters: WishlistFilters;
+  selection: WishlistSelection;
+  feed: WishlistFeed;
+  itemActions: WishlistItemActions;
+  catalogActions: WishlistCatalogActions;
 };
 
 export function WishlistWorkspace({
-  search,
-  onSearchChange,
-  hasActiveFilters,
-  activeFilterCount,
-  activeFilterChips,
-  filtersOpen,
-  onFiltersOpenChange,
-  onParseUrl,
-  currentUserId,
-  currentUserRole,
-  usersWithStats,
-  selectedWishlistUser,
-  lists,
-  normalizedSelectedUserId,
-  selectedListId,
-  onUserChange,
-  onListChange,
-  onCreateList,
-  onEditSelectedList,
-  categoriesForFilters,
-  effectiveSelectedCategories,
-  onToggleCategory,
-  onClearCategories,
-  onAddItem,
-  onExport,
-  onImport,
-  isImporting,
-  sortBy,
-  onSortChange,
-  showPurchased,
-  onTogglePurchasedVisibility,
-  selectionMode,
-  selectedIds,
-  onToggleSelectionMode,
-  onClearSelectionMode,
-  viewMode,
-  onViewModeChange,
-  items,
-  filteredItems,
-  isLoading,
-  onEditItem,
-  onDeleteItem,
-  onTogglePurchased,
-  onSetStatus,
-  pendingStatusByItemId,
-  justPurchasedId,
-  onEmptyAdd,
-  onOpenDetail,
-  onToggleSelect,
-  ownedListsForCreate,
-  onClearAllFilters,
-  hasMore,
-  isLoadingMore,
-  sentinelRef,
-  size,
-  setSize,
+  scope,
+  filters,
+  selection,
+  feed,
+  itemActions,
+  catalogActions,
 }: WishlistWorkspaceProps) {
   const { t } = useI18n();
+
+  const {
+    currentUserId,
+    currentUserRole,
+    usersWithStats,
+    selectedWishlistUser,
+    lists,
+    ownedListsForCreate,
+    normalizedSelectedUserId,
+    selectedListId,
+    onUserChange,
+    onListChange,
+    onCreateList,
+    onEditSelectedList,
+  } = scope;
+
+  const {
+    search,
+    onSearchChange,
+    hasActiveFilters,
+    activeFilterChips,
+    filtersOpen,
+    onFiltersOpenChange,
+    categories: categoriesForFilters,
+    selectedCategories: effectiveSelectedCategories,
+    onToggleCategory,
+    onClearCategories,
+    sortBy,
+    onSortChange,
+    showPurchased,
+    onTogglePurchasedVisibility,
+    onClearAll: onClearAllFilters,
+  } = filters;
+
+  /** Счётчик выводится из самих чипов: отдельным пропсом он мог с ними разойтись. */
+  const activeFilterCount = activeFilterChips.length;
+
+  const {
+    selectionMode,
+    selectedIds,
+    onToggle: onToggleSelect,
+    onToggleMode: onToggleSelectionMode,
+    onClearMode: onClearSelectionMode,
+  } = selection;
+
+  const {
+    items,
+    filteredItems,
+    isLoading,
+    hasMore,
+    isLoadingMore,
+    sentinelRef,
+    size,
+    setSize,
+    viewMode,
+    onViewModeChange,
+  } = feed;
+
+  const {
+    onEdit: onEditItem,
+    onDelete: onDeleteItem,
+    onTogglePurchased,
+    onSetStatus,
+    pendingStatusByItemId,
+    justPurchasedId,
+    onOpenDetail,
+    onEmptyAdd,
+  } = itemActions;
+
+  const { onAddItem, onParseUrl, onExport, onImport, isImporting } = catalogActions;
+
   const hasSelectedCards = selectedIds.size > 0;
   const selectionButtonTitle = hasSelectedCards
     ? t("Режим выбора")
