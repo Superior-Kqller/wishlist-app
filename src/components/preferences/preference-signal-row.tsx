@@ -51,7 +51,9 @@ function getIconColor(accent: PreferenceSignalRowProps["accent"], warning: boole
   if (warning || accent === "danger") return "text-destructive";
   if (accent === "warning") return "text-warning";
   if (accent === "muted") return "text-muted-foreground";
-  return "text-primary";
+  // `--primary-accent`, а не `--primary`: фирменная краска подобрана под
+  // заливку кнопки и в тёмно-винной теме как цвет значка неразличима.
+  return "text-primary-accent";
 }
 
 export function PreferenceSignalRow({

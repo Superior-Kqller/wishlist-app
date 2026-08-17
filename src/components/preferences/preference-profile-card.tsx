@@ -50,6 +50,10 @@ export function PreferenceProfileCard({
   // состояние и указывают на один и тот же регион: раньше aria-expanded был
   // только у имени, и озвучка зависела от того, куда попал фокус.
   const panelId = `preference-profile-panel-${id}`;
+  // Кнопка раскрытия повторяется в каждой карточке круга, поэтому её имя
+  // называет человека: «Открыть профиль» тридцать раз подряд не помогает
+  // выбрать нужную строку в списке элементов скринридера.
+  const toggleLabel = `${expanded ? t("Свернуть профиль") : t("Открыть профиль")}: ${name}`;
 
   /*
    * Свёрнутая карточка раньше показывала пять чисел и одну строку смысла:
@@ -64,13 +68,15 @@ export function PreferenceProfileCard({
     highlights.likes.length > 0 || highlights.colors.length > 0 || highlights.avoid.length > 0;
 
   return (
+    /* `layout` тоже движение: пружина перестраивала всю сетку при раскрытии
+       независимо от системной настройки, хотя входы и выходы её учитывали. */
     <motion.article
-      layout
+      layout={!reduceMotion}
       transition={{ type: "spring", stiffness: 120, damping: 22 }}
       className={cn(
         "group overflow-hidden rounded-2xl border bg-[hsl(var(--surface-2))] shadow-none",
-        isCurrent ? "border-primary/42" : "border-border/58",
-        expanded && "border-primary/52",
+        isCurrent ? "border-primary-accent/45" : "border-border/58",
+        expanded && "border-primary-accent/55",
       )}
     >
       <div className="overflow-hidden p-4 sm:p-5">
@@ -85,18 +91,34 @@ export function PreferenceProfileCard({
             />
           </div>
 
-          <button
-            type="button"
-            onClick={onToggle}
-            aria-expanded={expanded}
-            aria-controls={panelId}
-            className="min-w-0 flex-1 rounded-lg text-left active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          >
+          {/* Кнопка держит только имя: раньше в неё были вложены заголовок,
+              строка счётчика и обёртки, а скринридеры схлопывают содержимое
+              кнопки в её имя — заголовок переставал быть заголовком, а имя
+              кнопки превращалось в «Avgel Это вы @Avgel · 5 желаний». */}
+          <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="truncate text-base font-semibold tracking-tight sm:text-lg">{name}</h2>
+              <h2 className="min-w-0 text-base font-semibold tracking-tight sm:text-lg">
+                <button
+                  type="button"
+                  onClick={onToggle}
+                  aria-expanded={expanded}
+                  aria-controls={panelId}
+                  className="-mx-1 -my-1.5 block max-w-full truncate rounded-lg px-1 py-1.5 text-left active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  {name}
+                </button>
+              </h2>
               {isCurrent ? (
-                <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                <span className="rounded-full border border-primary-accent/30 bg-primary-accent/12 px-2 py-0.5 text-[11px] font-medium text-primary-accent">
                   {t("Это вы")}
+                </span>
+              ) : null}
+              {/* Незаконченный черновик виден на любом экране: подпись кнопки
+                  правки ниже `sm` скрыта, и на телефоне — там, где анкету
+                  бросают на полпути чаще всего — о нём не оставалось следа. */}
+              {isCurrent && editLabel ? (
+                <span className="rounded-full border border-warning/34 bg-warning/12 px-2 py-0.5 text-[11px] font-medium text-warning">
+                  {t("Черновик")}
                 </span>
               ) : null}
             </div>
@@ -109,7 +131,7 @@ export function PreferenceProfileCard({
                 ? ` · ${wishCount} ${getWishWord(language, wishCount)}`
                 : null}
             </p>
-          </button>
+          </div>
 
           <div className="flex shrink-0 items-center gap-1.5">
             {isCurrent && onEdit ? (
@@ -132,7 +154,7 @@ export function PreferenceProfileCard({
               onClick={onToggle}
               aria-expanded={expanded}
               aria-controls={panelId}
-              aria-label={expanded ? t("Свернуть профиль") : t("Открыть профиль")}
+              aria-label={toggleLabel}
             >
               <ChevronDown
                 className={cn(
@@ -164,7 +186,11 @@ export function PreferenceProfileCard({
                       <span className="text-muted-foreground"> +{highlights.likesHidden}</span>
                     ) : null}
                     {highlights.colors.length > 0 ? (
+                      /* `role="img"` обязателен: на обычном `span` метку
+                         игнорирует большинство скринридеров, и любимые цвета
+                         для незрячего читателя просто не существовали. */
                       <span
+                        role="img"
                         className={cn(
                           "inline-flex -space-x-1.5 align-text-bottom",
                           highlights.likes.length > 0 && "ml-2",
@@ -174,10 +200,12 @@ export function PreferenceProfileCard({
                           .join(", ")}`}
                       >
                         {highlights.colors.map((color) => (
+                          /* Обводка — контрастом к фону, а не его же краской:
+                             белый и молочный в светлой теме исчезали целиком. */
                           <span
                             key={color}
                             title={t(color)}
-                            className="size-4 rounded-full border-2 border-[hsl(var(--surface-2))]"
+                            className="size-4 rounded-full border-2 border-[hsl(var(--surface-2))] ring-1 ring-foreground/20"
                             style={{ backgroundColor: getPreferenceColor(color) }}
                           />
                         ))}
@@ -212,21 +240,26 @@ export function PreferenceProfileCard({
         ) : null}
       </div>
 
-      <AnimatePresence initial={false}>
-        {expanded ? (
-          <motion.div
-            key={editing ? "editor" : "summary"}
-            initial={reduceMotion ? false : { opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            id={panelId}
-            className="border-t border-border/48 px-4 py-4 sm:px-5 sm:py-5"
-          >
-            {children}
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      {/* Область живёт в разметке всегда, даже пустой: раньше `id` появлялся
+          вместе с содержимым, и в свёрнутом состоянии обе кнопки ссылались
+          через `aria-controls` на несуществующий элемент.
+          `@container` — чтобы содержимое мерило ширину карточки, а не окна. */}
+      <div id={panelId} className="@container">
+        <AnimatePresence initial={false}>
+          {expanded ? (
+            <motion.div
+              key={editing ? "editor" : "summary"}
+              initial={reduceMotion ? false : { opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              className="border-t border-border/48 px-4 py-4 sm:px-5 sm:py-5"
+            >
+              {children}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </div>
     </motion.article>
   );
 }

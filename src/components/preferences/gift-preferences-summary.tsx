@@ -173,11 +173,11 @@ export function GiftPreferencesSummary({
     >
       {!embedded ? (
         <div className="flex items-center gap-3 px-4 py-3 sm:px-5">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/22 bg-primary/10 text-primary">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/22 bg-primary/10 text-primary-accent">
             <Gift className="h-5 w-5" aria-hidden />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-primary/80">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-primary-accent/85">
               {t("Подарочный профиль")}
             </p>
             <h2 className="truncate text-sm font-semibold sm:text-base">
@@ -226,15 +226,19 @@ export function GiftPreferencesSummary({
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className={cn(embedded ? "py-0.5" : "space-y-3 border-t border-border/34 p-3 sm:p-4")}
             >
+              {/* Внутри карточки ширину задаёт не окно, а колонка сетки:
+                  на широком экране в ряд встаёт три-четыре карточки, и
+                  вьюпортный `md:` разбивал двадцатисантиметровую карточку
+                  на две нечитаемые колонки. Контейнер объявлен карточкой. */}
               <div
                 className={cn(
                   "grid gap-x-6 gap-y-5",
-                  embedded ? "md:grid-cols-2" : "xl:grid-cols-3",
+                  embedded ? "@[32rem]:grid-cols-2" : "xl:grid-cols-3",
                 )}
               >
                 <div className="min-w-0">
                   <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <Heart className="h-4 w-4 text-primary" aria-hidden />
+                    <Heart className="h-4 w-4 text-primary-accent" aria-hidden />
                     {t("Понравится")}
                   </p>
                   {visiblePositiveRows.length > 0 ? (
@@ -247,7 +251,14 @@ export function GiftPreferencesSummary({
                     </p>
                   )}
                 </div>
-                <div className="min-w-0 md:border-l md:border-border/34 md:pl-6">
+                <div
+                  className={cn(
+                    "min-w-0",
+                    embedded
+                      ? "@[32rem]:border-l @[32rem]:border-border/34 @[32rem]:pl-6"
+                      : "md:border-l md:border-border/34 md:pl-6",
+                  )}
+                >
                   <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
                     <ShieldAlert className="h-4 w-4 text-destructive/82" aria-hidden />
                     {t("Не подойдёт")}
@@ -265,7 +276,7 @@ export function GiftPreferencesSummary({
                 <div
                   className={cn(
                     "min-w-0",
-                    embedded && "border-t border-border/34 pt-5 md:col-span-2",
+                    embedded && "border-t border-border/34 pt-5 @[32rem]:col-span-2",
                   )}
                 >
                   <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -273,7 +284,7 @@ export function GiftPreferencesSummary({
                     {t("Детали")}
                   </p>
                   {visibleDetailRows.length > 0 ? (
-                    <div className={cn(embedded && "grid gap-x-6 sm:grid-cols-3")}>
+                    <div className={cn(embedded && "grid gap-x-6 @[40rem]:grid-cols-3")}>
                       {visibleDetailRows.map((row) => (
                         <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
                       ))}

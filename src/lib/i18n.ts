@@ -473,6 +473,12 @@ const en: Dictionary = {
   Найдено: "Found",
   "Никого не нашли": "Nobody found",
   "Проверьте имя или логин.": "Check the name or username.",
+  "Профилей пока нет": "No profiles yet",
+  "Они появятся, когда в вашем кругу будут участники.":
+    "They will appear once your circle has members.",
+  "Не удалось загрузить ваш профиль. Профили друзей ниже доступны.":
+    "Could not load your profile. Friends' profiles below are still available.",
+  Черновик: "Draft",
   Подойдёт: "Suits them",
   "Не дарить": "Do not gift",
   "Подсказок пока нет.": "No hints yet.",

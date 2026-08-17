@@ -1,11 +1,11 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { motion, useReducedMotion } from "framer-motion";
-import { Search } from "lucide-react";
+import { Search, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -42,16 +42,21 @@ type CircleUsersResponse = {
   users: CircleUser[];
 };
 
+const profileAnchorId = (userId: string) => `preference-profile-${userId}`;
+
 function PreferencesPageSkeleton() {
   return (
     <PageShell>
       <PageMain>
-        <div className="space-y-5 animate-pulse">
+        {/* Скелет повторяет реальную сетку и радиус карточки: со своей
+            геометрией он обещал одну раскладку, а данные приносили другую,
+            и страница дёргалась на загрузке. */}
+        <div className="animate-pulse space-y-5">
           <div className="h-24 rounded-2xl bg-muted/50" />
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="h-56 rounded-[1.35rem] bg-muted/40 md:col-span-2" />
-            <div className="h-56 rounded-[1.35rem] bg-muted/35" />
-            <div className="h-56 rounded-[1.35rem] bg-muted/35" />
+          <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]">
+            <div className="h-44 rounded-2xl bg-muted/40" />
+            <div className="h-44 rounded-2xl bg-muted/35" />
+            <div className="h-44 rounded-2xl bg-muted/30" />
           </div>
         </div>
       </PageMain>
@@ -139,6 +144,18 @@ function PreferencesPageContent() {
   const showProfileSearch =
     allCircleUsers.length > PROFILE_SEARCH_THRESHOLD || profileSearch.trim().length > 0;
 
+  // Со страницы статистики сюда приходят с `?userId=`, и раскрытая карточка
+  // могла оказаться далеко за краем экрана: человек видел список сначала и
+  // не понимал, что ответ на его вопрос уже открыт ниже.
+  const scrolledToRequested = useRef(false);
+  useEffect(() => {
+    if (!requestedUserId || scrolledToRequested.current) return;
+    const anchor = document.getElementById(profileAnchorId(requestedUserId));
+    if (!anchor) return;
+    scrolledToRequested.current = true;
+    anchor.scrollIntoView({ block: "start", behavior: reduceMotion ? "auto" : "smooth" });
+  }, [circleUsers, reduceMotion, requestedUserId]);
+
   const toggleProfile = (userId: string) => {
     setExpandedUserId((current) => (current === userId ? null : userId));
   };
@@ -165,94 +182,101 @@ function PreferencesPageContent() {
             )}
           />
 
-          {error ? (
-            <div className={cn(uiSurface.emptyState, "px-4 py-8")}>
-              <p className="text-sm font-semibold">{t("Не удалось загрузить профиль")}</p>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="mt-4"
-                onClick={() => mutate()}
+          <section className="space-y-4" aria-label={t("Подарочные профили")}>
+            {/* Падение своего профиля больше не прячет круг: раньше ошибка
+                `/api/users/me` заменяла собой весь список, хотя профили
+                друзей уже пришли и были главным, ради чего сюда идут. */}
+            {error ? (
+              <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/7 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                <span>{t("Не удалось загрузить ваш профиль. Профили друзей ниже доступны.")}</span>
+                <Button type="button" variant="outline" size="sm" onClick={() => mutate()}>
+                  {t("Повторить")}
+                </Button>
+              </div>
+            ) : null}
+
+            {circleError ? (
+              <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/7 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                <span>
+                  {t("Не удалось загрузить профили друзей. Ваш профиль по-прежнему доступен.")}
+                </span>
+                <Button type="button" variant="outline" size="sm" onClick={() => mutateCircle()}>
+                  {t("Повторить")}
+                </Button>
+              </div>
+            ) : null}
+
+            {showProfileSearch ? (
+              <PreferenceProfileSearch
+                search={profileSearch}
+                resultCount={circleUsers.length}
+                onSearchChange={setProfileSearch}
+              />
+            ) : null}
+
+            {circleUsers.length > 0 ? (
+              <motion.div
+                layout={!reduceMotion}
+                className="grid items-start gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
               >
-                {t("Попробовать снова")}
-              </Button>
-            </div>
-          ) : (
-            <section className="space-y-4" aria-label={t("Подарочные профили")}>
-              {circleError ? (
-                <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/7 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-                  <span>
-                    {t("Не удалось загрузить профили друзей. Ваш профиль по-прежнему доступен.")}
-                  </span>
-                  <Button type="button" variant="outline" size="sm" onClick={() => mutateCircle()}>
-                    {t("Повторить")}
-                  </Button>
-                </div>
-              ) : null}
+                {circleUsers.map((user, index) => {
+                  const isCurrent = user.id === data?.id;
+                  const isExpanded = expandedUserId === user.id;
+                  const cardPreferences = user.giftPreferences;
 
-              {showProfileSearch ? (
-                <PreferenceProfileSearch
-                  search={profileSearch}
-                  resultCount={circleUsers.length}
-                  onSearchChange={setProfileSearch}
-                />
-              ) : null}
-
-              {circleUsers.length > 0 ? (
-                <motion.div
-                  layout
-                  className="grid items-start gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
-                >
-                  {circleUsers.map((user, index) => {
-                    const isCurrent = user.id === data?.id;
-                    const isExpanded = expandedUserId === user.id;
-                    const cardPreferences = user.giftPreferences;
-
-                    return (
-                      <motion.div
-                        layout
-                        key={user.id}
-                        initial={reduceMotion ? false : { opacity: 0, y: 14 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                          delay: reduceMotion ? 0 : staggerDelayMs(index) / 1000,
-                          duration: 0.3,
-                        }}
+                  return (
+                    /* Раскрытие — переход к чтению, а не к сравнению: карточка
+                       занимает весь ряд. В колонке шириной 20rem профиль
+                       читался столбиком, а рядом оставался пустой ряд. */
+                    <motion.div
+                      layout={!reduceMotion}
+                      key={user.id}
+                      id={profileAnchorId(user.id)}
+                      className={cn("scroll-mt-24", isExpanded && "md:col-span-full")}
+                      initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        delay: reduceMotion ? 0 : staggerDelayMs(index) / 1000,
+                        duration: 0.3,
+                      }}
+                    >
+                      <PreferenceProfileCard
+                        id={user.id}
+                        name={user.name}
+                        username={user.username}
+                        avatarUrl={user.avatarUrl}
+                        preferences={cardPreferences}
+                        wishCount={user.stats?.totalItems}
+                        isCurrent={isCurrent}
+                        expanded={isExpanded}
+                        onToggle={() => toggleProfile(user.id)}
+                        onEdit={isCurrent ? openEditor : undefined}
+                        editLabel={
+                          isCurrent && hasStoredDraft ? t("Продолжить заполнение") : undefined
+                        }
                       >
-                        <PreferenceProfileCard
-                          id={user.id}
-                          name={user.name}
-                          username={user.username}
-                          avatarUrl={user.avatarUrl}
+                        <GiftPreferencesSummary
+                          userName={isCurrent ? t("вам") : user.name}
                           preferences={cardPreferences}
-                          wishCount={user.stats?.totalItems}
-                          isCurrent={isCurrent}
-                          expanded={isExpanded}
-                          onToggle={() => toggleProfile(user.id)}
-                          onEdit={isCurrent ? openEditor : undefined}
-                          editLabel={
-                            isCurrent && hasStoredDraft ? t("Продолжить заполнение") : undefined
-                          }
-                        >
-                          <GiftPreferencesSummary
-                            userName={isCurrent ? t("вам") : user.name}
-                            preferences={cardPreferences}
-                            embedded
-                          />
-                        </PreferenceProfileCard>
-                      </motion.div>
-                    );
-                  })}
-                </motion.div>
-              ) : (
-                <div className={cn(uiSurface.emptyState, "px-4 py-10 text-center")}>
-                  <Search className="mx-auto h-5 w-5 text-muted-foreground" aria-hidden />
-                  <p className="mt-3 text-sm font-semibold">{t("Никого не нашли")}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {t("Проверьте имя или логин.")}
-                  </p>
-                  {profileSearch.trim() ? (
+                          embedded
+                        />
+                      </PreferenceProfileCard>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            ) : (
+              /* Пустой список бывает по двум причинам, и раньше обе объяснялись
+                 текстом про поиск: на свежем экземпляре человек, оставшийся
+                 в круге один, читал «Проверьте имя или логин». */
+              <div className={cn(uiSurface.emptyState, "px-4 py-10 text-center")}>
+                {profileSearch.trim() ? (
+                  <>
+                    <Search className="mx-auto h-5 w-5 text-muted-foreground" aria-hidden />
+                    <p className="mt-3 text-sm font-semibold">{t("Никого не нашли")}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t("Проверьте имя или логин.")}
+                    </p>
                     <Button
                       type="button"
                       variant="outline"
@@ -262,11 +286,19 @@ function PreferencesPageContent() {
                     >
                       {t("Очистить поиск")}
                     </Button>
-                  ) : null}
-                </div>
-              )}
-            </section>
-          )}
+                  </>
+                ) : (
+                  <>
+                    <Users className="mx-auto h-5 w-5 text-muted-foreground" aria-hidden />
+                    <p className="mt-3 text-sm font-semibold">{t("Профилей пока нет")}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t("Они появятся, когда в вашем кругу будут участники.")}
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
+          </section>
         </div>
       </PageMain>
     </PageShell>

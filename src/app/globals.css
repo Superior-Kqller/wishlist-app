@@ -14,6 +14,7 @@
   --color-card-foreground: hsl(var(--card-foreground));
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-accent: hsl(var(--primary-accent));
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-muted: hsl(var(--muted));
@@ -86,6 +87,14 @@
 
     --primary: 190 44% 48%;
     --primary-foreground: 210 28% 96%;
+    /*
+     * Заливке и тексту нужен разный фирменный цвет. `--primary` подобран под
+     * кнопку, где на нём лежит `--primary-foreground`; тот же цвет в роли
+     * текста, рамки или фокус-кольца читается на фоне только там, где тема
+     * взяла светлый оттенок. Темы с тёмной фирменной краской переопределяют
+     * `--primary-accent` отдельно, остальным хватает самого `--primary`.
+     */
+    --primary-accent: var(--primary);
 
     --secondary: var(--surface-2);
     --secondary-foreground: 220 24% 94%;
@@ -195,11 +204,12 @@
 
     --primary: 262 58% 62%;
     --primary-foreground: 0 0% 100%;
+    --primary-accent: 262 62% 70%;
     --muted-foreground: 218 13% 68%;
     --muted-foreground-subtle: 218 13% 60%;
     --border: 222 13% 25%;
     --input: 222 13% 25%;
-    --ring: 262 58% 62%;
+    --ring: var(--primary-accent);
     --info: 203 83% 58%;
 
     --theme-warm: 286 45% 48%;
@@ -251,6 +261,18 @@
     --ring: 263 56% 45%;
     --popover: var(--surface-2);
     --popover-foreground: 232 24% 13%;
+
+    /*
+     * Статусные цвета до сих пор объявлялись один раз — в тёмной теме — и
+     * светлая наследовала их как есть. Яркий красный на белом листе даёт
+     * 3.5:1: строка «Не дарить» в подарочном профиле, то есть ровно та, где
+     * ошибка обходится дороже всего, была самой бледной на странице.
+     */
+    --destructive: 358 68% 42%;
+    --error: 358 68% 42%;
+    --warning: 33 90% 33%;
+    --warning-foreground: 0 0% 100%;
+    --success: 158 72% 27%;
 
     --theme-cool: 263 56% 45%;
     --theme-warm: 326 34% 50%;
@@ -305,13 +327,19 @@
 
     --primary: 349 79% 30%;
     --primary-foreground: 202 75% 92%;
+    /*
+     * Винная краска хороша заливкой и нечитаема буквой: на тёмно-синей
+     * поверхности она давала 1.8:1, поэтому бейдж «Это вы», рамка своей
+     * карточки и фокус-кольцо в этой теме были почти невидимы.
+     */
+    --primary-accent: 349 62% 62%;
     --accent: 349 46% 18%;
     --accent-foreground: 202 75% 92%;
     --muted-foreground: 207 28% 74%;
     --muted-foreground-subtle: 207 28% 66%;
     --border: 212 34% 26%;
     --input: 212 34% 26%;
-    --ring: 349 79% 30%;
+    --ring: var(--primary-accent);
     --info: 202 65% 79%;
 
     --theme-cool: 202 65% 79%;
