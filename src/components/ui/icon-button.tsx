@@ -18,11 +18,11 @@ const iconButtonVariants = cva(
       },
       intent: {
         default:
-          "border-border/86 bg-[hsl(var(--surface-3)/0.64)] text-foreground hover:border-primary/34 hover:bg-accent",
+          "border-border/85 bg-[hsl(var(--surface-3)/0.64)] text-foreground hover:border-primary/32 hover:bg-accent",
         success:
-          "border-success/35 bg-success/16 text-success-foreground hover:border-success/50 hover:bg-success/24",
+          "border-success/32 bg-success/16 text-success hover:border-success/55 hover:bg-success/24",
         danger:
-          "border-destructive/35 bg-destructive/16 text-destructive-foreground hover:border-destructive/50 hover:bg-destructive/24",
+          "border-destructive/32 bg-destructive/16 text-destructive hover:border-destructive/55 hover:bg-destructive/24",
       },
     },
     defaultVariants: {

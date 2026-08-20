@@ -27,7 +27,8 @@ import {
 import { uiSurface } from "@/lib/ui-contract";
 
 type GiftPreferencesSummaryProps = {
-  userName: string;
+  /** Имя в заголовке «Что понравится …». Встроенному режиму не нужно: шапки у него нет. */
+  userName?: string;
   preferences?: GiftPreferences | null;
   embedded?: boolean;
 };
@@ -39,6 +40,8 @@ export function GiftPreferencesSummary({
 }: GiftPreferencesSummaryProps) {
   const { t } = useI18n();
   const reduceMotion = useReducedMotion();
+  // Сворачивать можно только собственную шапку; встроенная сводка раскрыта
+  // всегда, потому что её сворачивает сама карточка профиля.
   const [expanded, setExpanded] = useState(true);
   const preferences = normalizeGiftPreferences(rawPreferences);
   const preferenceCount = countGiftPreferences(preferences);
@@ -166,20 +169,20 @@ export function GiftPreferencesSummary({
           ? "border-0 bg-transparent"
           : cn(
               uiSurface.contentPanel,
-              "border-primary/20 bg-[linear-gradient(120deg,hsl(var(--surface-2)/0.9),hsl(var(--primary)/0.055))]",
+              "border-primary/24 bg-[linear-gradient(120deg,hsl(var(--surface-2)/0.9),hsl(var(--primary)/0.055))]",
             ),
       )}
       aria-label={t("Подарочный профиль")}
     >
       {!embedded ? (
         <div className="flex items-center gap-3 px-4 py-3 sm:px-5">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/22 bg-primary/10 text-primary-accent">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary-accent">
             <Gift className="h-5 w-5" aria-hidden />
           </div>
+          {/* Надстрочная подпись «ПОДАРОЧНЫЙ ПРОФИЛЬ» убрана: она повторяла
+              заголовок разрядкой в 11px и заставляла читать строку дважды.
+              Заголовок несёт себя сам, а роль блока называет его `aria-label`. */}
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-primary-accent/85">
-              {t("Подарочный профиль")}
-            </p>
             <h2 className="truncate text-sm font-semibold sm:text-base">
               {t("Что понравится")} {userName}
             </h2>
@@ -211,7 +214,7 @@ export function GiftPreferencesSummary({
         <div
           className={cn(
             "px-4 py-4 text-sm text-muted-foreground sm:px-5",
-            !embedded && "border-t border-border/34",
+            !embedded && "border-t border-border/32",
           )}
         >
           {t("Пользователь пока не добавил подсказки для подарков.")}
@@ -224,7 +227,7 @@ export function GiftPreferencesSummary({
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className={cn(embedded ? "py-0.5" : "space-y-3 border-t border-border/34 p-3 sm:p-4")}
+              className={cn(embedded ? "py-0.5" : "space-y-3 border-t border-border/32 p-3 sm:p-4")}
             >
               {/* Внутри карточки ширину задаёт не окно, а колонка сетки:
                   на широком экране в ряд встаёт три-четыре карточки, и
@@ -246,7 +249,7 @@ export function GiftPreferencesSummary({
                       <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
                     ))
                   ) : (
-                    <p className="border-t border-border/34 py-3 text-sm text-muted-foreground">
+                    <p className="border-t border-border/32 py-3 text-sm text-muted-foreground">
                       {t("Любимые вещи пока не указаны")}
                     </p>
                   )}
@@ -255,12 +258,12 @@ export function GiftPreferencesSummary({
                   className={cn(
                     "min-w-0",
                     embedded
-                      ? "@[32rem]:border-l @[32rem]:border-border/34 @[32rem]:pl-6"
-                      : "md:border-l md:border-border/34 md:pl-6",
+                      ? "@[32rem]:border-l @[32rem]:border-border/32 @[32rem]:pl-6"
+                      : "md:border-l md:border-border/32 md:pl-6",
                   )}
                 >
                   <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <ShieldAlert className="h-4 w-4 text-destructive/82" aria-hidden />
+                    <ShieldAlert className="h-4 w-4 text-destructive/85" aria-hidden />
                     {t("Не подойдёт")}
                   </p>
                   {visibleAvoidRows.length > 0 ? (
@@ -268,7 +271,7 @@ export function GiftPreferencesSummary({
                       <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
                     ))
                   ) : (
-                    <p className="border-t border-border/34 py-3 text-sm text-muted-foreground">
+                    <p className="border-t border-border/32 py-3 text-sm text-muted-foreground">
                       {t("Ограничений пока нет")}
                     </p>
                   )}
@@ -276,11 +279,11 @@ export function GiftPreferencesSummary({
                 <div
                   className={cn(
                     "min-w-0",
-                    embedded && "border-t border-border/34 pt-5 @[32rem]:col-span-2",
+                    embedded && "border-t border-border/32 pt-5 @[32rem]:col-span-2",
                   )}
                 >
                   <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <Ruler className="h-4 w-4 text-warning/88" aria-hidden />
+                    <Ruler className="h-4 w-4 text-warning/85" aria-hidden />
                     {t("Детали")}
                   </p>
                   {visibleDetailRows.length > 0 ? (
@@ -290,7 +293,7 @@ export function GiftPreferencesSummary({
                       ))}
                     </div>
                   ) : (
-                    <p className="border-t border-border/34 py-3 text-sm text-muted-foreground">
+                    <p className="border-t border-border/32 py-3 text-sm text-muted-foreground">
                       {t("Размеры, бюджет и поводы пока не указаны")}
                     </p>
                   )}

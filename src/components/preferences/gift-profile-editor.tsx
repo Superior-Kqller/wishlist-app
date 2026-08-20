@@ -264,9 +264,9 @@ function QuickTextField({
 }) {
   const { t } = useI18n();
   return (
-    <section className="space-y-4 rounded-2xl border border-border/50 bg-[hsl(var(--surface-2)/0.72)] p-4 sm:p-5">
+    <section className="space-y-4 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.72)] p-4 sm:p-5">
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/9 text-primary">
+        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary-accent">
           <Icon className="h-4 w-4" aria-hidden />
         </div>
         <div>
@@ -286,8 +286,8 @@ function QuickTextField({
             className={cn(
               "min-h-9 rounded-lg border px-3 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98]",
               value === suggestion
-                ? "border-primary/42 bg-primary/13 text-foreground"
-                : "border-border/52 bg-[hsl(var(--surface-3)/0.5)] text-muted-foreground hover:bg-accent hover:text-foreground",
+                ? "border-primary/45 bg-primary/16 text-foreground"
+                : "border-border/55 bg-[hsl(var(--surface-3)/0.5)] text-muted-foreground hover:bg-accent hover:text-foreground",
             )}
           >
             {t(suggestion)}
@@ -300,7 +300,7 @@ function QuickTextField({
         onChange={(event) => onChange(event.target.value)}
         placeholder={t(placeholder)}
         maxLength={id === "budget" ? 200 : 500}
-        className="border-border/56 bg-[hsl(var(--surface-3)/0.6)]"
+        className="border-border/55 bg-[hsl(var(--surface-3)/0.6)]"
       />
     </section>
   );
@@ -327,9 +327,9 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
   };
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border/50 bg-[hsl(var(--surface-2)/0.72)] p-4 sm:p-5">
+    <section className="space-y-4 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.72)] p-4 sm:p-5">
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/9 text-primary">
+        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary-accent">
           <Ruler className="h-4 w-4" aria-hidden />
         </div>
         <div>
@@ -348,7 +348,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
           return (
             <div
               key={category.id}
-              className="min-w-0 rounded-xl border border-border/44 bg-[hsl(var(--surface-3)/0.42)] p-3"
+              className="min-w-0 rounded-xl border border-border/45 bg-[hsl(var(--surface-3)/0.42)] p-3"
             >
               <div className="mb-2.5">
                 <Label htmlFor={`size-${category.id}`} className="text-sm font-semibold">
@@ -368,8 +368,8 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
                       className={cn(
                         "min-h-11 whitespace-nowrap rounded-lg border px-2.5 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98] sm:min-h-8",
                         active
-                          ? "border-primary/42 bg-primary/13 text-foreground"
-                          : "border-border/48 bg-[hsl(var(--surface-2)/0.58)] text-muted-foreground hover:bg-accent hover:text-foreground",
+                          ? "border-primary/45 bg-primary/16 text-foreground"
+                          : "border-border/45 bg-[hsl(var(--surface-2)/0.58)] text-muted-foreground hover:bg-accent hover:text-foreground",
                       )}
                     >
                       {preset}
@@ -383,7 +383,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
                 onChange={(event) => updateField(category.id, event.target.value)}
                 placeholder={t(category.placeholder)}
                 maxLength={80}
-                className="mt-2.5 min-h-10 border-border/56 bg-[hsl(var(--surface-2)/0.7)]"
+                className="mt-2.5 min-h-10 border-border/55 bg-[hsl(var(--surface-2)/0.7)]"
               />
             </div>
           );
@@ -400,7 +400,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
           onChange={(event) => updateCustom(event.target.value)}
           placeholder={t("Например, длина рукава, обхват запястья или свободная заметка")}
           maxLength={180}
-          className="mt-2 border-border/56 bg-[hsl(var(--surface-3)/0.6)]"
+          className="mt-2 border-border/55 bg-[hsl(var(--surface-3)/0.6)]"
         />
       </div>
     </section>
@@ -449,11 +449,14 @@ export function GiftProfileEditor({
               className={cn(
                 "group flex min-h-12 min-w-0 items-center gap-3 rounded-xl border px-3 text-left transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98]",
                 active
-                  ? "border-primary/30 bg-primary/11 text-foreground"
-                  : "border-transparent text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+                  ? "border-primary/32 bg-primary/10 text-foreground"
+                  : "border-transparent text-muted-foreground hover:bg-accent/55 hover:text-foreground",
               )}
             >
-              <Icon className={cn("h-4 w-4 shrink-0", active && "text-primary")} aria-hidden />
+              <Icon
+                className={cn("h-4 w-4 shrink-0", active && "text-primary-accent")}
+                aria-hidden
+              />
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold">{t(section.label)}</span>
                 <span className="hidden truncate text-[11px] text-muted-foreground xl:block">
@@ -611,7 +614,7 @@ export function GiftProfileEditor({
                   max={16}
                   onChange={(value) => updateList("occasions", value)}
                 />
-                <section className="space-y-3 rounded-2xl border border-border/50 bg-[hsl(var(--surface-2)/0.72)] p-4 sm:p-5">
+                <section className="space-y-3 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.72)] p-4 sm:p-5">
                   <div>
                     <Label htmlFor="notes" className="text-base font-semibold tracking-tight">
                       {t("Личная подсказка")}
@@ -631,7 +634,7 @@ export function GiftProfileEditor({
                     placeholder={t(
                       "Например: люблю практичные подарки и не люблю сюрпризы с доставкой на работу",
                     )}
-                    className="min-h-32 resize-y border-border/56 bg-[hsl(var(--surface-3)/0.6)]"
+                    className="min-h-32 resize-y border-border/55 bg-[hsl(var(--surface-3)/0.6)]"
                   />
                 </section>
               </>

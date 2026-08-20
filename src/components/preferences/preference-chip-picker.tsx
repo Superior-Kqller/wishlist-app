@@ -84,7 +84,7 @@ export function PreferenceChipPicker({
   };
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border/50 bg-[hsl(var(--surface-2)/0.72)] p-4 sm:p-5">
+    <section className="space-y-4 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.72)] p-4 sm:p-5">
       <div>
         <h2 className="text-base font-semibold tracking-tight">{t(title)}</h2>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(description)}</p>
@@ -103,14 +103,14 @@ export function PreferenceChipPicker({
                 "inline-flex min-h-10 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 active
                   ? warning
-                    ? "border-destructive/45 bg-destructive/12 text-destructive"
-                    : "border-primary/45 bg-primary/14 text-foreground"
-                  : "border-border/56 bg-[hsl(var(--surface-3)/0.5)] text-muted-foreground hover:border-border hover:bg-accent/70 hover:text-foreground",
+                    ? "border-destructive/45 bg-destructive/10 text-destructive"
+                    : "border-primary/45 bg-primary/16 text-foreground"
+                  : "border-border/55 bg-[hsl(var(--surface-3)/0.5)] text-muted-foreground hover:border-border hover:bg-accent/70 hover:text-foreground",
               )}
             >
               {suggestion.color ? (
                 <span
-                  className="size-3.5 rounded-full border border-foreground/15 shadow-[inset_0_0_0_1px_hsl(var(--background)/0.2)]"
+                  className="size-3.5 rounded-full border border-foreground/16 shadow-[inset_0_0_0_1px_hsl(var(--background)/0.2)]"
                   style={{ backgroundColor: suggestion.color }}
                   aria-hidden
                 />
@@ -143,7 +143,7 @@ export function PreferenceChipPicker({
           placeholder={t(placeholder)}
           maxLength={100}
           disabled={value.length >= max}
-          className="min-w-0 border-border/56 bg-[hsl(var(--surface-3)/0.6)]"
+          className="min-w-0 border-border/55 bg-[hsl(var(--surface-3)/0.6)]"
           aria-label={t("Добавить свой вариант")}
         />
         <Button
@@ -176,8 +176,8 @@ export function PreferenceChipPicker({
                   className={cn(
                     "inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition-colors hover:bg-accent",
                     warning
-                      ? "border-destructive/32 bg-destructive/8 text-destructive"
-                      : "border-primary/28 bg-primary/9 text-foreground/88",
+                      ? "border-destructive/32 bg-destructive/10 text-destructive"
+                      : "border-primary/32 bg-primary/10 text-foreground/85",
                   )}
                   aria-label={`${t("Убрать")}: ${t(item)}`}
                 >

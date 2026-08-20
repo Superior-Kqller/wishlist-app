@@ -38,7 +38,7 @@ export function PreferenceProfileSearch({
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder={t("Найти по имени или логину")}
           aria-label={t("Поиск профилей")}
-          className="h-11 border-border/56 bg-background/72 pl-9 pr-12 sm:h-10 sm:pr-10"
+          className="h-11 border-border/55 bg-background/70 pl-9 pr-12 sm:h-10 sm:pr-10"
         />
         {/* 44px на телефоне — тот же минимум, что держат все кнопки проекта;
             выше `sm` цель ужимается вместе с полем. */}

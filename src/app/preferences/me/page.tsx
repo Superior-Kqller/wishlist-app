@@ -186,8 +186,8 @@ export default function GiftProfilePage() {
       <PageShell>
         <PageMain>
           <div className="animate-pulse space-y-5">
-            <div className="h-24 rounded-2xl bg-muted/50" />
-            <div className="h-[28rem] rounded-2xl bg-muted/40" />
+            <div className="h-24 rounded-2xl bg-muted/55" />
+            <div className="h-[28rem] rounded-2xl bg-muted/45" />
           </div>
         </PageMain>
       </PageShell>

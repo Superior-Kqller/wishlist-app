@@ -75,7 +75,7 @@ export function PreferenceProfileCard({
       transition={{ type: "spring", stiffness: 120, damping: 22 }}
       className={cn(
         "group overflow-hidden rounded-2xl border bg-[hsl(var(--surface-2))] shadow-none",
-        isCurrent ? "border-primary-accent/45" : "border-border/58",
+        isCurrent ? "border-primary-accent/45" : "border-border/55",
         expanded && "border-primary-accent/55",
       )}
     >
@@ -87,7 +87,7 @@ export function PreferenceProfileCard({
               name={name}
               userId={id}
               size="xl"
-              className="ring-2 ring-background ring-offset-1 ring-offset-border/40"
+              className="ring-2 ring-background ring-offset-1 ring-offset-border/45"
             />
           </div>
 
@@ -109,7 +109,7 @@ export function PreferenceProfileCard({
                 </button>
               </h2>
               {isCurrent ? (
-                <span className="rounded-full border border-primary-accent/30 bg-primary-accent/12 px-2 py-0.5 text-[11px] font-medium text-primary-accent">
+                <span className="rounded-full border border-primary-accent/32 bg-primary-accent/10 px-2 py-0.5 text-[11px] font-medium text-primary-accent">
                   {t("Это вы")}
                 </span>
               ) : null}
@@ -117,7 +117,7 @@ export function PreferenceProfileCard({
                   правки ниже `sm` скрыта, и на телефоне — там, где анкету
                   бросают на полпути чаще всего — о нём не оставалось следа. */}
               {isCurrent && editLabel ? (
-                <span className="rounded-full border border-warning/34 bg-warning/12 px-2 py-0.5 text-[11px] font-medium text-warning">
+                <span className="rounded-full border border-warning/32 bg-warning/10 px-2 py-0.5 text-[11px] font-medium text-warning">
                   {t("Черновик")}
                 </span>
               ) : null}
@@ -168,7 +168,7 @@ export function PreferenceProfileCard({
         </div>
 
         {!expanded ? (
-          <div className="mt-4 space-y-2 border-t border-border/42 pt-4 text-sm">
+          <div className="mt-4 space-y-2 border-t border-border/45 pt-4 text-sm">
             {hasHighlights ? (
               <>
                 {/* Обычный inline-поток, а не flex: подпись и значения переносятся
@@ -179,7 +179,7 @@ export function PreferenceProfileCard({
                     <span className="text-muted-foreground">
                       {highlights.likes.length > 0 ? t("Подойдёт") : t("Любимые цвета")}:{" "}
                     </span>
-                    <span className="text-foreground/88">
+                    <span className="text-foreground/85">
                       {highlights.likes.map((value) => t(value)).join(", ")}
                     </span>
                     {highlights.likesHidden > 0 ? (
@@ -205,7 +205,7 @@ export function PreferenceProfileCard({
                           <span
                             key={color}
                             title={t(color)}
-                            className="size-4 rounded-full border-2 border-[hsl(var(--surface-2))] ring-1 ring-foreground/20"
+                            className="size-4 rounded-full border-2 border-[hsl(var(--surface-2))] ring-1 ring-foreground/24"
                             style={{ backgroundColor: getPreferenceColor(color) }}
                           />
                         ))}
@@ -253,7 +253,7 @@ export function PreferenceProfileCard({
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-              className="border-t border-border/48 px-4 py-4 sm:px-5 sm:py-5"
+              className="border-t border-border/45 px-4 py-4 sm:px-5 sm:py-5"
             >
               {children}
             </motion.div>

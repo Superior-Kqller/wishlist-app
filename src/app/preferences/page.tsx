@@ -52,11 +52,11 @@ function PreferencesPageSkeleton() {
             геометрией он обещал одну раскладку, а данные приносили другую,
             и страница дёргалась на загрузке. */}
         <div className="animate-pulse space-y-5">
-          <div className="h-24 rounded-2xl bg-muted/50" />
+          <div className="h-24 rounded-2xl bg-muted/55" />
           <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]">
-            <div className="h-44 rounded-2xl bg-muted/40" />
-            <div className="h-44 rounded-2xl bg-muted/35" />
-            <div className="h-44 rounded-2xl bg-muted/30" />
+            <div className="h-44 rounded-2xl bg-muted/45" />
+            <div className="h-44 rounded-2xl bg-muted/32" />
+            <div className="h-44 rounded-2xl bg-muted/32" />
           </div>
         </div>
       </PageMain>
@@ -187,7 +187,7 @@ function PreferencesPageContent() {
                 `/api/users/me` заменяла собой весь список, хотя профили
                 друзей уже пришли и были главным, ради чего сюда идут. */}
             {error ? (
-              <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/7 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
                 <span>{t("Не удалось загрузить ваш профиль. Профили друзей ниже доступны.")}</span>
                 <Button type="button" variant="outline" size="sm" onClick={() => mutate()}>
                   {t("Повторить")}
@@ -196,7 +196,7 @@ function PreferencesPageContent() {
             ) : null}
 
             {circleError ? (
-              <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/7 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
                 <span>
                   {t("Не удалось загрузить профили друзей. Ваш профиль по-прежнему доступен.")}
                 </span>
@@ -255,11 +255,7 @@ function PreferencesPageContent() {
                           isCurrent && hasStoredDraft ? t("Продолжить заполнение") : undefined
                         }
                       >
-                        <GiftPreferencesSummary
-                          userName={isCurrent ? t("вам") : user.name}
-                          preferences={cardPreferences}
-                          embedded
-                        />
+                        <GiftPreferencesSummary preferences={cardPreferences} embedded />
                       </PreferenceProfileCard>
                     </motion.div>
                   );
