@@ -97,13 +97,18 @@ export function PreferenceProfileCard({
               кнопки превращалось в «Avgel Это вы @Avgel · 5 желаний». */}
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="min-w-0 text-base font-semibold tracking-tight sm:text-lg">
+              {/* Обрезает заголовок, а не кнопка внутри него: блочная кнопка
+                  с `max-w-full` брала ширину у родителя, ширина родителя
+                  считалась по обрезаемому содержимому — и имя схлопывалось
+                  в «us…» посреди пустой строки. Кнопка теперь строчная и
+                  меряется текстом, а `truncate` живёт на заголовке. */}
+              <h2 className="min-w-0 max-w-full truncate text-base font-semibold tracking-tight sm:text-lg">
                 <button
                   type="button"
                   onClick={onToggle}
                   aria-expanded={expanded}
                   aria-controls={panelId}
-                  className="-mx-1 -my-1.5 block max-w-full truncate rounded-lg px-1 py-1.5 text-left active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="rounded-lg text-left active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                 >
                   {name}
                 </button>

@@ -232,7 +232,10 @@ function PreferencesPageContent() {
                       layout={!reduceMotion}
                       key={user.id}
                       id={profileAnchorId(user.id)}
-                      className={cn("scroll-mt-24", isExpanded && "md:col-span-full")}
+                      // `min-w-0` обязателен: у элемента сетки минимальный размер
+                      // по умолчанию равен min-content, и длинное имя без
+                      // пробелов растягивало колонку за край экрана.
+                      className={cn("min-w-0 scroll-mt-24", isExpanded && "md:col-span-full")}
                       initial={reduceMotion ? false : { opacity: 0, y: 14 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{
