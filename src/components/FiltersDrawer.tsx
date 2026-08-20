@@ -192,8 +192,8 @@ export function FiltersDrawer({
               className={cn(
                 "flex min-h-12 w-full touch-manipulation items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 showPurchased
-                  ? "border-primary/45 bg-primary/12 text-foreground"
-                  : "border-border/65 bg-[hsl(var(--surface-2)/0.46)] text-muted-foreground",
+                  ? "border-primary/45 bg-primary/10 text-foreground"
+                  : "border-border/70 bg-[hsl(var(--surface-2)/0.46)] text-muted-foreground",
               )}
               aria-pressed={showPurchased}
               onClick={onTogglePurchased}
@@ -254,7 +254,7 @@ export function FiltersDrawer({
                     prefix={
                       <ProductCategoryIcon
                         category={category.id}
-                        className="size-4 shrink-0 text-primary/80"
+                        className="size-4 shrink-0 text-primary/85"
                       />
                     }
                     testId={`mobile-category-${category.id}`}
@@ -266,7 +266,7 @@ export function FiltersDrawer({
           ) : null}
         </div>
 
-        <div className="grid shrink-0 grid-cols-[auto_minmax(0,1fr)] gap-2 border-t border-border/65 bg-popover/96 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 sm:px-5 sm:pb-5">
+        <div className="grid shrink-0 grid-cols-[auto_minmax(0,1fr)] gap-2 border-t border-border/70 bg-popover/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 sm:px-5 sm:pb-5">
           <Button
             type="button"
             variant="ghost"
@@ -314,8 +314,8 @@ function FilterChoice({
         "relative flex min-h-11 touch-manipulation items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         fill ? "w-full min-w-0" : "shrink-0",
         selected
-          ? "border-primary/50 bg-primary/13 pr-8 text-foreground"
-          : "border-border/65 bg-[hsl(var(--surface-2)/0.46)] text-muted-foreground hover:bg-accent/65 hover:text-foreground",
+          ? "border-primary/55 bg-primary/16 pr-8 text-foreground"
+          : "border-border/70 bg-[hsl(var(--surface-2)/0.46)] text-muted-foreground hover:bg-accent/70 hover:text-foreground",
       )}
       aria-pressed={selected}
       onClick={onClick}

@@ -319,7 +319,7 @@ export function ItemFormDialog({
         className="sm:max-w-5xl xl:max-w-[68rem]"
         bodyClassName="gap-0 overflow-y-auto p-0"
       >
-        <div className="border-b border-border/34 bg-[hsl(var(--surface-2)/0.72)] px-4 py-3 sm:px-5">
+        <div className="border-b border-border/32 bg-[hsl(var(--surface-2)/0.72)] px-4 py-3 sm:px-5">
           <DialogHeader className="space-y-1 pr-10 sm:pr-12">
             <DialogTitle className="text-xl leading-tight">
               {isEdit ? t("Редактировать") : t("Добавить желание")}
@@ -336,7 +336,7 @@ export function ItemFormDialog({
 
         <form onSubmit={handleFormSubmit} className="min-h-0">
           {!isEdit ? (
-            <div className="border-b border-border/34 px-4 py-3 sm:px-5">
+            <div className="border-b border-border/32 px-4 py-3 sm:px-5">
               <div
                 role="group"
                 aria-label={t("Способ заполнения")}
@@ -371,7 +371,7 @@ export function ItemFormDialog({
               {!isEdit && createMode === "link" && linkStage === "review" ? (
                 <div
                   role="status"
-                  className="mx-4 mt-4 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm text-foreground sm:mx-5"
+                  className="mx-4 mt-4 rounded-lg border border-success/32 bg-success/10 px-3 py-2 text-sm text-foreground sm:mx-5"
                 >
                   {t("Данные получены. Проверьте и дополните поля перед добавлением.")}
                 </div>
@@ -390,7 +390,7 @@ export function ItemFormDialog({
                     />
                   </div>
 
-                  <div className="space-y-2 rounded-xl border border-border/34 bg-[hsl(var(--surface-3)/0.28)] p-3">
+                  <div className="space-y-2 rounded-xl border border-border/32 bg-[hsl(var(--surface-3)/0.28)] p-3">
                     <Label htmlFor="url">{t("Ссылка (необязательно)")}</Label>
                     <Input
                       id="url"
@@ -453,7 +453,7 @@ export function ItemFormDialog({
                               <span className="inline-flex items-center gap-2">
                                 <ProductCategoryIcon
                                   category={option.id}
-                                  className="size-4 shrink-0 text-muted-foreground/75"
+                                  className="size-4 shrink-0 text-muted-foreground/70"
                                 />
                                 {language === "en" ? option.labelEn : option.label}
                               </span>
@@ -465,7 +465,7 @@ export function ItemFormDialog({
                   </div>
 
                   {existingLists.length > 0 && !listPickerRequired && !listId && (
-                    <p className="flex items-start gap-1.5 rounded-lg border border-warning/24 bg-warning/8 px-2.5 py-2 text-xs text-warning">
+                    <p className="flex items-start gap-1.5 rounded-lg border border-warning/24 bg-warning/10 px-2.5 py-2 text-xs text-warning">
                       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                       {t(
                         "Товар без подборки будет скрыт. Привяжите его к подборке, чтобы он стал виден.",
@@ -486,10 +486,10 @@ export function ItemFormDialog({
                   </div>
                 </div>
 
-                <aside className="space-y-3.5 border-t border-border/34 bg-[hsl(var(--surface-1)/0.24)] px-4 py-4 sm:px-5 lg:border-l lg:border-t-0">
+                <aside className="space-y-3.5 border-t border-border/32 bg-[hsl(var(--surface-1)/0.24)] px-4 py-4 sm:px-5 lg:border-l lg:border-t-0">
                   <div className="space-y-2">
                     <Label htmlFor="item-image-url">{t("Изображение")}</Label>
-                    <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border/38 bg-[hsl(var(--surface-2)/0.72)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+                    <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border/32 bg-[hsl(var(--surface-2)/0.72)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
                       {imageUrl.trim() ? (
                         <>
                           <Image
@@ -579,7 +579,7 @@ export function ItemFormDialog({
                               "flex min-h-[44px] items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-xs font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                               isSelected
                                 ? priorityBadgeToneByPriority[value]
-                                : "border-border/50 bg-[hsl(var(--surface-2)/0.58)] text-muted-foreground hover:bg-accent hover:text-foreground",
+                                : "border-border/55 bg-[hsl(var(--surface-2)/0.58)] text-muted-foreground hover:bg-accent hover:text-foreground",
                             )}
                           >
                             <span
@@ -655,7 +655,7 @@ export function ItemFormDialog({
                   <div
                     id="create-item-url-error"
                     role="alert"
-                    className="rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm text-foreground"
+                    className="rounded-lg border border-error/32 bg-error/10 px-3 py-2 text-sm text-foreground"
                   >
                     <p className="font-medium">{t("Не удалось заполнить по ссылке")}</p>
                     <p className="mt-1 text-muted-foreground">{parseError}</p>
@@ -673,7 +673,7 @@ export function ItemFormDialog({
             </section>
           )}
 
-          <DialogFooter className="grid grid-cols-2 border-t border-border/34 bg-[hsl(var(--surface-2)/0.72)] px-4 py-3 sm:flex sm:px-5">
+          <DialogFooter className="grid grid-cols-2 border-t border-border/32 bg-[hsl(var(--surface-2)/0.72)] px-4 py-3 sm:flex sm:px-5">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("Отмена")}
             </Button>

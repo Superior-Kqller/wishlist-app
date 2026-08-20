@@ -75,7 +75,7 @@ export function ItemMetaSection({
       </DialogHeader>
 
       {item.user ? (
-        <div className="flex min-w-0 items-center gap-2 border-y border-border/34 py-2.5 text-sm text-muted-foreground">
+        <div className="flex min-w-0 items-center gap-2 border-y border-border/32 py-2.5 text-sm text-muted-foreground">
           <UserAvatar
             avatarUrl={item.user.avatarUrl || undefined}
             name={item.user.name}
@@ -87,11 +87,11 @@ export function ItemMetaSection({
       ) : null}
 
       {noteParagraphs?.length ? (
-        <section className="max-w-[38rem] space-y-2.5 sm:rounded-lg sm:border sm:border-border/34 sm:bg-[hsl(var(--surface-3)/0.38)] sm:px-3.5 sm:py-3">
+        <section className="max-w-[38rem] space-y-2.5 sm:rounded-lg sm:border sm:border-border/32 sm:bg-[hsl(var(--surface-3)/0.38)] sm:px-3.5 sm:py-3">
           <h3 className="text-sm font-semibold text-foreground">{t("Описание")}</h3>
           <div
             className={cn(
-              "space-y-2 text-sm leading-6 text-foreground/78 [text-wrap:pretty]",
+              "space-y-2 text-sm leading-6 text-foreground/85 [text-wrap:pretty]",
               hasLongNotes && !showFullNotes && "line-clamp-5",
             )}
           >
@@ -104,7 +104,7 @@ export function ItemMetaSection({
           {hasLongNotes ? (
             <button
               type="button"
-              className="rounded-sm text-xs font-medium text-primary hover:text-primary/82 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="rounded-sm text-xs font-medium text-primary hover:text-primary/85 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onClick={() => setShowFullNotes((value) => !value)}
             >
               {showFullNotes ? t("Свернуть") : t("Показать полностью")}
@@ -114,10 +114,10 @@ export function ItemMetaSection({
       ) : null}
 
       {item.category ? (
-        <div className="flex flex-wrap gap-1.5 border-t border-border/30 pt-3">
+        <div className="flex flex-wrap gap-1.5 border-t border-border/32 pt-3">
           <Badge
             variant="outline"
-            className="gap-1.5 border-border/58 px-2 py-1 text-xs font-medium text-muted-foreground"
+            className="gap-1.5 border-border/55 px-2 py-1 text-xs font-medium text-muted-foreground"
           >
             <ProductCategoryIcon category={item.category} className="size-3.5 shrink-0" />
             {categoryLabel}
@@ -126,7 +126,7 @@ export function ItemMetaSection({
       ) : null}
 
       {(item.url || canManage) && (
-        <div className="hidden border-t border-border/34 pt-4 sm:block">
+        <div className="hidden border-t border-border/32 pt-4 sm:block">
           <ItemDetailActions
             item={item}
             canManage={canManage}
@@ -163,7 +163,7 @@ export function ItemDetailActions({
   const { t } = useI18n();
   const isBought = isItemPurchased(item);
   const actionButtonClass = cn(
-    "justify-center whitespace-nowrap border-border/58 text-foreground hover:border-primary/34 hover:bg-accent",
+    "justify-center whitespace-nowrap border-border/55 text-foreground hover:border-primary/32 hover:bg-accent",
     mobileDock ? "h-12 min-h-12 min-w-0 px-3" : "h-10 min-h-10 w-auto px-3",
   );
 

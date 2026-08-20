@@ -218,7 +218,7 @@ export function ProfileForm({
     <>
       <div className={cn(uiSurface.contentPanel, "p-4 sm:p-6")}>
         <div className="mb-5 flex items-start gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary">
             <UserRound className="h-5 w-5" aria-hidden />
           </span>
           <div className="min-w-0">
@@ -270,9 +270,9 @@ export function ProfileForm({
             </div>
           </div>
 
-          <div className="space-y-4 border-t border-border/40 pt-5">
+          <div className="space-y-4 border-t border-border/45 pt-5">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/9 text-primary">
+              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <UsersRound className="h-4 w-4" aria-hidden />
               </span>
               <div className="min-w-0">
@@ -324,9 +324,9 @@ export function ProfileForm({
             </label>
           </div>
 
-          <div className="space-y-4 border-t border-border/40 pt-5">
+          <div className="space-y-4 border-t border-border/45 pt-5">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/9 text-primary">
+              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <CalendarDays className="h-4 w-4" aria-hidden />
               </span>
               <div className="min-w-0 flex-1">
@@ -435,9 +435,9 @@ export function ProfileForm({
             ) : null}
           </div>
 
-          <div className="space-y-4 border-t border-border/40 pt-5">
+          <div className="space-y-4 border-t border-border/45 pt-5">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/9 text-primary">
+              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Send className="h-4 w-4" aria-hidden />
               </span>
               <div className="min-w-0">
@@ -458,7 +458,7 @@ export function ProfileForm({
                 inputMode="numeric"
               />
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span className="rounded-full border border-border/55 bg-background/30 px-2 py-1">
+                <span className="rounded-full border border-border/55 bg-background/32 px-2 py-1">
                   {t("Статус")}: {getTelegramStatusText(initialTelegramLinkStatus, t)}
                 </span>
                 <span>{t("После сохранения отправьте /start боту.")}</span>

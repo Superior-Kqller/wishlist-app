@@ -57,7 +57,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
             <Clock3 className="h-4 w-4" aria-hidden />
           </span>
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold leading-tight text-foreground/94">
+            <h2 className="text-sm font-semibold leading-tight text-foreground/95">
               {t("Активность")}
             </h2>
             <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground-subtle">
@@ -70,7 +70,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
             type="button"
             variant="ghost"
             size="sm"
-            className="h-8 shrink-0 gap-1 rounded-lg px-2 text-[11px] text-primary/86 hover:bg-primary/10 hover:text-primary"
+            className="h-8 shrink-0 gap-1 rounded-lg px-2 text-[11px] text-primary/85 hover:bg-primary/10 hover:text-primary"
             onClick={() => setExpanded((value) => !value)}
           >
             {expanded ? t("Свернуть") : t("Все изменения")}
@@ -98,7 +98,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
               <Link
                 key={item.id}
                 href={ownerId ? `/?userId=${ownerId}` : "/"}
-                className="relative grid grid-cols-[auto_minmax(0,1fr)] gap-2.5 rounded-xl px-2 py-2.5 transition-colors duration-200 after:absolute after:bottom-[-0.45rem] after:left-[1.15rem] after:top-9 after:w-px after:bg-border/28 last:after:hidden hover:bg-[hsl(var(--surface-3)/0.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
+                className="relative grid grid-cols-[auto_minmax(0,1fr)] gap-2.5 rounded-xl px-2 py-2.5 transition-colors duration-200 after:absolute after:bottom-[-0.45rem] after:left-[1.15rem] after:top-9 after:w-px after:bg-border/32 last:after:hidden hover:bg-[hsl(var(--surface-3)/0.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
               >
                 {actor ? (
                   <UserAvatar
@@ -109,12 +109,12 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
                     className="relative z-[1] mt-0.5 h-6 w-6 text-[10px] shadow-[0_0_0_3px_hsl(var(--surface-2))]"
                   />
                 ) : (
-                  <div className="relative z-[1] mt-0.5 h-6 w-6 rounded-full border border-border/50 bg-[hsl(var(--surface-3))] shadow-[0_0_0_3px_hsl(var(--surface-2))]" />
+                  <div className="relative z-[1] mt-0.5 h-6 w-6 rounded-full border border-border/55 bg-[hsl(var(--surface-3))] shadow-[0_0_0_3px_hsl(var(--surface-2))]" />
                 )}
                 <div className="min-w-0">
                   <div className="flex min-w-0 items-start justify-between gap-2">
                     <div className="min-w-0 pt-0.5">
-                      <p className="line-clamp-1 text-[13px] font-semibold leading-tight text-foreground/92">
+                      <p className="line-clamp-1 text-[13px] font-semibold leading-tight text-foreground/95">
                         {item.title}
                       </p>
                     </div>
@@ -150,7 +150,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
         <div
           className={cn(
             uiSurface.emptyState,
-            "mt-3 min-h-0 flex-1 border-border/50 bg-[hsl(var(--surface-3)/0.38)] px-3 py-4 sm:mt-4 sm:py-6",
+            "mt-3 min-h-0 flex-1 border-border/55 bg-[hsl(var(--surface-3)/0.38)] px-3 py-4 sm:mt-4 sm:py-6",
           )}
         >
           <p className="text-sm font-medium text-foreground">{t("Пока нет активности")}</p>

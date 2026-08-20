@@ -80,7 +80,7 @@ export function PasswordForm({ userId }: PasswordFormProps) {
   return (
     <div className={cn(uiSurface.contentPanel, "p-4 sm:p-6")}>
       <div className="mb-5 flex items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary">
           <ShieldCheck className="h-5 w-5" aria-hidden />
         </span>
         <div className="min-w-0">

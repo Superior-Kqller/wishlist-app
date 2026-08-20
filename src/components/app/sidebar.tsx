@@ -97,7 +97,7 @@ export function AppSidebar() {
        * переход между разделами читается как перемещение внутри одного меню.
        */}
       <nav
-        className="flex flex-col gap-0.5 border-b border-border/35 pb-5"
+        className="flex flex-col gap-0.5 border-b border-border/32 pb-5"
         aria-label={t("Разделы")}
       >
         {navItems.map((item) => {
@@ -127,7 +127,7 @@ export function AppSidebar() {
                   transition={
                     reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }
                   }
-                  className="absolute inset-0 -z-10 rounded-lg border border-primary/28 bg-primary/10 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)]"
+                  className="absolute inset-0 -z-10 rounded-lg border border-primary/32 bg-primary/10 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)]"
                 />
               ) : null}
               <Icon className="h-4 w-4" />
@@ -167,7 +167,7 @@ export function AppSidebar() {
         )}
       </section>
 
-      <div className="border-t border-border/35 pt-4">
+      <div className="border-t border-border/32 pt-4">
         <button
           type="button"
           onClick={() => router.push("/settings")}
@@ -180,7 +180,7 @@ export function AppSidebar() {
             name={currentUserName}
             userId={currentUserId}
             size="md"
-            className="ring-1 ring-border/30"
+            className="ring-1 ring-border/32"
           />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-foreground">{currentUserName}</p>

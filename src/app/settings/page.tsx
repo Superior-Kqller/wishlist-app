@@ -25,7 +25,7 @@ function ThemeAccentSection({ className }: { className?: string }) {
   return (
     <section className={cn(uiSurface.contentPanel, "p-4 sm:p-6", className)}>
       <div className="mb-5 flex min-w-0 items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary">
           <Palette className="h-5 w-5" aria-hidden />
         </span>
         <div className="min-w-0">
@@ -51,8 +51,8 @@ function ThemeAccentSection({ className }: { className?: string }) {
               className={cn(
                 "group relative min-h-32 rounded-xl border p-3.5 text-left transition-[background-color,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 selected
-                  ? "border-primary/48 bg-primary/10 shadow-[inset_0_1px_0_hsl(var(--primary)/0.12)]"
-                  : "border-border/58 bg-[hsl(var(--surface-2)/0.4)] hover:border-primary/28 hover:bg-[hsl(var(--surface-3)/0.62)]",
+                  ? "border-primary/45 bg-primary/10 shadow-[inset_0_1px_0_hsl(var(--primary)/0.12)]"
+                  : "border-border/55 bg-[hsl(var(--surface-2)/0.4)] hover:border-primary/32 hover:bg-[hsl(var(--surface-3)/0.62)]",
               )}
             >
               <span className="mb-4 flex gap-1.5" aria-hidden>
@@ -69,8 +69,8 @@ function ThemeAccentSection({ className }: { className?: string }) {
                   className={cn(
                     "flex size-6 shrink-0 items-center justify-center rounded-full border transition-colors",
                     selected
-                      ? "border-primary/35 bg-primary text-primary-foreground"
-                      : "border-border/65 bg-background/35 text-transparent",
+                      ? "border-primary/32 bg-primary text-primary-foreground"
+                      : "border-border/70 bg-background/32 text-transparent",
                   )}
                 >
                   <Check className="h-3.5 w-3.5" aria-hidden />
@@ -147,7 +147,7 @@ export default function SettingsPage() {
                 <Badge variant={user.role === "ADMIN" ? "default" : "outline"}>
                   {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
                 </Badge>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-border/55 bg-background/25 px-2.5 py-1.5">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-border/55 bg-background/24 px-2.5 py-1.5">
                   <CalendarDays className="h-3.5 w-3.5" aria-hidden />
                   {t("С нами с")}{" "}
                   {new Date(user.createdAt).toLocaleDateString(locale, {
@@ -166,25 +166,25 @@ export default function SettingsPage() {
           >
             <TabsList
               aria-label={t("Разделы настроек")}
-              className="grid h-auto grid-cols-3 gap-1 rounded-xl border border-border/50 bg-[hsl(var(--surface-2)/0.6)] p-1.5 lg:sticky lg:top-6 lg:flex lg:flex-col lg:items-stretch"
+              className="grid h-auto grid-cols-3 gap-1 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.6)] p-1.5 lg:sticky lg:top-6 lg:flex lg:flex-col lg:items-stretch"
             >
               <TabsTrigger
                 value="profile"
-                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/12 data-[state=active]:text-foreground data-[state=active]:shadow-none lg:justify-start"
+                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none lg:justify-start"
               >
                 <UserRound className="h-4 w-4 shrink-0" aria-hidden />
                 <span>{t("Профиль")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="appearance"
-                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/12 data-[state=active]:text-foreground data-[state=active]:shadow-none lg:justify-start"
+                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none lg:justify-start"
               >
                 <Palette className="h-4 w-4 shrink-0" aria-hidden />
                 <span>{t("Вид")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="security"
-                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/12 data-[state=active]:text-foreground data-[state=active]:shadow-none lg:justify-start"
+                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none lg:justify-start"
               >
                 <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
                 <span>{t("Защита")}</span>

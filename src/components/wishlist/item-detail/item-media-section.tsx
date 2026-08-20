@@ -22,7 +22,7 @@ export function ItemMediaSection({ item, className }: { item: WishlistItem; clas
         className,
       )}
     >
-      <div className="relative h-full min-h-0 overflow-hidden border-b border-border/48 bg-[hsl(var(--surface-2))] sm:rounded-lg sm:border">
+      <div className="relative h-full min-h-0 overflow-hidden border-b border-border/45 bg-[hsl(var(--surface-2))] sm:rounded-lg sm:border">
         {mainImage && !imageError ? (
           <Image
             src={mainImage}
@@ -35,7 +35,7 @@ export function ItemMediaSection({ item, className }: { item: WishlistItem; clas
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <ImageIcon className="h-16 w-16 text-muted-foreground/30" />
+            <ImageIcon className="h-16 w-16 text-muted-foreground/32" />
           </div>
         )}
       </div>

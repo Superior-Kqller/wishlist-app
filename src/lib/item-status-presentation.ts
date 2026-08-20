@@ -11,7 +11,7 @@ export function getItemStatusTone(status: ItemStatus): string {
   if (status === "PURCHASED") {
     return "border-success/45 bg-success/16 text-success-foreground";
   }
-  return "border-info/45 bg-info/14 text-info-foreground";
+  return "border-info/45 bg-info/16 text-info-foreground";
 }
 
 export function getItemStatusMarker(status: ItemStatus): string {

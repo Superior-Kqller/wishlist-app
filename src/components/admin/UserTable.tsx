@@ -134,7 +134,7 @@ export function UserTable({ users, currentUserId, onRefresh }: UserTableProps) {
           <div
             className={cn(
               uiSurface.contentPanel,
-              "divide-y divide-border/42 overflow-hidden sm:hidden",
+              "divide-y divide-border/45 overflow-hidden sm:hidden",
             )}
           >
             {filteredUsers.map((user) => (
@@ -166,7 +166,7 @@ export function UserTable({ users, currentUserId, onRefresh }: UserTableProps) {
                   </Badge>
                 </div>
 
-                <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border/34 pt-3 text-sm">
+                <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border/32 pt-3 text-sm">
                   <div>
                     <dt className="text-xs text-muted-foreground">{t("Желаний")}</dt>
                     <dd className="mt-1 font-semibold tabular-nums">{user._count?.items || 0}</dd>
@@ -179,7 +179,7 @@ export function UserTable({ users, currentUserId, onRefresh }: UserTableProps) {
                   </div>
                 </dl>
 
-                <div className="mt-3 border-t border-border/34 pt-3">
+                <div className="mt-3 border-t border-border/32 pt-3">
                   {renderActions(user, true)}
                 </div>
               </article>
@@ -188,7 +188,7 @@ export function UserTable({ users, currentUserId, onRefresh }: UserTableProps) {
 
           <div className={cn(uiSurface.contentPanel, "hidden overflow-hidden sm:block")}>
             <Table>
-              <TableHeader className="bg-muted/35">
+              <TableHeader className="bg-muted/32">
                 <TableRow className="hover:bg-transparent">
                   <TableHead>{t("Логин")}</TableHead>
                   <TableHead>{t("Имя")}</TableHead>

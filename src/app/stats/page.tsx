@@ -96,7 +96,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
   const purchasedValue = formatStatsPurchasedSummary(user.stats, language);
 
   return (
-    <details className="group overflow-hidden rounded-xl border border-border/58 bg-[hsl(var(--surface-2))]">
+    <details className="group overflow-hidden rounded-xl border border-border/55 bg-[hsl(var(--surface-2))]">
       <summary className="flex min-h-[4.5rem] cursor-pointer list-none items-center gap-3 px-3 py-2.5 outline-none transition-colors hover:bg-[hsl(var(--surface-3)/0.42)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/45 [&::-webkit-details-marker]:hidden">
         <UserAvatar
           avatarUrl={user.avatarUrl || undefined}
@@ -177,7 +177,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
 function ParticipantLinks({ userId, className }: { userId: string; className?: string }) {
   const { t } = useI18n();
   const linkClassName =
-    "inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border/60 px-3 text-xs font-semibold transition-colors hover:border-primary/35 hover:bg-primary/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55";
+    "inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border/55 px-3 text-xs font-semibold transition-colors hover:border-primary/32 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55";
 
   return (
     <div className={cn("flex flex-wrap gap-2", className)}>
@@ -234,7 +234,7 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
              Нажимаемы теперь имя и две ссылки в подвале. */
           <Card
             key={user.id}
-            className="flex h-full flex-col border-border/58 bg-[hsl(var(--surface-2))] shadow-none"
+            className="flex h-full flex-col border-border/55 bg-[hsl(var(--surface-2))] shadow-none"
           >
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
@@ -258,12 +258,12 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
               </div>
             </CardHeader>
             <CardContent className="flex flex-1 flex-col space-y-3">
-              <div className="grid grid-cols-2 border-y border-border/60 py-2.5 text-sm">
+              <div className="grid grid-cols-2 border-y border-border/55 py-2.5 text-sm">
                 <div className="pr-3">
                   <p className="text-xs text-muted-foreground">{t("Всего желаний")}</p>
                   <p className="mt-1 text-lg font-semibold tabular-nums">{user.stats.totalItems}</p>
                 </div>
-                <div className="border-l border-border/60 pl-3">
+                <div className="border-l border-border/55 pl-3">
                   <p className="text-xs text-muted-foreground">{t("Не куплено")}</p>
                   <p className="mt-1 text-lg font-semibold tabular-nums">
                     {user.stats.unpurchasedItems}
@@ -475,7 +475,7 @@ function StatsOverview({
         <div className="border-t border-border/55 pt-5">
           <p className="section-title">{t("Самые дорогие желания")}</p>
           {summary.topItems.length > 0 ? (
-            <ul className="mt-3 divide-y divide-border/40">
+            <ul className="mt-3 divide-y divide-border/45">
               {summary.topItems.map((item) => (
                 <li
                   key={item.id}
@@ -516,11 +516,11 @@ function StatsPageSkeleton() {
       <PageMain>
         <div className="space-y-4 animate-pulse" role="status" aria-live="polite">
           <span className="sr-only">Загрузка статистики</span>
-          <div className="h-24 rounded-2xl bg-muted/50" />
+          <div className="h-24 rounded-2xl bg-muted/55" />
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)]">
-            <div className="h-72 rounded-2xl bg-muted/40" />
-            <div className="h-72 rounded-2xl bg-muted/35 xl:row-span-2" />
-            <div className="h-56 rounded-2xl bg-muted/35" />
+            <div className="h-72 rounded-2xl bg-muted/45" />
+            <div className="h-72 rounded-2xl bg-muted/32 xl:row-span-2" />
+            <div className="h-56 rounded-2xl bg-muted/32" />
           </div>
         </div>
       </PageMain>
@@ -613,7 +613,7 @@ export default function StatsPage() {
 
               <div className="min-w-0 [grid-area:activity] xl:sticky xl:top-6 xl:self-start">
                 {recentItemsError ? (
-                  <div className="rounded-xl border border-destructive/24 bg-destructive/7 px-4 py-3 text-sm">
+                  <div className="rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm">
                     {t("Не удалось загрузить активность. Остальная статистика доступна.")}
                   </div>
                 ) : (

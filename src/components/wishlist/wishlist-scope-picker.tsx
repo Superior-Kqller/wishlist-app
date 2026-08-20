@@ -150,7 +150,7 @@ export function WishlistScopePicker({
           </DropdownMenuItem>
         ))}
 
-        <DropdownMenuSeparator className="my-1.5 bg-border/80" />
+        <DropdownMenuSeparator className="my-1.5 bg-border/85" />
 
         <DropdownMenuLabel className="px-2 py-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
           {t("Подборка")}
@@ -183,7 +183,7 @@ export function WishlistScopePicker({
 
         {isMyMode || (onEditList && selectedListId) ? (
           <>
-            <DropdownMenuSeparator className="my-1.5 bg-border/80" />
+            <DropdownMenuSeparator className="my-1.5 bg-border/85" />
             {onEditList && selectedListId ? (
               <DropdownMenuItem
                 onClick={onEditList}
@@ -211,6 +211,6 @@ export function WishlistScopePicker({
 
 function scopeItemTone(selected: boolean) {
   return selected
-    ? "border border-primary/45 bg-primary/14 text-foreground"
+    ? "border border-primary/45 bg-primary/16 text-foreground"
     : "text-muted-foreground focus:text-foreground";
 }

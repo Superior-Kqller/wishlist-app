@@ -52,7 +52,7 @@ export function UserFilter({
               uiSurface.inputAlt,
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               "touch-manipulation",
-              (selectedUser || isMyMode) && "border-primary/40 bg-primary/15 text-foreground",
+              (selectedUser || isMyMode) && "border-primary/45 bg-primary/16 text-foreground",
             )}
             data-testid="mobile-user-trigger"
           >
@@ -97,7 +97,7 @@ export function UserFilter({
             onClick={() => onUserChange(null)}
             className={cn(
               "cursor-pointer",
-              selectedUserId === null && "border border-primary/40 bg-primary/15",
+              selectedUserId === null && "border border-primary/45 bg-primary/16",
             )}
             data-testid="mobile-user-option-all"
           >
@@ -105,7 +105,7 @@ export function UserFilter({
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => onUserChange("me")}
-            className={cn("cursor-pointer", isMyMode && "border border-primary/40 bg-primary/15")}
+            className={cn("cursor-pointer", isMyMode && "border border-primary/45 bg-primary/16")}
             data-testid="mobile-user-option-me"
           >
             {t("Мои")}
@@ -117,7 +117,7 @@ export function UserFilter({
               onClick={() => onUserChange(user.id)}
               className={cn(
                 "flex items-center gap-3 p-3 cursor-pointer",
-                selectedUserId === user.id && "border border-primary/40 bg-primary/15",
+                selectedUserId === user.id && "border border-primary/45 bg-primary/16",
               )}
               data-testid={`mobile-user-option-${user.id}`}
             >

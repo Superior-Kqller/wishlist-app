@@ -37,12 +37,12 @@ export function WishlistSearchInput({
       placeholder={t("Поиск…")}
       aria-label={t("Поиск")}
       wrapperClassName={cn("group", className)}
-      iconClassName="left-3.5 text-muted-foreground/62 transition-colors duration-200 group-focus-within:text-primary/88"
+      iconClassName="left-3.5 text-muted-foreground/55 transition-colors duration-200 group-focus-within:text-primary/85"
       inputClassName={cn(
         filterBarTriggerClass,
         // Поиск равняется по общей высоте ряда и больше не несёт собственной
         // тени: он вторичный контрол, а выглядел самым тяжёлым объектом экрана.
-        "rounded-lg border-border/52 bg-[hsl(var(--surface-3)/0.72)] pl-10 pr-3 text-sm placeholder:text-muted-foreground-subtle hover:border-primary/28 hover:bg-[hsl(var(--surface-3)/0.88)] focus-visible:border-primary/48 focus-visible:ring-2 focus-visible:ring-primary/18 focus-visible:ring-offset-0",
+        "rounded-lg border-border/55 bg-[hsl(var(--surface-3)/0.72)] pl-10 pr-3 text-sm placeholder:text-muted-foreground-subtle hover:border-primary/32 hover:bg-[hsl(var(--surface-3)/0.88)] focus-visible:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/16 focus-visible:ring-offset-0",
       )}
     />
   );

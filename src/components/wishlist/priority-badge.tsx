@@ -31,8 +31,8 @@ export function PriorityBadgeOverlay({ priority, className }: PriorityBadgeOverl
       data-testid="wishlist-card-priority"
       className={cn(
         "pointer-events-none absolute left-2.5 top-2.5 z-10 inline-flex max-w-[calc(100%-1.25rem)] items-center gap-1.5",
-        "rounded-full border border-white/14 bg-zinc-950/78 py-1 pl-1.5 pr-2.5 backdrop-blur-md",
-        "text-[11px] font-medium leading-none text-white/92 shadow-[0_6px_16px_rgba(0,0,0,0.34)]",
+        "rounded-full border border-white/16 bg-zinc-950/85 py-1 pl-1.5 pr-2.5 backdrop-blur-md",
+        "text-[11px] font-medium leading-none text-white/95 shadow-[0_6px_16px_rgba(0,0,0,0.34)]",
         className,
       )}
     >

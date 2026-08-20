@@ -68,8 +68,8 @@ const FILTERS: Array<{ value: CalendarFilter; label: string }> = [
  */
 const EVENT_TYPE_META = {
   BIRTHDAY: { icon: Cake, label: "День рождения", chip: "bg-info/16" },
-  HOLIDAY: { icon: PartyPopper, label: "Общий праздник", chip: "bg-primary/14" },
-  PERSONAL: { icon: Clock3, label: "Личное событие", chip: "bg-success/14" },
+  HOLIDAY: { icon: PartyPopper, label: "Общий праздник", chip: "bg-primary/16" },
+  PERSONAL: { icon: Clock3, label: "Личное событие", chip: "bg-success/16" },
 } as const;
 
 function EventRow({
@@ -98,7 +98,7 @@ function EventRow({
           size="lg"
         />
       ) : (
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary sm:h-12 sm:w-12 sm:border sm:border-primary/20">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary sm:h-12 sm:w-12 sm:border sm:border-primary/24">
           <Icon className="h-5 w-5" aria-hidden />
         </span>
       )}
@@ -134,8 +134,8 @@ function EventRow({
             className={cn(
               "inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 sm:min-h-9 sm:min-w-0",
               muted
-                ? "border-primary/35 bg-primary/10 text-foreground"
-                : "border-border/60 text-muted-foreground hover:bg-accent",
+                ? "border-primary/32 bg-primary/10 text-foreground"
+                : "border-border/55 text-muted-foreground hover:bg-accent",
             )}
           >
             <BellOff className="h-3.5 w-3.5" aria-hidden />
@@ -148,7 +148,7 @@ function EventRow({
         {occurrence.type === "BIRTHDAY" && !occurrence.isOwn ? (
           <Link
             href={`/?userId=${occurrence.person.id}`}
-            className="mt-2 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/60 px-3 text-xs font-semibold transition-colors hover:border-primary/35 hover:bg-primary/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
+            className="mt-2 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/55 px-3 text-xs font-semibold transition-colors hover:border-primary/32 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
           >
             <Gift className="h-3.5 w-3.5" aria-hidden />
             {t("Открыть вишлисты")}
@@ -163,7 +163,7 @@ function EventRow({
                 <Link
                   key={`${person.id}:${wishlist.id}`}
                   href={thematicWishlistHref(person.id, wishlist.id)}
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-background/35 px-3 text-xs font-semibold transition-colors hover:border-primary/35 hover:bg-primary/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/55 bg-background/32 px-3 text-xs font-semibold transition-colors hover:border-primary/32 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
                 >
                   {person.name}: {wishlist.name}
                   <ChevronRight className="h-3.5 w-3.5" aria-hidden />
@@ -257,7 +257,7 @@ function MonthGrid({
                     <div
                       key={key}
                       className={cn(
-                        "min-h-14 border-b border-r border-border/35 bg-[hsl(var(--surface-1)/0.45)] md:min-h-28",
+                        "min-h-14 border-b border-r border-border/32 bg-[hsl(var(--surface-1)/0.45)] md:min-h-28",
                         isWeekendColumn(columnIndex) && "bg-[hsl(var(--surface-1)/0.7)]",
                       )}
                       role="cell"
@@ -271,7 +271,7 @@ function MonthGrid({
                   <div
                     key={key}
                     className={cn(
-                      "min-h-14 border-b border-r border-border/35 p-1 transition-colors duration-[var(--dur-base)] md:min-h-28 md:p-2",
+                      "min-h-14 border-b border-r border-border/32 p-1 transition-colors duration-[var(--dur-base)] md:min-h-28 md:p-2",
                       isWeekendColumn(columnIndex) && "bg-[hsl(var(--surface-1)/0.4)]",
                       entries.length > 0 && "bg-primary/[0.05]",
                       isToday && "bg-primary/[0.08]",
@@ -382,7 +382,7 @@ function MonthGrid({
                   <>
                     <time
                       dateTime={date}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-xs font-semibold text-foreground"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-semibold text-foreground"
                     >
                       {Number(date.slice(-2))}
                     </time>
@@ -403,7 +403,7 @@ function MonthGrid({
                   <Link
                     key={`${date}:${entry.id}`}
                     href={href}
-                    className={cn(itemClassName, "hover:bg-primary/7")}
+                    className={cn(itemClassName, "hover:bg-primary/5")}
                   >
                     {content}
                   </Link>
@@ -609,7 +609,7 @@ export default function CalendarPage() {
           {/* Состояние напоминаний недоступно — говорим об этом, а не выдаём
               все события за незаглушённые. */}
           {muteError ? (
-            <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/7 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
               <span>{t("Не удалось загрузить состояние напоминаний.")}</span>
               <Button type="button" variant="outline" size="sm" onClick={() => void mutateMutes()}>
                 {t("Повторить")}

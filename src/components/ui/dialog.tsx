@@ -40,7 +40,7 @@ const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         "motion-popup-surface fixed left-[50%] top-[50%] z-50 flex w-[min(100%,calc(100vw-1rem))] max-w-lg max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.5rem))] min-w-0 -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border p-0 shadow-lg duration-200",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/5 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/5 data-[state=open]:slide-in-from-top-[48%]",
         "glass dialog-modal-surface",
         className,
       )}
@@ -62,7 +62,7 @@ const DialogContent = React.forwardRef<
         className={cn(
           "absolute right-[max(0.5rem,env(safe-area-inset-right,0px))] top-[max(0.5rem,env(safe-area-inset-top,0px))] z-[60]",
           "flex size-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full",
-          "border border-border/70 bg-background/90 text-foreground shadow-md backdrop-blur-md",
+          "border border-border/70 bg-background/95 text-foreground shadow-md backdrop-blur-md",
           "opacity-95 ring-offset-background transition-opacity hover:opacity-100",
           "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
           "disabled:pointer-events-none",

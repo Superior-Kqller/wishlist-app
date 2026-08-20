@@ -135,7 +135,7 @@ export function ItemDetailDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         className={cn(
-          "item-detail-dialog-surface bottom-0 left-0 top-auto h-[min(96dvh,calc(100dvh-env(safe-area-inset-top,0px)))] max-h-none w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl border-border/64 bg-[hsl(var(--surface-2))] shadow-[var(--shadow-dialog)]",
+          "item-detail-dialog-surface bottom-0 left-0 top-auto h-[min(96dvh,calc(100dvh-env(safe-area-inset-top,0px)))] max-h-none w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl border-border/70 bg-[hsl(var(--surface-2))] shadow-[var(--shadow-dialog)]",
           "sm:bottom-auto sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.5rem))] sm:w-[min(100%,calc(100vw-1rem))] sm:max-w-5xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl",
         )}
         bodyClassName="relative gap-0 overflow-hidden p-0 sm:overflow-y-auto"
@@ -158,10 +158,10 @@ export function ItemDetailDialog({
           aria-label={t("Закрыть")}
           className="absolute left-1/2 top-0 z-20 flex h-6 w-16 -translate-x-1/2 items-center justify-center rounded-b-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 sm:hidden"
         >
-          <span className="h-1 w-10 rounded-full bg-foreground/18" aria-hidden />
+          <span className="h-1 w-10 rounded-full bg-foreground/16" aria-hidden />
         </button>
         <div className="item-detail-dialog-frame grid min-h-0 flex-1 overflow-y-auto overscroll-contain sm:flex-none sm:overflow-visible md:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)]">
-          <ItemMediaSection item={item} className="md:border-r md:border-border/34" />
+          <ItemMediaSection item={item} className="md:border-r md:border-border/32" />
           <div className="flex min-h-0 min-w-0 flex-col bg-[hsl(var(--surface-2))]">
             <ItemDetailBody>
               <ItemMetaSection
@@ -173,7 +173,7 @@ export function ItemDetailDialog({
                 onTogglePurchased={handleTogglePurchased}
               />
             </ItemDetailBody>
-            <div className="mt-auto border-t border-border/34 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:px-5 sm:py-5">
+            <div className="mt-auto border-t border-border/32 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:px-5 sm:py-5">
               <ItemActivitySection
                 comments={comments}
                 currentUserId={currentUserId}

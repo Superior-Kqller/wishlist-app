@@ -259,7 +259,7 @@ export const ProductRow = memo(function ProductRow({
               "rounded-md px-2 py-1 text-xs transition-colors",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               isSelected
-                ? "bg-primary/12 text-foreground"
+                ? "bg-primary/10 text-foreground"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >

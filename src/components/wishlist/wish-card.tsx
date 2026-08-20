@@ -105,9 +105,9 @@ export const WishCard = memo(function WishCard({
         "group/card flex h-full flex-col overflow-hidden rounded-2xl border-border/45 bg-[hsl(var(--surface-2))] shadow-none",
         isBought && "opacity-[0.88] saturate-[0.85]",
         isCardInteractive &&
-          "transition-[border-color,transform,box-shadow] duration-[var(--dur-base)] ease-[var(--ease-soft)] hover:-translate-y-1 hover:border-primary/40 hover:shadow-[var(--shadow-interactive-card-hover)]",
-        selectionMode && "ring-1 ring-border/80",
-        isSelected && "border-primary/65 ring-2 ring-primary/45 elevation-selected-card",
+          "transition-[border-color,transform,box-shadow] duration-[var(--dur-base)] ease-[var(--ease-soft)] hover:-translate-y-1 hover:border-primary/45 hover:shadow-[var(--shadow-interactive-card-hover)]",
+        selectionMode && "ring-1 ring-border/85",
+        isSelected && "border-primary/70 ring-2 ring-primary/45 elevation-selected-card",
       )}
     >
       {(() => {
@@ -163,7 +163,7 @@ export const WishCard = memo(function WishCard({
                 </>
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(140deg,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_100%)]">
-                  <Gift className="size-9 text-muted-foreground/40" aria-hidden />
+                  <Gift className="size-9 text-muted-foreground/45" aria-hidden />
                 </div>
               )}
 
@@ -179,8 +179,8 @@ export const WishCard = memo(function WishCard({
                   className={cn(
                     "absolute right-2.5 top-2.5 z-20 rounded-full border px-2.5 py-1 text-[11px] font-semibold backdrop-blur-md",
                     isSelected
-                      ? "border-primary/60 bg-primary/25 text-foreground"
-                      : "border-white/20 bg-zinc-950/70 text-white/90",
+                      ? "border-primary/55 bg-primary/24 text-foreground"
+                      : "border-white/24 bg-zinc-950/70 text-white/95",
                   )}
                 >
                   {isSelected ? t("Выбрано") : t("Выбрать")}
@@ -193,7 +193,7 @@ export const WishCard = memo(function WishCard({
                 data-testid="wishlist-card-v2-title"
                 className={cn(
                   "line-clamp-2 min-h-[2.5rem] text-[15px] font-semibold leading-[1.25] tracking-[-0.008em] text-balance text-foreground sm:text-base",
-                  isBought && "line-through decoration-muted-foreground/60",
+                  isBought && "line-through decoration-muted-foreground/55",
                 )}
               >
                 {item.title}
@@ -258,7 +258,7 @@ export const WishCard = memo(function WishCard({
                 <div
                   data-testid="wishlist-card-v2-purchased-label"
                   className={cn(
-                    "relative inline-flex w-fit items-center gap-1.5 rounded-full border border-success/40 bg-success/10 px-2.5 py-1 text-[11px] font-semibold text-success",
+                    "relative inline-flex w-fit items-center gap-1.5 rounded-full border border-success/45 bg-success/10 px-2.5 py-1 text-[11px] font-semibold text-success",
                     // Печать проигрывается только по действию пользователя, а не
                     // при каждом появлении уже купленной карточки в списке.
                     justPurchased && "seal-in seal-ring",
@@ -276,7 +276,7 @@ export const WishCard = memo(function WishCard({
       {showFooter ? (
         <div
           data-testid="wishlist-card-v2-footer"
-          className="mt-auto flex min-h-[3.25rem] items-center justify-between gap-2 border-t border-border/30 px-3.5 py-2.5 sm:px-4"
+          className="mt-auto flex min-h-[3.25rem] items-center justify-between gap-2 border-t border-border/32 px-3.5 py-2.5 sm:px-4"
         >
           {selectionMode ? (
             <p className="text-xs text-muted-foreground">
@@ -311,7 +311,7 @@ export const WishCard = memo(function WishCard({
                             asChild
                             iconSize="sm"
                             aria-label={t("Открыть ссылку на товар в новой вкладке")}
-                            className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-transparent text-muted-foreground hover:border-primary/30 hover:bg-primary/12 hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
+                            className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-transparent text-muted-foreground hover:border-primary/32 hover:bg-primary/10 hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
                           >
                             <a
                               href={item.url}
@@ -335,7 +335,7 @@ export const WishCard = memo(function WishCard({
                             data-testid="wishlist-card-actions"
                             iconSize="sm"
                             aria-label={t("Действия с карточкой")}
-                            className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-transparent text-muted-foreground hover:border-primary/30 hover:bg-primary/12 hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
+                            className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-transparent text-muted-foreground hover:border-primary/32 hover:bg-primary/10 hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <MoreHorizontal aria-hidden />

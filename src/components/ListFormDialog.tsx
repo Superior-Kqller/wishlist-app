@@ -141,7 +141,7 @@ export function ListFormDialog({
                   />
                 </div>
               ) : null}
-              <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-2 border rounded-md bg-muted/30">
+              <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-2 border rounded-md bg-muted/32">
                 {otherUsers.map((user) => (
                   <button
                     key={user.id}
@@ -150,7 +150,7 @@ export function ListFormDialog({
                     className={cn(
                       "px-3 py-1.5 rounded-md text-sm font-medium transition-colors border",
                       viewerIds.includes(user.id)
-                        ? "border-primary/48 bg-primary/14 text-foreground"
+                        ? "border-primary/45 bg-primary/16 text-foreground"
                         : "bg-background border-input hover:bg-accent",
                     )}
                   >
@@ -167,7 +167,7 @@ export function ListFormDialog({
                 <Button
                   type="button"
                   variant="destructive"
-                  className="w-full border-destructive/80 bg-destructive/90 sm:w-auto"
+                  className="w-full border-destructive/85 bg-destructive/95 sm:w-auto"
                   disabled={saving}
                   onClick={() => {
                     onDeleteRequest(list);

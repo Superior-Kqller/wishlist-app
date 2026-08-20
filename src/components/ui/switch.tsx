@@ -18,7 +18,7 @@ const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(({ className, ...
     <input ref={ref} type="checkbox" className="peer sr-only" {...props} />
     <span
       aria-hidden
-      className="pointer-events-none absolute inset-0 rounded-full border border-border/70 bg-muted transition-colors duration-[var(--dur-base)] after:absolute after:left-0.5 after:top-0.5 after:size-5 after:rounded-full after:bg-foreground/75 after:shadow-sm after:transition-transform after:duration-[var(--dur-base)] after:ease-[var(--ease-soft)] peer-checked:border-primary/50 peer-checked:bg-primary/70 peer-checked:after:translate-x-5 peer-checked:after:bg-primary-foreground peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-disabled:opacity-50"
+      className="pointer-events-none absolute inset-0 rounded-full border border-border/70 bg-muted transition-colors duration-[var(--dur-base)] after:absolute after:left-0.5 after:top-0.5 after:size-5 after:rounded-full after:bg-foreground/70 after:shadow-sm after:transition-transform after:duration-[var(--dur-base)] after:ease-[var(--ease-soft)] peer-checked:border-primary/55 peer-checked:bg-primary/70 peer-checked:after:translate-x-5 peer-checked:after:bg-primary-foreground peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background peer-disabled:opacity-50"
     />
   </span>
 ));

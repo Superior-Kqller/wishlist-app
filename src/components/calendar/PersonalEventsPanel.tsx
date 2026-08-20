@@ -182,7 +182,7 @@ export function PersonalEventsPanel() {
             />
           </div>
         ) : error ? (
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/35 bg-destructive/8 px-4 py-3">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/32 bg-destructive/10 px-4 py-3">
             <p className="text-sm text-destructive">{t("Не удалось загрузить личные события")}</p>
             <Button type="button" variant="ghost" size="sm" onClick={() => void refresh()}>
               {t("Повторить")}

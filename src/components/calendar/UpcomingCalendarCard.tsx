@@ -46,7 +46,7 @@ export function UpcomingCalendarCard({ className }: { className?: string }) {
       <button
         type="button"
         onClick={() => void mutate()}
-        className={cn(stripClass, "border-destructive/35 text-destructive", className)}
+        className={cn(stripClass, "border-destructive/32 text-destructive", className)}
       >
         {t("Не удалось загрузить ближайшие события")}
         <span className="font-semibold text-foreground">{t("Повторить")}</span>

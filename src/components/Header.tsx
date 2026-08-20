@@ -29,7 +29,7 @@ import {
 const mobileNavButtonClass = (active: boolean) =>
   cn(
     "relative h-11 min-w-0 flex-col gap-0.5 rounded-xl border border-transparent px-0.5 py-1.5 text-[10px] font-semibold leading-none tracking-[-0.01em] transition-[color] active:bg-accent/45 sm:flex-row sm:gap-1.5 sm:px-3 sm:text-xs sm:tracking-normal",
-    active ? "text-foreground" : "text-muted-foreground hover:bg-accent/40 hover:text-foreground",
+    active ? "text-foreground" : "text-muted-foreground hover:bg-accent/45 hover:text-foreground",
   );
 
 /**
@@ -47,7 +47,7 @@ function MobileNavIndicator({ reduceMotion }: { reduceMotion: boolean | null }) 
       layoutId="mobile-nav-active"
       aria-hidden
       transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }}
-      className="absolute inset-0 -z-10 rounded-xl border border-primary/32 bg-primary/12 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.055)]"
+      className="absolute inset-0 -z-10 rounded-xl border border-primary/32 bg-primary/10 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.055)]"
     />
   );
 }
@@ -89,7 +89,7 @@ export function Header() {
   const secondaryNavActive = secondaryNavItems.some((item) => pathname === item.href);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/80 bg-[hsl(var(--surface-2)/0.94)] elevation-header backdrop-blur-xl lg:hidden">
+    <header className="sticky top-0 z-40 border-b border-border/85 bg-[hsl(var(--surface-2)/0.94)] elevation-header backdrop-blur-xl lg:hidden">
       <div className="pt-[env(safe-area-inset-top,0px)]">
         <div className="container mx-auto flex flex-col px-3 sm:px-4">
           <div className="flex min-h-[48px] items-center gap-1">
@@ -116,7 +116,7 @@ export function Header() {
           </div>
 
           <nav
-            className="-mx-3 grid grid-cols-5 gap-1 border-t border-border/35 px-3 pb-1.5 pt-1.5 sm:-mx-4 sm:px-4"
+            className="-mx-3 grid grid-cols-5 gap-1 border-t border-border/32 px-3 pb-1.5 pt-1.5 sm:-mx-4 sm:px-4"
             aria-label={t("Разделы")}
           >
             {primaryNavItems.map((item) => {

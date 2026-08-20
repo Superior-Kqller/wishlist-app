@@ -26,7 +26,7 @@ export default function Loading() {
           </section>
 
           <aside
-            className={`${uiSurface.contentPanel} rounded-xl border-border/42 p-3 sm:rounded-2xl sm:p-4`}
+            className={`${uiSurface.contentPanel} rounded-xl border-border/45 p-3 sm:rounded-2xl sm:p-4`}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-2">
@@ -45,7 +45,7 @@ export default function Loading() {
 
         <section className={uiSurface.homeToolbar}>
           <div className="hidden min-w-0 w-full flex-col gap-3 sm:flex">
-            <div className="flex min-w-0 items-center justify-between gap-3 border-b border-border/36 pb-3">
+            <div className="flex min-w-0 items-center justify-between gap-3 border-b border-border/32 pb-3">
               <div className="space-y-2">
                 <Skeleton className="h-3 w-32 rounded-full" />
                 <Skeleton className="h-4 w-24 rounded-full" />

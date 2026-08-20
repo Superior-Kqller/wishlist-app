@@ -254,8 +254,8 @@ export function WishlistWorkspace({
             placeholder={t("Поиск…")}
             aria-label={t("Поиск")}
             wrapperClassName="group min-w-0 flex-1"
-            iconClassName="left-3.5 text-muted-foreground/62 transition-colors duration-200 group-focus-within:text-primary/88"
-            inputClassName="h-11 min-h-[44px] rounded-xl border-border/52 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] placeholder:text-muted-foreground-subtle focus-visible:border-primary/48 focus-visible:ring-2 focus-visible:ring-primary/18 focus-visible:ring-offset-0"
+            iconClassName="left-3.5 text-muted-foreground/55 transition-colors duration-200 group-focus-within:text-primary/85"
+            inputClassName="h-11 min-h-[44px] rounded-xl border-border/55 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] placeholder:text-muted-foreground-subtle focus-visible:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/16 focus-visible:ring-offset-0"
           />
           <Button
             type="button"
@@ -263,8 +263,8 @@ export function WishlistWorkspace({
             className={cn(
               "relative h-11 w-11 shrink-0 rounded-xl p-0",
               hasActiveFilters
-                ? "border-primary/40 bg-primary/12 text-foreground"
-                : "border-border/58 bg-[hsl(var(--surface-3)/0.58)]",
+                ? "border-primary/45 bg-primary/10 text-foreground"
+                : "border-border/55 bg-[hsl(var(--surface-3)/0.58)]",
             )}
             onClick={() => onFiltersOpenChange(true)}
             title={t("Фильтры")}
@@ -283,7 +283,7 @@ export function WishlistWorkspace({
             variant="ghost"
             className={cn(
               "h-11 w-11 shrink-0 rounded-xl p-0 text-muted-foreground disabled:pointer-events-none disabled:opacity-100",
-              selectionMode && "bg-primary/11 text-foreground",
+              selectionMode && "bg-primary/10 text-foreground",
             )}
             onClick={onToggleSelectionMode}
             disabled={hasSelectedCards}
@@ -376,7 +376,7 @@ export function WishlistWorkspace({
                   filterBarTriggerClass,
                   "gap-2 px-3",
                   hasActiveFilters
-                    ? "border-primary/45 bg-primary/12 text-foreground"
+                    ? "border-primary/45 bg-primary/10 text-foreground"
                     : "text-muted-foreground hover:text-foreground",
                 )}
                 onClick={() => onFiltersOpenChange(true)}
@@ -405,7 +405,7 @@ export function WishlistWorkspace({
                     className={cn(
                       filterBarTriggerClass,
                       "w-10 px-0 text-muted-foreground hover:text-foreground",
-                      selectionMode && "border-primary/45 bg-primary/12 text-foreground",
+                      selectionMode && "border-primary/45 bg-primary/10 text-foreground",
                     )}
                     aria-label={t("Ещё действия")}
                     title={t("Ещё действия")}

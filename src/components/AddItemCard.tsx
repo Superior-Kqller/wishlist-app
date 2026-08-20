@@ -39,9 +39,9 @@ export function AddItemCard({ onAdd, disabled, disabledHint }: AddItemCardProps)
     >
       <span
         className={cn(
-          "inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-border/60 text-primary",
+          "inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-border/55 text-primary",
           "transition-[transform,border-color,background-color] duration-[var(--dur-base)] ease-[var(--ease-soft)]",
-          !disabled && "group-hover/add:scale-110 group-hover/add:border-primary/50",
+          !disabled && "group-hover/add:scale-110 group-hover/add:border-primary/55",
         )}
       >
         <Plus className="size-5" aria-hidden />

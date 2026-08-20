@@ -37,7 +37,7 @@ export function ItemActivitySection({
     <section className={cn("space-y-3", className)} aria-label={t("Комментарии")}>
       <h3 className="flex items-center justify-between gap-2 text-sm font-semibold text-foreground">
         <span className="flex min-w-0 items-center gap-2">
-          <MessageCircle className="h-4 w-4 text-muted-foreground/78" />
+          <MessageCircle className="h-4 w-4 text-muted-foreground/85" />
           {t("Комментарии")}
         </span>
         {comments.length > 0 ? (
@@ -49,15 +49,15 @@ export function ItemActivitySection({
 
       <div className="sm:max-h-56 sm:overflow-y-auto sm:pr-1">
         {comments.length === 0 ? (
-          <div className="flex min-h-16 items-center gap-2 border-y border-border/28 py-3 text-sm text-muted-foreground">
-            <MessageCircle className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+          <div className="flex min-h-16 items-center gap-2 border-y border-border/32 py-3 text-sm text-muted-foreground">
+            <MessageCircle className="h-4 w-4 shrink-0 text-muted-foreground/55" />
             <p>{t("Комментариев пока нет")}</p>
           </div>
         ) : (
           comments.map((comment) => (
             <div
               key={comment.id}
-              className="flex gap-2 border-t border-border/28 py-3 text-sm first:border-t-0 first:pt-0"
+              className="flex gap-2 border-t border-border/32 py-3 text-sm first:border-t-0 first:pt-0"
             >
               <UserAvatar
                 avatarUrl={comment.user.avatarUrl || undefined}
@@ -105,13 +105,13 @@ export function ItemActivitySection({
 
       <form
         onSubmit={onSubmitComment}
-        className="grid gap-2 border-t border-border/35 pt-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
+        className="grid gap-2 border-t border-border/32 pt-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
       >
         <Textarea
           value={commentText}
           onChange={(event) => onCommentTextChange(event.target.value)}
           placeholder={t("Добавить комментарий…")}
-          className="min-h-20 resize-y border-border/58 bg-[hsl(var(--surface-1))] sm:min-h-24"
+          className="min-h-20 resize-y border-border/55 bg-[hsl(var(--surface-1))] sm:min-h-24"
           maxLength={2000}
           disabled={submittingComment}
         />
