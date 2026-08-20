@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { loginAsUser } from "./helpers/auth";
 
 const scenarios = [
   { name: "desktop classic", width: 1440, height: 900, theme: "classic" },
@@ -49,7 +48,7 @@ for (const scenario of scenarios) {
       });
     });
 
-    await loginAsUser(page);
+    await page.goto("/");
     await expect(page.locator("html")).toHaveClass(new RegExp(`theme-${scenario.theme}`));
 
     const addItemCard = page.getByTestId("add-item-card");
@@ -124,7 +123,7 @@ for (const scenario of scenarios) {
 }
 
 test("creation mode labels are available in English", async ({ page }) => {
-  await loginAsUser(page);
+  await page.goto("/");
   await page.evaluate(() => window.localStorage.setItem("wishlist-language", "en"));
   await page.reload();
 
@@ -140,7 +139,7 @@ test("creation mode labels are available in English", async ({ page }) => {
 });
 
 test("editing opens the full form without link autofill", async ({ page }) => {
-  await loginAsUser(page);
+  await page.goto("/");
 
   const firstCard = page.getByTestId("wishlist-card-v2").first();
   await expect(firstCard).toBeVisible();

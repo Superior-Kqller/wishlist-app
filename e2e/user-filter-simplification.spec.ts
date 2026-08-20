@@ -1,9 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { loginAsUser } from "./helpers/auth";
 
 test("desktop-user-filter-no-all-my-tabs", async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 900 });
-  await loginAsUser(page);
+  await page.goto("/");
 
   await expect(page.getByRole("tab", { name: "Все" })).toHaveCount(0);
   await expect(page.getByRole("tab", { name: "Мои" })).toHaveCount(0);
@@ -19,7 +18,7 @@ test("desktop-user-filter-no-all-my-tabs", async ({ page }) => {
 
 test("desktop-user-change-resets-list", async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 900 });
-  await loginAsUser(page);
+  await page.goto("/");
 
   const listTrigger = page.getByRole("combobox", { name: /Все подборки|Подборка/ });
   await expect(listTrigger).toBeVisible();

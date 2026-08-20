@@ -1,8 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { loginAsUser } from "./helpers/auth";
 
 test("wishlist switches between grid and table views", async ({ page }) => {
-  await loginAsUser(page);
+  await page.goto("/");
 
   await expect(page.getByTestId("wishlist-card-v2").first()).toBeVisible();
 

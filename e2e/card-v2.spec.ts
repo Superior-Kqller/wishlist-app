@@ -1,8 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { loginAsUser } from "./helpers/auth";
 
 test("card-baseline-actions-and-priority", async ({ page }) => {
-  await loginAsUser(page);
+  await page.goto("/");
 
   const firstCard = page.getByTestId("wishlist-card-v2").first();
   await expect(firstCard).toBeVisible();
@@ -19,7 +18,7 @@ test("card-baseline-actions-and-priority", async ({ page }) => {
 });
 
 test("card-priority-select-visible-and-changeable", async ({ page }) => {
-  await loginAsUser(page);
+  await page.goto("/");
 
   const firstCard = page.getByTestId("wishlist-card-v2").first();
   await expect(firstCard).toBeVisible();
@@ -33,7 +32,7 @@ test("card-priority-select-visible-and-changeable", async ({ page }) => {
 });
 
 test("card-v2-layout-price-near-title", async ({ page }) => {
-  await loginAsUser(page);
+  await page.goto("/");
 
   const firstCard = page.getByTestId("wishlist-card-v2").first();
   await expect(firstCard).toBeVisible();
@@ -67,7 +66,7 @@ test("card-v2-layout-price-near-title", async ({ page }) => {
 });
 
 test("card-v2-has-single-open-link-action", async ({ page }) => {
-  await loginAsUser(page);
+  await page.goto("/");
 
   const firstCard = page.getByTestId("wishlist-card-v2").first();
   await expect(firstCard).toBeVisible();
@@ -79,7 +78,7 @@ test("card-v2-has-single-open-link-action", async ({ page }) => {
 
 test("mobile card shows purchased state and several tags", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await loginAsUser(page);
+  await page.goto("/");
 
   const uniqueTitle = `mobile purchased tags ${Date.now()}`;
   const importResponse = await page.request.post("/api/items/import", {
@@ -105,7 +104,7 @@ test("mobile card shows purchased state and several tags", async ({ page }) => {
 });
 
 test("card-v2-actions-are-labeled-and-keyboard-accessible", async ({ page }) => {
-  await loginAsUser(page);
+  await page.goto("/");
 
   const firstCard = page.getByTestId("wishlist-card-v2").first();
   await expect(firstCard).toBeVisible();
@@ -129,7 +128,7 @@ test("card-v2-actions-are-labeled-and-keyboard-accessible", async ({ page }) => 
 });
 
 test("card-v2-title-tooltip-shows-full-name", async ({ page }) => {
-  await loginAsUser(page);
+  await page.goto("/");
 
   const firstCard = page.getByTestId("wishlist-card-v2").first();
   const title = firstCard.getByTestId("wishlist-card-v2-title");
@@ -142,7 +141,7 @@ test("card-v2-title-tooltip-shows-full-name", async ({ page }) => {
 });
 
 test("add-item-cta-copy-is-clear", async ({ page }) => {
-  await loginAsUser(page);
+  await page.goto("/");
 
   const addItemCard = page.getByTestId("add-item-card");
   await expect(addItemCard).toBeVisible();
@@ -154,7 +153,7 @@ test("add-item-cta-copy-is-clear", async ({ page }) => {
 });
 
 test("card-v2-no-priority-colored-border", async ({ page }) => {
-  await loginAsUser(page);
+  await page.goto("/");
 
   const firstCard = page.getByTestId("wishlist-card-v2").first();
   await expect(firstCard).toBeVisible();

@@ -1,6 +1,9 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Аутентификация", () => {
+  // Эти проверки про анонимного посетителя: общее состояние входа тут мешает.
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test("перенаправляет неавторизованного на /login", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveURL(/\/login/);

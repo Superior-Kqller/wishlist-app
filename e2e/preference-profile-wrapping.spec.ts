@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { loginAsUser } from "./helpers/auth";
 
 test.describe.configure({ mode: "serial" });
 
@@ -7,6 +6,7 @@ const longSize = `Размер-${"оченьдлинноезначение".repe
 const longBudget = `До-${"1234567890".repeat(18)}-рублей`;
 const longOccasion = `Повод-${"безпробелов".repeat(6)}`;
 const longNotes = `Первая строка заметки\n${"непрерывнаядлиннаязаметка".repeat(20)}`;
+const longName = "Александринапетровнаконстантинопольская-Зауральская";
 
 const scenarios = [
   { name: "desktop classic", width: 1440, height: 900, theme: "classic" },
@@ -22,10 +22,13 @@ for (const scenario of scenarios) {
       window.localStorage.setItem("wishlist-color-theme", theme);
     }, scenario.theme);
 
-    await loginAsUser(page);
+    await page.goto("/");
     const originalResponse = await page.request.get("/api/users/me");
     expect(originalResponse.ok()).toBeTruthy();
-    const originalUser = (await originalResponse.json()) as { giftPreferences: unknown };
+    const originalUser = (await originalResponse.json()) as {
+      giftPreferences: unknown;
+      name: string;
+    };
 
     const updateResponse = await page.request.patch("/api/users/me", {
       data: {
@@ -73,9 +76,37 @@ for (const scenario of scenarios) {
         () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       );
       expect(viewportHasHorizontalOverflow).toBe(false);
+
+      // Длинное имя ломало раскладку иначе, чем длинные значения: у элемента
+      // grid минимальный размер по умолчанию равен min-content, и колонка
+      // растягивалась за край экрана вместе с именем, унося кнопку раскрытия.
+      const renamed = await page.request.patch("/api/users/me", { data: { name: longName } });
+      expect(renamed.ok()).toBeTruthy();
+      await page.reload();
+      await expect(ownProfile).toBeVisible();
+
+      const nameLayout = await ownProfile.evaluate((element) => {
+        const heading = element.querySelector("h2") as HTMLElement;
+        return {
+          cardWidth: element.getBoundingClientRect().width,
+          headingWidth: heading.getBoundingClientRect().width,
+          headingClipped: heading.scrollWidth > heading.clientWidth,
+        };
+      });
+      // На телефоне имя обязано обрезаться, на десктопе оно помещается целиком.
+      if (scenario.width < 768) {
+        expect(nameLayout.headingClipped).toBe(true);
+      }
+      expect(nameLayout.headingWidth).toBeLessThanOrEqual(nameLayout.cardWidth);
+      await expect(ownProfile.getByRole("button", { name: /Открыть профиль/ })).toBeVisible();
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+        ),
+      ).toBe(false);
     } finally {
       const restoreResponse = await page.request.patch("/api/users/me", {
-        data: { giftPreferences: originalUser.giftPreferences },
+        data: { giftPreferences: originalUser.giftPreferences, name: originalUser.name },
       });
       expect(restoreResponse.ok()).toBeTruthy();
     }

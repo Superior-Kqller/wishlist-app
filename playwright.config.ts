@@ -13,9 +13,17 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   projects: [
+    { name: "setup", testMatch: /auth\.setup\.ts/ },
+    {
+      name: "fixtures",
+      testMatch: /fixtures\.setup\.ts/,
+      use: { storageState: "playwright/.auth/user.json" },
+      dependencies: ["setup"],
+    },
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: { ...devices["Desktop Chrome"], storageState: "playwright/.auth/user.json" },
+      dependencies: ["fixtures"],
     },
   ],
 });

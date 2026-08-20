@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { loginAsUser } from "./helpers/auth";
 
 const scenarios = [
   { name: "desktop classic", width: 1440, height: 900, theme: "classic", desktop: true },
@@ -24,7 +23,7 @@ for (const scenario of scenarios) {
       window.localStorage.setItem("wishlist-color-theme", theme);
     }, scenario.theme);
 
-    await loginAsUser(page);
+    await page.goto("/");
     await expect(page.locator("html")).toHaveClass(new RegExp(`theme-${scenario.theme}`));
 
     const suffix = `${scenario.name}-${Date.now()}`;
