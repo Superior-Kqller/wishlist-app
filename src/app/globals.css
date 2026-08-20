@@ -474,10 +474,6 @@
   letter-spacing: 0;
 }
 
-.card-elevated {
-  box-shadow: 0 10px 24px rgb(0 0 0 / 0.3);
-}
-
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -535,13 +531,6 @@
   .item-detail-dialog-frame {
     background: hsl(var(--surface-2));
   }
-}
-
-.glass-card {
-  background: hsl(var(--surface-2));
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  box-shadow: 0 8px 22px rgb(0 0 0 / 0.28);
 }
 
 .interactive-glow:hover,
@@ -647,11 +636,6 @@
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: var(--shadow-floating);
-}
-
-.theme-light .glass-card,
-.theme-light .card-elevated {
-  box-shadow: var(--shadow-interactive-card);
 }
 
 .theme-light .home-toolbar-panel {
