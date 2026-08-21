@@ -268,7 +268,7 @@ export function GiftPreferencesSummary({
                   )}
                 >
                   <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <ShieldAlert className="h-4 w-4 text-destructive/85" aria-hidden />
+                    <ShieldAlert className="h-4 w-4 text-destructive" aria-hidden />
                     {t("Не подойдёт")}
                   </p>
                   {visibleAvoidRows.length > 0 ? (
@@ -288,7 +288,7 @@ export function GiftPreferencesSummary({
                   )}
                 >
                   <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <Ruler className="h-4 w-4 text-warning/85" aria-hidden />
+                    <Ruler className="h-4 w-4 text-muted-foreground" aria-hidden />
                     {t("Детали")}
                   </p>
                   {visibleDetailRows.length > 0 ? (

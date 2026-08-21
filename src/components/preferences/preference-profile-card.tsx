@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronDown, Pencil } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
-import { getPreferenceColor } from "@/components/preferences/preference-signal-row";
+import { PreferenceColorDot } from "@/components/preferences/preference-color-dot";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getWishWord } from "@/lib/i18n";
@@ -122,7 +122,12 @@ export function PreferenceProfileCard({
                   правки ниже `sm` скрыта, и на телефоне — там, где анкету
                   бросают на полпути чаще всего — о нём не оставалось следа. */}
               {isCurrent && editLabel ? (
-                <span className="rounded-full border border-warning/32 bg-warning/10 px-2 py-0.5 text-[11px] font-medium text-warning">
+                /* Текст полным контрастом, а не краской статуса: `text-warning`
+                   на 11 пикселях давал в светлой теме 4.46 при пороге 4.5, и
+                   единственный след брошенной работы оказывался самым бледным
+                   элементом карточки. Смысл несёт само слово, а краска
+                   осталась в рамке и заливке. */
+                <span className="rounded-full border border-warning/45 bg-warning/10 px-2 py-0.5 text-[11px] font-medium text-foreground">
                   {t("Черновик")}
                 </span>
               ) : null}
@@ -210,13 +215,12 @@ export function PreferenceProfileCard({
                           .join(", ")}`}
                       >
                         {highlights.colors.map((color) => (
-                          /* Обводка — контрастом к фону, а не его же краской:
-                             белый и молочный в светлой теме исчезали целиком. */
-                          <span
+                          <PreferenceColorDot
                             key={color}
+                            value={color}
+                            size="lg"
+                            inset
                             title={t(color)}
-                            className="size-4 rounded-full border-2 border-[hsl(var(--surface-2))] ring-1 ring-foreground/24"
-                            style={{ backgroundColor: getPreferenceColor(color) }}
                           />
                         ))}
                       </span>

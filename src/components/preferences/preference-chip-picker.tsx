@@ -6,6 +6,7 @@ import { Check, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/components/i18n/language-provider";
+import { PreferenceColorDot } from "@/components/preferences/preference-color-dot";
 import { cn } from "@/lib/utils";
 import { uiState } from "@/lib/ui-contract";
 
@@ -105,18 +106,12 @@ export function PreferenceChipPicker({
                 uiState.focusRing,
                 active
                   ? warning
-                    ? "border-destructive/45 bg-destructive/10 text-destructive"
-                    : "border-primary/45 bg-primary/16 text-foreground"
+                    ? "border-destructive bg-destructive/10 text-destructive"
+                    : "border-primary-accent bg-primary/16 text-foreground"
                   : "border-border/55 bg-[hsl(var(--surface-3)/0.5)] text-muted-foreground hover:border-border hover:bg-accent/70 hover:text-foreground",
               )}
             >
-              {suggestion.color ? (
-                <span
-                  className="size-3.5 rounded-full border border-foreground/16 shadow-[inset_0_0_0_1px_hsl(var(--background)/0.2)]"
-                  style={{ backgroundColor: suggestion.color }}
-                  aria-hidden
-                />
-              ) : null}
+              {suggestion.color ? <PreferenceColorDot value={suggestion.label} size="md" /> : null}
               {t(suggestion.label)}
               {active ? <Check className="h-3.5 w-3.5" aria-hidden /> : null}
             </button>

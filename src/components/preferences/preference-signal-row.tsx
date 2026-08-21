@@ -2,6 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import { useI18n } from "@/components/i18n/language-provider";
+import { PreferenceColorDot } from "@/components/preferences/preference-color-dot";
 import { cn } from "@/lib/utils";
 
 export type PreferenceSignalRowProps = {
@@ -15,37 +16,6 @@ export type PreferenceSignalRowProps = {
   compact?: boolean;
   colorDots?: boolean;
 };
-
-const colorValues: Record<string, string> = {
-  розовый: "#e7a6b8",
-  красный: "#c75b64",
-  бордовый: "#8f3e4b",
-  оранжевый: "#d78a4d",
-  жёлтый: "#d8b84a",
-  желтый: "#d8b84a",
-  зелёный: "#6f9b76",
-  зеленый: "#6f9b76",
-  хаки: "#7b7d57",
-  мятный: "#8bbfaf",
-  голубой: "#77aabd",
-  синий: "#56789f",
-  фиолетовый: "#8c729c",
-  лавандовый: "#b5a6cf",
-  белый: "#ece9e1",
-  молочный: "#f1eadc",
-  бежевый: "#cdbb9f",
-  коричневый: "#80604d",
-  серый: "#8c9097",
-  графитовый: "#454a52",
-  серебристый: "#b8bdc4",
-  деним: "#4f6787",
-  чёрный: "#292a2e",
-  черный: "#292a2e",
-};
-
-export function getPreferenceColor(value: string) {
-  return colorValues[value.toLocaleLowerCase("ru-RU")] ?? "#77777f";
-}
 
 function getIconColor(accent: PreferenceSignalRowProps["accent"], warning: boolean) {
   if (warning || accent === "danger") return "text-destructive";
@@ -98,13 +68,7 @@ export function PreferenceSignalRow({
         <div className="flex min-w-0 flex-wrap items-start gap-x-2 gap-y-1 text-xs font-medium leading-relaxed text-foreground/85">
           {visibleValues.map((value) => (
             <span key={value} className="inline-flex max-w-full min-w-0 items-start gap-1">
-              {colorDots ? (
-                <span
-                  className="size-2.5 shrink-0 rounded-full border border-foreground/16"
-                  style={{ backgroundColor: getPreferenceColor(value) }}
-                  aria-hidden
-                />
-              ) : null}
+              {colorDots ? <PreferenceColorDot value={value} size="sm" /> : null}
               <span className="min-w-0 whitespace-normal [overflow-wrap:anywhere]">{t(value)}</span>
             </span>
           ))}

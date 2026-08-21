@@ -22,6 +22,7 @@ import {
   togglePresetToken,
   type SizeCategoryId,
 } from "@/lib/preference-sizes";
+import { preferenceColors } from "@/lib/preference-colors";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
 
 export type EditorSection = "likes" | "avoid" | "details";
@@ -32,29 +33,10 @@ export type ListPreferenceKey = {
   [Key in keyof GiftPreferences]: GiftPreferences[Key] extends string[] ? Key : never;
 }[keyof GiftPreferences];
 
-const colorSuggestions: PreferenceSuggestion[] = [
-  { label: "Розовый", color: "#e7a6b8" },
-  { label: "Красный", color: "#c75b64" },
-  { label: "Бордовый", color: "#8f3e4b" },
-  { label: "Оранжевый", color: "#d78a4d" },
-  { label: "Жёлтый", color: "#d8b84a" },
-  { label: "Зелёный", color: "#6f9b76" },
-  { label: "Хаки", color: "#7b7d57" },
-  { label: "Мятный", color: "#8bbfaf" },
-  { label: "Голубой", color: "#77aabd" },
-  { label: "Синий", color: "#56789f" },
-  { label: "Фиолетовый", color: "#8c729c" },
-  { label: "Лавандовый", color: "#b5a6cf" },
-  { label: "Белый", color: "#ece9e1" },
-  { label: "Молочный", color: "#f1eadc" },
-  { label: "Бежевый", color: "#cdbb9f" },
-  { label: "Коричневый", color: "#80604d" },
-  { label: "Серый", color: "#8c9097" },
-  { label: "Графитовый", color: "#454a52" },
-  { label: "Серебристый", color: "#b8bdc4" },
-  { label: "Деним", color: "#4f6787" },
-  { label: "Чёрный", color: "#292a2e" },
-];
+const colorSuggestions: PreferenceSuggestion[] = preferenceColors.map((color) => ({
+  label: color.label,
+  color: color.hex,
+}));
 
 const materialSuggestions: PreferenceSuggestion[] = [
   "Хлопок",
@@ -188,7 +170,7 @@ function QuickTextField({
               "min-h-9 rounded-lg border px-3 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98]",
               uiState.focusRing,
               value === suggestion
-                ? "border-primary/45 bg-primary/16 text-foreground"
+                ? "border-primary-accent bg-primary/16 text-foreground"
                 : "border-border/55 bg-[hsl(var(--surface-3)/0.5)] text-muted-foreground hover:bg-accent hover:text-foreground",
             )}
           >
@@ -291,7 +273,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
                         "min-h-11 whitespace-nowrap rounded-lg border px-2.5 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98] sm:min-h-8",
                         uiState.focusRing,
                         active
-                          ? "border-primary/45 bg-primary/16 text-foreground"
+                          ? "border-primary-accent bg-primary/16 text-foreground"
                           : "border-border/45 bg-[hsl(var(--surface-2)/0.58)] text-muted-foreground hover:bg-accent hover:text-foreground",
                       )}
                     >
@@ -426,7 +408,7 @@ export function GiftProfileEditor({
                 "group flex min-h-12 min-w-0 items-center gap-3 rounded-xl border px-3 text-left transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98]",
                 uiState.focusRing,
                 active
-                  ? "border-primary/32 bg-primary/10 text-foreground"
+                  ? "border-primary-accent bg-primary/10 text-foreground"
                   : "border-transparent text-muted-foreground hover:bg-accent/55 hover:text-foreground",
               )}
             >
