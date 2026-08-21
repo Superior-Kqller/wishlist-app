@@ -11,6 +11,7 @@ import {
   PreferenceChipPicker,
   type PreferenceSuggestion,
 } from "@/components/preferences/preference-chip-picker";
+import { easing } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { uiState, uiSurface } from "@/lib/ui-contract";
 import { SIZES_MAX_LENGTH, type GiftPreferences } from "@/lib/preferences";
@@ -147,7 +148,7 @@ function QuickTextField({
 }) {
   const { t } = useI18n();
   return (
-    <section className="space-y-4 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.72)] p-4 sm:p-5">
+    <section className="space-y-4 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.7)] p-4 sm:p-5">
       <div className="flex items-start gap-3">
         <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary-accent">
           <Icon className="h-4 w-4" aria-hidden />
@@ -167,11 +168,11 @@ function QuickTextField({
             aria-pressed={value === suggestion}
             onClick={() => onChange(value === suggestion ? "" : suggestion)}
             className={cn(
-              "min-h-11 rounded-lg border px-3 text-xs font-semibold sm:min-h-9 transition-[color,background-color,border-color,transform] active:scale-[0.98]",
+              "min-h-11 rounded-full border px-3 text-xs font-semibold sm:min-h-9 transition-[color,background-color,border-color,transform] active:scale-[0.98]",
               uiState.focusRing,
               value === suggestion
                 ? "border-primary-accent bg-primary/16 text-foreground"
-                : "border-border/55 bg-[hsl(var(--surface-3)/0.5)] text-muted-foreground hover:bg-accent hover:text-foreground",
+                : "border-border/55 bg-[hsl(var(--surface-3)/0.45)] text-muted-foreground hover:bg-accent hover:text-foreground",
             )}
           >
             {t(suggestion)}
@@ -184,7 +185,7 @@ function QuickTextField({
         onChange={(event) => onChange(event.target.value)}
         placeholder={t(placeholder)}
         maxLength={id === "budget" ? 200 : 500}
-        className="border-border/55 bg-[hsl(var(--surface-3)/0.6)]"
+        className="border-border/55 bg-[hsl(var(--surface-3)/0.55)]"
       />
     </section>
   );
@@ -231,7 +232,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
   };
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.72)] p-4 sm:p-5">
+    <section className="space-y-4 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.7)] p-4 sm:p-5">
       <div className="flex items-start gap-3">
         <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary-accent">
           <Ruler className="h-4 w-4" aria-hidden />
@@ -252,7 +253,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
           return (
             <div
               key={category.id}
-              className="min-w-0 rounded-xl border border-border/45 bg-[hsl(var(--surface-3)/0.42)] p-3"
+              className="min-w-0 rounded-xl border border-border/45 bg-[hsl(var(--surface-3)/0.45)] p-3"
             >
               <div className="mb-2.5">
                 <Label htmlFor={`size-${category.id}`} className="text-sm font-semibold">
@@ -270,11 +271,11 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
                       aria-pressed={active}
                       onClick={() => togglePreset(category.id, preset)}
                       className={cn(
-                        "min-h-11 min-w-11 whitespace-nowrap rounded-lg border px-2.5 text-xs font-semibold sm:min-w-0 transition-[color,background-color,border-color,transform] active:scale-[0.98] sm:min-h-9",
+                        "min-h-11 min-w-11 whitespace-nowrap rounded-full border px-2.5 text-xs font-semibold sm:min-w-0 transition-[color,background-color,border-color,transform] active:scale-[0.98] sm:min-h-9",
                         uiState.focusRing,
                         active
                           ? "border-primary-accent bg-primary/16 text-foreground"
-                          : "border-border/45 bg-[hsl(var(--surface-2)/0.58)] text-muted-foreground hover:bg-accent hover:text-foreground",
+                          : "border-border/45 bg-[hsl(var(--surface-2)/0.55)] text-muted-foreground hover:bg-accent hover:text-foreground",
                       )}
                     >
                       {preset}
@@ -320,7 +321,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
           onChange={(event) => updateCustom(event.target.value)}
           placeholder={t("Например, длина рукава, обхват запястья или свободная заметка")}
           maxLength={180}
-          className="mt-2 border-border/55 bg-[hsl(var(--surface-3)/0.6)]"
+          className="mt-2 border-border/55 bg-[hsl(var(--surface-3)/0.55)]"
         />
       </div>
     </section>
@@ -457,7 +458,7 @@ export function GiftProfileEditor({
             initial={reduceMotion ? false : { opacity: 0, x: 12 }}
             animate={{ opacity: 1, x: 0 }}
             exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: -8 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.2, ease: easing.expo }}
             className={cn("min-w-0 space-y-4 rounded-2xl", uiState.focusRing)}
           >
             {activeSection === "likes" ? (
@@ -587,7 +588,7 @@ export function GiftProfileEditor({
                   max={16}
                   onChange={(value) => updateList("occasions", value)}
                 />
-                <section className="space-y-3 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.72)] p-4 sm:p-5">
+                <section className="space-y-3 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.7)] p-4 sm:p-5">
                   <div>
                     <Label htmlFor="notes" className="text-base font-semibold tracking-tight">
                       {t("Личная подсказка")}
@@ -607,7 +608,7 @@ export function GiftProfileEditor({
                     placeholder={t(
                       "Например: люблю практичные подарки и не люблю сюрпризы с доставкой на работу",
                     )}
-                    className="min-h-32 resize-y border-border/55 bg-[hsl(var(--surface-3)/0.6)]"
+                    className="min-h-32 resize-y border-border/55 bg-[hsl(var(--surface-3)/0.55)]"
                   />
                 </section>
               </>

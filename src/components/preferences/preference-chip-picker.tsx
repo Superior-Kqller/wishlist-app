@@ -86,7 +86,7 @@ export function PreferenceChipPicker({
   };
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.72)] p-4 sm:p-5">
+    <section className="space-y-4 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.7)] p-4 sm:p-5">
       <div>
         <h2 className="text-base font-semibold tracking-tight">{t(title)}</h2>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(description)}</p>
@@ -102,13 +102,13 @@ export function PreferenceChipPicker({
               onClick={() => toggleValue(suggestion.label)}
               aria-pressed={active}
               className={cn(
-                "inline-flex min-h-11 items-center gap-2 rounded-xl border px-3 sm:min-h-10 text-sm font-medium transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98]",
+                "inline-flex min-h-11 items-center gap-2 rounded-full border px-3 sm:min-h-10 text-sm font-medium transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98]",
                 uiState.focusRing,
                 active
                   ? warning
                     ? "border-destructive bg-destructive/10 text-destructive"
                     : "border-primary-accent bg-primary/16 text-foreground"
-                  : "border-border/55 bg-[hsl(var(--surface-3)/0.5)] text-muted-foreground hover:border-border hover:bg-accent/70 hover:text-foreground",
+                  : "border-border/55 bg-[hsl(var(--surface-3)/0.45)] text-muted-foreground hover:border-border hover:bg-accent/70 hover:text-foreground",
               )}
             >
               {suggestion.color ? <PreferenceColorDot value={suggestion.label} size="md" /> : null}
@@ -122,7 +122,7 @@ export function PreferenceChipPicker({
             type="button"
             onClick={() => setShowAllSuggestions(true)}
             className={cn(
-              "inline-flex min-h-11 items-center rounded-xl px-3 sm:min-h-10 text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline",
+              "inline-flex min-h-11 items-center rounded-full px-3 sm:min-h-10 text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline",
               uiState.focusRing,
             )}
           >
@@ -143,7 +143,7 @@ export function PreferenceChipPicker({
           placeholder={t(placeholder)}
           maxLength={100}
           disabled={value.length >= max}
-          className="min-w-0 border-border/55 bg-[hsl(var(--surface-3)/0.6)]"
+          className="min-w-0 border-border/55 bg-[hsl(var(--surface-3)/0.55)]"
           aria-label={t("Добавить свой вариант")}
         />
         <Button
@@ -162,10 +162,10 @@ export function PreferenceChipPicker({
       <div className="min-h-7">
         <AnimatePresence initial={false} mode="popLayout">
           {value.length > 0 ? (
-            <motion.div key="values" layout className="flex flex-wrap gap-1.5">
+            <motion.div key="values" layout={!reduceMotion} className="flex flex-wrap gap-1.5">
               {value.map((item) => (
                 <motion.button
-                  layout
+                  layout={!reduceMotion}
                   key={normalizeKey(item)}
                   type="button"
                   initial={reduceMotion ? false : { opacity: 0, scale: 0.9 }}
@@ -174,7 +174,7 @@ export function PreferenceChipPicker({
                   transition={{ duration: 0.16 }}
                   onClick={() => toggleValue(item)}
                   className={cn(
-                    "inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-lg border px-2.5 sm:min-h-9 text-xs font-semibold transition-colors hover:bg-accent",
+                    "inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full border px-2.5 sm:min-h-9 text-xs font-semibold transition-colors hover:bg-accent",
                     uiState.focusRing,
                     warning
                       ? "border-destructive/32 bg-destructive/10 text-destructive"

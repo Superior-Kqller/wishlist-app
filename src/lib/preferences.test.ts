@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { emptyGiftPreferences, normalizeGiftPreferences, splitPreferenceList } from "./preferences";
+import {
+  emptyGiftPreferences,
+  giftPreferenceSections,
+  giftPreferencesSchema,
+  isGiftPreferenceSectionFilled,
+  normalizeGiftPreferences,
+  splitPreferenceList,
+} from "./preferences";
 
 describe("gift preferences", () => {
   it("normalizes empty values to a complete preferences object", () => {
@@ -30,5 +37,35 @@ describe("gift preferences", () => {
       "зеленый",
       "синий",
     ]);
+  });
+});
+
+describe("разделы редактора профиля", () => {
+  it("покрывают каждое поле схемы ровно один раз", () => {
+    const schemaKeys = Object.keys(giftPreferencesSchema.shape).sort();
+    const mapped = Object.values(giftPreferenceSections).flat();
+
+    expect([...mapped].sort()).toEqual(schemaKeys);
+    expect(new Set(mapped).size).toBe(mapped.length);
+  });
+
+  it("пустой профиль не заполнен ни в одном разделе", () => {
+    for (const section of Object.keys(giftPreferenceSections) as Array<
+      keyof typeof giftPreferenceSections
+    >) {
+      expect(isGiftPreferenceSectionFilled(emptyGiftPreferences, section)).toBe(false);
+    }
+  });
+
+  it("считает заполненными и непустой список, и непустую строку", () => {
+    expect(
+      isGiftPreferenceSectionFilled({ ...emptyGiftPreferences, hobbies: ["Книги"] }, "likes"),
+    ).toBe(true);
+    expect(
+      isGiftPreferenceSectionFilled({ ...emptyGiftPreferences, budget: "до 3000" }, "details"),
+    ).toBe(true);
+    expect(
+      isGiftPreferenceSectionFilled({ ...emptyGiftPreferences, hobbies: ["Книги"] }, "avoid"),
+    ).toBe(false);
   });
 });

@@ -84,3 +84,34 @@ export function countGiftPreferences(value: GiftPreferences): number {
     Number(Boolean(value.notes))
   );
 }
+
+/**
+ * Разделы редактора и поля, которые в них живут.
+ *
+ * Признак «раздел заполнен» считался в компоненте страницы ручной дизъюнкцией
+ * по четырнадцати полям, а общий счётчик — здесь: добавление поля в схему
+ * требовало правки в двух местах, и разъехаться они могли молча.
+ */
+export const giftPreferenceSections = {
+  likes: ["favoriteBrands", "favoriteColors", "favoriteCategories", "hobbies", "favoriteMaterials"],
+  avoid: [
+    "dislikedBrands",
+    "dislikedColors",
+    "dislikedCategories",
+    "dislikedMaterials",
+    "doNotBuy",
+  ],
+  details: ["sizes", "occasions", "budget", "notes"],
+} as const satisfies Record<string, ReadonlyArray<keyof GiftPreferences>>;
+
+export type GiftPreferenceSection = keyof typeof giftPreferenceSections;
+
+export function isGiftPreferenceSectionFilled(
+  value: GiftPreferences,
+  section: GiftPreferenceSection,
+): boolean {
+  return giftPreferenceSections[section].some((key) => {
+    const field = value[key];
+    return Array.isArray(field) ? field.length > 0 : Boolean(field);
+  });
+}

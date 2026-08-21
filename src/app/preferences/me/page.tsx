@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import {
   type GiftPreferences,
   emptyGiftPreferences,
+  isGiftPreferenceSectionFilled,
   normalizeGiftPreferences,
 } from "@/lib/preferences";
 
@@ -149,20 +150,22 @@ export default function GiftProfilePage() {
     setDraft(preferences);
   }, [data, draftStorageKey, preferences]);
 
-  const hasChanges = JSON.stringify(draft) !== JSON.stringify(preferences);
+  const draftJson = useMemo(() => JSON.stringify(draft), [draft]);
+  const preferencesJson = useMemo(() => JSON.stringify(preferences), [preferences]);
+  const hasChanges = draftJson !== preferencesJson;
 
   useEffect(() => {
     if (!draftStorageKey) return;
     try {
       if (hasChanges) {
-        window.sessionStorage.setItem(draftStorageKey, JSON.stringify(draft));
+        window.sessionStorage.setItem(draftStorageKey, draftJson);
       } else {
         window.sessionStorage.removeItem(draftStorageKey);
       }
     } catch {
       /* приватный режим — переживём без черновика */
     }
-  }, [draft, draftStorageKey, hasChanges]);
+  }, [draftJson, draftStorageKey, hasChanges]);
 
   // Уход со страницы через кнопку «назад» браузера или закрытие вкладки —
   // единственный путь, который приложение не контролирует.
@@ -174,21 +177,9 @@ export default function GiftProfilePage() {
   }, [hasChanges]);
 
   const sectionFilled: Record<EditorSection, boolean> = {
-    likes: Boolean(
-      draft.favoriteBrands.length ||
-      draft.favoriteColors.length ||
-      draft.favoriteCategories.length ||
-      draft.hobbies.length ||
-      draft.favoriteMaterials.length,
-    ),
-    avoid: Boolean(
-      draft.dislikedColors.length ||
-      draft.dislikedBrands.length ||
-      draft.dislikedCategories.length ||
-      draft.dislikedMaterials.length ||
-      draft.doNotBuy.length,
-    ),
-    details: Boolean(draft.sizes || draft.occasions.length || draft.budget || draft.notes),
+    likes: isGiftPreferenceSectionFilled(draft, "likes"),
+    avoid: isGiftPreferenceSectionFilled(draft, "avoid"),
+    details: isGiftPreferenceSectionFilled(draft, "details"),
   };
 
   const updateList = (key: ListPreferenceKey, value: string[]) => {
@@ -343,7 +334,10 @@ export default function GiftProfilePage() {
           <div
             className={cn(
               uiSurface.contentPanel,
-              "flex items-center justify-between gap-3 bg-[hsl(var(--surface-2))] px-4 py-3",
+              // Второй фон той же специфичности убран: `contentPanel` уже несёт
+              // `surface-2/0.7`, и кто победит, решал порядок в сгенерированном
+              // CSS. Непрозрачность здесь даёт градиент обёртки выше.
+              "flex items-center justify-between gap-3 px-4 py-3",
             )}
           >
             <p className="min-w-0 truncate text-sm text-muted-foreground" aria-live="polite">

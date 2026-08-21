@@ -17,6 +17,7 @@ import {
   type PreferenceSignalRowProps,
 } from "@/components/preferences/preference-signal-row";
 import { useI18n } from "@/components/i18n/language-provider";
+import { easing } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import {
   countGiftPreferences,
@@ -172,7 +173,7 @@ export function GiftPreferencesSummary({
           ? "border-0 bg-transparent"
           : cn(
               uiSurface.contentPanel,
-              "border-primary/24 bg-[linear-gradient(120deg,hsl(var(--surface-2)/0.9),hsl(var(--primary)/0.055))]",
+              "border-primary/24 bg-[linear-gradient(120deg,hsl(var(--surface-2)/0.85),hsl(var(--primary)/0.05))]",
             ),
       )}
       aria-label={t("Подарочный профиль")}
@@ -231,7 +232,7 @@ export function GiftPreferencesSummary({
               initial={reduceMotion ? false : { opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.2, ease: easing.expo }}
               className={cn(embedded ? "py-0.5" : "space-y-3 border-t border-border/32 p-3 sm:p-4")}
             >
               {/* Внутри карточки ширину задаёт не окно, а колонка сетки:

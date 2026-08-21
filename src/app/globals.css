@@ -785,6 +785,21 @@
     scroll-behavior: auto !important;
   }
 
+  /*
+   * Трансформа остаётся движением и внутри `transition-*`. Блок ниже покрывал
+   * анимации и framer-motion, но не обычные переходы: шеврон продолжал
+   * поворачиваться на 300ms, кнопки — проваливаться на пиксель, чипы —
+   * поджиматься. Отключаем именно движение: цвет, прозрачность и тень
+   * продолжают отвечать на действие, поэтому обратная связь не пропадает.
+   */
+  *,
+  *::before,
+  *::after {
+    transition-property:
+      color, background-color, border-color, text-decoration-color, fill, stroke, opacity,
+      box-shadow, outline-color;
+  }
+
   .skeleton-shimmer,
   .animate-spin,
   .animate-pulse {
