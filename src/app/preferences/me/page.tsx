@@ -216,7 +216,11 @@ export default function GiftProfilePage() {
       toast.success(t("Подарочный профиль сохранён"));
       await mutate();
       clearStoredDraft();
-      router.push("/preferences");
+      // Возврат к своей раскрытой карточке, а не к свёрнутой строке с аватаром:
+      // после пятнадцати минут рассказа о себе человек должен увидеть, как его
+      // профиль выглядит для дарителя. Механика раскрытия и прокрутки по
+      // `?userId=` уже написана — она просто не была задействована.
+      router.push(data?.id ? `/preferences?userId=${data.id}` : "/preferences");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("Не удалось сохранить предпочтения"));
       return;
