@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/components/i18n/language-provider";
 import { cn } from "@/lib/utils";
+import { uiState } from "@/lib/ui-contract";
 
 export type PreferenceSuggestion = {
   label: string;
@@ -100,7 +101,8 @@ export function PreferenceChipPicker({
               onClick={() => toggleValue(suggestion.label)}
               aria-pressed={active}
               className={cn(
-                "inline-flex min-h-10 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                "inline-flex min-h-10 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98]",
+                uiState.focusRing,
                 active
                   ? warning
                     ? "border-destructive/45 bg-destructive/10 text-destructive"
@@ -124,7 +126,10 @@ export function PreferenceChipPicker({
           <button
             type="button"
             onClick={() => setShowAllSuggestions(true)}
-            className="inline-flex min-h-10 items-center rounded-xl px-3 text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className={cn(
+              "inline-flex min-h-10 items-center rounded-xl px-3 text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline",
+              uiState.focusRing,
+            )}
           >
             {t("Показать все")} · {hiddenSuggestionCount}
           </button>
@@ -175,6 +180,7 @@ export function PreferenceChipPicker({
                   onClick={() => toggleValue(item)}
                   className={cn(
                     "inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition-colors hover:bg-accent",
+                    uiState.focusRing,
                     warning
                       ? "border-destructive/32 bg-destructive/10 text-destructive"
                       : "border-primary/32 bg-primary/10 text-foreground/85",

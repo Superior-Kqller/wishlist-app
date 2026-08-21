@@ -48,6 +48,13 @@ export const uiSurface = {
 export const uiState = {
   focusVisible:
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  /**
+   * Кольцо фокуса на `--ring`, а не на `--primary`. В тёмных темах `--ring`
+   * завязан на `--primary-accent`, тогда как сама `--primary` там подобрана
+   * под заливку кнопки и как обводка почти неразличима.
+   */
+  focusRing:
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   navBase:
     "h-11 gap-2.5 border border-transparent px-3 text-muted-foreground/85 hover:bg-[hsl(var(--surface-3)/0.74)] hover:text-foreground",
   navActive:

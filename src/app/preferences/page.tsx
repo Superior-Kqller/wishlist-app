@@ -187,7 +187,10 @@ function PreferencesPageContent() {
                 `/api/users/me` заменяла собой весь список, хотя профили
                 друзей уже пришли и были главным, ради чего сюда идут. */}
             {error ? (
-              <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+              <div
+                role="alert"
+                className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+              >
                 <span>{t("Не удалось загрузить ваш профиль. Профили друзей ниже доступны.")}</span>
                 <Button type="button" variant="outline" size="sm" onClick={() => mutate()}>
                   {t("Повторить")}
@@ -196,7 +199,10 @@ function PreferencesPageContent() {
             ) : null}
 
             {circleError ? (
-              <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+              <div
+                role="alert"
+                className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+              >
                 <span>
                   {t("Не удалось загрузить профили друзей. Ваш профиль по-прежнему доступен.")}
                 </span>

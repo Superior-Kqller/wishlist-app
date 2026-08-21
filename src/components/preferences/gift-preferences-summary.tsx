@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ChevronDown,
@@ -40,6 +40,9 @@ export function GiftPreferencesSummary({
 }: GiftPreferencesSummaryProps) {
   const { t } = useI18n();
   const reduceMotion = useReducedMotion();
+  // `aria-expanded` без `aria-controls` ничего не связывает: у сворачиваемой
+  // области не было id, и скринридер не знал, что именно раскрывает кнопка.
+  const detailsId = useId();
   // Сворачивать можно только собственную шапку; встроенная сводка раскрыта
   // всегда, потому что её сворачивает сама карточка профиля.
   const [expanded, setExpanded] = useState(true);
@@ -194,6 +197,7 @@ export function GiftPreferencesSummary({
               size="sm"
               className="shrink-0 gap-1.5 px-2 text-xs"
               aria-expanded={expanded}
+              aria-controls={detailsId}
               aria-label={expanded ? t("Свернуть") : t("Показать")}
               onClick={() => setExpanded((current) => !current)}
             >
@@ -223,6 +227,7 @@ export function GiftPreferencesSummary({
         <AnimatePresence initial={false}>
           {expanded || embedded ? (
             <motion.div
+              id={detailsId}
               initial={reduceMotion ? false : { opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}

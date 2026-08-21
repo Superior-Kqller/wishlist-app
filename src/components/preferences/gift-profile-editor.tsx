@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef, type KeyboardEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CircleDollarSign, Heart, Ruler, ShieldAlert, Sparkles } from "lucide-react";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,7 @@ import {
   type PreferenceSuggestion,
 } from "@/components/preferences/preference-chip-picker";
 import { cn } from "@/lib/utils";
-import { uiSurface } from "@/lib/ui-contract";
+import { uiState, uiSurface } from "@/lib/ui-contract";
 import { SIZES_MAX_LENGTH, type GiftPreferences } from "@/lib/preferences";
 import {
   composeSizePreferences,
@@ -25,6 +25,9 @@ import {
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
 
 export type EditorSection = "likes" | "avoid" | "details";
+
+const editorTabId = (section: EditorSection) => `gift-profile-tab-${section}`;
+const editorPanelId = (section: EditorSection) => `gift-profile-panel-${section}`;
 export type ListPreferenceKey = {
   [Key in keyof GiftPreferences]: GiftPreferences[Key] extends string[] ? Key : never;
 }[keyof GiftPreferences];
@@ -183,6 +186,7 @@ function QuickTextField({
             onClick={() => onChange(value === suggestion ? "" : suggestion)}
             className={cn(
               "min-h-9 rounded-lg border px-3 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98]",
+              uiState.focusRing,
               value === suggestion
                 ? "border-primary/45 bg-primary/16 text-foreground"
                 : "border-border/55 bg-[hsl(var(--surface-3)/0.5)] text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -285,6 +289,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
                       onClick={() => togglePreset(category.id, preset)}
                       className={cn(
                         "min-h-11 whitespace-nowrap rounded-lg border px-2.5 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98] sm:min-h-8",
+                        uiState.focusRing,
                         active
                           ? "border-primary/45 bg-primary/16 text-foreground"
                           : "border-border/45 bg-[hsl(var(--surface-2)/0.58)] text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -367,20 +372,59 @@ export function GiftProfileEditor({
 }: GiftProfileEditorProps) {
   const { t } = useI18n();
   const reduceMotion = useReducedMotion();
+  const tabRefs = useRef<Partial<Record<EditorSection, HTMLButtonElement | null>>>({});
+
+  /*
+   * Три кнопки, подменяющие область справа, — это вкладки, а не просто кнопки.
+   * Раньше активность передавалась только краской: ни `aria-selected`, ни
+   * `aria-controls`, ни связи с панелью, — и для скринридера смена раздела
+   * происходила беззвучно. Роль вкладок требует и клавиш: стрелки, Home и End.
+   */
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    const order = editorSections.map((section) => section.id);
+    const current = order.indexOf(activeSection);
+    let next = -1;
+
+    if (event.key === "ArrowDown" || event.key === "ArrowRight") next = current + 1;
+    else if (event.key === "ArrowUp" || event.key === "ArrowLeft") next = current - 1;
+    else if (event.key === "Home") next = 0;
+    else if (event.key === "End") next = order.length - 1;
+    else return;
+
+    event.preventDefault();
+    const target = order[(next + order.length) % order.length];
+    onSectionChange(target);
+    tabRefs.current[target]?.focus();
+  };
 
   return (
     <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[12rem_minmax(0,1fr)]">
-      <nav className={cn(uiSurface.contentPanel, "grid min-w-0 gap-1 p-2 lg:sticky lg:top-5")}>
+      <div
+        role="tablist"
+        aria-orientation="vertical"
+        aria-label={t("Разделы профиля")}
+        className={cn(uiSurface.contentPanel, "grid min-w-0 gap-1 p-2 lg:sticky lg:top-5")}
+      >
         {editorSections.map((section) => {
           const Icon = section.icon;
           const active = activeSection === section.id;
           return (
             <button
               key={section.id}
+              ref={(node) => {
+                tabRefs.current[section.id] = node;
+              }}
               type="button"
+              role="tab"
+              id={editorTabId(section.id)}
+              aria-selected={active}
+              aria-controls={editorPanelId(section.id)}
+              tabIndex={active ? 0 : -1}
+              onKeyDown={handleTabKeyDown}
               onClick={() => onSectionChange(section.id)}
               className={cn(
                 "group flex min-h-12 min-w-0 items-center gap-3 rounded-xl border px-3 text-left transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98]",
+                uiState.focusRing,
                 active
                   ? "border-primary/32 bg-primary/10 text-foreground"
                   : "border-transparent text-muted-foreground hover:bg-accent/55 hover:text-foreground",
@@ -398,27 +442,33 @@ export function GiftProfileEditor({
               </span>
               {/* Точка вместо счётчика: человеку нужно знать, что раздел он уже
                   трогал, а не сколько чипов в нём набралось. Число превращало
-                  рассказ о себе в результат теста. */}
+                  рассказ о себе в результат теста. `role="img"` обязателен:
+                  `aria-label` на голом `span` скринридеры игнорируют. */}
               {sectionFilled[section.id] ? (
                 <span
-                  className="size-1.5 shrink-0 rounded-full bg-primary"
+                  role="img"
                   aria-label={t("Раздел заполнен")}
+                  className="size-1.5 shrink-0 rounded-full bg-primary-accent"
                 />
               ) : null}
             </button>
           );
         })}
-      </nav>
+      </div>
 
       <div className="min-w-0">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeSection}
+            role="tabpanel"
+            id={editorPanelId(activeSection)}
+            aria-labelledby={editorTabId(activeSection)}
+            tabIndex={0}
             initial={reduceMotion ? false : { opacity: 0, x: 12 }}
             animate={{ opacity: 1, x: 0 }}
             exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: -8 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="min-w-0 space-y-4"
+            className={cn("min-w-0 space-y-4 rounded-2xl", uiState.focusRing)}
           >
             {activeSection === "likes" ? (
               <>
