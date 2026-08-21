@@ -13,7 +13,15 @@ import {
 } from "@/components/preferences/preference-chip-picker";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
-import { type GiftPreferences } from "@/lib/preferences";
+import { SIZES_MAX_LENGTH, type GiftPreferences } from "@/lib/preferences";
+import {
+  composeSizePreferences,
+  hasPresetToken,
+  parseSizePreferences,
+  sizeCategories,
+  togglePresetToken,
+  type SizeCategoryId,
+} from "@/lib/preference-sizes";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
 
 export type EditorSection = "likes" | "avoid" | "details";
@@ -90,116 +98,6 @@ const brandSuggestions: PreferenceSuggestion[] = [
   "Ozon",
   "Яндекс Маркет",
 ].map((label) => ({ label }));
-
-type SizeCategoryId = "clothes" | "shoes" | "pants" | "outerwear" | "rings" | "belts";
-
-const sizeCategories: Array<{
-  id: SizeCategoryId;
-  label: string;
-  aliases?: string[];
-  hint: string;
-  placeholder: string;
-  presets: string[];
-}> = [
-  {
-    id: "clothes",
-    label: "Одежда",
-    hint: "Футболки, худи, платья",
-    placeholder: "Например, M или 46",
-    presets: ["XS", "S", "M", "L", "XL", "42", "44", "46", "48"],
-  },
-  {
-    id: "shoes",
-    label: "Обувь",
-    hint: "Кроссовки, ботинки, домашняя обувь",
-    placeholder: "Например, 38 EU",
-    presets: ["36", "37", "38", "39", "40", "41", "42", "43", "44"],
-  },
-  {
-    id: "pants",
-    label: "Брюки и джинсы",
-    aliases: ["Брюки", "Джинсы"],
-    hint: "Талия, длина или обычный размер",
-    placeholder: "Например, W30/L32",
-    presets: ["XS", "S", "M", "L", "W28", "W30", "W32", "W34"],
-  },
-  {
-    id: "outerwear",
-    label: "Верхняя одежда",
-    aliases: ["Верх", "Куртка", "Пальто"],
-    hint: "Куртки, пальто, жилеты",
-    placeholder: "Например, M или 48",
-    presets: ["S", "M", "L", "XL", "44", "46", "48", "50"],
-  },
-  {
-    id: "rings",
-    label: "Кольцо",
-    hint: "Если украшения уместны",
-    placeholder: "Например, 17",
-    presets: ["15", "16", "16.5", "17", "17.5", "18", "18.5", "19"],
-  },
-  {
-    id: "belts",
-    label: "Ремень",
-    aliases: ["Пояс"],
-    hint: "Длина или обхват",
-    placeholder: "Например, 95 см",
-    presets: ["80 см", "85 см", "90 см", "95 см", "100 см", "105 см"],
-  },
-];
-
-function escapeRegExp(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function parseSizePreferences(value: string) {
-  const fields = Object.fromEntries(sizeCategories.map((category) => [category.id, ""])) as Record<
-    SizeCategoryId,
-    string
-  >;
-  const custom: string[] = [];
-  const parts = value
-    .split(/[;\n,]/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  for (const part of parts) {
-    const matched = sizeCategories.find((category) => {
-      const names = [category.label, ...(category.aliases ?? [])];
-      return names.some((name) => new RegExp(`^${escapeRegExp(name)}[:\\s-]+`, "i").test(part));
-    });
-
-    if (!matched) {
-      custom.push(part);
-      continue;
-    }
-
-    const names = [matched.label, ...(matched.aliases ?? [])];
-    const matchedName = names.find((name) =>
-      new RegExp(`^${escapeRegExp(name)}[:\\s-]+`, "i").test(part),
-    );
-    const nextValue = matchedName
-      ? part.replace(new RegExp(`^${escapeRegExp(matchedName)}[:\\s-]+`, "i"), "").trim()
-      : "";
-    fields[matched.id] = [fields[matched.id], nextValue].filter(Boolean).join(", ");
-  }
-
-  return { fields, custom: custom.join("; ") };
-}
-
-function composeSizePreferences(fields: Record<SizeCategoryId, string>, custom: string) {
-  return [
-    ...sizeCategories
-      .map((category) => {
-        const value = fields[category.id].trim();
-        return value ? `${category.label}: ${value}` : "";
-      })
-      .filter(Boolean),
-    custom.trim(),
-  ]
-    .filter(Boolean)
-    .join("; ");
-}
 
 const hobbySuggestions: PreferenceSuggestion[] = [
   "Книги",
@@ -309,9 +207,22 @@ function QuickTextField({
 function SizeBuilder({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   const { t } = useI18n();
   const parsed = useMemo(() => parseSizePreferences(value), [value]);
+  const remaining = SIZES_MAX_LENGTH - value.length;
+
+  /*
+   * Склеенная строка живёт в поле `sizes` со схемным потолком 500 символов
+   * (`src/lib/preferences.ts`). Шесть полей по 80 плюс метки плюс «Другое»
+   * дают до ~740 — то есть анкету можно было заполнить так, что сохранение
+   * падало на сервере с «Ошибка проверки данных». Растущую правку за
+   * потолком не принимаем, сокращающую — всегда.
+   */
+  const applyComposed = (next: string) => {
+    if (next.length > SIZES_MAX_LENGTH && next.length > value.length) return;
+    onChange(next);
+  };
 
   const updateField = (field: SizeCategoryId, nextValue: string) => {
-    onChange(
+    applyComposed(
       composeSizePreferences(
         {
           ...parsed.fields,
@@ -322,8 +233,15 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
     );
   };
 
+  const togglePreset = (field: SizeCategoryId, preset: string) => {
+    updateField(field, togglePresetToken(parsed.fields[field], preset));
+  };
+
+  const isPresetActive = (field: SizeCategoryId, preset: string) =>
+    hasPresetToken(parsed.fields[field], preset);
+
   const updateCustom = (nextValue: string) => {
-    onChange(composeSizePreferences(parsed.fields, nextValue));
+    applyComposed(composeSizePreferences(parsed.fields, nextValue));
   };
 
   return (
@@ -358,13 +276,13 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {category.presets.map((preset) => {
-                  const active = currentValue === preset;
+                  const active = isPresetActive(category.id, preset);
                   return (
                     <button
                       key={preset}
                       type="button"
                       aria-pressed={active}
-                      onClick={() => updateField(category.id, active ? "" : preset)}
+                      onClick={() => togglePreset(category.id, preset)}
                       className={cn(
                         "min-h-11 whitespace-nowrap rounded-lg border px-2.5 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98] sm:min-h-8",
                         active
@@ -391,9 +309,24 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
       </div>
 
       <div>
-        <Label htmlFor="size-custom" className="text-sm font-semibold">
-          {t("Другое")}
-        </Label>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <Label htmlFor="size-custom" className="text-sm font-semibold">
+            {t("Другое")}
+          </Label>
+          {/* Счётчик появляется только у потолка: постоянный остаток превращает
+              рассказ о себе в заполнение бланка. */}
+          {remaining <= 100 ? (
+            <p
+              className={cn(
+                "text-xs tabular-nums",
+                remaining <= 0 ? "text-destructive" : "text-muted-foreground",
+              )}
+              aria-live="polite"
+            >
+              {t("Осталось символов: {count}", { count: Math.max(0, remaining) })}
+            </p>
+          ) : null}
+        </div>
         <Input
           id="size-custom"
           value={parsed.custom}

@@ -1,11 +1,18 @@
 import { z } from "zod";
 
+/**
+ * Потолок собранной строки размеров. Редактор собирает её из шести полей
+ * категорий и свободного «Другое», поэтому знать предел должен и он — иначе
+ * анкету можно заполнить так, что сохранение падает уже на сервере.
+ */
+export const SIZES_MAX_LENGTH = 500;
+
 export const giftPreferencesSchema = z.object({
   favoriteCategories: z.array(z.string().trim().min(1).max(80)).max(12).default([]),
   dislikedCategories: z.array(z.string().trim().min(1).max(80)).max(12).default([]),
   favoriteColors: z.array(z.string().trim().min(1).max(40)).max(12).default([]),
   dislikedColors: z.array(z.string().trim().min(1).max(40)).max(12).default([]),
-  sizes: z.string().trim().max(500).default(""),
+  sizes: z.string().trim().max(SIZES_MAX_LENGTH).default(""),
   favoriteMaterials: z.array(z.string().trim().min(1).max(60)).max(16).default([]),
   dislikedMaterials: z.array(z.string().trim().min(1).max(60)).max(16).default([]),
   favoriteBrands: z.array(z.string().trim().min(1).max(80)).max(16).default([]),

@@ -34,6 +34,61 @@ type PreferencesUser = {
 };
 
 /**
+ * Человеческие имена полей профиля — те же, что стоят заголовками секций
+ * редактора, чтобы из текста ошибки было видно, куда идти.
+ */
+const preferenceFieldLabels: Record<string, string> = {
+  favoriteBrands: "Любимые бренды",
+  favoriteColors: "Любимые цвета",
+  favoriteCategories: "Категории товаров",
+  hobbies: "Интересы",
+  favoriteMaterials: "Приятные материалы",
+  dislikedBrands: "Бренды не для меня",
+  dislikedColors: "Цвета, которые не нравятся",
+  dislikedCategories: "Категории не для меня",
+  dislikedMaterials: "Неприятные материалы",
+  doNotBuy: "Точно не покупать",
+  sizes: "Размеры по категориям",
+  budget: "Комфортный бюджет",
+  occasions: "Поводы",
+  notes: "Личная подсказка",
+};
+
+type SaveErrorBody = { error?: unknown; details?: unknown };
+
+/**
+ * Сервер возвращает `details` от zod, но клиент их выбрасывал и показывал
+ * «Ошибка проверки данных» — тост, по которому нельзя понять, что чинить.
+ */
+function describeSaveError(
+  body: SaveErrorBody,
+  t: (key: string, values?: Record<string, string>) => string,
+) {
+  const issues = Array.isArray(body.details) ? body.details : [];
+  const fields = new Set<string>();
+
+  for (const issue of issues) {
+    if (!issue || typeof issue !== "object") continue;
+    const path = (issue as { path?: unknown }).path;
+    if (!Array.isArray(path)) continue;
+    const field = path.find(
+      (part): part is string => typeof part === "string" && part in preferenceFieldLabels,
+    );
+    if (field) fields.add(preferenceFieldLabels[field]);
+  }
+
+  if (fields.size > 0) {
+    return t("Не сохранено. Проверьте: {fields}", {
+      fields: [...fields].map((label) => t(label)).join(", "),
+    });
+  }
+
+  return typeof body.error === "string" && body.error
+    ? body.error
+    : t("Не удалось сохранить предпочтения");
+}
+
+/**
  * Редактор подарочного профиля как отдельная страница.
  *
  * Раньше это было модальное окно шириной 86rem с собственной боковой
@@ -46,7 +101,7 @@ export default function GiftProfilePage() {
   const router = useRouter();
   const { status } = useSession();
 
-  const { data, isLoading, mutate } = useSWR<PreferencesUser>(
+  const { data, isLoading, error, mutate } = useSWR<PreferencesUser>(
     status === "authenticated" ? "/api/users/me" : null,
     fetcher,
     { revalidateOnFocus: false },
@@ -153,17 +208,28 @@ export default function GiftProfilePage() {
         body: JSON.stringify({ giftPreferences: draft }),
       });
       const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body.error || t("Не удалось сохранить предпочтения"));
+      if (!res.ok) {
+        // Сервер уже возвращает `details` от zod — раньше клиент их выбрасывал
+        // и показывал «Ошибка проверки данных» без единого указания, что чинить.
+        throw new Error(describeSaveError(body, t));
+      }
       toast.success(t("Подарочный профиль сохранён"));
       await mutate();
-      await mutateCache("/api/users/stats");
       clearStoredDraft();
       router.push("/preferences");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("Не удалось сохранить предпочтения"));
+      return;
     } finally {
       setSaving(false);
     }
+
+    // Круг подтягивает свежий профиль отдельно и уже после успеха: раньше эта
+    // ревалидация стояла внутри try, и её отказ выдавал «Не удалось сохранить»
+    // сразу вслед за «Профиль сохранён».
+    void mutateCache("/api/users/stats").catch(() => {
+      /* список круга обновится сам при следующем заходе */
+    });
   };
 
   const requestLeave = () => {
@@ -188,6 +254,44 @@ export default function GiftProfilePage() {
           <div className="animate-pulse space-y-5">
             <div className="h-24 rounded-2xl bg-muted/55" />
             <div className="h-[28rem] rounded-2xl bg-muted/45" />
+          </div>
+        </PageMain>
+      </PageShell>
+    );
+  }
+
+  /*
+   * Провал загрузки раньше молчал: `data` оставалась `undefined`, анкета
+   * инициализировалась пустой, и открытый редактор был неотличим от «вы ещё
+   * ничего не заполняли». Черновик при этом тоже не писался — `draftStorageKey`
+   * без `data.id` равен null. Пустую форму, которая ничего не сохранит,
+   * показывать нельзя.
+   */
+  if (error && !data) {
+    return (
+      <PageShell>
+        <PageMain>
+          <PageIntro
+            title={t("Подарочный профиль")}
+            actions={
+              <Button type="button" variant="outline" className="gap-2" onClick={requestLeave}>
+                <ArrowLeft className="h-4 w-4" aria-hidden />
+                {t("К предпочтениям")}
+              </Button>
+            }
+          />
+          <div
+            role="alert"
+            className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+          >
+            <span>
+              {t(
+                "Не удалось загрузить ваш подарочный профиль. Пока он не загрузится, править нечего.",
+              )}
+            </span>
+            <Button type="button" variant="outline" size="sm" onClick={() => mutate()}>
+              {t("Повторить")}
+            </Button>
           </div>
         </PageMain>
       </PageShell>
