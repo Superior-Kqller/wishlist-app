@@ -167,7 +167,7 @@ function QuickTextField({
             aria-pressed={value === suggestion}
             onClick={() => onChange(value === suggestion ? "" : suggestion)}
             className={cn(
-              "min-h-9 rounded-lg border px-3 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98]",
+              "min-h-11 rounded-lg border px-3 text-xs font-semibold sm:min-h-9 transition-[color,background-color,border-color,transform] active:scale-[0.98]",
               uiState.focusRing,
               value === suggestion
                 ? "border-primary-accent bg-primary/16 text-foreground"
@@ -270,7 +270,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
                       aria-pressed={active}
                       onClick={() => togglePreset(category.id, preset)}
                       className={cn(
-                        "min-h-11 whitespace-nowrap rounded-lg border px-2.5 text-xs font-semibold transition-[color,background-color,border-color,transform] active:scale-[0.98] sm:min-h-8",
+                        "min-h-11 min-w-11 whitespace-nowrap rounded-lg border px-2.5 text-xs font-semibold sm:min-w-0 transition-[color,background-color,border-color,transform] active:scale-[0.98] sm:min-h-9",
                         uiState.focusRing,
                         active
                           ? "border-primary-accent bg-primary/16 text-foreground"
@@ -380,12 +380,15 @@ export function GiftProfileEditor({
   };
 
   return (
-    <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[12rem_minmax(0,1fr)]">
+    <div className="grid min-w-0 items-start gap-4 xl:grid-cols-[11rem_minmax(0,1fr)]">
       <div
         role="tablist"
-        aria-orientation="vertical"
+        aria-orientation="horizontal"
         aria-label={t("Разделы профиля")}
-        className={cn(uiSurface.contentPanel, "grid min-w-0 gap-1 p-2 lg:sticky lg:top-5")}
+        className={cn(
+          uiSurface.contentPanel,
+          "grid min-w-0 grid-cols-3 gap-1 p-2 xl:grid-cols-1 xl:sticky xl:top-5",
+        )}
       >
         {editorSections.map((section) => {
           const Icon = section.icon;
@@ -405,19 +408,24 @@ export function GiftProfileEditor({
               onKeyDown={handleTabKeyDown}
               onClick={() => onSectionChange(section.id)}
               className={cn(
-                "group flex min-h-12 min-w-0 items-center gap-3 rounded-xl border px-3 text-left transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98]",
+                "group flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-xl border px-2 text-center transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98] xl:justify-start xl:gap-3 xl:px-3 xl:text-left",
                 uiState.focusRing,
                 active
                   ? "border-primary-accent bg-primary/10 text-foreground"
                   : "border-transparent text-muted-foreground hover:bg-accent/55 hover:text-foreground",
               )}
             >
+              {/* Ниже `xl` вкладки идут полосой в три колонки: на 320px на
+                  подпись остаётся около 40px, и иконка отнимала их у слова.
+                  В боковой колонке она возвращается. */}
               <Icon
-                className={cn("h-4 w-4 shrink-0", active && "text-primary-accent")}
+                className={cn("hidden h-4 w-4 shrink-0 xl:block", active && "text-primary-accent")}
                 aria-hidden
               />
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold">{t(section.label)}</span>
+                <span className="block text-xs font-semibold [overflow-wrap:anywhere] sm:text-sm">
+                  {t(section.label)}
+                </span>
                 <span className="hidden truncate text-[11px] text-muted-foreground xl:block">
                   {t(section.hint)}
                 </span>

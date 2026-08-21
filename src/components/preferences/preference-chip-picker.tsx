@@ -102,7 +102,7 @@ export function PreferenceChipPicker({
               onClick={() => toggleValue(suggestion.label)}
               aria-pressed={active}
               className={cn(
-                "inline-flex min-h-10 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98]",
+                "inline-flex min-h-11 items-center gap-2 rounded-xl border px-3 sm:min-h-10 text-sm font-medium transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98]",
                 uiState.focusRing,
                 active
                   ? warning
@@ -122,7 +122,7 @@ export function PreferenceChipPicker({
             type="button"
             onClick={() => setShowAllSuggestions(true)}
             className={cn(
-              "inline-flex min-h-10 items-center rounded-xl px-3 text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline",
+              "inline-flex min-h-11 items-center rounded-xl px-3 sm:min-h-10 text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline",
               uiState.focusRing,
             )}
           >
@@ -174,7 +174,7 @@ export function PreferenceChipPicker({
                   transition={{ duration: 0.16 }}
                   onClick={() => toggleValue(item)}
                   className={cn(
-                    "inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition-colors hover:bg-accent",
+                    "inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-lg border px-2.5 sm:min-h-9 text-xs font-semibold transition-colors hover:bg-accent",
                     uiState.focusRing,
                     warning
                       ? "border-destructive/32 bg-destructive/10 text-destructive"

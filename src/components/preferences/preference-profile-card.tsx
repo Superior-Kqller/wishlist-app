@@ -154,7 +154,7 @@ export function PreferenceProfileCard({
                 aria-label={editLabel ?? t("Настроить")}
               >
                 <Pencil className="h-3.5 w-3.5" aria-hidden />
-                <span className="hidden sm:inline">{editLabel ?? t("Настроить")}</span>
+                <span className="hidden sm:inline">{t("Настроить")}</span>
               </Button>
             ) : null}
             <Button
@@ -258,8 +258,11 @@ export function PreferenceProfileCard({
       {/* Область живёт в разметке всегда, даже пустой: раньше `id` появлялся
           вместе с содержимым, и в свёрнутом состоянии обе кнопки ссылались
           через `aria-controls` на несуществующий элемент.
-          `@container` — чтобы содержимое мерило ширину карточки, а не окна. */}
-      <div id={panelId} className="@container">
+          `@container` объявлен на том же элементе, что несёт padding: когда он
+          стоял на внешней обёртке, порог `@[32rem]` срабатывал при контейнере
+          512px, тогда как контента внутри было 472px — систематическая ошибка
+          в 40px во всех четырёх порогах сводки. */}
+      <div id={panelId}>
         <AnimatePresence initial={false}>
           {expanded ? (
             <motion.div
@@ -268,7 +271,7 @@ export function PreferenceProfileCard({
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-              className="border-t border-border/45 px-4 py-4 sm:px-5 sm:py-5"
+              className="@container border-t border-border/45 px-4 py-4 sm:px-5 sm:py-5"
             >
               {children}
             </motion.div>
