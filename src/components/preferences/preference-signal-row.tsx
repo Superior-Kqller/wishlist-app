@@ -17,6 +17,19 @@ export type PreferenceSignalRowProps = {
   colorDots?: boolean;
 };
 
+/**
+ * Цвет самих значений, а не только иконки.
+ *
+ * Раньше строка стоп-листа отличалась от «Любимых брендов» единственным
+ * признаком — краской иконки 14px: значения всегда шли нейтральным
+ * `--foreground/85`. То есть смысл нёс цвет, и только цвет — ровно то, что
+ * DESIGN.md запрещает. Теперь ограничение читается по самому перечню.
+ */
+function getValueColor(accent: PreferenceSignalRowProps["accent"], warning: boolean) {
+  if (warning || accent === "danger") return "text-destructive";
+  return "text-foreground/85";
+}
+
 function getIconColor(accent: PreferenceSignalRowProps["accent"], warning: boolean) {
   if (warning || accent === "danger") return "text-destructive";
   if (accent === "warning") return "text-warning";
@@ -65,7 +78,12 @@ export function PreferenceSignalRow({
         <span className="min-w-0 text-xs font-semibold text-muted-foreground">{t(label)}</span>
       </div>
       {visibleValues.length > 0 ? (
-        <div className="flex min-w-0 flex-wrap items-start gap-x-2 gap-y-1 text-xs font-medium leading-relaxed text-foreground/85">
+        <div
+          className={cn(
+            "flex min-w-0 flex-wrap items-start gap-x-2 gap-y-1 text-xs font-medium leading-relaxed",
+            getValueColor(accent, warning),
+          )}
+        >
           {visibleValues.map((value) => (
             <span key={value} className="inline-flex max-w-full min-w-0 items-start gap-1">
               {colorDots ? <PreferenceColorDot value={value} size="sm" /> : null}

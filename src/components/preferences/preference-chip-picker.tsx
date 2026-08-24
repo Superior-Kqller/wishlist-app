@@ -106,8 +106,8 @@ export function PreferenceChipPicker({
                 uiState.focusRing,
                 active
                   ? warning
-                    ? "border-destructive bg-destructive/10 text-destructive"
-                    : "border-primary-accent bg-primary/16 text-foreground"
+                    ? "border-destructive/70 bg-destructive/10 text-destructive"
+                    : "border-primary-accent/70 bg-primary/16 text-foreground"
                   : "border-border/55 bg-[hsl(var(--surface-3)/0.45)] text-muted-foreground hover:border-border hover:bg-accent/70 hover:text-foreground",
               )}
             >

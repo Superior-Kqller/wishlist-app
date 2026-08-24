@@ -70,3 +70,37 @@ describe("пресеты размеров", () => {
     expect(hasPresetToken("46", "M")).toBe(false);
   });
 });
+
+describe("каноническая форма строки размеров", () => {
+  test("склейка разбора — неподвижная точка: повторный проход ничего не меняет", () => {
+    for (const input of [
+      "Одежда: M, L; Обувь: 42",
+      "Брюки: W30; Пояс: 95 см",
+      "Куртка: 48; Джинсы: W32; длина рукава 60",
+      "",
+    ]) {
+      const once = composeSizePreferences(
+        parseSizePreferences(input).fields,
+        parseSizePreferences(input).custom,
+      );
+      const twice = composeSizePreferences(
+        parseSizePreferences(once).fields,
+        parseSizePreferences(once).custom,
+      );
+      expect(twice).toBe(once);
+    }
+  });
+
+  test("псевдоним разворачивается в полную подпись и строка растёт", () => {
+    const input = "Брюки: W30";
+    const canonical = composeSizePreferences(
+      parseSizePreferences(input).fields,
+      parseSizePreferences(input).custom,
+    );
+
+    // Именно это удлинение запирало поле, когда охрана потолка сравнивала
+    // каноническую строку с исходной.
+    expect(canonical).toBe("Брюки и джинсы: W30");
+    expect(canonical.length).toBeGreaterThan(input.length);
+  });
+});
