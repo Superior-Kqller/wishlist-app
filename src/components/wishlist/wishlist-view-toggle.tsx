@@ -24,7 +24,7 @@ export function WishlistViewToggle({ value, onValueChange, className }: Wishlist
     >
       <Button
         type="button"
-        variant={value === "grid" ? "glassActive" : "ghost"}
+        variant={value === "grid" ? "segmentActive" : "ghost"}
         size="iconToolbar"
         className={cn(
           "h-9 w-9 rounded-md border-0",
@@ -40,7 +40,7 @@ export function WishlistViewToggle({ value, onValueChange, className }: Wishlist
       </Button>
       <Button
         type="button"
-        variant={value === "table" ? "glassActive" : "ghost"}
+        variant={value === "table" ? "segmentActive" : "ghost"}
         size="iconToolbar"
         className={cn(
           "h-9 w-9 rounded-md border-0",

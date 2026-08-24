@@ -530,7 +530,7 @@ export default function CalendarPage() {
                   <Button
                     key={option.value}
                     type="button"
-                    variant={filter === option.value ? "glassActive" : "ghost"}
+                    variant={filter === option.value ? "segmentActive" : "ghost"}
                     size="sm"
                     className="shrink-0"
                     aria-pressed={filter === option.value}
@@ -563,7 +563,7 @@ export default function CalendarPage() {
                   <Button
                     type="button"
                     size="sm"
-                    variant={view === "list" ? "glassActive" : "ghost"}
+                    variant={view === "list" ? "segmentActive" : "ghost"}
                     aria-pressed={view === "list"}
                     onClick={() => setView("list")}
                   >
@@ -573,7 +573,7 @@ export default function CalendarPage() {
                   <Button
                     type="button"
                     size="sm"
-                    variant={view === "month" ? "glassActive" : "ghost"}
+                    variant={view === "month" ? "segmentActive" : "ghost"}
                     aria-pressed={view === "month"}
                     onClick={() => setView("month")}
                   >

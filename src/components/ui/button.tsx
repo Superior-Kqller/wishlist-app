@@ -19,10 +19,15 @@ const buttonVariants = cva(
           "border border-border bg-card text-foreground shadow-none hover:border-border/95 hover:bg-accent",
         secondary:
           "border border-border bg-secondary text-secondary-foreground shadow-none hover:bg-muted",
-        glass:
-          "border border-border/95 bg-popover/70 text-popover-foreground shadow-none backdrop-blur-md transition-colors hover:bg-popover/85",
-        glassActive:
-          "border border-primary/45 bg-primary/16 text-foreground shadow-none backdrop-blur-md transition-colors hover:bg-primary/16",
+        /*
+         * Выбранный сегмент в переключателе (вид ленты, фильтр календаря).
+         * Размытия здесь больше нет: кнопка лежит на панели инструментов, а не
+         * поверх снимка, и размывать ей нечего — контракт `--glass-*` оставляет
+         * стекло оверлеям и хрому оболочки. Соседний вариант `glass` был
+         * объявлен, но не использован ни разу.
+         */
+        segmentActive:
+          "border border-primary/45 bg-primary/16 text-foreground shadow-none transition-colors hover:bg-primary/16",
         ghost:
           "border border-transparent bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
