@@ -65,7 +65,7 @@ export default function LoginPage() {
             </div>
           </div>
           <div className="relative max-w-[38rem] pt-7 sm:pt-16 lg:pb-2">
-            <h1 className="max-w-[16ch] text-2xl font-semibold leading-[1.12] text-foreground sm:max-w-[12ch] sm:text-5xl sm:leading-[1.08] lg:text-6xl">
+            <h1 className="display-face max-w-[16ch] text-2xl leading-[1.12] text-foreground sm:max-w-[12ch] sm:text-5xl sm:leading-[1.08] lg:text-6xl">
               {t("Умный вишлист для совместных желаний")}
             </h1>
             {/* Подпись остаётся для скринридеров, но на телефоне не занимает

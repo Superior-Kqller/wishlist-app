@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
-import { JetBrains_Mono, Manrope } from "next/font/google";
+import { JetBrains_Mono, Literata, Manrope } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AppShell } from "@/components/app/app-shell";
@@ -12,6 +12,27 @@ const manrope = Manrope({
   variable: "--font-sans",
   display: "swap",
   fallback: ["system-ui", "sans-serif"],
+});
+
+/*
+ * Голос заголовка. До него в продукте был один Manrope на все восемь
+ * типографических ролей: система звучала нейтрально ровно там, где DESIGN.md
+ * обещает «вечернюю гостиную».
+ *
+ * Literata, а не высококонтрастная антиква вроде Playfair: на тёмной
+ * поверхности тонкие штрихи дидоны истончаются до серого, а низкий контраст
+ * Literata держит вес на всех четырёх темах. Кириллица у неё своя, не
+ * подставленная из запасного шрифта.
+ *
+ * Шрифт расходуется скупо — только на крупный шаг: заголовок страницы,
+ * заголовок пустого состояния и обещание на входе. Тело, мета и цифры
+ * остаются на Manrope.
+ */
+const literata = Literata({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-display",
+  display: "swap",
+  fallback: ["Georgia", "Times New Roman", "serif"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -100,7 +121,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <script dangerouslySetInnerHTML={{ __html: colorThemeBootScript }} />
       </head>
-      <body className={`${manrope.variable} ${jetbrainsMono.variable} ${manrope.className}`}>
+      <body
+        className={`${manrope.variable} ${literata.variable} ${jetbrainsMono.variable} ${manrope.className}`}
+      >
         <a
           href="#content"
           className="sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:not-sr-only focus:rounded-lg focus:border focus:border-primary/45 focus:bg-[hsl(var(--surface-2))] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-[var(--shadow-floating)] focus:outline-none"

@@ -70,7 +70,10 @@ function EmptyState({
         id={headingId}
         data-reveal=""
         style={revealDelay(60)}
-        className="relative max-w-[28ch] text-balance text-lg font-semibold tracking-[-0.01em]"
+        // Пустое состояние — первый экран раздела, а не заглушка (см. комментарий
+        // выше), поэтому заголовок здесь звучит тем же голосом, что заголовок
+        // страницы, и на шаг крупнее прежнего `text-lg`.
+        className="display-face relative max-w-[28ch] text-xl sm:text-2xl"
       >
         {title}
       </h2>
