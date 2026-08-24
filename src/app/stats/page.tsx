@@ -98,7 +98,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
 
   return (
     <details className="group overflow-hidden rounded-xl border border-border/55 bg-[hsl(var(--surface-2))]">
-      <summary className="flex min-h-[4.5rem] cursor-pointer list-none items-center gap-3 px-3 py-2.5 outline-none transition-colors hover:bg-[hsl(var(--surface-3)/0.42)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/45 [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-[4.5rem] cursor-pointer list-none items-center gap-3 px-3 py-2.5 outline-none transition-colors hover:bg-[hsl(var(--surface-3)/0.42)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
         <UserAvatar
           avatarUrl={user.avatarUrl || undefined}
           name={user.name}
@@ -178,7 +178,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
 function ParticipantLinks({ userId, className }: { userId: string; className?: string }) {
   const { t } = useI18n();
   const linkClassName =
-    "inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border/55 px-3 text-xs font-semibold transition-colors hover:border-primary/32 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55";
+    "inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border/55 px-3 text-xs font-semibold transition-colors hover:border-primary/32 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
   return (
     <div className={cn("flex flex-wrap gap-2", className)}>
@@ -249,7 +249,7 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
                   <CardTitle className="truncate text-lg">
                     <Link
                       href={`/?userId=${user.id}`}
-                      className="rounded transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
+                      className="rounded transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {user.name}
                     </Link>

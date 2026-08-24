@@ -34,7 +34,7 @@ export function AddItemCard({ onAdd, disabled, disabledHint }: AddItemCardProps)
         disabled
           ? "cursor-not-allowed opacity-55"
           : "cursor-pointer hover:-translate-y-1 hover:border-primary/45 hover:bg-primary/[0.06]",
-        !disabled && uiState.focusVisible,
+        !disabled && uiState.focusRing,
       )}
     >
       <span

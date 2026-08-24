@@ -57,7 +57,7 @@ export function ItemMetaSection({
         <div className="min-w-0">
           <DialogTitle
             className={cn(
-              "min-w-0 break-words [overflow-wrap:anywhere] text-left text-2xl font-semibold leading-[1.12] tracking-tight sm:text-[1.75rem]",
+              "min-w-0 break-words [overflow-wrap:anywhere] text-left text-2xl font-semibold leading-[1.12] sm:text-[1.75rem]",
               isBought && "line-through",
             )}
           >
@@ -65,7 +65,7 @@ export function ItemMetaSection({
           </DialogTitle>
           <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-2">
             {item.price != null && item.price > 0 ? (
-              <p className="mr-1 text-2xl font-semibold leading-none tabular-nums tracking-tight text-foreground sm:text-[1.85rem]">
+              <p className="mr-1 text-2xl font-semibold leading-none tabular-nums text-foreground sm:text-[1.85rem]">
                 {formatPrice(item.price, item.currency, language)}
               </p>
             ) : null}

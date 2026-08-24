@@ -133,7 +133,7 @@ function EventRow({
             onClick={onToggleMuted}
             aria-pressed={muted}
             className={cn(
-              "inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 sm:min-h-9 sm:min-w-0",
+              "inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-9 sm:min-w-0",
               muted
                 ? "border-primary/32 bg-primary/10 text-foreground"
                 : "border-border/55 text-muted-foreground hover:bg-accent",
@@ -149,7 +149,7 @@ function EventRow({
         {occurrence.type === "BIRTHDAY" && !occurrence.isOwn ? (
           <Link
             href={`/?userId=${occurrence.person.id}`}
-            className="mt-2 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/55 px-3 text-xs font-semibold transition-colors hover:border-primary/32 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
+            className="mt-2 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/55 px-3 text-xs font-semibold transition-colors hover:border-primary/32 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Gift className="h-3.5 w-3.5" aria-hidden />
             {t("Открыть вишлисты")}
@@ -164,7 +164,7 @@ function EventRow({
                 <Link
                   key={`${person.id}:${wishlist.id}`}
                   href={thematicWishlistHref(person.id, wishlist.id)}
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/55 bg-background/32 px-3 text-xs font-semibold transition-colors hover:border-primary/32 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/55 bg-background/32 px-3 text-xs font-semibold transition-colors hover:border-primary/32 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {person.name}: {wishlist.name}
                   <ChevronRight className="h-3.5 w-3.5" aria-hidden />
@@ -232,7 +232,7 @@ function MonthGrid({
 
   return (
     <div
-      className="overflow-x-auto pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
+      className="overflow-x-auto pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       role="region"
       aria-label={t("Месячная сетка календаря")}
       tabIndex={0}
@@ -315,7 +315,7 @@ function MonthGrid({
                         // Текст чипа — всегда foreground: тем же оттенком, что и заливка,
                         // он давал 2.22:1 в светлой теме и 1.83:1 в wine-sky.
                         const className = cn(
-                          "flex min-w-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55",
+                          "flex min-w-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                           meta.chip,
                         );
                         const label = `${getOccurrenceTitle(entry)} — ${t(meta.label)}`;
@@ -399,7 +399,7 @@ function MonthGrid({
                   </>
                 );
                 const itemClassName =
-                  "flex min-h-11 items-center gap-3 rounded-xl px-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55";
+                  "flex min-h-11 items-center gap-3 rounded-xl px-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
                 return href ? (
                   <Link
                     key={`${date}:${entry.id}`}
@@ -723,7 +723,7 @@ export default function CalendarPage() {
             <section className={cn(uiSurface.contentPanel, "p-4 sm:p-5")}>
               <button
                 type="button"
-                className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
+                className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-expanded={historyOpen}
                 aria-controls="calendar-history-panel"
                 onClick={() => setHistoryOpen((open) => !open)}

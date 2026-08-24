@@ -12,7 +12,7 @@ export default function NotFound() {
     <div className="flex min-h-screen items-center justify-center page-bg px-4 py-8">
       <section className="w-full max-w-lg rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.86)] p-7 text-center shadow-[0_24px_70px_rgba(0,0,0,0.44),inset_0_1px_0_hsl(var(--foreground)/0.05)] backdrop-blur-md sm:p-8">
         <BrandLockup className="justify-center" />
-        <p className="mt-8 text-[5.5rem] font-semibold leading-none tracking-tight text-primary/85 sm:text-8xl">
+        <p className="mt-8 text-[5.5rem] font-semibold leading-none text-primary/85 sm:text-8xl">
           404
         </p>
         <h1 className="mt-4 text-2xl font-semibold text-foreground">{t("Страница не найдена")}</h1>

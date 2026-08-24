@@ -255,7 +255,7 @@ export function WishlistWorkspace({
             aria-label={t("Поиск")}
             wrapperClassName="group min-w-0 flex-1"
             iconClassName="left-3.5 text-muted-foreground/55 transition-colors duration-200 group-focus-within:text-primary/85"
-            inputClassName="h-11 min-h-[44px] rounded-xl border-border/55 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] placeholder:text-muted-foreground-subtle focus-visible:border-primary/45 focus-visible:ring-2 focus-visible:ring-primary/16 focus-visible:ring-offset-0"
+            inputClassName="h-11 min-h-[44px] rounded-xl border-border/55 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] placeholder:text-muted-foreground-subtle focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/32 focus-visible:ring-offset-0"
           />
           <Button
             type="button"
@@ -501,7 +501,7 @@ export function WishlistWorkspace({
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p>
               <span className="font-semibold">{t("Режим выбора")}.</span>{" "}
-              {t("Нажмите на карточку, чтобы")} {t("выбрать")}.
+              {t("Нажмите на карточку, чтобы выбрать её.")}
             </p>
             <Button type="button" variant="ghost" size="sm" onClick={onClearSelectionMode}>
               {t("Завершить выбор")}

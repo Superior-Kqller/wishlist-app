@@ -155,7 +155,7 @@ function QuickTextField({
           <Icon className="h-4 w-4" aria-hidden />
         </div>
         <div>
-          <Label htmlFor={id} className="text-base font-semibold tracking-tight">
+          <Label htmlFor={id} className="text-base font-semibold">
             {t(label)}
           </Label>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(description)}</p>
@@ -250,9 +250,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
           <Ruler className="h-4 w-4" aria-hidden />
         </div>
         <div>
-          <h2 className="text-base font-semibold tracking-tight">
-            {t(giftPreferenceLabels.sizes)}
-          </h2>
+          <h2 className="text-base font-semibold">{t(giftPreferenceLabels.sizes)}</h2>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
             {t(
               "Разделите одежду, обувь, брюки и аксессуары, чтобы друзья не угадывали по одному общему полю.",
@@ -617,7 +615,7 @@ export function GiftProfileEditor({
                     />
                     <section className={cn("space-y-3", uiSurface.formSection)}>
                       <div>
-                        <Label htmlFor="notes" className="text-base font-semibold tracking-tight">
+                        <Label htmlFor="notes" className="text-base font-semibold">
                           {t(giftPreferenceLabels.notes)}
                         </Label>
                         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">

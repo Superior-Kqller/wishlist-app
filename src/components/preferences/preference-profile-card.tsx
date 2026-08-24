@@ -111,7 +111,7 @@ export function PreferenceProfileCard({
                   шеврон 44×44 — он делает ровно то же самое и стоит в двух
                   сантиметрах, поэтому имя остаётся дополнительным способом
                   раскрыть карточку, а не единственным. */}
-              <h2 className="min-w-0 max-w-full truncate text-base font-semibold tracking-tight sm:text-lg">
+              <h2 className="min-w-0 max-w-full truncate text-base font-semibold sm:text-lg">
                 <button
                   type="button"
                   onClick={onToggle}

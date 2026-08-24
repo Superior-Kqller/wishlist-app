@@ -156,7 +156,7 @@ export function ItemDetailDialog({
           type="button"
           onClick={onClose}
           aria-label={t("Закрыть")}
-          className="absolute left-1/2 top-0 z-20 flex h-6 w-16 -translate-x-1/2 items-center justify-center rounded-b-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 sm:hidden"
+          className="absolute left-1/2 top-0 z-20 flex h-6 w-16 -translate-x-1/2 items-center justify-center rounded-b-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden"
         >
           <span className="h-1 w-10 rounded-full bg-foreground/16" aria-hidden />
         </button>

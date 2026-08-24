@@ -98,7 +98,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
               <Link
                 key={item.id}
                 href={ownerId ? `/?userId=${ownerId}` : "/"}
-                className="relative grid grid-cols-[auto_minmax(0,1fr)] gap-2.5 rounded-xl px-2 py-2.5 transition-colors duration-200 after:absolute after:bottom-[-0.45rem] after:left-[1.15rem] after:top-9 after:w-px after:bg-border/32 last:after:hidden hover:bg-[hsl(var(--surface-3)/0.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55"
+                className="relative grid grid-cols-[auto_minmax(0,1fr)] gap-2.5 rounded-xl px-2 py-2.5 transition-colors duration-200 after:absolute after:bottom-[-0.45rem] after:left-[1.15rem] after:top-9 after:w-px after:bg-border/32 last:after:hidden hover:bg-[hsl(var(--surface-3)/0.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {actor ? (
                   <UserAvatar

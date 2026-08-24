@@ -51,12 +51,14 @@ export const uiSurface = {
 } as const;
 
 export const uiState = {
-  focusVisible:
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   /**
    * Кольцо фокуса на `--ring`, а не на `--primary`. В тёмных темах `--ring`
    * завязан на `--primary-accent`, тогда как сама `--primary` там подобрана
    * под заливку кнопки и как обводка почти неразличима.
+   *
+   * Имя одно. Пока их было два (`focusVisible` и `focusRing`) с разными
+   * значениями, у продукта было три конвенции фокуса сразу: `ring-primary`,
+   * `ring-ring` и `ring-primary/55` — в разметке они стояли вперемешку.
    */
   focusRing:
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",

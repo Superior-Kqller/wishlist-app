@@ -14,7 +14,7 @@ import {
 } from "@/lib/calendar/client-calendar";
 
 const stripClass =
-  "group inline-flex min-h-11 max-w-full items-center gap-2.5 rounded-full border border-border/55 bg-[hsl(var(--surface-3)/0.6)] py-1.5 pl-3 pr-3.5 text-sm transition-[border-color,background-color] duration-200 hover:border-primary/45 hover:bg-[hsl(var(--surface-3)/0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/55 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+  "group inline-flex min-h-11 max-w-full items-center gap-2.5 rounded-full border border-border/55 bg-[hsl(var(--surface-3)/0.6)] py-1.5 pl-3 pr-3.5 text-sm transition-[border-color,background-color] duration-200 hover:border-primary/45 hover:bg-[hsl(var(--surface-3)/0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 /**
  * Ближайшее событие живёт в шапке страницы одной строкой, а не отдельной

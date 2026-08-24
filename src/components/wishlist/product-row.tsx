@@ -119,7 +119,7 @@ export const ProductRow = memo(function ProductRow({
                 }}
                 className={cn(
                   "line-clamp-1 rounded-sm text-left text-sm font-semibold text-foreground",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   isBought && "line-through",
                 )}
               >
@@ -257,7 +257,7 @@ export const ProductRow = memo(function ProductRow({
             }}
             className={cn(
               "rounded-md px-2 py-1 text-xs transition-colors",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               isSelected
                 ? "bg-primary/10 text-foreground"
                 : "text-muted-foreground hover:text-foreground",

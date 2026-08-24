@@ -89,7 +89,7 @@ export function PreferenceChipPicker({
   return (
     <section className={cn("space-y-4", uiSurface.formSection)}>
       <div>
-        <h2 className="text-base font-semibold tracking-tight">{t(title)}</h2>
+        <h2 className="text-base font-semibold">{t(title)}</h2>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(description)}</p>
       </div>
 

@@ -23,7 +23,7 @@ export default function Error({
 
   return (
     <div className="min-h-screen page-bg flex flex-col items-center justify-center px-4">
-      <h1 className="text-xl font-semibold tracking-tight">{t("Что-то пошло не так")}</h1>
+      <h1 className="text-xl font-semibold">{t("Что-то пошло не так")}</h1>
       <p className="mt-2 text-sm text-muted-foreground text-center max-w-sm">
         {t("Произошла ошибка. Попробуйте обновить страницу.")}
       </p>
