@@ -102,7 +102,15 @@ export function PreferenceProfileCard({
                   с `max-w-full` брала ширину у родителя, ширина родителя
                   считалась по обрезаемому содержимому — и имя схлопывалось
                   в «us…» посреди пустой строки. Кнопка теперь строчная и
-                  меряется текстом, а `truncate` живёт на заголовке. */}
+                  меряется текстом, а `truncate` живёт на заголовке.
+
+                  Отсюда же её высота — по строке, около 24px. Расширить цель
+                  вертикальным отступом нельзя: `truncate` на заголовке несёт
+                  `overflow: hidden`, и отступ строчной кнопки был бы срезан
+                  вместе с попаданием по нему. Порог здесь держит соседний
+                  шеврон 44×44 — он делает ровно то же самое и стоит в двух
+                  сантиметрах, поэтому имя остаётся дополнительным способом
+                  раскрыть карточку, а не единственным. */}
               <h2 className="min-w-0 max-w-full truncate text-base font-semibold tracking-tight sm:text-lg">
                 <button
                   type="button"
@@ -150,7 +158,9 @@ export function PreferenceProfileCard({
                 type="button"
                 size="sm"
                 variant={editing ? "default" : "outline"}
-                className="gap-1.5"
+                /* Ниже `sm` подпись скрыта и остаётся одна иконка: без
+                   `min-w-11` цель выходила 38px по ширине при 44 по высоте. */
+                className="min-w-11 gap-1.5 sm:min-w-0"
                 onClick={onEdit}
                 aria-label={editLabel ?? t("Настроить")}
               >

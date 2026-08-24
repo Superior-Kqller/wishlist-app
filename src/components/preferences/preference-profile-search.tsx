@@ -41,13 +41,14 @@ export function PreferenceProfileSearch({
           className="h-11 border-border/55 bg-[hsl(var(--surface-3)/0.55)] pl-9 pr-12 sm:h-10 sm:pr-10"
         />
         {/* 44px на телефоне — тот же минимум, что держат все кнопки проекта;
-            выше `sm` цель ужимается вместе с полем. */}
+            выше `sm` цель ужимается вместе с полем, но не ниже 36px: это дно
+            допуска, а прежние 32px были уже под ним. */}
         {search ? (
           <button
             type="button"
             onClick={() => onSearchChange("")}
             aria-label={t("Очистить поиск")}
-            className="absolute right-0.5 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:right-1.5 sm:size-8"
+            className="absolute right-0.5 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:right-1.5 sm:size-9"
           >
             <X className="h-4 w-4" aria-hidden />
           </button>

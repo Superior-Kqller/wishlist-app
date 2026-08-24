@@ -104,3 +104,36 @@ describe("каноническая форма строки размеров", ()
     expect(canonical.length).toBeGreaterThan(input.length);
   });
 });
+
+describe("заметка, начинающаяся со слова-категории", () => {
+  test("«Обувь нужна тёплая» остаётся заметкой целиком", () => {
+    const { fields, custom } = parseSizePreferences("Обувь нужна тёплая");
+
+    expect(fields.shoes).toBe("");
+    expect(custom).toBe("Обувь нужна тёплая");
+  });
+
+  test("«Кольцо на мизинец» не съедает первое слово", () => {
+    const { fields, custom } = parseSizePreferences("Кольцо на мизинец");
+
+    expect(fields.rings).toBe("");
+    expect(custom).toBe("Кольцо на мизинец");
+  });
+
+  test("двоеточие по-прежнему назначает категорию", () => {
+    expect(parseSizePreferences("Обувь: 42").fields.shoes).toBe("42");
+    expect(parseSizePreferences("Обувь:42").fields.shoes).toBe("42");
+  });
+
+  test("дефис и тире по-прежнему назначают категорию", () => {
+    expect(parseSizePreferences("Одежда - M").fields.clothes).toBe("M");
+    expect(parseSizePreferences("Одежда — M").fields.clothes).toBe("M");
+  });
+
+  test("категория без значения ничего не назначает", () => {
+    const { fields, custom } = parseSizePreferences("Одежда:");
+
+    expect(fields.clothes).toBe("");
+    expect(custom).toBe("");
+  });
+});

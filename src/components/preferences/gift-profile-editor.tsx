@@ -303,7 +303,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
                 onChange={(event) => updateField(category.id, event.target.value)}
                 placeholder={t(category.placeholder)}
                 maxLength={80}
-                className="mt-2.5 min-h-10 border-border/55 bg-[hsl(var(--surface-2)/0.7)]"
+                className="mt-2.5 border-border/55 bg-[hsl(var(--surface-2)/0.7)]"
               />
             </div>
           );
