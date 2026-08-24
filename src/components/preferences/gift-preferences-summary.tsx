@@ -17,7 +17,7 @@ import {
   type PreferenceSignalRowProps,
 } from "@/components/preferences/preference-signal-row";
 import { useI18n } from "@/components/i18n/language-provider";
-import { easing } from "@/lib/motion";
+import { duration, easing } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import {
   countGiftPreferences,
@@ -205,7 +205,7 @@ export function GiftPreferencesSummary({
               <span className="hidden sm:inline">{expanded ? t("Свернуть") : t("Показать")}</span>
               <ChevronDown
                 className={cn(
-                  "h-4 w-4 transition-transform duration-200",
+                  "h-4 w-4 transition-transform duration-base",
                   expanded && "rotate-180",
                 )}
                 aria-hidden
@@ -232,7 +232,7 @@ export function GiftPreferencesSummary({
               initial={reduceMotion ? false : { opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
-              transition={{ duration: 0.2, ease: easing.expo }}
+              transition={{ duration: duration.base, ease: easing.expo }}
               className={cn(embedded ? "py-0.5" : "space-y-3 border-t border-border/32 p-3 sm:p-4")}
             >
               {/* Внутри карточки ширину задаёт не окно, а колонка сетки:

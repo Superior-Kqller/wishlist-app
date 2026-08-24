@@ -8,7 +8,7 @@ import { PreferenceColorDot } from "@/components/preferences/preference-color-do
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getWishWord } from "@/lib/i18n";
-import { easing } from "@/lib/motion";
+import { duration, easing } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { getPreferenceHighlights } from "@/lib/preference-profiles";
 import { type GiftPreferences } from "@/lib/preferences";
@@ -179,7 +179,7 @@ export function PreferenceProfileCard({
             >
               <ChevronDown
                 className={cn(
-                  "h-4 w-4 transition-transform duration-300",
+                  "h-4 w-4 transition-transform duration-base",
                   expanded && "rotate-180",
                 )}
                 aria-hidden
@@ -281,7 +281,7 @@ export function PreferenceProfileCard({
               initial={reduceMotion ? false : { opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-              transition={{ duration: 0.22, ease: easing.expo }}
+              transition={{ duration: duration.base, ease: easing.expo }}
               className="@container border-t border-border/45 px-4 py-4 sm:px-5 sm:py-5"
             >
               {children}

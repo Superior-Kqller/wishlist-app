@@ -8,6 +8,17 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
 
+  /*
+   * Четыре длительности The Motion Gate Rule доступны утилитами Tailwind:
+   * `duration-fast|base|slow|reveal`. Без этого в разметке заводились числа
+   * рядом с токенами — 200ms и 300ms там, где система знает только 140, 220,
+   * 420 и 620.
+   */
+  --transition-duration-fast: var(--dur-fast);
+  --transition-duration-base: var(--dur-base);
+  --transition-duration-slow: var(--dur-slow);
+  --transition-duration-reveal: var(--dur-reveal);
+
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));

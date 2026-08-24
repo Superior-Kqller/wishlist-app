@@ -8,6 +8,7 @@ import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { RetryNotice } from "@/components/ui/retry-notice";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { useI18n } from "@/components/i18n/language-provider";
 import {
@@ -258,19 +259,11 @@ export default function GiftProfilePage() {
               </Button>
             }
           />
-          <div
-            role="alert"
-            className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
-          >
-            <span>
-              {t(
-                "Не удалось загрузить ваш подарочный профиль. Пока он не загрузится, править нечего.",
-              )}
-            </span>
-            <Button type="button" variant="outline" size="sm" onClick={() => mutate()}>
-              {t("Повторить")}
-            </Button>
-          </div>
+          <RetryNotice onRetry={() => mutate()}>
+            {t(
+              "Не удалось загрузить ваш подарочный профиль. Пока он не загрузится, править нечего.",
+            )}
+          </RetryNotice>
         </PageMain>
       </PageShell>
     );

@@ -11,7 +11,7 @@ import {
   PreferenceChipPicker,
   type PreferenceSuggestion,
 } from "@/components/preferences/preference-chip-picker";
-import { easing } from "@/lib/motion";
+import { duration, easing } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { uiState, uiSurface } from "@/lib/ui-contract";
 import { useMediaQuery } from "@/lib/use-media-query";
@@ -149,7 +149,7 @@ function QuickTextField({
 }) {
   const { t } = useI18n();
   return (
-    <section className="space-y-4 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.7)] p-4 sm:p-5">
+    <section className={cn("space-y-4", uiSurface.formSection)}>
       <div className="flex items-start gap-3">
         <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary-accent">
           <Icon className="h-4 w-4" aria-hidden />
@@ -171,9 +171,7 @@ function QuickTextField({
             className={cn(
               "min-h-11 rounded-full border px-3 text-xs font-semibold sm:min-h-9 transition-[color,background-color,border-color,transform] active:scale-[0.98]",
               uiState.focusRing,
-              value === suggestion
-                ? "border-primary-accent/70 bg-primary/16 text-foreground"
-                : "border-border/55 bg-[hsl(var(--surface-3)/0.45)] text-muted-foreground hover:bg-accent hover:text-foreground",
+              value === suggestion ? uiState.chipSelected : uiState.chipIdle,
             )}
           >
             {t(suggestion)}
@@ -246,7 +244,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
   };
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.7)] p-4 sm:p-5">
+    <section className={cn("space-y-4", uiSurface.formSection)}>
       <div className="flex items-start gap-3">
         <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary-accent">
           <Ruler className="h-4 w-4" aria-hidden />
@@ -289,9 +287,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
                       className={cn(
                         "min-h-11 min-w-11 whitespace-nowrap rounded-full border px-2.5 text-xs font-semibold sm:min-w-0 transition-[color,background-color,border-color,transform] active:scale-[0.98] sm:min-h-9",
                         uiState.focusRing,
-                        active
-                          ? "border-primary-accent/70 bg-primary/16 text-foreground"
-                          : "border-border/45 bg-[hsl(var(--surface-2)/0.55)] text-muted-foreground hover:bg-accent hover:text-foreground",
+                        active ? uiState.chipSelected : uiState.chipIdle,
                       )}
                     >
                       {preset}
@@ -428,7 +424,7 @@ export function GiftProfileEditor({
               onKeyDown={handleTabKeyDown}
               onClick={() => onSectionChange(section.id)}
               className={cn(
-                "group flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-xl border px-2 text-center transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98] xl:justify-start xl:gap-3 xl:px-3 xl:text-left",
+                "group flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-lg border px-2 text-center transition-[color,background-color,border-color,transform] duration-base active:scale-[0.98] xl:justify-start xl:gap-3 xl:px-3 xl:text-left",
                 uiState.focusRing,
                 active
                   ? "border-primary-accent/70 bg-primary/10 text-foreground"
@@ -486,7 +482,7 @@ export function GiftProfileEditor({
                 key={section.id}
                 initial={reduceMotion ? false : { opacity: 0, x: 12 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.2, ease: easing.expo }}
+                transition={{ duration: duration.base, ease: easing.expo }}
                 className="min-w-0 space-y-4"
               >
                 {section.id === "likes" ? (
@@ -619,7 +615,7 @@ export function GiftProfileEditor({
                       max={16}
                       onChange={(value) => updateList("occasions", value)}
                     />
-                    <section className="space-y-3 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.7)] p-4 sm:p-5">
+                    <section className={cn("space-y-3", uiSurface.formSection)}>
                       <div>
                         <Label htmlFor="notes" className="text-base font-semibold tracking-tight">
                           {t(giftPreferenceLabels.notes)}

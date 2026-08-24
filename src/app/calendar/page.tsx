@@ -22,6 +22,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { UserAvatar } from "@/components/UserAvatar";
 import { PersonalEventsPanel } from "@/components/calendar/PersonalEventsPanel";
 import { Button } from "@/components/ui/button";
+import { RetryNotice } from "@/components/ui/retry-notice";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import {
@@ -609,12 +610,9 @@ export default function CalendarPage() {
           {/* Состояние напоминаний недоступно — говорим об этом, а не выдаём
               все события за незаглушённые. */}
           {muteError ? (
-            <div className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-              <span>{t("Не удалось загрузить состояние напоминаний.")}</span>
-              <Button type="button" variant="outline" size="sm" onClick={() => void mutateMutes()}>
-                {t("Повторить")}
-              </Button>
-            </div>
+            <RetryNotice onRetry={() => void mutateMutes()}>
+              {t("Не удалось загрузить состояние напоминаний.")}
+            </RetryNotice>
           ) : null}
 
           {isLoading ? (

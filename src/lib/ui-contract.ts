@@ -36,6 +36,11 @@ export const uiSurface = {
   floatingBar:
     "flex items-center gap-2 rounded-2xl border border-border bg-[hsl(var(--surface-2)/0.96)] px-4 py-3 elevation-floating backdrop-blur-md",
   chip: "border-border bg-[hsl(var(--surface-3))]",
+  /**
+   * Оболочка секции анкеты: заголовок, описание и поля одной темы. Строка была
+   * выписана дословно в четырёх местах редактора и чип-пикера.
+   */
+  formSection: "rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.7)] p-4 sm:p-5",
   inputAlt: "bg-[hsl(var(--surface-3))]",
   homeSummary:
     "home-summary-panel relative overflow-hidden rounded-2xl border border-border/55 elevation-hero-panel backdrop-blur-md",
@@ -62,4 +67,14 @@ export const uiState = {
   selectionIdle:
     "h-9 gap-1.5 px-3 border border-border bg-card text-muted-foreground hover:text-foreground",
   selectionActive: "h-9 gap-1.5 px-3 border border-primary/55 bg-primary/16 text-foreground",
+  /**
+   * Выбранный чип: рамка цветом роли поверх заливки того же цвета, как требует
+   * DESIGN.md → Chips / Badges. Ступень `/70` — минимальная, которая берёт 3:1
+   * во всех четырёх темах; `/45` давала 1.95–2.22, сплошная краска брала вдвое
+   * больше громкости, чем нужно.
+   */
+  chipSelected: "border-primary-accent/70 bg-primary/16 text-foreground",
+  chipSelectedDanger: "border-destructive/70 bg-destructive/10 text-destructive",
+  chipIdle:
+    "border-border/55 bg-[hsl(var(--surface-3)/0.45)] text-muted-foreground hover:bg-accent hover:text-foreground",
 } as const;

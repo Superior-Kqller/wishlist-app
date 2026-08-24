@@ -24,6 +24,7 @@ import {
 import { fetcher } from "@/lib/fetcher";
 import { uiSurface } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";
+import { RetryNotice } from "@/components/ui/retry-notice";
 
 type StatsResponse = {
   users: UserWithStats[];
@@ -613,9 +614,9 @@ export default function StatsPage() {
 
               <div className="min-w-0 [grid-area:activity] xl:sticky xl:top-6 xl:self-start">
                 {recentItemsError ? (
-                  <div className="rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm">
+                  <RetryNotice>
                     {t("Не удалось загрузить активность. Остальная статистика доступна.")}
-                  </div>
+                  </RetryNotice>
                 ) : (
                   <RecentActivityPanel items={recentItemsData?.items ?? []} />
                 )}

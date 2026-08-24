@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { useI18n } from "@/components/i18n/language-provider";
 import { PreferenceColorDot } from "@/components/preferences/preference-color-dot";
 import { cn } from "@/lib/utils";
-import { uiState } from "@/lib/ui-contract";
+import { uiState, uiSurface } from "@/lib/ui-contract";
+import { duration } from "@/lib/motion";
 
 export type PreferenceSuggestion = {
   label: string;
@@ -86,7 +87,7 @@ export function PreferenceChipPicker({
   };
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.7)] p-4 sm:p-5">
+    <section className={cn("space-y-4", uiSurface.formSection)}>
       <div>
         <h2 className="text-base font-semibold tracking-tight">{t(title)}</h2>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(description)}</p>
@@ -102,13 +103,13 @@ export function PreferenceChipPicker({
               onClick={() => toggleValue(suggestion.label)}
               aria-pressed={active}
               className={cn(
-                "inline-flex min-h-11 items-center gap-2 rounded-full border px-3 sm:min-h-10 text-sm font-medium transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98]",
+                "inline-flex min-h-11 items-center gap-2 rounded-full border px-3 sm:min-h-10 text-sm font-medium transition-[color,background-color,border-color,transform] duration-base active:scale-[0.98]",
                 uiState.focusRing,
                 active
                   ? warning
-                    ? "border-destructive/70 bg-destructive/10 text-destructive"
-                    : "border-primary-accent/70 bg-primary/16 text-foreground"
-                  : "border-border/55 bg-[hsl(var(--surface-3)/0.45)] text-muted-foreground hover:border-border hover:bg-accent/70 hover:text-foreground",
+                    ? uiState.chipSelectedDanger
+                    : uiState.chipSelected
+                  : uiState.chipIdle,
               )}
             >
               {suggestion.color ? <PreferenceColorDot value={suggestion.label} size="md" /> : null}
@@ -122,7 +123,7 @@ export function PreferenceChipPicker({
             type="button"
             onClick={() => setShowAllSuggestions(true)}
             className={cn(
-              "inline-flex min-h-11 items-center rounded-full px-3 sm:min-h-10 text-sm font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline",
+              "inline-flex min-h-11 items-center rounded-full px-3 sm:min-h-10 text-sm font-medium text-muted-foreground underline-offset-4 transition-colors duration-base hover:text-foreground hover:underline",
               uiState.focusRing,
             )}
           >
@@ -171,10 +172,10 @@ export function PreferenceChipPicker({
                   initial={reduceMotion ? false : { opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.16 }}
+                  transition={{ duration: duration.fast }}
                   onClick={() => toggleValue(item)}
                   className={cn(
-                    "inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full border px-2.5 sm:min-h-9 text-xs font-semibold transition-colors hover:bg-accent",
+                    "inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full border px-2.5 sm:min-h-9 text-xs font-semibold transition-colors duration-base hover:bg-accent",
                     uiState.focusRing,
                     warning
                       ? "border-destructive/32 bg-destructive/10 text-destructive"

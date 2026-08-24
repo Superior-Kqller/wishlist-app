@@ -7,6 +7,7 @@ import useSWR from "swr";
 import { motion, useReducedMotion } from "framer-motion";
 import { Search, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { RetryNotice } from "@/components/ui/retry-notice";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { useI18n } from "@/components/i18n/language-provider";
 import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
@@ -14,7 +15,7 @@ import { PreferenceProfileSearch } from "@/components/preferences/preference-pro
 import { PreferenceProfileCard } from "@/components/preferences/preference-profile-card";
 import { fetcher } from "@/lib/fetcher";
 import { giftPreferencesDraftKey } from "@/lib/preferences-draft";
-import { staggerDelayMs } from "@/lib/motion";
+import { duration, staggerDelayMs } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import { type GiftPreferences, normalizeGiftPreferences } from "@/lib/preferences";
@@ -187,29 +188,15 @@ function PreferencesPageContent() {
                 `/api/users/me` заменяла собой весь список, хотя профили
                 друзей уже пришли и были главным, ради чего сюда идут. */}
             {error ? (
-              <div
-                role="alert"
-                className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
-              >
-                <span>{t("Не удалось загрузить ваш профиль. Профили друзей ниже доступны.")}</span>
-                <Button type="button" variant="outline" size="sm" onClick={() => mutate()}>
-                  {t("Повторить")}
-                </Button>
-              </div>
+              <RetryNotice onRetry={() => mutate()}>
+                {t("Не удалось загрузить ваш профиль. Профили друзей ниже доступны.")}
+              </RetryNotice>
             ) : null}
 
             {circleError ? (
-              <div
-                role="alert"
-                className="flex flex-col gap-3 rounded-xl border border-destructive/24 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
-              >
-                <span>
-                  {t("Не удалось загрузить профили друзей. Ваш профиль по-прежнему доступен.")}
-                </span>
-                <Button type="button" variant="outline" size="sm" onClick={() => mutateCircle()}>
-                  {t("Повторить")}
-                </Button>
-              </div>
+              <RetryNotice onRetry={() => mutateCircle()}>
+                {t("Не удалось загрузить профили друзей. Ваш профиль по-прежнему доступен.")}
+              </RetryNotice>
             ) : null}
 
             {showProfileSearch ? (
@@ -246,7 +233,7 @@ function PreferencesPageContent() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{
                         delay: reduceMotion ? 0 : staggerDelayMs(index) / 1000,
-                        duration: 0.3,
+                        duration: duration.base,
                       }}
                     >
                       <PreferenceProfileCard
