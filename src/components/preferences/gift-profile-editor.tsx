@@ -15,7 +15,7 @@ import { easing } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { uiState, uiSurface } from "@/lib/ui-contract";
 import { useMediaQuery } from "@/lib/use-media-query";
-import { SIZES_MAX_LENGTH, type GiftPreferences } from "@/lib/preferences";
+import { SIZES_MAX_LENGTH, giftPreferenceLabels, type GiftPreferences } from "@/lib/preferences";
 import {
   composeSizePreferences,
   hasPresetToken,
@@ -252,7 +252,9 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
           <Ruler className="h-4 w-4" aria-hidden />
         </div>
         <div>
-          <h2 className="text-base font-semibold tracking-tight">{t("Размеры по категориям")}</h2>
+          <h2 className="text-base font-semibold tracking-tight">
+            {t(giftPreferenceLabels.sizes)}
+          </h2>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
             {t(
               "Разделите одежду, обувь, брюки и аксессуары, чтобы друзья не угадывали по одному общему полю.",
@@ -490,7 +492,7 @@ export function GiftProfileEditor({
                 {section.id === "likes" ? (
                   <>
                     <PreferenceChipPicker
-                      title="Любимые бренды"
+                      title={giftPreferenceLabels.favoriteBrands}
                       description="Марки и магазины, которым вы уже доверяете."
                       value={draft.favoriteBrands}
                       suggestions={brandSuggestions}
@@ -499,7 +501,7 @@ export function GiftProfileEditor({
                       onChange={(value) => updateList("favoriteBrands", value)}
                     />
                     <PreferenceChipPicker
-                      title="Любимые цвета"
+                      title={giftPreferenceLabels.favoriteColors}
                       description="Выберите оттенки, с которыми сложно промахнуться."
                       value={draft.favoriteColors}
                       suggestions={colorSuggestions}
@@ -508,7 +510,7 @@ export function GiftProfileEditor({
                       onChange={(value) => updateList("favoriteColors", value)}
                     />
                     <PreferenceChipPicker
-                      title="Категории товаров"
+                      title={giftPreferenceLabels.favoriteCategories}
                       description="Какие типы подарков вам чаще всего интересны."
                       value={draft.favoriteCategories}
                       suggestions={categorySuggestions}
@@ -517,7 +519,7 @@ export function GiftProfileEditor({
                       onChange={(value) => updateList("favoriteCategories", value)}
                     />
                     <PreferenceChipPicker
-                      title="Интересы"
+                      title={giftPreferenceLabels.hobbies}
                       description="Темы, вокруг которых можно придумать неожиданный подарок."
                       value={draft.hobbies}
                       suggestions={hobbySuggestions}
@@ -526,7 +528,7 @@ export function GiftProfileEditor({
                       onChange={(value) => updateList("hobbies", value)}
                     />
                     <PreferenceChipPicker
-                      title="Приятные материалы"
+                      title={giftPreferenceLabels.favoriteMaterials}
                       description="Из чего подарок ощущается особенно хорошо."
                       value={draft.favoriteMaterials}
                       suggestions={materialSuggestions}
@@ -540,7 +542,7 @@ export function GiftProfileEditor({
                 {section.id === "avoid" ? (
                   <>
                     <PreferenceChipPicker
-                      title="Бренды не для меня"
+                      title={giftPreferenceLabels.dislikedBrands}
                       description="Марки и магазины, которые лучше пропустить."
                       value={draft.dislikedBrands}
                       suggestions={brandSuggestions}
@@ -550,7 +552,7 @@ export function GiftProfileEditor({
                       onChange={(value) => updateList("dislikedBrands", value)}
                     />
                     <PreferenceChipPicker
-                      title="Цвета, которые не нравятся"
+                      title={giftPreferenceLabels.dislikedColors}
                       description="Отметьте оттенки, которых лучше избегать."
                       value={draft.dislikedColors}
                       suggestions={colorSuggestions}
@@ -560,7 +562,7 @@ export function GiftProfileEditor({
                       onChange={(value) => updateList("dislikedColors", value)}
                     />
                     <PreferenceChipPicker
-                      title="Категории не для меня"
+                      title={giftPreferenceLabels.dislikedCategories}
                       description="Типы товаров, которые лучше не выбирать."
                       value={draft.dislikedCategories}
                       suggestions={categorySuggestions}
@@ -570,7 +572,7 @@ export function GiftProfileEditor({
                       onChange={(value) => updateList("dislikedCategories", value)}
                     />
                     <PreferenceChipPicker
-                      title="Неприятные материалы"
+                      title={giftPreferenceLabels.dislikedMaterials}
                       description="Полезно для одежды, украшений и предметов дома."
                       value={draft.dislikedMaterials}
                       suggestions={materialSuggestions}
@@ -580,7 +582,7 @@ export function GiftProfileEditor({
                       onChange={(value) => updateList("dislikedMaterials", value)}
                     />
                     <PreferenceChipPicker
-                      title="Точно не покупать"
+                      title={giftPreferenceLabels.doNotBuy}
                       description="Самый важный стоп-лист для дарителя."
                       value={draft.doNotBuy}
                       suggestions={doNotBuySuggestions}
@@ -600,7 +602,7 @@ export function GiftProfileEditor({
                     />
                     <QuickTextField
                       id="budget"
-                      label="Комфортный бюджет"
+                      label={giftPreferenceLabels.budget}
                       description="Ориентир помогает не ставить друзей в неловкое положение."
                       value={draft.budget}
                       placeholder="Например, дороже 5000 ₽ лучше обсудить"
@@ -609,7 +611,7 @@ export function GiftProfileEditor({
                       onChange={(value) => updateText("budget", value)}
                     />
                     <PreferenceChipPicker
-                      title="Поводы"
+                      title={giftPreferenceLabels.occasions}
                       description="Когда особенно приятно получить подарок."
                       value={draft.occasions}
                       suggestions={occasionSuggestions}
@@ -620,7 +622,7 @@ export function GiftProfileEditor({
                     <section className="space-y-3 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.7)] p-4 sm:p-5">
                       <div>
                         <Label htmlFor="notes" className="text-base font-semibold tracking-tight">
-                          {t("Личная подсказка")}
+                          {t(giftPreferenceLabels.notes)}
                         </Label>
                         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                           {t(

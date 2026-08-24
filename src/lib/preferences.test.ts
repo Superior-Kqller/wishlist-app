@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   emptyGiftPreferences,
+  giftPreferenceLabels,
   giftPreferenceSections,
   giftPreferencesSchema,
   isGiftPreferenceSectionFilled,
@@ -67,5 +68,18 @@ describe("разделы редактора профиля", () => {
     expect(
       isGiftPreferenceSectionFilled({ ...emptyGiftPreferences, hobbies: ["Книги"] }, "avoid"),
     ).toBe(false);
+  });
+});
+
+describe("названия полей профиля", () => {
+  it("покрывают каждое поле схемы", () => {
+    expect(Object.keys(giftPreferenceLabels).sort()).toEqual(
+      Object.keys(giftPreferencesSchema.shape).sort(),
+    );
+  });
+
+  it("не повторяются: два поля с одним названием сделали бы текст ошибки бесполезным", () => {
+    const labels = Object.values(giftPreferenceLabels);
+    expect(new Set(labels).size).toBe(labels.length);
   });
 });

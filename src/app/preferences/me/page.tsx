@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import {
   type GiftPreferences,
   emptyGiftPreferences,
+  giftPreferenceLabels,
   isGiftPreferenceSectionFilled,
   normalizeGiftPreferences,
 } from "@/lib/preferences";
@@ -32,27 +33,6 @@ type PreferencesUser = {
   name: string;
   avatarUrl?: string | null;
   giftPreferences?: GiftPreferences | null;
-};
-
-/**
- * Человеческие имена полей профиля — те же, что стоят заголовками секций
- * редактора, чтобы из текста ошибки было видно, куда идти.
- */
-const preferenceFieldLabels: Record<string, string> = {
-  favoriteBrands: "Любимые бренды",
-  favoriteColors: "Любимые цвета",
-  favoriteCategories: "Категории товаров",
-  hobbies: "Интересы",
-  favoriteMaterials: "Приятные материалы",
-  dislikedBrands: "Бренды не для меня",
-  dislikedColors: "Цвета, которые не нравятся",
-  dislikedCategories: "Категории не для меня",
-  dislikedMaterials: "Неприятные материалы",
-  doNotBuy: "Точно не покупать",
-  sizes: "Размеры по категориям",
-  budget: "Комфортный бюджет",
-  occasions: "Поводы",
-  notes: "Личная подсказка",
 };
 
 type SaveErrorBody = { error?: unknown; details?: unknown };
@@ -73,9 +53,9 @@ function describeSaveError(
     const path = (issue as { path?: unknown }).path;
     if (!Array.isArray(path)) continue;
     const field = path.find(
-      (part): part is string => typeof part === "string" && part in preferenceFieldLabels,
+      (part): part is string => typeof part === "string" && part in giftPreferenceLabels,
     );
-    if (field) fields.add(preferenceFieldLabels[field]);
+    if (field) fields.add(giftPreferenceLabels[field as keyof typeof giftPreferenceLabels]);
   }
 
   if (fields.size > 0) {

@@ -245,11 +245,19 @@ export function GiftPreferencesSummary({
                   embedded ? "@[32rem]:grid-cols-2" : "xl:grid-cols-3",
                 )}
               >
-                <div className="min-w-0">
-                  <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+                {/* Три группы — разделы, а не абзацы. Раньше их подписи были
+                    `<p>`, и после `h2` с именем человека структуры не было
+                    вовсе: строки «Бренды», «Цвета», «Материалы» звучали дважды
+                    подряд — в «Понравится» и в «Не подойдёт», — и различить их
+                    было нечем. */}
+                <section className="min-w-0" aria-labelledby={`${detailsId}-likes`}>
+                  <h3
+                    id={`${detailsId}-likes`}
+                    className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground"
+                  >
                     <Heart className="h-4 w-4 text-primary-accent" aria-hidden />
                     {t("Понравится")}
-                  </p>
+                  </h3>
                   {visiblePositiveRows.length > 0 ? (
                     visiblePositiveRows.map((row) => (
                       <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
@@ -259,8 +267,9 @@ export function GiftPreferencesSummary({
                       {t("Любимые вещи пока не указаны")}
                     </p>
                   )}
-                </div>
-                <div
+                </section>
+                <section
+                  aria-labelledby={`${detailsId}-avoid`}
                   className={cn(
                     "min-w-0",
                     embedded
@@ -268,10 +277,13 @@ export function GiftPreferencesSummary({
                       : "md:border-l md:border-border/32 md:pl-6",
                   )}
                 >
-                  <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <h3
+                    id={`${detailsId}-avoid`}
+                    className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground"
+                  >
                     <ShieldAlert className="h-4 w-4 text-destructive" aria-hidden />
                     {t("Не подойдёт")}
-                  </p>
+                  </h3>
                   {visibleAvoidRows.length > 0 ? (
                     visibleAvoidRows.map((row) => (
                       <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
@@ -281,17 +293,21 @@ export function GiftPreferencesSummary({
                       {t("Ограничений пока нет")}
                     </p>
                   )}
-                </div>
-                <div
+                </section>
+                <section
+                  aria-labelledby={`${detailsId}-details`}
                   className={cn(
                     "min-w-0",
                     embedded && "border-t border-border/32 pt-5 @[32rem]:col-span-2",
                   )}
                 >
-                  <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <h3
+                    id={`${detailsId}-details`}
+                    className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground"
+                  >
                     <Ruler className="h-4 w-4 text-muted-foreground" aria-hidden />
                     {t("Детали")}
-                  </p>
+                  </h3>
                   {visibleDetailRows.length > 0 ? (
                     <div className={cn(embedded && "grid gap-x-6 @[40rem]:grid-cols-3")}>
                       {visibleDetailRows.map((row) => (
@@ -313,7 +329,7 @@ export function GiftPreferencesSummary({
                       {preferences.notes}
                     </p>
                   ) : null}
-                </div>
+                </section>
               </div>
             </motion.div>
           ) : null}

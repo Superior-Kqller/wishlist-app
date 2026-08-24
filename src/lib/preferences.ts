@@ -115,3 +115,29 @@ export function isGiftPreferenceSectionFilled(
     return Array.isArray(field) ? field.length > 0 : Boolean(field);
   });
 }
+
+/**
+ * Человеческие названия полей профиля — единственный источник.
+ *
+ * Те же строки стоят заголовками секций редактора и подставляются в текст
+ * ошибки сохранения, чтобы из тоста было видно, куда идти. Раньше список
+ * существовал дважды: пропсами `title` в редакторе и отдельной картой на
+ * странице — переименование заголовка тихо разрывало текст ошибки, ради
+ * которого карта и заведена.
+ */
+export const giftPreferenceLabels = {
+  favoriteBrands: "Любимые бренды",
+  favoriteColors: "Любимые цвета",
+  favoriteCategories: "Категории товаров",
+  hobbies: "Интересы",
+  favoriteMaterials: "Приятные материалы",
+  dislikedBrands: "Бренды не для меня",
+  dislikedColors: "Цвета, которые не нравятся",
+  dislikedCategories: "Категории не для меня",
+  dislikedMaterials: "Неприятные материалы",
+  doNotBuy: "Точно не покупать",
+  sizes: "Размеры по категориям",
+  budget: "Комфортный бюджет",
+  occasions: "Поводы",
+  notes: "Личная подсказка",
+} as const satisfies Record<keyof GiftPreferences, string>;
