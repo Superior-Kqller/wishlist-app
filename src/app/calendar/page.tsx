@@ -242,7 +242,10 @@ function MonthGrid({
           {weekdayLabels.map((label) => (
             <div
               key={label}
-              className="px-0.5 pb-1.5 text-center text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground-subtle md:px-2 md:pb-2 md:text-left md:text-xs"
+              // На ступени `micro` подпись не уходит светлее `--muted-foreground`
+              // (DESIGN.md → The Micro Floor Rule): десять пикселей самым тихим
+              // полутоном — это две причины быть нечитаемым сразу.
+              className="px-0.5 pb-1.5 text-center text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground md:px-2 md:pb-2 md:text-left md:text-xs"
               role="columnheader"
             >
               {label}
