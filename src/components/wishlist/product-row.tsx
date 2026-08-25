@@ -168,7 +168,7 @@ export const ProductRow = memo(function ProductRow({
               ) : (
                 <AvatarFallback
                   className={cn(
-                    "text-[10px] font-semibold text-primary-foreground",
+                    "text-[10px] font-semibold text-avatar-foreground",
                     getAvatarColor(ownerId),
                   )}
                 >

@@ -47,7 +47,7 @@ export function UserAvatar({ avatarUrl, name, userId, size = "md", className }: 
   return (
     <div
       className={cn(
-        "rounded-full flex items-center justify-center text-primary-foreground font-medium",
+        "rounded-full flex items-center justify-center text-avatar-foreground font-medium",
         colorClass,
         sizeClass,
         className,

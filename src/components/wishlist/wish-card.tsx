@@ -240,7 +240,7 @@ export const WishCard = memo(function WishCard({
                         ) : (
                           <AvatarFallback
                             className={cn(
-                              "text-[8px] font-semibold text-primary-foreground",
+                              "text-[8px] font-semibold text-avatar-foreground",
                               getAvatarColor(ownerId),
                             )}
                           >
