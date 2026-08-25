@@ -271,7 +271,7 @@ export function WishlistWorkspace({
           >
             <SlidersHorizontal className="h-4 w-4 shrink-0" />
             {hasActiveFilters ? (
-              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground">
                 {activeFilterCount}
               </span>
             ) : null}
