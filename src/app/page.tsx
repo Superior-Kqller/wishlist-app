@@ -23,7 +23,6 @@ import {
   type WishlistSelection,
 } from "@/components/wishlist/wishlist-workspace";
 import { ItemFormDialog } from "@/components/ItemFormDialog";
-import { ParseUrlDialog } from "@/components/ParseUrlDialog";
 import { ListFormDialog } from "@/components/ListFormDialog";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -33,7 +32,6 @@ import {
   WishlistItem,
   CreateItemPayload,
   UpdateItemPayload,
-  ParsedProductResponse,
   UserWithStats,
   ListWithMeta,
 } from "@/types";
@@ -140,7 +138,6 @@ function HomePageContent() {
   // Dialog states
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [addDialogAutoFill, setAddDialogAutoFill] = useState(false);
-  const [parseDialogOpen, setParseDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<WishlistItem | null>(null);
   const [parsedData, setParsedData] = useState<Partial<CreateItemPayload> | null>(null);
   const [listDialogOpen, setListDialogOpen] = useState(false);
@@ -413,20 +410,6 @@ function HomePageContent() {
     }
   }, [listDeleteTarget, selectedListId, syncFiltersToUrl, mutateItems, mutateLists, t]);
 
-  const handleParsed = useCallback((data: ParsedProductResponse) => {
-    const firstImage = data.images?.[0];
-    setParsedData({
-      title: data.title,
-      url: data.url,
-      price: data.price || undefined,
-      currency: data.currency,
-      images: firstImage ? [firstImage] : undefined,
-      notes: data.description?.trim() || undefined,
-    });
-    setAddDialogAutoFill(false);
-    setAddDialogOpen(true);
-  }, []);
-
   const handleToggleSelect = useCallback((id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -523,8 +506,6 @@ function HomePageContent() {
     },
     [setSize],
   );
-
-  const handleOpenParseUrl = useCallback(() => setParseDialogOpen(true), []);
 
   /*
    * Шесть связок вместо полусотни пропсов россыпью. Каждая меняется как целое,
@@ -654,12 +635,11 @@ function HomePageContent() {
   const catalogActions = useMemo<WishlistCatalogActions>(
     () => ({
       onAddItem: handleOpenAddItem,
-      onParseUrl: handleOpenParseUrl,
       onExport: editor.handleExport,
       onImport: handleImport,
       isImporting: editor.isImporting,
     }),
-    [handleOpenAddItem, handleOpenParseUrl, editor, handleImport],
+    [handleOpenAddItem, editor, handleImport],
   );
 
   return (
@@ -711,13 +691,6 @@ function HomePageContent() {
         item={editingItem}
         onSave={handleUpdateItem}
         existingLists={lists}
-      />
-
-      {/* Parse URL dialog */}
-      <ParseUrlDialog
-        open={parseDialogOpen}
-        onOpenChange={setParseDialogOpen}
-        onParsed={handleParsed}
       />
 
       {/* Item detail dialog */}

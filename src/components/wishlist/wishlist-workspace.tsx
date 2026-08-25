@@ -5,7 +5,6 @@ import {
   CheckSquare,
   Download,
   Loader2,
-  Link as LinkIcon,
   MoreHorizontal,
   Plus,
   SlidersHorizontal,
@@ -125,8 +124,6 @@ export type WishlistItemActions = {
 /** Действия над каталогом целиком. */
 export type WishlistCatalogActions = {
   onAddItem: () => void;
-  /** Открывает диалог разбора ссылки на товар. */
-  onParseUrl?: () => void;
   onExport: (format: "csv" | "json") => void;
   onImport: () => void;
   isImporting: boolean;
@@ -219,7 +216,7 @@ export function WishlistWorkspace({
     onEmptyAdd,
   } = itemActions;
 
-  const { onAddItem, onParseUrl, onExport, onImport, isImporting } = catalogActions;
+  const { onAddItem, onExport, onImport, isImporting } = catalogActions;
 
   const hasSelectedCards = selectedIds.size > 0;
   const selectionButtonTitle = hasSelectedCards
@@ -306,15 +303,6 @@ export function WishlistWorkspace({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
-              {onParseUrl ? (
-                <>
-                  <DropdownMenuItem onClick={onParseUrl}>
-                    <LinkIcon className="mr-2 h-4 w-4" aria-hidden />
-                    {t("Вставить ссылку на товар")}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </>
-              ) : null}
               <DropdownMenuItem onClick={onImport} disabled={isImporting}>
                 {isImporting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -418,12 +406,6 @@ export function WishlistWorkspace({
                     <CheckSquare className="mr-2 h-4 w-4" aria-hidden />
                     {selectionMode ? t("Отменить выбор") : t("Выбрать несколько")}
                   </DropdownMenuItem>
-                  {onParseUrl ? (
-                    <DropdownMenuItem onClick={onParseUrl}>
-                      <LinkIcon className="mr-2 h-4 w-4" aria-hidden />
-                      {t("Вставить ссылку на товар")}
-                    </DropdownMenuItem>
-                  ) : null}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onImport} disabled={isImporting}>
                     {isImporting ? (
