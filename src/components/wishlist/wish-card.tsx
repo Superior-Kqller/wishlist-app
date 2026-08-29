@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { WishlistItem } from "@/types";
 import { cn, formatPrice } from "@/lib/utils";
-import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
+import { getAvatarColor } from "@/lib/avatar-utils";
 import { PriorityBadgeOverlay } from "./priority-badge";
 import { IconButton } from "@/components/ui/icon-button";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -251,14 +251,16 @@ export const WishCard = memo(function WishCard({
                             onError={() => setOwnerImageError(true)}
                           />
                         ) : (
-                          <AvatarFallback
-                            className={cn(
-                              "text-[8px] font-semibold text-avatar-foreground",
-                              getAvatarColor(ownerId),
-                            )}
-                          >
-                            {getInitials(ownerName)}
-                          </AvatarFallback>
+                          /*
+                           * Кружок без букв. Инициалы здесь набирались 8px в
+                           * круге 16px — ниже всякого порога читаемости, — и
+                           * при этом полное имя владельца стоит той же строкой
+                           * в 11px. То есть буквы не сообщали ничего, чего нет
+                           * рядом, а скринридер зачитывал их дважды: «UO User
+                           * One». Остаётся цветная метка: она помогает
+                           * выхватывать своё в сетке, и это вся её работа.
+                           */
+                          <AvatarFallback aria-hidden className={getAvatarColor(ownerId)} />
                         )}
                       </Avatar>
                       <span className="min-w-0 truncate">{ownerName}</span>
