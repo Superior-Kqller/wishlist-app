@@ -13,7 +13,8 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components
 import { RotateCcw } from "lucide-react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getItemWord } from "@/lib/i18n";
-import { Reveal } from "@/components/ui/reveal";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { duration, easing } from "@/lib/motion";
 
 const catalogGridClassName =
   "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 min-[1600px]:grid-cols-5 min-[2200px]:grid-cols-6";
@@ -46,6 +47,19 @@ interface WishlistGridProps {
   onEmptySecondaryAction?: () => void;
 }
 
+/*
+ * Единственное авторское движение продукта — то, что происходит со списком.
+ *
+ * Поиск, фильтр, охват и сортировка меняют выдачу молча: карточки просто
+ * подменялись, и понять, что именно случилось, было нельзя. Теперь смена
+ * читается как перестроение: уцелевшие желания едут на новые места, ушедшие
+ * уходят, пришедшие появляются. Это не украшение — это единственный ответ на
+ * вопрос «что сделал мой фильтр».
+ *
+ * `initial={false}` важен: карточки, уже лежащие на странице при первой
+ * отрисовке, не анимируются. Хореографии загрузки в продукте нет — движение
+ * возникает только в ответ на действие человека.
+ */
 export function WishlistGrid({
   items,
   isLoading,
@@ -73,6 +87,7 @@ export function WishlistGrid({
   onEmptySecondaryAction,
 }: WishlistGridProps) {
   const { language, t } = useI18n();
+  const reduceMotion = useReducedMotion();
 
   if (isLoading) {
     return (
@@ -151,25 +166,41 @@ export function WishlistGrid({
       <p aria-live="polite" className="sr-only">
         {items.length} {getItemWord(language, items.length)}
       </p>
-      {items.map((item, index) => (
-        <Reveal key={item.id} index={index} className="h-full">
-          <WishCard
-            item={item}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            onTogglePurchased={onTogglePurchased}
-            onSetStatus={onSetStatus}
-            statusPending={!!pendingStatusByItemId?.[item.id]}
-            justPurchased={justPurchasedId === item.id}
-            onOpenDetail={onOpenDetail}
-            selectionMode={selectionMode}
-            isSelected={selectedIds?.has(item.id)}
-            onToggleSelect={onToggleSelect}
-            currentUserId={currentUserId}
-            currentUserRole={currentUserRole}
-          />
-        </Reveal>
-      ))}
+      <AnimatePresence initial={false} mode="popLayout">
+        {items.map((item) => (
+          <motion.div
+            key={item.id}
+            layout={reduceMotion ? false : "position"}
+            initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            // Уход быстрее прихода: список должен сомкнуться сразу, а не
+            // ждать, пока отфильтрованное доиграет.
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
+            transition={{
+              layout: { duration: duration.slow, ease: easing.expo },
+              duration: duration.base,
+              ease: easing.expo,
+            }}
+            className="h-full"
+          >
+            <WishCard
+              item={item}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onTogglePurchased={onTogglePurchased}
+              onSetStatus={onSetStatus}
+              statusPending={!!pendingStatusByItemId?.[item.id]}
+              justPurchased={justPurchasedId === item.id}
+              onOpenDetail={onOpenDetail}
+              selectionMode={selectionMode}
+              isSelected={selectedIds?.has(item.id)}
+              onToggleSelect={onToggleSelect}
+              currentUserId={currentUserId}
+              currentUserRole={currentUserRole}
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
       {onEmptyAdd && (
         <AddItemCard
           key="add-item-card"
