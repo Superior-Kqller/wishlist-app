@@ -66,6 +66,14 @@ export function ItemDetailDialog({
   if (!item) return null;
 
   const canManage = currentUserId === item.userId;
+  /*
+   * Колонка со снимком существует, только когда снимок есть. Без него окно
+   * отдавало половину ширины серому прямоугольнику с иконкой картинки, а на
+   * телефоне — треть экрана (`min(31vh, 240px)`), причём над самим названием
+   * желания. Заглушка внутри колонки остаётся: она нужна, когда снимок
+   * заявлен, но не загрузился.
+   */
+  const hasImage = Boolean(item.images?.[0]);
 
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -160,8 +168,15 @@ export function ItemDetailDialog({
         >
           <span className="h-1 w-10 rounded-full bg-foreground/16" aria-hidden />
         </button>
-        <div className="item-detail-dialog-frame grid min-h-0 flex-1 overflow-y-auto overscroll-contain sm:flex-none sm:overflow-visible md:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)]">
-          <ItemMediaSection item={item} className="md:border-r md:border-border/32" />
+        <div
+          className={cn(
+            "item-detail-dialog-frame grid min-h-0 flex-1 overflow-y-auto overscroll-contain sm:flex-none sm:overflow-visible",
+            hasImage && "md:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)]",
+          )}
+        >
+          {hasImage ? (
+            <ItemMediaSection item={item} className="md:border-r md:border-border/32" />
+          ) : null}
           <div className="flex min-h-0 min-w-0 flex-col bg-[hsl(var(--surface-2))]">
             <ItemDetailBody>
               <ItemMetaSection
