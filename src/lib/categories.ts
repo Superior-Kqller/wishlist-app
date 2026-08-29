@@ -59,6 +59,18 @@ export function getProductCategoryLabel(
   language: Language = "ru",
 ): string {
   const option = getProductCategoryOption(category);
-  if (!option) return language === "en" ? "No category" : "Без категории";
-  return language === "en" ? option.labelEn : option.label;
+  if (option) return language === "en" ? option.labelEn : option.label;
+
+  /*
+   * Незнакомая категория показывается как есть, а не как «Без категории».
+   * `POST /api/items` принимает в это поле любую строку до 80 символов
+   * (`z.string().trim().max(80)`), и импорт с другого экземпляра приносит
+   * значения, которых нет в местном справочнике. Подпись «Без категории»
+   * на таком товаре противоречила сохранённым данным: категория есть, а
+   * интерфейс утверждал обратное.
+   */
+  const raw = category?.trim();
+  if (raw) return raw;
+
+  return language === "en" ? "No category" : "Без категории";
 }
