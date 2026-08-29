@@ -6,7 +6,6 @@ import {
   Check,
   CheckCircle2,
   ExternalLink,
-  Gift,
   MoreHorizontal,
   Pencil,
   Trash2,
@@ -126,10 +125,16 @@ export const WishCard = memo(function WishCard({
             <div
               data-testid="wishlist-card-v2-media"
               className={cn(
-                // На узком экране карточки идут в один столбец, поэтому кадр
-                // здесь шире: иначе один товар занимает пол-экрана по высоте.
-                "relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-[hsl(var(--surface-1))]",
-                "sm:aspect-[4/3]",
+                "relative w-full shrink-0 overflow-hidden bg-[hsl(var(--surface-1))]",
+                showImage
+                  ? // На узком экране карточки идут в один столбец, поэтому кадр
+                    // здесь шире: иначе один товар занимает пол-экрана по высоте.
+                    "aspect-[16/10] sm:aspect-[4/3]"
+                  : // Без снимка кадр незачем держать: желания, набранные руками,
+                    // отдавали половину экрана телефона подарочной иконке в пустой
+                    // рамке. Остаётся полоса — ровно чтобы принять метку важности,
+                    // которая живёт поверх кадра.
+                    "h-14 sm:h-[3.75rem]",
               )}
             >
               {/*
@@ -162,15 +167,23 @@ export const WishCard = memo(function WishCard({
                   />
                 </>
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-[linear-gradient(140deg,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_100%)]">
-                  <Gift className="size-9 text-muted-foreground/45" aria-hidden />
-                </div>
+                // Подарочная иконка убрана вместе с кадром: в полосе высотой
+                // 56px она сталкивалась бы с меткой важности, а украшать
+                // отсутствие снимка нечем и незачем.
+                <div className="h-full w-full bg-[linear-gradient(140deg,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_100%)]" />
               )}
 
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[hsl(var(--surface-2))] via-[hsl(var(--surface-2)/0.55)] to-transparent"
-              />
+              {/*
+               * Растушёвка нижней кромки принадлежит снимку: она гасит его край
+               * перед текстом. В полосе без снимка её 80px накрыли бы всю
+               * полосу целиком, вместе с меткой важности.
+               */}
+              {showImage ? (
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[hsl(var(--surface-2))] via-[hsl(var(--surface-2)/0.55)] to-transparent"
+                />
+              ) : null}
 
               <PriorityBadgeOverlay priority={item.priority} />
 
