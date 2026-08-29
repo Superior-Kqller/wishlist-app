@@ -11,6 +11,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:push": "prisma db push",
+    "db:local": "node ./node_modules/@electric-sql/pglite-socket/dist/scripts/server.js --db=./.tmp/pglite --host=127.0.0.1 --port=5432 --max-connections=8",
     "db:check-migrations": "node scripts/check-prisma-migrations.mjs",
     "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio",

@@ -41,7 +41,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-svh page-bg p-3 sm:p-5 lg:p-7">
-      <section className="mx-auto grid min-h-[calc(100svh-1.5rem)] w-full max-w-[80rem] overflow-hidden border border-border/55 bg-[hsl(var(--surface-1)/0.66)] sm:min-h-[calc(100svh-2.5rem)] sm:rounded-2xl lg:min-h-[calc(100svh-3.5rem)] lg:grid-cols-[minmax(0,1.2fr)_minmax(24rem,0.8fr)]">
+      <section className="mx-auto grid min-h-[calc(100svh-1.5rem)] w-full max-w-[80rem] grid-rows-[auto_1fr] overflow-hidden border border-border/55 bg-[hsl(var(--surface-1)/0.66)] sm:min-h-[calc(100svh-2.5rem)] sm:rounded-2xl lg:min-h-[calc(100svh-3.5rem)] lg:grid-cols-[minmax(0,1.2fr)_minmax(24rem,0.8fr)] lg:grid-rows-1">
         {/*
          * На телефоне первым экраном была витрина: заголовок в четыре строки
          * и подпись занимали всё, а «Войти» уходила под панель браузера —
@@ -49,7 +49,7 @@ export default function LoginPage() {
          * осталась, но ужалась до шапки; полноэкранной она становится с `lg`,
          * где для неё есть отдельная колонка.
          */}
-        <div className="relative flex flex-col justify-between overflow-hidden p-6 pb-7 sm:p-9 lg:min-h-0 lg:p-12">
+        <div className="relative flex flex-col gap-8 overflow-hidden p-6 pb-7 sm:gap-10 sm:p-9 lg:min-h-0 lg:justify-between lg:gap-0 lg:p-12">
           <div
             className="absolute -left-24 bottom-[-10rem] h-80 w-80 rounded-full bg-primary/16 blur-3xl"
             aria-hidden
@@ -64,7 +64,7 @@ export default function LoginPage() {
               <LanguageSwitcher />
             </div>
           </div>
-          <div className="relative max-w-[38rem] pt-7 sm:pt-16 lg:pb-2">
+          <div className="relative max-w-[38rem] lg:pb-2">
             <h1 className="display-face max-w-[16ch] text-2xl leading-[1.12] text-foreground sm:max-w-[12ch] sm:text-5xl sm:leading-[1.08] lg:text-6xl">
               {t("Умный вишлист для совместных желаний")}
             </h1>
@@ -87,7 +87,7 @@ export default function LoginPage() {
               <div className="mb-5 sm:mb-7">
                 <h2
                   id="login-heading"
-                  className="text-2xl font-semibold text-foreground sm:text-3xl"
+                  className="text-balance text-2xl font-semibold text-foreground sm:text-3xl"
                 >
                   {t("Войдите в свой аккаунт")}
                 </h2>
