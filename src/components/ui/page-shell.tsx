@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Reveal } from "@/components/ui/reveal";
 
 interface PageShellProps {
   children: ReactNode;
@@ -61,9 +60,14 @@ interface PageIntroProps {
  */
 export function PageIntro({ title, description, actions, meta, className }: PageIntroProps) {
   return (
-    <Reveal
-      className={cn("relative mb-5 border-b border-border/45 pb-4 sm:mb-8 sm:pb-7", className)}
-    >
+    /*
+     * Шапка не анимируется при появлении. Раньше она проигрывала `rise-in` —
+     * 620ms со сдвигом и размытием — при каждом переходе между разделами, то
+     * есть заставляла ждать хореографию загрузки на каждом маршруте. Для
+     * рабочего интерфейса это плата без выгоды: содержимое уже готово, а
+     * читать его нельзя ещё полсекунды.
+     */
+    <div className={cn("relative mb-5 border-b border-border/45 pb-4 sm:mb-8 sm:pb-7", className)}>
       <div
         aria-hidden
         className="pointer-events-none absolute -left-4 -top-6 h-40 w-[28rem] max-w-full bg-[radial-gradient(ellipse_at_left,hsl(var(--theme-cool)/0.16),transparent_70%)] blur-2xl sm:-left-6"
@@ -76,7 +80,7 @@ export function PageIntro({ title, description, actions, meta, className }: Page
         </div>
         {actions ? <div className="shrink-0 sm:pb-1">{actions}</div> : null}
       </div>
-    </Reveal>
+    </div>
   );
 }
 
@@ -86,7 +90,6 @@ interface PageSectionProps {
   actions?: ReactNode;
   children: ReactNode;
   className?: string;
-  index?: number;
 }
 
 /**
@@ -100,10 +103,9 @@ export function PageSection({
   actions,
   children,
   className,
-  index = 1,
 }: PageSectionProps) {
   return (
-    <Reveal index={index} className={cn("mt-8 first:mt-0 sm:mt-10", className)}>
+    <div className={cn("mt-8 first:mt-0 sm:mt-10", className)}>
       {title || actions ? (
         <div className="mb-3.5 flex flex-wrap items-end justify-between gap-3">
           <div className="min-w-0">
@@ -116,6 +118,6 @@ export function PageSection({
         </div>
       ) : null}
       {children}
-    </Reveal>
+    </div>
   );
 }
