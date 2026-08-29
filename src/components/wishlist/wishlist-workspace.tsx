@@ -267,10 +267,12 @@ export function WishlistWorkspace({
             title={t("Фильтры")}
             aria-controls="wishlist-filters"
             aria-expanded={filtersOpen}
-            aria-label={hasActiveFilters ? `${t("Фильтры")}: ${activeFilterCount}` : t("Фильтры")}
+            aria-label={
+              activeFilterCount > 0 ? `${t("Фильтры")}: ${activeFilterCount}` : t("Фильтры")
+            }
           >
             <SlidersHorizontal className="h-4 w-4 shrink-0" />
-            {hasActiveFilters ? (
+            {activeFilterCount > 0 ? (
               <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground">
                 {activeFilterCount}
               </span>
@@ -394,12 +396,12 @@ export function WishlistWorkspace({
                 aria-controls="wishlist-filters"
                 aria-expanded={filtersOpen}
                 aria-label={
-                  hasActiveFilters ? `${t("Фильтры")}: ${activeFilterCount}` : t("Фильтры")
+                  activeFilterCount > 0 ? `${t("Фильтры")}: ${activeFilterCount}` : t("Фильтры")
                 }
               >
                 <SlidersHorizontal className="h-4 w-4 shrink-0" aria-hidden />
                 {t("Фильтры")}
-                {hasActiveFilters ? (
+                {activeFilterCount > 0 ? (
                   <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground">
                     {activeFilterCount}
                   </span>
