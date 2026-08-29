@@ -204,9 +204,13 @@ export function FiltersDrawer({
               ) : (
                 <EyeOff className="h-4 w-4 shrink-0" />
               )}
-              <span className="flex-1">
-                {showPurchased ? t("Показаны купленные") : t("Скрыты купленные")}
-              </span>
+              {/*
+               * Подпись постоянная, состояние несёт сам тумблер. Пока текст
+               * менялся вместе с ним («Скрыты купленные» ⇄ «Показаны
+               * купленные»), по подписи нельзя было понять, описывает она
+               * нынешнее положение или то, что случится при нажатии.
+               */}
+              <span className="flex-1">{t("Показывать купленные")}</span>
               <span
                 className={cn(
                   "relative h-6 w-11 shrink-0 rounded-full transition-colors",

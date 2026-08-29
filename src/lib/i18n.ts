@@ -285,7 +285,7 @@ const en: Dictionary = {
   "Ориент. цена ↑": "Est. price ↑",
   Купленные: "Purchased",
   "Показаны купленные": "Purchased shown",
-  "Скрыты купленные": "Purchased hidden",
+  "Показывать купленные": "Show purchased",
   "Скрыть купленные": "Hide purchased",
   "Показать купленные": "Show purchased",
   Категории: "Categories",
