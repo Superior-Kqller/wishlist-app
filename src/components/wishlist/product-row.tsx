@@ -2,7 +2,7 @@
 
 import { memo, useState } from "react";
 import Image from "next/image";
-import { Check, ExternalLink, Globe2, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
+import { Check, ExternalLink, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -104,9 +104,14 @@ export const ProductRow = memo(function ProductRow({
                 onError={() => setImageError(true)}
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center">
-                <Globe2 className="h-5 w-5 text-muted-foreground" aria-hidden />
-              </div>
+              /*
+               * Отсутствие снимка не украшается. Здесь стоял глобус — иконка,
+               * которая не означает «нет фотографии» ни в одном словаре, а
+               * повторённая на каждой строке читалась как столбец одинакового
+               * шума. Клетка остаётся ради выравнивания столбца, но пустая:
+               * та же тонировка, что у кадра карточки без снимка.
+               */
+              <div className="h-full w-full bg-[linear-gradient(140deg,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_100%)]" />
             )}
           </div>
           <div className="min-w-0">
