@@ -15,7 +15,7 @@ import { PreferenceProfileSearch } from "@/components/preferences/preference-pro
 import { PreferenceProfileCard } from "@/components/preferences/preference-profile-card";
 import { fetcher } from "@/lib/fetcher";
 import { giftPreferencesDraftKey } from "@/lib/preferences-draft";
-import { duration, staggerDelayMs } from "@/lib/motion";
+import { duration, easing } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import { type GiftPreferences, normalizeGiftPreferences } from "@/lib/preferences";
@@ -208,11 +208,14 @@ function PreferencesPageContent() {
             ) : null}
 
             {circleUsers.length > 0 ? (
-              <motion.div
-                layout={!reduceMotion}
-                className="grid items-start gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
-              >
-                {circleUsers.map((user, index) => {
+              /*
+               * Контейнер не анимируется. На одном перестроении здесь работали
+               * три вложенных `layout` сразу — сетка, обёртка карточки и сама
+               * `article`, — и каждый мерил и вёл его независимо. Собственная
+               * коробка сетки при этом не меняется вовсе.
+               */
+              <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]">
+                {circleUsers.map((user) => {
                   const isCurrent = user.id === data?.id;
                   const isExpanded = expandedUserId === user.id;
                   const cardPreferences = user.giftPreferences;
@@ -221,6 +224,26 @@ function PreferencesPageContent() {
                     /* Раскрытие — переход к чтению, а не к сравнению: карточка
                        занимает весь ряд. В колонке шириной 20rem профиль
                        читался столбиком, а рядом оставался пустой ряд. */
+                    /*
+                     * Раскрытие никого не переставляет.
+                     *
+                     * Раньше раскрытая карточка забирала весь ряд
+                     * (`md:col-span-full`), и соседняя выдавливалась на
+                     * следующую строку: она проезжала по диагонали 519px —
+                     * 195 вниз и 482 влево — ради того, что рядом выросло на
+                     * сорок. Движение сообщало о событии втрое крупнее
+                     * случившегося.
+                     *
+                     * Теперь карточка растёт в своей колонке. Панель внутри
+                     * считает свои пороги через `@container`, то есть уже
+                     * умеет читаться в колонке — ширина ряда ей не нужна.
+                     *
+                     * `layout` остаётся: он ведёт рост самой карточки и сдвиг
+                     * тех, кто под ней. Появление карточек не анимируется —
+                     * каскад со сдвигом и задержкой по индексу был
+                     * хореографией загрузки, которой в продукте больше нет
+                     * (DESIGN.md → The Nothing-Arrives Rule).
+                     */
                     <motion.div
                       layout={!reduceMotion}
                       key={user.id}
@@ -228,13 +251,8 @@ function PreferencesPageContent() {
                       // `min-w-0` обязателен: у элемента сетки минимальный размер
                       // по умолчанию равен min-content, и длинное имя без
                       // пробелов растягивало колонку за край экрана.
-                      className={cn("min-w-0 scroll-mt-24", isExpanded && "md:col-span-full")}
-                      initial={reduceMotion ? false : { opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        delay: reduceMotion ? 0 : staggerDelayMs(index) / 1000,
-                        duration: duration.base,
-                      }}
+                      className="min-w-0 scroll-mt-24"
+                      transition={{ duration: duration.slow, ease: easing.expo }}
                     >
                       <PreferenceProfileCard
                         id={user.id}
@@ -256,7 +274,7 @@ function PreferencesPageContent() {
                     </motion.div>
                   );
                 })}
-              </motion.div>
+              </div>
             ) : (
               /* Пустой список бывает по двум причинам, и раньше обе объяснялись
                  текстом про поиск: на свежем экземпляре человек, оставшийся

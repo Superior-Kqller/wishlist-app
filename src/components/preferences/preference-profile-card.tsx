@@ -69,11 +69,33 @@ export function PreferenceProfileCard({
     highlights.likes.length > 0 || highlights.colors.length > 0 || highlights.avoid.length > 0;
 
   return (
-    /* `layout` тоже движение: пружина перестраивала всю сетку при раскрытии
-       независимо от системной настройки, хотя входы и выходы её учитывали. */
+    /*
+     * Раскрытие — одно движение, а не два несогласованных.
+     *
+     * Здесь стояла пружина (stiffness 120 / damping 22): коробка росла ~600ms
+     * с ползущим хвостом, тогда как содержимое внутри проявлялось за 164ms.
+     * Текст можно было читать, пока строки под ним ещё разъезжались. К тому же
+     * пружина здесь противоречила контракту: единственный пружинный момент
+     * продукта — подтверждение покупки.
+     *
+     * Теперь высота идёт по той же кривой и той же длительности, что и
+     * появление содержимого: `--dur-slow` и `expo`. Конец детерминирован,
+     * хвоста нет.
+     *
+     * `layout` тоже движение — оно так же обязано слушать системную настройку.
+     */
     <motion.article
-      layout={!reduceMotion}
-      transition={{ type: "spring", stiffness: 120, damping: 22 }}
+      /*
+       * Высотой распоряжается карточка. Панель ниже уходит из потока сразу
+       * (`mode="popLayout"`), поэтому высота падает до свёрнутой на первом же
+       * кадре, а `layout` доводит её плавно.
+       *
+       * Без этого закрытие давало скачок: свёрнутая сводка монтируется
+       * мгновенно (`{!expanded ? …}`), пока уходящая панель ещё занимает
+       * место, — две высоты складывались, карточка вырастала со 183 до 236px
+       * и лишь потом падала.
+       */
+      transition={{ duration: duration.slow, ease: easing.expo }}
       className={cn(
         "group overflow-hidden rounded-2xl border bg-[hsl(var(--surface-2))] shadow-none",
         isCurrent ? "border-primary-accent/45" : "border-border/55",
@@ -274,17 +296,29 @@ export function PreferenceProfileCard({
           512px, тогда как контента внутри было 472px — систематическая ошибка
           в 40px во всех четырёх порогах сводки. */}
       <div id={panelId}>
-        <AnimatePresence initial={false}>
+        <AnimatePresence initial={false} mode="popLayout">
           {expanded ? (
             <motion.div
               key={editing ? "editor" : "summary"}
-              initial={reduceMotion ? false : { opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-              transition={{ duration: duration.base, ease: easing.expo }}
-              className="@container border-t border-border/45 px-4 py-4 sm:px-5 sm:py-5"
+              /*
+               * Панель проявляется прозрачностью; место под неё освобождает сама
+               * карточка. Сдвиг
+               * `y: -10` рассказывал вторую историю: содержимое ехало сверху
+               * вниз, пока коробка росла сверху вниз же. Теперь движение одно —
+               * освобождается место, и в нём проявляется содержимое.
+               */
+              initial={reduceMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              // Уход быстрее прихода: панель гаснет, пока карточка смыкается.
+              exit={{ opacity: 0, transition: { duration: duration.fast, ease: easing.expo } }}
+              transition={{ duration: duration.slow, ease: easing.expo }}
+              className="overflow-hidden"
             >
-              {children}
+              {/* `@container` объявлен на том же элементе, что несёт padding:
+                  пороги сводки считаются по ширине контента, а не обёртки. */}
+              <div className="@container border-t border-border/45 px-4 py-4 sm:px-5 sm:py-5">
+                {children}
+              </div>
             </motion.div>
           ) : null}
         </AnimatePresence>
