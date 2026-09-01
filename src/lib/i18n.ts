@@ -248,7 +248,7 @@ const en: Dictionary = {
   "Ориентировочная стоимость": "Estimated value",
   "Не удалось загрузить профиль": "Could not load profile",
   Повторить: "Retry",
-  "Управление вашим профилем и паролем": "Manage your profile and password",
+  "Профиль и безопасность аккаунта": "Profile and account security",
   Информация: "Information",
   "Роль:": "Role:",
   "Создан:": "Created:",
