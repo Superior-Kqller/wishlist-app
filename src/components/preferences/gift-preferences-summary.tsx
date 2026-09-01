@@ -2,15 +2,7 @@
 
 import { useId, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import {
-  ChevronDown,
-  CircleDollarSign,
-  Gift,
-  Heart,
-  Ruler,
-  ShieldAlert,
-  Sparkles,
-} from "lucide-react";
+import { ChevronDown, Gift, Heart, Ruler, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   PreferenceSignalRow,
@@ -54,14 +46,12 @@ export function GiftPreferencesSummary({
   const rowLimit = embedded ? undefined : 3;
   const positiveRows: PreferenceSignalRowProps[] = [
     {
-      icon: Heart,
       label: "Бренды",
       values: preferences.favoriteBrands,
       empty: "Бренды не указаны",
       limit: rowLimit,
     },
     {
-      icon: Sparkles,
       label: "Цвета",
       values: preferences.favoriteColors,
       empty: "Цвета не выбраны",
@@ -69,21 +59,18 @@ export function GiftPreferencesSummary({
       colorDots: true,
     },
     {
-      icon: Gift,
       label: "Категории",
       values: preferences.favoriteCategories,
       empty: "Категории не указаны",
       limit: rowLimit,
     },
     {
-      icon: Heart,
       label: "Интересы",
       values: preferences.hobbies,
       empty: "Интересы не указаны",
       limit: rowLimit,
     },
     {
-      icon: Sparkles,
       label: "Материалы",
       values: preferences.favoriteMaterials,
       empty: "Материалы не указаны",
@@ -92,68 +79,57 @@ export function GiftPreferencesSummary({
   ];
   const avoidRows: PreferenceSignalRowProps[] = [
     {
-      icon: ShieldAlert,
       label: "Бренды",
       values: preferences.dislikedBrands,
       empty: "Нет исключений",
-      warning: true,
+      tone: "avoid",
       limit: rowLimit,
     },
     {
-      icon: ShieldAlert,
       label: "Цвета",
       values: preferences.dislikedColors,
       empty: "Нет исключений",
-      warning: true,
+      tone: "avoid",
       limit: rowLimit,
     },
     {
-      icon: ShieldAlert,
       label: "Категории",
       values: preferences.dislikedCategories,
       empty: "Нет исключений",
-      warning: true,
+      tone: "avoid",
       limit: rowLimit,
     },
     {
-      icon: ShieldAlert,
       label: "Материалы",
       values: preferences.dislikedMaterials,
       empty: "Нет исключений",
-      warning: true,
+      tone: "avoid",
       limit: rowLimit,
     },
     {
-      icon: ShieldAlert,
       label: "Стоп-лист",
       values: preferences.doNotBuy,
       empty: "Стоп-лист пуст",
-      warning: true,
+      tone: "avoid",
       limit: rowLimit,
     },
   ];
   const detailRows: PreferenceSignalRowProps[] = [
     {
-      icon: Ruler,
       label: "Размеры",
       values: sizeItems,
       empty: "Размеры не указаны",
-      accent: "muted",
       limit: embedded ? undefined : 4,
     },
     {
-      icon: CircleDollarSign,
       label: "Бюджет",
       values: preferences.budget ? [preferences.budget] : [],
       empty: "Бюджет не указан",
-      accent: "muted",
     },
     {
-      icon: Gift,
       label: "Поводы",
       values: preferences.occasions,
       empty: "Поводы не указаны",
-      accent: "warning",
       limit: embedded ? undefined : 4,
     },
   ];

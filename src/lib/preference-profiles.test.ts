@@ -67,8 +67,32 @@ describe("preference highlights", () => {
       }),
     );
 
-    expect(highlights.likes).toEqual(["Книги и хобби", "Книги", "Muji", "Кофе", "Растения"]);
+    expect(highlights.likes).toEqual([
+      { kind: "category", value: "Книги и хобби" },
+      { kind: "hobby", value: "Книги" },
+      { kind: "brand", value: "Muji" },
+      { kind: "hobby", value: "Кофе" },
+      { kind: "hobby", value: "Растения" },
+    ]);
     expect(highlights.likesHidden).toBe(3);
+  });
+
+  it("keeps the kind of every hint: «Moleskine» покупают, «бег» объясняет человека", () => {
+    const highlights = getPreferenceHighlights(
+      giftPreferences({
+        hobbies: ["Бег"],
+        favoriteBrands: ["Moleskine"],
+        favoriteMaterials: ["Шерсть"],
+        favoriteColors: ["Хаки"],
+      }),
+    );
+
+    expect(highlights.likes.map((hint) => hint.kind)).toEqual([
+      "hobby",
+      "brand",
+      "material",
+      "color",
+    ]);
   });
 
   it("puts the stop list ahead of milder dislikes", () => {
@@ -80,7 +104,11 @@ describe("preference highlights", () => {
       }),
     );
 
-    expect(highlights.avoid).toEqual(["Свечи", "Косметика", "Zara"]);
+    expect(highlights.avoid).toEqual([
+      { kind: "note", value: "Свечи" },
+      { kind: "category", value: "Косметика" },
+      { kind: "brand", value: "Zara" },
+    ]);
     expect(highlights.avoidHidden).toBe(0);
   });
 
@@ -94,7 +122,8 @@ describe("preference highlights", () => {
 
     expect(highlights.avoid).toHaveLength(3);
     expect(highlights.avoidHidden).toBe(1);
-    expect(highlights.colors).toHaveLength(5);
+    expect(highlights.likes).toHaveLength(5);
+    expect(highlights.likesHidden).toBe(1);
   });
 
   it("returns an empty preview for a profile without hints", () => {
@@ -103,7 +132,6 @@ describe("preference highlights", () => {
     expect(highlights).toEqual({
       likes: [],
       likesHidden: 0,
-      colors: [],
       avoid: [],
       avoidHidden: 0,
     });

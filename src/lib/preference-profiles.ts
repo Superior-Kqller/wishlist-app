@@ -15,36 +15,67 @@ export type PreferenceProfile = {
  */
 export const PROFILE_SEARCH_THRESHOLD = 6;
 
-/** Сколько подсказок показывает свёрнутая карточка до раскрытия. */
+/**
+ * Сколько подсказок показывает свёрнутая карточка до раскрытия.
+ *
+ * Пять — это по одной каждого рода: категория, интерес, бренд, материал,
+ * цвет. Обход источников по кругу выдаёт их именно в таком порядке, так что
+ * заполненный профиль показывает срез всех своих сигналов, а не пять слов из
+ * самого длинного списка.
+ */
 const LIKE_PREVIEW_LIMIT = 5;
 const AVOID_PREVIEW_LIMIT = 3;
-const COLOR_PREVIEW_LIMIT = 5;
+
+/**
+ * Род подсказки. Даритель читает «Moleskine» и «бег» по-разному: первое можно
+ * купить сегодня, второе объясняет, как человек живёт. Пока обе строки шли
+ * одним перечнем через запятую, эта разница пропадала.
+ *
+ * `note` — свободная запись стоп-листа («сладости — аллергия на орехи»): она
+ * уже сформулирована предложением, и род ей приписывать нечего.
+ */
+export type PreferenceHintKind = "category" | "hobby" | "brand" | "material" | "color" | "note";
+
+export type PreferenceHint = {
+  kind: PreferenceHintKind;
+  value: string;
+};
+
+/** Подпись рода. У `note` её нет: запись стоп-листа говорит сама за себя. */
+export const preferenceHintLabels: Partial<Record<PreferenceHintKind, string>> = {
+  category: "категория",
+  hobby: "интерес",
+  brand: "бренд",
+  material: "материал",
+  color: "цвет",
+};
 
 export type PreferenceHighlights = {
-  likes: string[];
+  likes: PreferenceHint[];
   likesHidden: number;
-  colors: string[];
-  avoid: string[];
+  avoid: PreferenceHint[];
   avoidHidden: number;
 };
+
+type HintSource = { kind: PreferenceHintKind; values: string[] };
 
 /**
  * Берёт из каждого источника не больше `perSource` значений, обходя источники
  * по кругу: иначе двадцать интересов вытеснили бы единственный названный
  * бренд, хотя для дарителя ценна как раз разнородность подсказок.
  */
-function takeAcross(sources: string[][], perSource: number, limit: number) {
-  const taken: string[] = [];
+function takeAcross(sources: HintSource[], perSource: number, limit: number): PreferenceHint[] {
+  const taken: PreferenceHint[] = [];
   const seen = new Set<string>();
 
   for (let round = 0; round < perSource; round += 1) {
     for (const source of sources) {
-      const value = source[round];
+      const value = source.values[round];
       if (!value) continue;
       const key = value.toLocaleLowerCase("ru-RU");
       if (seen.has(key)) continue;
       seen.add(key);
-      taken.push(value);
+      taken.push({ kind: source.kind, value });
       if (taken.length === limit) return taken;
     }
   }
@@ -62,29 +93,32 @@ export function getPreferenceHighlights(
 ): PreferenceHighlights {
   const preferences = normalizeGiftPreferences(rawPreferences);
 
-  const likeSources = [
-    preferences.favoriteCategories,
-    preferences.hobbies,
-    preferences.favoriteBrands,
-    preferences.favoriteMaterials,
+  // Цвета идут последними: они уточняют выбор, а не подсказывают предмет.
+  // Раньше они и вовсе стояли в стороне — гроздью безымянных кружков, которую
+  // нельзя было прочитать, не наведя курсор.
+  const likeSources: HintSource[] = [
+    { kind: "category", values: preferences.favoriteCategories },
+    { kind: "hobby", values: preferences.hobbies },
+    { kind: "brand", values: preferences.favoriteBrands },
+    { kind: "material", values: preferences.favoriteMaterials },
+    { kind: "color", values: preferences.favoriteColors },
   ];
-  const likeTotal = likeSources.reduce((total, source) => total + source.length, 0);
+  const likeTotal = likeSources.reduce((total, source) => total + source.values.length, 0);
   const likes = takeAcross(likeSources, LIKE_PREVIEW_LIMIT, LIKE_PREVIEW_LIMIT);
 
   // Стоп-лист идёт первым: это единственная подсказка, цена ошибки в которой
   // не «подарок не понравился», а «подарок неприятен».
-  const avoidSources = [
-    preferences.doNotBuy,
-    preferences.dislikedCategories,
-    preferences.dislikedBrands,
+  const avoidSources: HintSource[] = [
+    { kind: "note", values: preferences.doNotBuy },
+    { kind: "category", values: preferences.dislikedCategories },
+    { kind: "brand", values: preferences.dislikedBrands },
   ];
-  const avoidTotal = avoidSources.reduce((total, source) => total + source.length, 0);
+  const avoidTotal = avoidSources.reduce((total, source) => total + source.values.length, 0);
   const avoid = takeAcross(avoidSources, AVOID_PREVIEW_LIMIT, AVOID_PREVIEW_LIMIT);
 
   return {
     likes,
     likesHidden: Math.max(0, likeTotal - likes.length),
-    colors: preferences.favoriteColors.slice(0, COLOR_PREVIEW_LIMIT),
     avoid,
     avoidHidden: Math.max(0, avoidTotal - avoid.length),
   };

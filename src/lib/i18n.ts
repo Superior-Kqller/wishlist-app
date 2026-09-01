@@ -463,6 +463,11 @@ const en: Dictionary = {
     "Could not load your profile. Friends' profiles below are still available.",
   Черновик: "Draft",
   Подойдёт: "Suits them",
+  категория: "category",
+  интерес: "interest",
+  бренд: "brand",
+  материал: "material",
+  цвет: "colour",
   "Не дарить": "Do not gift",
   "Подсказок пока нет.": "No hints yet.",
   "Расскажите о себе — друзьям будет проще выбрать подарок.":

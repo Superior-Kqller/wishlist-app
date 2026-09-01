@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronDown, Pencil } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
-import { PreferenceColorDot } from "@/components/preferences/preference-color-dot";
+import { PreferenceHintChip } from "@/components/preferences/preference-hint-chip";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getWishWord } from "@/lib/i18n";
@@ -65,8 +65,7 @@ export function PreferenceProfileCard({
    * подойдёт и чего дарить нельзя.
    */
   const highlights = getPreferenceHighlights(preferences);
-  const hasHighlights =
-    highlights.likes.length > 0 || highlights.colors.length > 0 || highlights.avoid.length > 0;
+  const hasHighlights = highlights.likes.length > 0 || highlights.avoid.length > 0;
 
   return (
     /*
@@ -217,68 +216,54 @@ export function PreferenceProfileCard({
             иначе — стоп-лист внутри сводки красится сам (`PreferenceSignalRow`,
             `getValueColor`), а не отличается краской иконки в 14px. */}
         {!expanded ? (
-          <div className="mt-4 space-y-2 border-t border-border/45 pt-4 text-sm">
+          <div className="mt-4 space-y-3 border-t border-border/45 pt-4">
             {hasHighlights ? (
               <>
-                {/* Обычный inline-поток, а не flex: подпись и значения переносятся
-                    как одно предложение, а кружки цветов встают следом за
-                    последним словом, а не отдельной висящей строкой. */}
-                {highlights.likes.length > 0 || highlights.colors.length > 0 ? (
-                  <p className="min-w-0 leading-relaxed [overflow-wrap:anywhere]">
-                    <span className="text-muted-foreground">
-                      {highlights.likes.length > 0 ? t("Подойдёт") : t("Любимые цвета")}:{" "}
-                    </span>
-                    <span className="text-foreground/85">
-                      {highlights.likes.map((value) => t(value)).join(", ")}
-                    </span>
-                    {highlights.likesHidden > 0 ? (
-                      <span className="text-muted-foreground"> +{highlights.likesHidden}</span>
-                    ) : null}
-                    {highlights.colors.length > 0 ? (
-                      /* `role="img"` обязателен: на обычном `span` метку
-                         игнорирует большинство скринридеров, и любимые цвета
-                         для незрячего читателя просто не существовали. */
-                      <span
-                        role="img"
-                        className={cn(
-                          "inline-flex -space-x-1.5 align-text-bottom",
-                          highlights.likes.length > 0 && "ml-2",
-                        )}
-                        aria-label={`${t("Любимые цвета")}: ${highlights.colors
-                          .map((color) => t(color))
-                          .join(", ")}`}
-                      >
-                        {highlights.colors.map((color) => (
-                          <PreferenceColorDot
-                            key={color}
-                            value={color}
-                            size="lg"
-                            inset
-                            title={t(color)}
-                          />
-                        ))}
-                      </span>
-                    ) : null}
-                  </p>
+                {/* Подсказки — чипы, а не перечень через запятую. Пока «Книги,
+                    Бег, Moleskine, Шерсть» шли одной строкой, даритель не мог
+                    отличить, что из этого покупают, а что рассказывает о
+                    человеке. Род стоит внутри чипа, рядом со значением. */}
+                {highlights.likes.length > 0 ? (
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-muted-foreground">{t("Подойдёт")}</p>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      {highlights.likes.map((hint) => (
+                        <PreferenceHintChip key={`${hint.kind}-${hint.value}`} hint={hint} />
+                      ))}
+                      {highlights.likesHidden > 0 ? (
+                        <span className="text-xs text-muted-foreground">
+                          +{highlights.likesHidden}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
                 ) : null}
 
                 {highlights.avoid.length > 0 ? (
-                  <p className="min-w-0 leading-relaxed [overflow-wrap:anywhere]">
-                    <span className="text-muted-foreground">{t("Не дарить")}: </span>
-                    <span className="font-medium text-destructive">
-                      {highlights.avoid.map((value) => t(value)).join(", ")}
-                    </span>
-                    {highlights.avoidHidden > 0 ? (
-                      <span className="text-muted-foreground"> +{highlights.avoidHidden}</span>
-                    ) : null}
-                  </p>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-muted-foreground">{t("Не дарить")}</p>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      {highlights.avoid.map((hint) => (
+                        <PreferenceHintChip
+                          key={`${hint.kind}-${hint.value}`}
+                          hint={hint}
+                          tone="avoid"
+                        />
+                      ))}
+                      {highlights.avoidHidden > 0 ? (
+                        <span className="text-xs text-muted-foreground">
+                          +{highlights.avoidHidden}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
                 ) : null}
               </>
             ) : (
               /* Пустой профиль чужого человека — просто факт, а не упрёк:
                  фраза «Профиль ждёт первых подсказок» оценивала того, кто
                  ничего не обещал заполнять. */
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {isCurrent
                   ? t("Расскажите о себе — друзьям будет проще выбрать подарок.")
                   : t("Подсказок пока нет.")}
