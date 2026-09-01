@@ -14,7 +14,6 @@ import {
 import { duration, easing } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { uiState, uiSurface } from "@/lib/ui-contract";
-import { useMediaQuery } from "@/lib/use-media-query";
 import { SIZES_MAX_LENGTH, giftPreferenceLabels, type GiftPreferences } from "@/lib/preferences";
 import {
   composeSizePreferences,
@@ -366,9 +365,6 @@ export function GiftProfileEditor({
   const { t } = useI18n();
   const reduceMotion = useReducedMotion();
   const tabRefs = useRef<Partial<Record<EditorSection, HTMLButtonElement | null>>>({});
-  // Полоса вкладок горизонтальная ниже `xl` и вертикальная от него: статическое
-  // `aria-orientation` врало бы в одном из двух режимов.
-  const verticalTabs = useMediaQuery("(min-width: 80rem)");
 
   /*
    * Три кнопки, подменяющие область справа, — это вкладки, а не просто кнопки.
@@ -394,15 +390,12 @@ export function GiftProfileEditor({
   };
 
   return (
-    <div className="grid min-w-0 items-start gap-4 xl:grid-cols-[11rem_minmax(0,1fr)]">
+    <div className="grid min-w-0 items-start gap-4">
       <div
         role="tablist"
-        aria-orientation={verticalTabs ? "vertical" : "horizontal"}
+        aria-orientation="horizontal"
         aria-label={t("Разделы профиля")}
-        className={cn(
-          uiSurface.contentPanel,
-          "grid min-w-0 grid-cols-3 gap-1 p-2 lg:sticky lg:top-5 xl:grid-cols-1",
-        )}
+        className={cn(uiSurface.contentPanel, "grid min-w-0 grid-cols-3 gap-1 p-2")}
       >
         {editorSections.map((section) => {
           const Icon = section.icon;
@@ -422,25 +415,30 @@ export function GiftProfileEditor({
               onKeyDown={handleTabKeyDown}
               onClick={() => onSectionChange(section.id)}
               className={cn(
-                "group flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-lg border px-2 text-center transition-[color,background-color,border-color,transform] duration-base active:scale-[0.98] xl:justify-start xl:gap-3 xl:px-3 xl:text-left",
+                "group flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-lg border px-2 text-center transition-[color,background-color,border-color,transform] duration-base active:scale-[0.98] sm:gap-3 sm:px-3",
                 uiState.focusRing,
                 active
                   ? "border-primary-accent/70 bg-primary/10 text-foreground"
                   : "border-transparent text-muted-foreground hover:bg-accent/55 hover:text-foreground",
               )}
             >
-              {/* Ниже `xl` вкладки идут полосой в три колонки: на 320px на
-                  подпись остаётся около 40px, и иконка отнимала их у слова.
-                  В боковой колонке она возвращается. */}
+              {/* На 320px вкладке остаётся около 40px на подпись, и иконка
+                  отнимала их у слова. Со `sm` место есть — иконка возвращается. */}
               <Icon
-                className={cn("hidden h-4 w-4 shrink-0 xl:block", active && "text-primary-accent")}
+                className={cn("hidden h-4 w-4 shrink-0 sm:block", active && "text-primary-accent")}
                 aria-hidden
               />
-              <span className="min-w-0 flex-1">
+              {/* Без `flex-1`: растянутый на всю ячейку спан центрировал
+                  подпись, а иконку прижимал к левому краю — они переставали
+                  читаться как одна метка. */}
+              <span className="min-w-0">
                 <span className="block text-xs font-semibold [overflow-wrap:anywhere] sm:text-sm">
                   {t(section.label)}
                 </span>
-                <span className="hidden truncate text-[11px] text-muted-foreground xl:block">
+                {/* Подпись раздела больше не обрезается: в полосе во всю
+                    ширину ей хватает места целиком, а в колонке 11rem от неё
+                    оставалось «Цвета, матери…». */}
+                <span className="hidden text-[11px] text-muted-foreground md:block">
                   {t(section.hint)}
                 </span>
               </span>

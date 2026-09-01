@@ -84,24 +84,21 @@ export default function SettingsPage() {
             }
           />
 
-          <Tabs
-            defaultValue="profile"
-            className="grid gap-5 lg:grid-cols-[14rem_minmax(0,1fr)] lg:items-start lg:gap-8"
-          >
+          <Tabs defaultValue="profile" className="grid gap-5">
             <TabsList
               aria-label={t("Разделы настроек")}
-              className="grid h-auto grid-cols-2 gap-1 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.6)] p-1.5 lg:sticky lg:top-6 lg:flex lg:flex-col lg:items-stretch"
+              className="grid h-auto grid-cols-2 gap-1 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.6)] p-1.5"
             >
               <TabsTrigger
                 value="profile"
-                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none lg:justify-start"
+                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none"
               >
                 <UserRound className="h-4 w-4 shrink-0" aria-hidden />
                 <span>{t("Профиль")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="security"
-                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none lg:justify-start"
+                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none"
               >
                 <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
                 <span>{t("Защита")}</span>
