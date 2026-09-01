@@ -5,7 +5,6 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import { type Language } from "@/lib/i18n";
 import { LanguageProvider } from "@/components/i18n/language-provider";
-import { ColorThemeProvider } from "@/components/theme/color-theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export function Providers({
@@ -24,9 +23,7 @@ export function Providers({
           forcedTheme="dark"
           enableSystem={false}
         >
-          <ColorThemeProvider>
-            <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
-          </ColorThemeProvider>
+          <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
           <Toaster
             position="bottom-right"
             theme="dark"

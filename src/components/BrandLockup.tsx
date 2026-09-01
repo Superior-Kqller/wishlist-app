@@ -3,15 +3,9 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
-import { useColorTheme } from "@/components/theme/color-theme-provider";
-import type { ColorTheme } from "@/lib/themes";
 
-const logoByTheme: Record<ColorTheme, string> = {
-  light: "/assets/logo/logo-mark-light-512.png",
-  classic: "/assets/logo/logo-mark-1.8.0-512.png",
-  graphite: "/assets/logo/logo-mark-graphite-512.png",
-  "wine-sky": "/assets/logo/logo-mark-wine-sky-512.png",
-};
+/** Знак продукта: у фиолетовой основы он один, вариантов под темы больше нет. */
+const LOGO_MARK = "/assets/logo/logo-mark-1.8.0-512.png";
 
 interface BrandLockupProps {
   className?: string;
@@ -20,12 +14,11 @@ interface BrandLockupProps {
 
 export function BrandLockup({ className, compact = false }: BrandLockupProps) {
   const { t } = useI18n();
-  const { colorTheme } = useColorTheme();
 
   return (
     <div className={cn("flex min-w-0 items-center gap-1.5 sm:gap-3", className)}>
       <Image
-        src={logoByTheme[colorTheme]}
+        src={LOGO_MARK}
         alt=""
         width={72}
         height={72}

@@ -5,7 +5,6 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { AppShell } from "@/components/app/app-shell";
 import { LANGUAGE_COOKIE_NAME, appMetadataCopy, normalizeLanguage, translate } from "@/lib/i18n";
-import { COLOR_THEME_STORAGE_KEY, DEFAULT_COLOR_THEME, colorThemes } from "@/lib/themes";
 
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
@@ -21,7 +20,7 @@ const manrope = Manrope({
  *
  * Literata, а не высококонтрастная антиква вроде Playfair: на тёмной
  * поверхности тонкие штрихи дидоны истончаются до серого, а низкий контраст
- * Literata держит вес на всех четырёх темах. Кириллица у неё своя, не
+ * Literata держит вес на фиолетовой основе. Кириллица у неё своя, не
  * подставленная из запасного шрифта.
  *
  * Шрифт расходуется скупо — только на крупный шаг: заголовок страницы,
@@ -41,26 +40,6 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
   fallback: ["Consolas", "monospace"],
 });
-
-const colorThemeClassMap = colorThemes.map(({ value, className, colorScheme }) => ({
-  value,
-  className,
-  colorScheme,
-}));
-
-const colorThemeBootScript = `(() => {
-  try {
-    const themes = ${JSON.stringify(colorThemeClassMap)};
-    const stored = window.localStorage.getItem(${JSON.stringify(COLOR_THEME_STORAGE_KEY)});
-    const next = themes.find((theme) => theme.value === stored)
-      ?? themes.find((theme) => theme.value === ${JSON.stringify(DEFAULT_COLOR_THEME)});
-    document.documentElement.classList.remove(...themes.map((theme) => theme.className));
-    if (next) {
-      document.documentElement.classList.add(next.className);
-      document.documentElement.classList.toggle("dark", next.colorScheme === "dark");
-    }
-  } catch {}
-})();`;
 
 async function getRequestLanguage() {
   const cookieStore = await cookies();
@@ -118,9 +97,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={language} className="dark" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: colorThemeBootScript }} />
-      </head>
       <body
         className={`${manrope.variable} ${literata.variable} ${jetbrainsMono.variable} ${manrope.className}`}
       >
