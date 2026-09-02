@@ -454,9 +454,12 @@ const en: Dictionary = {
   Найдено: "Found",
   "Никого не нашли": "Nobody found",
   "Проверьте имя или логин.": "Check the name or username.",
-  "Профилей пока нет": "No profiles yet",
-  "Они появятся, когда в вашем кругу будут участники.":
-    "They will appear once your circle has members.",
+  "В круге пока только вы": "You are the only one in the circle so far",
+  "Профили появляются, когда вы делитесь подборкой или кто-то открывает свою вам.":
+    "Profiles appear once you share a list, or someone opens theirs to you.",
+  "Свои варианты": "Your own entries",
+  "Больше не поместится": "No more room",
+  "Уберите одно, чтобы добавить другое.": "Remove one to add another.",
   "Не удалось загрузить ваш профиль. Профили друзей ниже доступны.":
     "Could not load your profile. Friends' profiles below are still available.",
   Черновик: "Draft",

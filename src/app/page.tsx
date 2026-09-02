@@ -485,6 +485,19 @@ function HomePageContent() {
     setListDialogOpen(true);
   }, []);
 
+  /*
+   * `?list=new` — вход снаружи: из пустого круга подарочных профилей, где
+   * человеку объясняют, что участники появляются после общей подборки.
+   * Кнопка там обязана открывать создание, а не высаживать на главной.
+   */
+  useEffect(() => {
+    if (searchParams.get("list") !== "new") return;
+    handleCreateList();
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("list");
+    router.replace(params.toString() ? `/?${params.toString()}` : "/", { scroll: false });
+  }, [handleCreateList, router, searchParams]);
+
   const handleEditSelectedList = useCallback(() => {
     const list = lists.find((l) => l.id === selectedListId);
     if (list) {

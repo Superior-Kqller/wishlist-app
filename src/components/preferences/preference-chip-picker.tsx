@@ -48,6 +48,16 @@ export function PreferenceChipPicker({
   const [customValue, setCustomValue] = useState("");
   const [showAllSuggestions, setShowAllSuggestions] = useState(false);
   const selectedKeys = new Set(value.map(normalizeKey));
+  const suggestionKeys = new Set(suggestions.map((item) => normalizeKey(item.label)));
+  /*
+   * Выбранный пресет живёт в одном месте — в самом пресете, отмеченном
+   * галочкой. Раньше он показывался дважды: «Бордовый ✓» в ряду подсказок
+   * и «Бордовый ×» ниже, и у одного значения было две разные механики
+   * снятия. Внизу остаётся только то, чего в подсказках нет, — набранное
+   * руками, рядом с полем, где его набрали.
+   */
+  const customValues = value.filter((item) => !suggestionKeys.has(normalizeKey(item)));
+  const limitReached = value.length >= max;
 
   /*
    * Подсказок в одном разделе набиралось до 28 на пикер и до 79 на экран —
@@ -143,7 +153,7 @@ export function PreferenceChipPicker({
           }}
           placeholder={t(placeholder)}
           maxLength={100}
-          disabled={value.length >= max}
+          disabled={limitReached}
           className="min-w-0 border-border/55 bg-[hsl(var(--surface-3)/0.55)]"
           aria-label={t("Добавить свой вариант")}
         />
@@ -152,7 +162,7 @@ export function PreferenceChipPicker({
           variant="outline"
           size="icon"
           onClick={addCustomValue}
-          disabled={!customValue.trim() || value.length >= max}
+          disabled={!customValue.trim() || limitReached}
           aria-label={t("Добавить")}
           className="shrink-0"
         >
@@ -160,11 +170,17 @@ export function PreferenceChipPicker({
         </Button>
       </div>
 
-      <div className="min-h-7">
+      {limitReached ? (
+        <p className="text-xs text-muted-foreground">
+          {t("Больше не поместится")} · {max}. {t("Уберите одно, чтобы добавить другое.")}
+        </p>
+      ) : null}
+
+      <div className="min-h-7" aria-label={t("Свои варианты")} role="group">
         <AnimatePresence initial={false} mode="popLayout">
-          {value.length > 0 ? (
+          {customValues.length > 0 ? (
             <motion.div key="values" layout={!reduceMotion} className="flex flex-wrap gap-1.5">
-              {value.map((item) => (
+              {customValues.map((item) => (
                 <motion.button
                   layout={!reduceMotion}
                   key={normalizeKey(item)}
@@ -188,7 +204,7 @@ export function PreferenceChipPicker({
                 </motion.button>
               ))}
             </motion.div>
-          ) : (
+          ) : value.length === 0 ? (
             <motion.p
               key="empty"
               initial={{ opacity: 0 }}
@@ -198,7 +214,7 @@ export function PreferenceChipPicker({
             >
               {t("Пока ничего не выбрано")}
             </motion.p>
-          )}
+          ) : null}
         </AnimatePresence>
       </div>
     </section>

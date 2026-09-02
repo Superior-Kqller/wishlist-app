@@ -9,6 +9,7 @@ import { Search, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RetryNotice } from "@/components/ui/retry-notice";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
+import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
 import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
 import { PreferenceProfileSearch } from "@/components/preferences/preference-profile-search";
@@ -16,7 +17,6 @@ import { PreferenceProfileCard } from "@/components/preferences/preference-profi
 import { fetcher } from "@/lib/fetcher";
 import { giftPreferencesDraftKey } from "@/lib/preferences-draft";
 import { duration, easing } from "@/lib/motion";
-import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import { type GiftPreferences, normalizeGiftPreferences } from "@/lib/preferences";
 import { PROFILE_SEARCH_THRESHOLD, searchPreferenceProfiles } from "@/lib/preference-profiles";
@@ -44,6 +44,43 @@ type CircleUsersResponse = {
 };
 
 const profileAnchorId = (userId: string) => `preference-profile-${userId}`;
+
+/**
+ * Круг наполняется не сам.
+ *
+ * В круг попадают владельцы и зрители подборок, видных участнику
+ * (`/api/users/stats`), — то есть люди появляются здесь после того, как кто-то
+ * поделился списком. Пока этого не случилось, человек видит на странице себя
+ * одного под заголовком, который обещает «каждого в вашем кругу», и объяснения
+ * этому не было никакого.
+ */
+function CircleHint() {
+  const { t } = useI18n();
+  const router = useRouter();
+
+  return (
+    /* `py-6` вместо десятки из токена: раздел не пуст — своя карточка стоит
+       выше, — и подсказка обязана читаться примечанием под ней, а не первым
+       экраном раздела. По той же причине заголовок здесь гротеск: антиква
+       принадлежит крупному шагу, а он на странице уже занят. */
+    <div className={cn(uiSurface.emptyState, "py-6")}>
+      <Users className="mx-auto h-5 w-5 text-muted-foreground" aria-hidden />
+      <p className="mt-3 text-sm font-semibold">{t("В круге пока только вы")}</p>
+      <p className="mx-auto mt-1 max-w-[46ch] text-sm leading-relaxed text-muted-foreground">
+        {t("Профили появляются, когда вы делитесь подборкой или кто-то открывает свою вам.")}
+      </p>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="mt-4"
+        onClick={() => router.push("/?list=new")}
+      >
+        {t("Создать подборку")}
+      </Button>
+    </div>
+  );
+}
 
 function PreferencesPageSkeleton() {
   return (
@@ -275,39 +312,32 @@ function PreferencesPageContent() {
                   );
                 })}
               </div>
-            ) : (
-              /* Пустой список бывает по двум причинам, и раньше обе объяснялись
-                 текстом про поиск: на свежем экземпляре человек, оставшийся
-                 в круге один, читал «Проверьте имя или логин». */
-              <div className={cn(uiSurface.emptyState, "px-4 py-10 text-center")}>
-                {profileSearch.trim() ? (
-                  <>
-                    <Search className="mx-auto h-5 w-5 text-muted-foreground" aria-hidden />
-                    <p className="mt-3 text-sm font-semibold">{t("Никого не нашли")}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {t("Проверьте имя или логин.")}
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="mt-4"
-                      onClick={() => setProfileSearch("")}
-                    >
-                      {t("Очистить поиск")}
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Users className="mx-auto h-5 w-5 text-muted-foreground" aria-hidden />
-                    <p className="mt-3 text-sm font-semibold">{t("Профилей пока нет")}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {t("Они появятся, когда в вашем кругу будут участники.")}
-                    </p>
-                  </>
-                )}
+            ) : profileSearch.trim() ? (
+              /* Пустая выдача поиска — единственный случай, когда список
+                 действительно пуст: своя карточка всегда стоит в круге, и
+                 отфильтровать её может только запрос. */
+              <div className={uiSurface.emptyState}>
+                <Search className="mx-auto h-5 w-5 text-muted-foreground" aria-hidden />
+                <p className="mt-3 text-sm font-semibold">{t("Никого не нашли")}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t("Проверьте имя или логин.")}
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-4"
+                  onClick={() => setProfileSearch("")}
+                >
+                  {t("Очистить поиск")}
+                </Button>
               </div>
-            )}
+            ) : null}
+
+            {/* Круг из одного человека — не пустой список, а состояние «вас тут
+                пока никто не видит»: своя карточка на месте, и под ней сказано,
+                откуда берутся остальные. */}
+            {!profileSearch.trim() && allCircleUsers.length <= 1 ? <CircleHint /> : null}
           </section>
         </div>
       </PageMain>
