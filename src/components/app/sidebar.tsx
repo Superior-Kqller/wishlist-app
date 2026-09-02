@@ -10,7 +10,7 @@ import {
   Folder,
   Home,
   LogOut,
-  SlidersHorizontal,
+  Gift,
   Settings,
   Shield,
 } from "lucide-react";
@@ -66,7 +66,7 @@ export function AppSidebar() {
     { label: t("Главная"), href: "/", icon: Home },
     { label: t("Календарь"), href: "/calendar", icon: CalendarDays },
     { label: t("Статистика"), href: "/stats", icon: BarChart3 },
-    { label: t("Предпочтения"), href: "/preferences", icon: SlidersHorizontal },
+    { label: t("Подарочные профили"), href: "/preferences", icon: Gift },
     { label: t("Настройки"), href: "/settings", icon: Settings },
   ];
 

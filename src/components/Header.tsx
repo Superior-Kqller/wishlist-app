@@ -10,7 +10,7 @@ import {
   Home,
   LogOut,
   MoreHorizontal,
-  SlidersHorizontal,
+  Gift,
   Settings,
   Shield,
 } from "lucide-react";
@@ -61,10 +61,10 @@ export function Header() {
   const isAdmin = session?.user?.role === "ADMIN";
 
   /**
-   * `shortLabel` — подпись для узкой вкладки. «Предпочтения» не помещаются в
-   * пятую часть телефонного экрана ни в одном кегле, а раздел и на самой
-   * странице называется «Подарочные профили», поэтому короткая подпись
-   * ведёт к тому же смыслу, а не к обрезку слова.
+   * `shortLabel` — подпись для узкой вкладки: «Подарочные профили» не
+   * помещаются в пятую часть телефонного экрана ни в одном кегле. Короткая
+   * форма берёт второе слово названия, а не обрезает первое, и `aria-label`
+   * возвращает полное — раньше он возвращал третье имя, «Предпочтения».
    */
   const primaryNavItems: Array<{
     label: string;
@@ -76,10 +76,10 @@ export function Header() {
     { label: t("Календарь"), href: "/calendar", icon: CalendarDays },
     { label: t("Статистика"), href: "/stats", icon: BarChart3 },
     {
-      label: t("Предпочтения"),
+      label: t("Подарочные профили"),
       shortLabel: t("Профили"),
       href: "/preferences",
-      icon: SlidersHorizontal,
+      icon: Gift,
     },
   ];
   const secondaryNavItems = [

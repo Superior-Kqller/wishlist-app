@@ -67,7 +67,7 @@ function describeSaveError(
 
   return typeof body.error === "string" && body.error
     ? body.error
-    : t("Не удалось сохранить предпочтения");
+    : t("Не удалось сохранить профиль");
 }
 
 /**
@@ -193,7 +193,7 @@ export default function GiftProfilePage() {
       // `?userId=` уже написана — она просто не была задействована.
       router.push(data?.id ? `/preferences?userId=${data.id}` : "/preferences");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("Не удалось сохранить предпочтения"));
+      toast.error(err instanceof Error ? err.message : t("Не удалось сохранить профиль"));
       return;
     } finally {
       setSaving(false);
@@ -255,7 +255,7 @@ export default function GiftProfilePage() {
             actions={
               <Button type="button" variant="outline" className="gap-2" onClick={requestLeave}>
                 <ArrowLeft className="h-4 w-4" aria-hidden />
-                {t("К предпочтениям")}
+                {t("К подарочным профилям")}
               </Button>
             }
           />
@@ -287,7 +287,7 @@ export default function GiftProfilePage() {
           actions={
             <Button type="button" variant="outline" className="gap-2" onClick={requestLeave}>
               <ArrowLeft className="h-4 w-4" aria-hidden />
-              {t("К предпочтениям")}
+              {t("К подарочным профилям")}
             </Button>
           }
         />
