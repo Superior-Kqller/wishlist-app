@@ -191,6 +191,14 @@ function MonthGrid({
   locale: string;
   t: (value: string) => string;
 }) {
+  /*
+   * Высота строки следует плотности месяца.
+   *
+   * Шесть рядов по 112px — это 670px сетки под одно событие: ответ на «а что
+   * дальше» уезжал под сгиб, а экран читался как ошибка загрузки. В плотном
+   * месяце ячейка остаётся высокой: там ей есть что показывать.
+   */
+  const isSparse = occurrences.length <= 2;
   const firstDay = new Date(year, month, 1);
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const leadingDays = (firstDay.getDay() + 6) % 7;
@@ -261,7 +269,8 @@ function MonthGrid({
                     <div
                       key={key}
                       className={cn(
-                        "min-h-14 border-b border-r border-border/32 bg-[hsl(var(--surface-1)/0.45)] md:min-h-28",
+                        "min-h-14 border-b border-r border-border/32 bg-[hsl(var(--surface-1)/0.45)]",
+                        isSparse ? "md:min-h-16" : "md:min-h-28",
                         isWeekendColumn(columnIndex) && "bg-[hsl(var(--surface-1)/0.7)]",
                       )}
                       role="cell"
@@ -275,7 +284,8 @@ function MonthGrid({
                   <div
                     key={key}
                     className={cn(
-                      "min-h-14 border-b border-r border-border/32 p-1 transition-colors duration-[var(--dur-base)] md:min-h-28 md:p-2",
+                      "min-h-14 border-b border-r border-border/32 p-1 transition-colors duration-[var(--dur-base)] md:p-2",
+                      isSparse ? "md:min-h-16" : "md:min-h-28",
                       isWeekendColumn(columnIndex) && "bg-[hsl(var(--surface-1)/0.45)]",
                       // Ступени поверхности вместо фирменной заливки: 0.05 и 0.08
                       // не лежали на лестнице прозрачностей и добавляли сетке
@@ -466,6 +476,15 @@ export default function CalendarPage() {
   const monthOccurrences = filtered.filter((occurrence) =>
     occurrence.date.startsWith(`${year}-${String(month + 1).padStart(2, "0")}`),
   );
+  /*
+   * Ближайшее за пределами показанного месяца: три даты, которыми заполняется
+   * пустота разреженной сетки. Берём из уже посчитанного `upcoming`, поэтому
+   * фильтр раздела действует и здесь.
+   */
+  const monthPrefix = `${year}-${String(month + 1).padStart(2, "0")}`;
+  const nextBeyondMonth = upcoming
+    .filter((occurrence) => !occurrence.date.startsWith(monthPrefix))
+    .slice(0, 3);
   const monthLabel = new Date(year, month, 1).toLocaleDateString(locale, {
     month: "long",
     year: "numeric",
@@ -675,7 +694,46 @@ export default function CalendarPage() {
                 locale={locale}
                 t={t}
               />
-              {monthOccurrences.length === 0 ? (
+              {/*
+               * Разреженный месяц отвечает на «а что дальше».
+               *
+               * Сорок две пустые ячейки и одна подпись «событий нет» — самый
+               * пустой экран продукта, и приходятся они на раздел, ради которого
+               * продукт и существует. Сетка остаётся: она честно показывает, что
+               * месяц пуст. Но под ней место отдаётся ближайшим датам за его
+               * пределами — тому, за чем человек сюда и пришёл.
+               */}
+              {monthOccurrences.length <= 2 && nextBeyondMonth.length > 0 ? (
+                <div className="border-t border-border/45 pt-4">
+                  <h3 className="mb-2 text-xs font-semibold text-muted-foreground sm:text-sm">
+                    {monthOccurrences.length === 0
+                      ? t("В этом месяце событий нет. Дальше:")
+                      : t("Дальше:")}
+                  </h3>
+                  <ul className="space-y-1.5">
+                    {nextBeyondMonth.map((occurrence) => {
+                      const Icon = EVENT_TYPE_META[occurrence.type].icon;
+                      return (
+                        <li
+                          key={`${occurrence.type}:${occurrence.id}:${occurrence.date}`}
+                          className="flex min-w-0 items-center gap-2.5 text-sm"
+                        >
+                          <Icon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                          <span className="shrink-0 tabular-nums text-muted-foreground">
+                            {new Date(`${occurrence.date}T12:00:00`).toLocaleDateString(locale, {
+                              day: "numeric",
+                              month: "short",
+                            })}
+                          </span>
+                          <span className="min-w-0 truncate text-foreground">
+                            {getOccurrenceTitle(occurrence)}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ) : monthOccurrences.length === 0 ? (
                 <p className="border-t border-border/45 py-5 text-center text-sm text-muted-foreground">
                   {t("В этом месяце событий нет")}
                 </p>

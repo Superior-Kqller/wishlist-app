@@ -605,14 +605,26 @@ export default function StatsPage() {
               description={t("Статистика появится, когда в общих списках будут желания.")}
             />
           ) : (
-            <div className="grid grid-cols-1 [grid-template-areas:'overview'_'activity'_'participants'] gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] xl:[grid-template-areas:'overview_activity'_'participants_activity'] 2xl:gap-5">
+            /*
+             * Участники занимают обе колонки.
+             *
+             * Раньше сетка отводила ленте активности собственную колонку на обе
+             * строки, а лента коротка по природе: последние изменения — это
+             * три-четыре записи. При полной высоте левой колонки в 879px правая
+             * заканчивалась на 271px, и шестьсот пикселей справа от списка
+             * участников оставались пустыми. Рельс, который кончается через
+             * четверть страницы, — не рельс.
+             */
+            <div className="grid grid-cols-1 [grid-template-areas:'overview'_'activity'_'participants'] gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] xl:[grid-template-areas:'overview_activity'_'participants_participants'] 2xl:gap-5">
               <div className="min-w-0 [grid-area:overview]">
                 <StatsOverview summary={summary} topItemsAvailable={Boolean(statsData.summary)} />
               </div>
 
               <ParticipantsSection users={users} />
 
-              <div className="min-w-0 [grid-area:activity] xl:sticky xl:top-6 xl:self-start">
+              {/* `sticky` снят вместе с ролью рельса: лента больше не сопровождает
+                  длинный список участников, она стоит рядом со сводкой. */}
+              <div className="min-w-0 [grid-area:activity] xl:self-start">
                 {recentItemsError ? (
                   <RetryNotice>
                     {t("Не удалось загрузить активность. Остальная статистика доступна.")}

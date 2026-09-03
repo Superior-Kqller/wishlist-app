@@ -63,7 +63,9 @@ function CircleHint() {
        выше, — и подсказка обязана читаться примечанием под ней, а не первым
        экраном раздела. По той же причине заголовок здесь гротеск: антиква
        принадлежит крупному шагу, а он на странице уже занят. */
-    <div className={cn(uiSurface.emptyState, "py-6")}>
+    // Ширина по колонке сетки: подсказка стоит под единственной карточкой
+    // круга, и растянутая во всю рамку она спорила бы с ней краем.
+    <div className={cn(uiSurface.emptyState, "py-6 md:max-w-[32rem]")}>
       <Users className="mx-auto h-5 w-5 text-muted-foreground" aria-hidden />
       <p className="mt-3 text-sm font-semibold">{t("В круге пока только вы")}</p>
       <p className="mx-auto mt-1 max-w-[46ch] text-sm leading-relaxed text-muted-foreground">
@@ -91,7 +93,7 @@ function PreferencesPageSkeleton() {
             и страница дёргалась на загрузке. */}
         <div className="animate-pulse space-y-5">
           <div className="h-24 rounded-2xl bg-muted/55" />
-          <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]">
+          <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,32rem))]">
             <div className="h-44 rounded-2xl bg-muted/45" />
             <div className="h-44 rounded-2xl bg-muted/32" />
             <div className="h-44 rounded-2xl bg-muted/32" />
@@ -251,7 +253,13 @@ function PreferencesPageContent() {
                * `article`, — и каждый мерил и вёл его независимо. Собственная
                * коробка сетки при этом не меняется вовсе.
                */
-              <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]">
+              /*
+               * Потолок колонки 32rem: `1fr` растягивал единственную карточку
+               * круга на всю рамку страницы — 1110px ширины при 260px высоты,
+               * и профиль читался не карточкой, а полосой. Раскрытая карточка
+               * меряет себя контейнером, поэтому потолок ей не мешает.
+               */
+              <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,32rem))]">
                 {circleUsers.map((user) => {
                   const isCurrent = user.id === data?.id;
                   const isExpanded = expandedUserId === user.id;

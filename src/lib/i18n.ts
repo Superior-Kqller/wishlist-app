@@ -89,6 +89,8 @@ const en: Dictionary = {
   "Ближайших событий пока нет": "No upcoming events yet",
   "Не удалось загрузить ближайшие события": "Could not load upcoming events",
   "В этом месяце событий нет": "There are no events this month",
+  "Дальше:": "Coming up:",
+  "В этом месяце событий нет. Дальше:": "No events this month. Coming up:",
   "Месячная сетка календаря": "Calendar month grid",
   Статистика: "Stats",
   Профили: "Profiles",
