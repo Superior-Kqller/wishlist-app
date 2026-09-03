@@ -15,26 +15,39 @@
  * а не в наборах утилит на каждый раздел: единая рамка — это то, что делает
  * переходы между разделами непрерывными.
  */
+/**
+ * Вертикальный ритм страницы и геометрия повторяющейся мебели.
+ *
+ * Раньше каждая страница выбирала свой зазор между блоками (16 / 20 / 24px)
+ * и свою полосу разделов: у настроек она была 58px высотой с радиусом 12,
+ * у редактора профиля — 66px с радиусом 16, у календаря — кнопки высотой 36.
+ * Один объект выглядел тремя, и страницы читались собранными разными людьми.
+ */
+export const uiLayout = {
+  /** Зазор между блоками страницы. */
+  pageStack: "space-y-5",
+  /** Полоса разделов: настройки, редактор профиля, переключатели вида. */
+  segmentBar:
+    "grid min-w-0 gap-1 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.55)] p-1.5",
+  /*
+   * Ширин диалога ровно две. Было пять — 384, 448, 500, 1024 и 1088, — и
+   * ни одна не совпадала с обещанной в DESIGN.md: три окна подряд читались
+   * тремя разными объектами. Форма — всё, что заполняют; просмотр — окно
+   * желания и разбор ссылки, где рядом лежат поля и содержимое.
+   */
+  dialogForm: "max-w-lg",
+  dialogWide: "sm:max-w-5xl",
+} as const;
+
 export const uiSurface = {
-  shell: "min-h-screen bg-[hsl(var(--background))] text-foreground",
   sidebar:
-    "border-r border-border/32 bg-[hsl(var(--surface-2)/0.68)] elevation-sidebar backdrop-blur-xl",
-  topHeader:
-    "border-b border-border bg-[hsl(var(--surface-2)/0.88)] elevation-header backdrop-blur-xl",
-  pageHeader:
-    "rounded-2xl border border-border/70 bg-[hsl(var(--surface-2)/0.88)] elevation-page-header",
+    "border-r border-border/32 bg-[hsl(var(--surface-2)/0.7)] elevation-sidebar backdrop-blur-xl",
   contentPanel:
-    "rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.8)] elevation-panel",
-  interactiveCard:
-    "border-border/55 bg-[hsl(var(--surface-2))] elevation-interactive-card transition-[border-color,box-shadow,transform] hover:border-primary/32",
+    "rounded-2xl border border-border/55 bg-[hsl(var(--surface-2)/0.85)] elevation-panel",
   emptyState:
-    "rounded-2xl border border-dashed border-border/70 bg-[hsl(var(--surface-2)/0.74)] px-4 py-10 text-center",
-  panel: "rounded-xl border border-border bg-[hsl(var(--surface-2))] elevation-panel",
-  panelInset: "rounded-lg border border-border bg-card",
-  stickyPanel:
-    "sticky z-30 -mx-3 flex min-w-0 flex-col gap-1.5 border-b border-border bg-[hsl(var(--surface-2)/0.96)] px-3 py-1.5 backdrop-blur-md max-sm:top-[calc(4.625rem+env(safe-area-inset-top,0px))] sm:static sm:z-auto sm:-mx-4 sm:border-0 sm:bg-transparent sm:px-4 sm:py-2 sm:backdrop-blur-none",
+    "rounded-2xl border border-dashed border-border/70 bg-[hsl(var(--surface-2)/0.7)] px-4 py-10 text-center",
   floatingBar:
-    "flex items-center gap-2 rounded-2xl border border-border bg-[hsl(var(--surface-2)/0.96)] px-4 py-3 elevation-floating backdrop-blur-md",
+    "flex items-center gap-2 rounded-2xl border border-border bg-[hsl(var(--surface-2)/0.95)] px-4 py-3 elevation-floating backdrop-blur-md",
   chip: "border-border bg-[hsl(var(--surface-3))]",
   /**
    * Оболочка секции анкеты: заголовок, описание и поля одной темы. Строка была
@@ -63,7 +76,7 @@ export const uiState = {
   focusRing:
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   navBase:
-    "h-11 gap-2.5 border border-transparent px-3 text-muted-foreground/85 hover:bg-[hsl(var(--surface-3)/0.74)] hover:text-foreground",
+    "h-11 gap-2.5 border border-transparent px-3 text-muted-foreground/85 hover:bg-[hsl(var(--surface-3)/0.7)] hover:text-foreground",
   /*
    * Текущий раздел — это состояние, а не действие: тон поверхности плюс голос
    * краски на значке. Заливка `bg-primary/10` давала 1.2:1 — читалась дымкой,

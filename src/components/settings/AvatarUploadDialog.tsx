@@ -16,6 +16,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { Loader2, Upload, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/components/i18n/language-provider";
+import { uiLayout } from "@/lib/ui-contract";
 
 interface AvatarUploadDialogProps {
   open: boolean;
@@ -185,7 +186,7 @@ export function AvatarUploadDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className={uiLayout.dialogForm}>
         <DialogHeader>
           <DialogTitle>{t("Изменить аватар")}</DialogTitle>
           <DialogDescription>{t("Загрузите изображение или укажите URL")}</DialogDescription>

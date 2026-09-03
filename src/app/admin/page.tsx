@@ -12,6 +12,7 @@ import { User } from "@/types";
 import { fetcher } from "@/lib/fetcher";
 import { useI18n } from "@/components/i18n/language-provider";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
+import { uiLayout } from "@/lib/ui-contract";
 import { HolidayCatalog } from "@/components/admin/HolidayCatalog";
 import { CalendarSettings } from "@/components/admin/CalendarSettings";
 
@@ -61,7 +62,7 @@ export default function AdminPage() {
   return (
     <PageShell>
       <PageMain>
-        <div className="space-y-6">
+        <div className={uiLayout.pageStack}>
           <PageIntro
             title={t("Управление пользователями")}
             description={t("Создание, редактирование и удаление учетных записей")}

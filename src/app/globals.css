@@ -451,8 +451,8 @@
     linear-gradient(90deg, hsl(var(--theme-cool) / 0.08) 0%, hsl(var(--background) / 0) 34%),
     linear-gradient(
       135deg,
-      hsl(var(--surface-2) / 0.94) 0%,
-      hsl(var(--surface-3) / 0.82) 46%,
+      hsl(var(--surface-2) / 0.95) 0%,
+      hsl(var(--surface-3) / 0.85) 46%,
       hsl(var(--primary) / 0.14) 78%,
       hsl(var(--theme-warm) / 0.1) 100%
     );
@@ -461,8 +461,8 @@
 .home-toolbar-panel {
   background: linear-gradient(
     180deg,
-    hsl(var(--surface-2) / 0.92) 0%,
-    hsl(var(--surface-2) / 0.82) 100%
+    hsl(var(--surface-2) / 0.95) 0%,
+    hsl(var(--surface-2) / 0.85) 100%
   );
 }
 

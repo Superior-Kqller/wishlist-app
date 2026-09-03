@@ -15,6 +15,7 @@ import { Loader2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { User } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
+import { uiLayout } from "@/lib/ui-contract";
 
 interface DeleteUserDialogProps {
   open: boolean;
@@ -71,7 +72,7 @@ export function DeleteUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className={uiLayout.dialogForm}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-destructive" />

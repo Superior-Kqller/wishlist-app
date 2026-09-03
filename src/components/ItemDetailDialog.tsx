@@ -203,7 +203,7 @@ export function ItemDetailDialog({
           </div>
         </div>
         {item.url || canManage ? (
-          <div className="shrink-0 border-t border-border/55 bg-[hsl(var(--surface-2)/0.96)] px-4 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))] pt-3 backdrop-blur-md sm:hidden">
+          <div className="shrink-0 border-t border-border/55 bg-[hsl(var(--surface-2)/0.95)] px-4 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))] pt-3 backdrop-blur-md sm:hidden">
             <ItemDetailActions
               item={item}
               canManage={canManage}

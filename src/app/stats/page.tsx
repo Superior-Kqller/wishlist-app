@@ -98,7 +98,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
 
   return (
     <details className="group overflow-hidden rounded-xl border border-border/55 bg-[hsl(var(--surface-2))]">
-      <summary className="flex min-h-[4.5rem] cursor-pointer list-none items-center gap-3 px-3 py-2.5 outline-none transition-colors hover:bg-[hsl(var(--surface-3)/0.42)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-[4.5rem] cursor-pointer list-none items-center gap-3 px-3 py-2.5 outline-none transition-colors hover:bg-[hsl(var(--surface-3)/0.45)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
         <UserAvatar
           avatarUrl={user.avatarUrl || undefined}
           name={user.name}

@@ -19,6 +19,7 @@ import { UserWithStats } from "@/types";
 import { cn } from "@/lib/utils";
 import { MemberList } from "@/components/wishlist/member-list";
 import { useI18n } from "@/components/i18n/language-provider";
+import { uiLayout } from "@/lib/ui-contract";
 
 interface ListFormDialogProps {
   open: boolean;
@@ -106,7 +107,7 @@ export function ListFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className={uiLayout.dialogForm}>
         <DialogHeader>
           <DialogTitle>{isEdit ? t("Редактировать подборку") : t("Создать подборку")}</DialogTitle>
           <DialogDescription>

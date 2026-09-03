@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
+import { uiLayout } from "@/lib/ui-contract";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -74,7 +75,7 @@ export function ConfirmDialog({
         onOpenChange(next);
       }}
     >
-      <DialogContent className="max-w-sm">
+      <DialogContent className={uiLayout.dialogForm}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}

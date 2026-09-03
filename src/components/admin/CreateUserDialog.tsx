@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { passwordSchema, validatePasswordComplexity } from "@/lib/password-validation";
 import { CreateUserPayload } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
+import { uiLayout } from "@/lib/ui-contract";
 
 interface CreateUserDialogProps {
   open: boolean;
@@ -111,7 +112,7 @@ export function CreateUserDialog({ open, onOpenChange, onSuccess }: CreateUserDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className={uiLayout.dialogForm}>
         <DialogHeader>
           <DialogTitle>{t("Создать пользователя")}</DialogTitle>
           <DialogDescription>{t("Создайте новую учетную запись пользователя")}</DialogDescription>

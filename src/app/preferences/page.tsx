@@ -17,7 +17,7 @@ import { PreferenceProfileCard } from "@/components/preferences/preference-profi
 import { fetcher } from "@/lib/fetcher";
 import { giftPreferencesDraftKey } from "@/lib/preferences-draft";
 import { duration, easing } from "@/lib/motion";
-import { uiSurface } from "@/lib/ui-contract";
+import { uiLayout, uiSurface } from "@/lib/ui-contract";
 import { type GiftPreferences, normalizeGiftPreferences } from "@/lib/preferences";
 import { PROFILE_SEARCH_THRESHOLD, searchPreferenceProfiles } from "@/lib/preference-profiles";
 
@@ -209,7 +209,7 @@ function PreferencesPageContent() {
   return (
     <PageShell>
       <PageMain>
-        <div className="space-y-5">
+        <div className={uiLayout.pageStack}>
           {/* Один заголовок и одно описание: раньше здесь стояли PageIntro и
               второй заголовок секции, каждый со своей фразой, плюс плашка
               «Профилей в круге: N» — счётчик того, что видно ниже глазами. */}

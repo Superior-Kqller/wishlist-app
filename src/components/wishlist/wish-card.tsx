@@ -117,7 +117,7 @@ export const WishCard = memo(function WishCard({
             className={cn(
               "flex min-w-0 flex-1 flex-col text-left",
               isCardInteractive &&
-                "cursor-pointer appearance-none bg-transparent transition-colors duration-[var(--dur-base)] hover:bg-[hsl(var(--surface-3)/0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                "cursor-pointer appearance-none bg-transparent transition-colors duration-[var(--dur-base)] hover:bg-[hsl(var(--surface-3)/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             )}
             onClick={isCardInteractive ? handleCardClick : undefined}
             aria-pressed={selectionMode ? isSelected : undefined}

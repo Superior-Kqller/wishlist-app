@@ -261,7 +261,7 @@ export function WishlistWorkspace({
               "relative h-11 w-11 shrink-0 rounded-xl p-0",
               hasActiveFilters
                 ? "border-primary/45 bg-primary/10 text-foreground"
-                : "border-border/55 bg-[hsl(var(--surface-3)/0.58)]",
+                : "border-border/55 bg-[hsl(var(--surface-3)/0.55)]",
             )}
             onClick={() => onFiltersOpenChange(true)}
             title={t("Фильтры")}

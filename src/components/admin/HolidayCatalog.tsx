@@ -70,7 +70,7 @@ export function HolidayCatalog() {
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-xl font-semibold">Общие праздники</h2>
+        <h2 className="section-title">Общие праздники</h2>
         <p className="text-sm text-muted-foreground">
           Локальный каталог для всех пользователей установки
         </p>

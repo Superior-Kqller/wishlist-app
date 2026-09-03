@@ -40,7 +40,7 @@ export function ActiveFilterChips({ chips, onClearAll, className }: ActiveFilter
           key={chip.key}
           type="button"
           onClick={chip.onRemove}
-          className="group inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-lg border border-border/55 bg-[hsl(var(--surface-3)/0.62)] py-1 pl-2.5 pr-1.5 text-xs text-muted-foreground transition-colors hover:border-border hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="group inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-lg border border-border/55 bg-[hsl(var(--surface-3)/0.55)] py-1 pl-2.5 pr-1.5 text-xs text-muted-foreground transition-colors hover:border-border hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={`${t("Снять фильтр")}: ${chip.label}`}
         >
           <span className="min-w-0 truncate">{chip.label}</span>

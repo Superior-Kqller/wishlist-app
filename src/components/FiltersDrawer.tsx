@@ -89,7 +89,7 @@ export function FiltersDrawer({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         id="wishlist-filters"
-        className="dialog-modal-surface bottom-0 left-0 top-auto max-h-[92dvh] min-h-0 w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl border border-border bg-popover/95 p-0 backdrop-blur-[18px] sm:bottom-auto sm:left-[50%] sm:top-[50%] sm:max-h-[min(88dvh,48rem)] sm:w-[min(95vw,calc(100vw-1rem))] sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl"
+        className="dialog-modal-surface bottom-0 left-0 top-auto max-h-[92dvh] min-h-0 w-full translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl border border-border bg-popover/95 p-0 backdrop-blur-[18px] sm:bottom-auto sm:left-[50%] sm:top-[50%] sm:max-h-[min(88dvh,48rem)] sm:w-[min(95vw,calc(100vw-1rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl"
         bodyClassName="flex min-h-0 flex-1 flex-col gap-0 overflow-hidden p-0"
       >
         <div className="shrink-0 px-4 pb-3 pt-2 sm:px-5 sm:pt-5">
@@ -193,7 +193,7 @@ export function FiltersDrawer({
                 "flex min-h-12 w-full touch-manipulation items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 showPurchased
                   ? "border-primary-accent/70 bg-[hsl(var(--surface-4))] text-foreground"
-                  : "border-border/70 bg-[hsl(var(--surface-2)/0.46)] text-muted-foreground",
+                  : "border-border/70 bg-[hsl(var(--surface-2)/0.45)] text-muted-foreground",
               )}
               aria-pressed={showPurchased}
               onClick={onTogglePurchased}
@@ -319,7 +319,7 @@ function FilterChoice({
         fill ? "w-full min-w-0" : "shrink-0",
         selected
           ? "border-primary-accent/70 bg-[hsl(var(--surface-4))] pr-8 text-foreground"
-          : "border-border/70 bg-[hsl(var(--surface-2)/0.46)] text-muted-foreground hover:bg-accent/70 hover:text-foreground",
+          : "border-border/70 bg-[hsl(var(--surface-2)/0.45)] text-muted-foreground hover:bg-accent/70 hover:text-foreground",
       )}
       aria-pressed={selected}
       onClick={onClick}

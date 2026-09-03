@@ -23,6 +23,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { User, UpdateUserPayload } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
+import { uiLayout } from "@/lib/ui-contract";
 
 interface EditUserDialogProps {
   open: boolean;
@@ -107,7 +108,7 @@ export function EditUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className={uiLayout.dialogForm}>
         <DialogHeader>
           <DialogTitle>{t("Редактировать пользователя")}</DialogTitle>
           <DialogDescription>{t("Измените данные пользователя")}</DialogDescription>

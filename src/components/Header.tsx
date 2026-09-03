@@ -89,7 +89,7 @@ export function Header() {
   const secondaryNavActive = secondaryNavItems.some((item) => pathname === item.href);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/85 bg-[hsl(var(--surface-2)/0.94)] elevation-header backdrop-blur-xl lg:hidden">
+    <header className="sticky top-0 z-40 border-b border-border/85 bg-[hsl(var(--surface-2)/0.95)] elevation-header backdrop-blur-xl lg:hidden">
       <div className="pt-[env(safe-area-inset-top,0px)]">
         <div className="container mx-auto flex flex-col px-3 sm:px-4">
           <div className="flex min-h-[48px] items-center gap-1">

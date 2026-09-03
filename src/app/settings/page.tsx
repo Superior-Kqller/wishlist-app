@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetcher } from "@/lib/fetcher";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
+import { uiLayout } from "@/lib/ui-contract";
+import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
 
 export default function SettingsPage() {
@@ -62,7 +64,7 @@ export default function SettingsPage() {
   return (
     <PageShell>
       <PageMain>
-        <div className="space-y-4">
+        <div className={uiLayout.pageStack}>
           <PageIntro
             title={t("Настройки")}
             description={t("Профиль и безопасность аккаунта")}
@@ -87,7 +89,7 @@ export default function SettingsPage() {
           <Tabs defaultValue="profile" className="grid gap-5">
             <TabsList
               aria-label={t("Разделы настроек")}
-              className="grid h-auto grid-cols-2 gap-1 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.6)] p-1.5"
+              className={cn(uiLayout.segmentBar, "h-auto grid-cols-2")}
             >
               <TabsTrigger
                 value="profile"

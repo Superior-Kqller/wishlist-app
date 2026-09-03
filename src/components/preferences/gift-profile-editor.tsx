@@ -13,7 +13,7 @@ import {
 } from "@/components/preferences/preference-chip-picker";
 import { duration, easing } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { uiState, uiSurface } from "@/lib/ui-contract";
+import { uiLayout, uiState, uiSurface } from "@/lib/ui-contract";
 import { SIZES_MAX_LENGTH, giftPreferenceLabels, type GiftPreferences } from "@/lib/preferences";
 import {
   composeSizePreferences,
@@ -395,7 +395,7 @@ export function GiftProfileEditor({
         role="tablist"
         aria-orientation="horizontal"
         aria-label={t("Разделы профиля")}
-        className={cn(uiSurface.contentPanel, "grid min-w-0 grid-cols-3 gap-1 p-2")}
+        className={cn(uiLayout.segmentBar, "grid-cols-3")}
       >
         {editorSections.map((section) => {
           const Icon = section.icon;

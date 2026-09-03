@@ -35,6 +35,7 @@ import Image from "next/image";
 import { useI18n } from "@/components/i18n/language-provider";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
 import { ProductCategoryIcon } from "@/lib/category-icons";
+import { uiLayout } from "@/lib/ui-contract";
 
 interface ItemFormDialogProps {
   open: boolean;
@@ -315,11 +316,8 @@ export function ItemFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="sm:max-w-5xl xl:max-w-[68rem]"
-        bodyClassName="gap-0 overflow-y-auto p-0"
-      >
-        <div className="border-b border-border/32 bg-[hsl(var(--surface-2)/0.72)] px-4 py-3 sm:px-5">
+      <DialogContent className={uiLayout.dialogWide} bodyClassName="gap-0 overflow-y-auto p-0">
+        <div className="border-b border-border/32 bg-[hsl(var(--surface-2)/0.7)] px-4 py-3 sm:px-5">
           <DialogHeader className="space-y-1 pr-10 sm:pr-12">
             <DialogTitle className="text-xl leading-tight">
               {isEdit ? t("Редактировать") : t("Добавить желание")}
@@ -390,7 +388,7 @@ export function ItemFormDialog({
                     />
                   </div>
 
-                  <div className="space-y-2 rounded-xl border border-border/32 bg-[hsl(var(--surface-3)/0.28)] p-3">
+                  <div className="space-y-2 rounded-xl border border-border/32 bg-[hsl(var(--surface-3)/0.32)] p-3">
                     <Label htmlFor="url">{t("Ссылка (необязательно)")}</Label>
                     <Input
                       id="url"
@@ -489,7 +487,7 @@ export function ItemFormDialog({
                 <aside className="space-y-3.5 border-t border-border/32 bg-[hsl(var(--surface-1)/0.24)] px-4 py-4 sm:px-5 lg:border-l lg:border-t-0">
                   <div className="space-y-2">
                     <Label htmlFor="item-image-url">{t("Изображение")}</Label>
-                    <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border/32 bg-[hsl(var(--surface-2)/0.72)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
+                    <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border/32 bg-[hsl(var(--surface-2)/0.7)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.035)]">
                       {imageUrl.trim() ? (
                         <>
                           <Image
@@ -504,7 +502,7 @@ export function ItemFormDialog({
                             type="button"
                             onClick={() => setImageUrl("")}
                             aria-label={t("Убрать изображение")}
-                            className="absolute right-2 top-2 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border/70 bg-[hsl(var(--surface-1)/0.78)] text-foreground transition-colors backdrop-blur-md hover:bg-[hsl(var(--surface-2)/0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            className="absolute right-2 top-2 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border/70 bg-[hsl(var(--surface-1)/0.85)] text-foreground transition-colors backdrop-blur-md hover:bg-[hsl(var(--surface-2)/0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             title={t("Убрать изображение")}
                           >
                             <X className="h-4 w-4" />
@@ -579,7 +577,7 @@ export function ItemFormDialog({
                               "flex min-h-[44px] items-center gap-2 rounded-lg border px-2.5 py-2 text-left text-xs font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                               isSelected
                                 ? priorityBadgeToneByPriority[value]
-                                : "border-border/55 bg-[hsl(var(--surface-2)/0.58)] text-muted-foreground hover:bg-accent hover:text-foreground",
+                                : "border-border/55 bg-[hsl(var(--surface-2)/0.55)] text-muted-foreground hover:bg-accent hover:text-foreground",
                             )}
                           >
                             <span
@@ -673,7 +671,7 @@ export function ItemFormDialog({
             </section>
           )}
 
-          <DialogFooter className="grid grid-cols-2 border-t border-border/32 bg-[hsl(var(--surface-2)/0.72)] px-4 py-3 sm:flex sm:px-5">
+          <DialogFooter className="grid grid-cols-2 border-t border-border/32 bg-[hsl(var(--surface-2)/0.7)] px-4 py-3 sm:flex sm:px-5">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("Отмена")}
             </Button>

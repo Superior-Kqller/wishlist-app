@@ -222,7 +222,7 @@ export function ProfileForm({
             <UserRound className="h-5 w-5" aria-hidden />
           </span>
           <div className="min-w-0">
-            <h2 className="text-lg font-semibold">{t("Профиль")}</h2>
+            <h2 className="section-title">{t("Профиль")}</h2>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
               {t("Основные данные и способы связи")}
             </p>
@@ -230,7 +230,7 @@ export function ProfileForm({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.42)] p-3.5">
+          <div className="rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.45)] p-3.5">
             <div className="flex items-center gap-3">
               <UserAvatar
                 avatarUrl={avatarUrl || undefined}
@@ -305,7 +305,7 @@ export function ProfileForm({
               </p>
             </div>
 
-            <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.36)] px-3.5 py-3">
+            <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.32)] px-3.5 py-3">
               <span className="min-w-0">
                 <span className="block text-sm font-medium">
                   {t("Появляться среди поздравляемых")}
@@ -343,7 +343,7 @@ export function ProfileForm({
             </div>
 
             {birthdayEnabled ? (
-              <div className="space-y-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.36)] p-3.5">
+              <div className="space-y-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.32)] p-3.5">
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="birthdayDay">{t("День")}</Label>
@@ -465,7 +465,7 @@ export function ProfileForm({
               </div>
             </div>
 
-            <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.36)] px-3.5 py-2.5">
+            <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.32)] px-3.5 py-2.5">
               <span className="min-w-0">
                 <span className="block text-sm font-medium">{t("Telegram-уведомления")}</span>
                 <span className="mt-0.5 block text-xs text-muted-foreground">
@@ -477,7 +477,7 @@ export function ProfileForm({
                 onChange={(e) => setTelegramNotificationsEnabled(e.target.checked)}
               />
             </label>
-            <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.36)] px-3.5 py-2.5">
+            <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.32)] px-3.5 py-2.5">
               <span className="min-w-0">
                 <span className="block text-sm font-medium">{t("Напоминания календаря")}</span>
                 <span className="mt-0.5 block text-xs text-muted-foreground">

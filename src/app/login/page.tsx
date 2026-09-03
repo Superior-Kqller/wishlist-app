@@ -41,7 +41,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-svh page-bg p-3 sm:p-5 lg:p-7">
-      <section className="mx-auto grid min-h-[calc(100svh-1.5rem)] w-full max-w-[80rem] grid-rows-[auto_1fr] overflow-hidden border border-border/55 bg-[hsl(var(--surface-1)/0.66)] sm:min-h-[calc(100svh-2.5rem)] sm:rounded-2xl lg:min-h-[calc(100svh-3.5rem)] lg:grid-cols-[minmax(0,1.2fr)_minmax(24rem,0.8fr)] lg:grid-rows-1">
+      <section className="mx-auto grid min-h-[calc(100svh-1.5rem)] w-full max-w-[80rem] grid-rows-[auto_1fr] overflow-hidden border border-border/55 bg-[hsl(var(--surface-1)/0.7)] sm:min-h-[calc(100svh-2.5rem)] sm:rounded-2xl lg:min-h-[calc(100svh-3.5rem)] lg:grid-cols-[minmax(0,1.2fr)_minmax(24rem,0.8fr)] lg:grid-rows-1">
         {/*
          * На телефоне первым экраном была витрина: заголовок в четыре строки
          * и подпись занимали всё, а «Войти» уходила под панель браузера —
@@ -78,17 +78,14 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="flex flex-col border-t border-border/55 bg-[hsl(var(--surface-2)/0.76)] p-6 sm:p-9 lg:border-l lg:border-t-0 lg:p-12">
+        <div className="flex flex-col border-t border-border/55 bg-[hsl(var(--surface-2)/0.7)] p-6 sm:p-9 lg:border-l lg:border-t-0 lg:p-12">
           <div className="hidden justify-end lg:flex">
             <LanguageSwitcher />
           </div>
           <div className="flex flex-1 items-center py-2 sm:py-6 lg:py-12">
             <div className="mx-auto w-full max-w-[27rem]">
               <div className="mb-5 sm:mb-7">
-                <h2
-                  id="login-heading"
-                  className="text-balance text-2xl font-semibold text-foreground sm:text-3xl"
-                >
+                <h2 id="login-heading" className="section-title text-balance">
                   {t("Войдите в свой аккаунт")}
                 </h2>
               </div>

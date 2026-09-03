@@ -61,7 +61,7 @@ function EmptyState({
 
       <div
         data-reveal=""
-        className="relative mb-5 flex size-14 items-center justify-center rounded-2xl border border-border/70 bg-[hsl(var(--surface-3)/0.8)] text-primary-accent/85 shadow-[var(--shadow-interactive-card)] [&_svg]:size-6"
+        className="relative mb-5 flex size-14 items-center justify-center rounded-2xl border border-border/70 bg-[hsl(var(--surface-3)/0.85)] text-primary-accent/85 shadow-[var(--shadow-interactive-card)] [&_svg]:size-6"
       >
         {icon ?? <Inbox aria-hidden />}
       </div>

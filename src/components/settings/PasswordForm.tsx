@@ -84,7 +84,7 @@ export function PasswordForm({ userId }: PasswordFormProps) {
           <ShieldCheck className="h-5 w-5" aria-hidden />
         </span>
         <div className="min-w-0">
-          <h2 className="text-lg font-semibold">{t("Изменить пароль")}</h2>
+          <h2 className="section-title">{t("Изменить пароль")}</h2>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
             {t("Обновите пароль для защиты аккаунта")}
           </p>
@@ -136,7 +136,7 @@ export function PasswordForm({ userId }: PasswordFormProps) {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.4)] p-3.5">
+        <div className="rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.45)] p-3.5">
           <div className="flex gap-3">
             <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-primary-accent" aria-hidden />
             <div className="min-w-0">

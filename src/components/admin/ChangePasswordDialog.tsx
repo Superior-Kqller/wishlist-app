@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { validatePasswordComplexity } from "@/lib/password-validation";
 import { User } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
+import { uiLayout } from "@/lib/ui-contract";
 
 interface ChangePasswordDialogProps {
   open: boolean;
@@ -98,7 +99,7 @@ export function ChangePasswordDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className={uiLayout.dialogForm}>
         <DialogHeader>
           <DialogTitle>{t("Изменить пароль")}</DialogTitle>
           <DialogDescription>

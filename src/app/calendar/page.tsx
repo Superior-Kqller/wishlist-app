@@ -35,7 +35,7 @@ import {
 import { fetcher } from "@/lib/fetcher";
 import { useIsomorphicLayoutEffect } from "@/lib/use-isomorphic-layout-effect";
 import { capitalizeFirst, cn } from "@/lib/utils";
-import { uiSurface } from "@/lib/ui-contract";
+import { uiLayout, uiSurface } from "@/lib/ui-contract";
 import {
   filterCalendarOccurrences,
   getCalendarSections,
@@ -276,7 +276,7 @@ function MonthGrid({
                     key={key}
                     className={cn(
                       "min-h-14 border-b border-r border-border/32 p-1 transition-colors duration-[var(--dur-base)] md:min-h-28 md:p-2",
-                      isWeekendColumn(columnIndex) && "bg-[hsl(var(--surface-1)/0.4)]",
+                      isWeekendColumn(columnIndex) && "bg-[hsl(var(--surface-1)/0.45)]",
                       // Ступени поверхности вместо фирменной заливки: 0.05 и 0.08
                       // не лежали на лестнице прозрачностей и добавляли сетке
                       // сиреневого тона, ничего при этом не различая.
@@ -522,7 +522,7 @@ export default function CalendarPage() {
         {/* Extension of the existing product world: a scan-first planning surface,
             not a decorative calendar. The list leads on mobile; month context leads
             on wide screens. Filters and history stay visible without hiding tasks. */}
-        <div className="space-y-4">
+        <div className={uiLayout.pageStack}>
           <PageIntro
             title={t("Календарь")}
             description={t("Планируйте внимание и подарки к значимым датам")}

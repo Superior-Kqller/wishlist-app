@@ -44,7 +44,7 @@ export function CalendarSettings() {
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-xl font-semibold">Напоминания календаря</h2>
+        <h2 className="section-title">Напоминания календаря</h2>
         <p className="text-sm text-muted-foreground">
           Обработка запускается автоматически около 10:00 по времени установки
         </p>

@@ -18,7 +18,7 @@ const iconButtonVariants = cva(
       },
       intent: {
         default:
-          "border-border/85 bg-[hsl(var(--surface-3)/0.64)] text-foreground hover:border-primary/32 hover:bg-accent",
+          "border-border/85 bg-[hsl(var(--surface-3)/0.7)] text-foreground hover:border-primary/32 hover:bg-accent",
         success:
           "border-success/32 bg-success/16 text-success hover:border-success/55 hover:bg-success/24",
         danger:
