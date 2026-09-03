@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fetcher } from "@/lib/fetcher";
+import { useI18n } from "@/components/i18n/language-provider";
 
 const COMMON_TIME_ZONES = [
   "Europe/Moscow",
@@ -18,6 +19,7 @@ const COMMON_TIME_ZONES = [
 ];
 
 export function CalendarSettings() {
+  const { t } = useI18n();
   const { data, mutate, isLoading } = useSWR<{ timeZone: string }>(
     "/api/admin/calendar-settings",
     fetcher,
@@ -33,25 +35,25 @@ export function CalendarSettings() {
     });
     if (!response.ok) {
       const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      toast.error(body?.error ?? "Не удалось сохранить временную зону");
+      toast.error(body?.error ?? t("Не удалось сохранить временную зону"));
       return;
     }
     setDraft(null);
     await mutate();
-    toast.success("Временная зона сохранена");
+    toast.success(t("Временная зона сохранена"));
   }
 
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="section-title">Напоминания календаря</h2>
+        <h2 className="section-title">{t("Напоминания календаря")}</h2>
         <p className="text-sm text-muted-foreground">
-          Обработка запускается автоматически около 10:00 по времени установки
+          {t("Обработка запускается автоматически около 10:00 по времени установки")}
         </p>
       </div>
       <div className="flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-end">
         <label className="min-w-0 flex-1 space-y-2 text-sm font-medium">
-          Временная зона установки
+          {t("Временная зона установки")}
           <Input
             list="calendar-time-zones"
             value={value}
@@ -66,7 +68,7 @@ export function CalendarSettings() {
           </datalist>
         </label>
         <Button onClick={save} disabled={isLoading || !value || value === data?.timeZone}>
-          Сохранить
+          {t("Сохранить")}
         </Button>
       </div>
     </section>

@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetcher } from "@/lib/fetcher";
+import { useI18n } from "@/components/i18n/language-provider";
 import type { HolidayCatalogEntry } from "@/lib/calendar/holiday-catalog";
 import type { HolidayRule } from "@/lib/calendar/holiday-rules";
 
@@ -32,6 +33,7 @@ function changeRelativeRule(
 }
 
 export function HolidayCatalog() {
+  const { t } = useI18n();
   const { data, mutate, isLoading } = useSWR<{ holidays: HolidayCatalogEntry[] }>(
     "/api/admin/holidays",
     fetcher,
@@ -52,7 +54,7 @@ export function HolidayCatalog() {
         theme: null,
       }),
     });
-    if (!response.ok) return toast.error("Не удалось добавить праздник");
+    if (!response.ok) return toast.error(t("Не удалось добавить праздник"));
     setName("");
     await mutate();
   }
@@ -63,27 +65,27 @@ export function HolidayCatalog() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
     });
-    if (!response.ok) return toast.error("Не удалось изменить праздник");
+    if (!response.ok) return toast.error(t("Не удалось изменить праздник"));
     await mutate();
   }
 
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="section-title">Общие праздники</h2>
+        <h2 className="section-title">{t("Общие праздники")}</h2>
         <p className="text-sm text-muted-foreground">
-          Локальный каталог для всех пользователей установки
+          {t("Локальный каталог для всех пользователей установки")}
         </p>
       </div>
       <div className="grid gap-2 rounded-xl border p-4 sm:grid-cols-[1fr_6rem_6rem_auto]">
         <Input
-          aria-label="Название нового праздника"
-          placeholder="Название праздника"
+          aria-label={t("Название нового праздника")}
+          placeholder={t("Название праздника")}
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
         <Input
-          aria-label="Месяц"
+          aria-label={t("Месяц")}
           type="number"
           min={1}
           max={12}
@@ -91,7 +93,7 @@ export function HolidayCatalog() {
           onChange={(event) => setMonth(Number(event.target.value))}
         />
         <Input
-          aria-label="День"
+          aria-label={t("День")}
           type="number"
           min={1}
           max={31}
@@ -99,11 +101,11 @@ export function HolidayCatalog() {
           onChange={(event) => setDay(Number(event.target.value))}
         />
         <Button onClick={create} disabled={!name.trim()}>
-          Добавить
+          {t("Добавить")}
         </Button>
       </div>
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Загрузка…</p>
+        <p className="text-sm text-muted-foreground">{t("Загрузка…")}</p>
       ) : (
         <div className="divide-y rounded-xl border">
           {(data?.holidays ?? []).map((holiday) => (
@@ -137,14 +139,14 @@ export function HolidayCatalog() {
                     }
                   >
                     <SelectTrigger
-                      aria-label={`Тип правила: ${holiday.name}`}
+                      aria-label={`${t("Тип правила")}: ${holiday.name}`}
                       className="h-9 w-auto"
                     >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="FIXED">Фиксированная дата</SelectItem>
-                      <SelectItem value="NTH_WEEKDAY">N-й день недели</SelectItem>
+                      <SelectItem value="FIXED">{t("Фиксированная дата")}</SelectItem>
+                      <SelectItem value="NTH_WEEKDAY">{t("N-й день недели")}</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select
@@ -155,20 +157,23 @@ export function HolidayCatalog() {
                       })
                     }
                   >
-                    <SelectTrigger aria-label={`Тематика: ${holiday.name}`} className="h-9 w-auto">
+                    <SelectTrigger
+                      aria-label={`${t("Тематика")}: ${holiday.name}`}
+                      className="h-9 w-auto"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">Без тематики</SelectItem>
-                      <SelectItem value="MALE">Мужская</SelectItem>
-                      <SelectItem value="FEMALE">Женская</SelectItem>
+                      <SelectItem value="none">{t("Без тематики")}</SelectItem>
+                      <SelectItem value="MALE">{t("Мужская")}</SelectItem>
+                      <SelectItem value="FEMALE">{t("Женская")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 {holiday.rule.kind === "FIXED" ? (
                   <div className="mt-2 flex gap-2">
                     <Input
-                      aria-label={`День: ${holiday.name}`}
+                      aria-label={`${t("День")}: ${holiday.name}`}
                       className="w-20"
                       type="number"
                       min={1}
@@ -181,7 +186,7 @@ export function HolidayCatalog() {
                       }
                     />
                     <Input
-                      aria-label={`Месяц: ${holiday.name}`}
+                      aria-label={`${t("Месяц")}: ${holiday.name}`}
                       className="w-20"
                       type="number"
                       min={1}
@@ -197,7 +202,7 @@ export function HolidayCatalog() {
                 ) : (
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Input
-                      aria-label={`Номер дня недели: ${holiday.name}`}
+                      aria-label={`${t("Номер дня недели")}: ${holiday.name}`}
                       className="w-24"
                       type="number"
                       min={0}
@@ -214,7 +219,7 @@ export function HolidayCatalog() {
                       }
                     />
                     <Input
-                      aria-label={`Порядок недели: ${holiday.name}`}
+                      aria-label={`${t("Порядок недели")}: ${holiday.name}`}
                       className="w-24"
                       type="number"
                       min={-5}
@@ -231,7 +236,7 @@ export function HolidayCatalog() {
                       }
                     />
                     <Input
-                      aria-label={`Месяц: ${holiday.name}`}
+                      aria-label={`${t("Месяц")}: ${holiday.name}`}
                       className="w-20"
                       type="number"
                       min={1}
@@ -255,7 +260,7 @@ export function HolidayCatalog() {
                   checked={holiday.enabled}
                   onChange={(event) => void patch(holiday.id, { enabled: event.target.checked })}
                 />
-                Включён
+                {t("Включён")}
               </label>
               <label className="flex min-h-11 cursor-pointer items-center gap-2.5 text-sm">
                 <Switch
@@ -266,7 +271,7 @@ export function HolidayCatalog() {
                     })
                   }
                 />
-                Напоминания
+                {t("Напоминания")}
               </label>
             </div>
           ))}

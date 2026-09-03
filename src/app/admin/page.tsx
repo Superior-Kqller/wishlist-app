@@ -64,8 +64,8 @@ export default function AdminPage() {
       <PageMain>
         <div className={uiLayout.pageStack}>
           <PageIntro
-            title={t("Управление пользователями")}
-            description={t("Создание, редактирование и удаление учетных записей")}
+            title={t("Администрирование")}
+            description={t("Участники, напоминания календаря и каталог общих праздников")}
             actions={
               <Button onClick={() => setCreateDialogOpen(true)} className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />

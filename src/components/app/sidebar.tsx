@@ -71,7 +71,7 @@ export function AppSidebar() {
   ];
 
   if (session.user.role === "ADMIN") {
-    navItems.push({ label: t("Админка"), href: "/admin", icon: Shield });
+    navItems.push({ label: t("Администрирование"), href: "/admin", icon: Shield });
   }
 
   return (
