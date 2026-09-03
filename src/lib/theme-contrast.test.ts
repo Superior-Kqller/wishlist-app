@@ -20,7 +20,16 @@ import { contrastRatio, parseHslTriple, type Rgb } from "@/lib/color-contrast";
  * зависит от того, что лежит ниже, — такие сочетания этот тест не считает.
  */
 
-const CSS = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
+/*
+ * Переводы строк нормализуются: селекторы ниже ищутся по подстроке с `
+`,
+ * а на Windows с `core.autocrlf=true` рабочая копия приходит с CRLF — тест
+ * падал не на контрасте, а на переносе строки.
+ */
+const CSS = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8").replaceAll(
+  "\r\n",
+  "\n",
+);
 
 /** Блок объявлений темы: единственный, в `:root, .dark`. */
 function readThemeBlock(selector: string): Record<string, string> {

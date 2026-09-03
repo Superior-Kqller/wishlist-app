@@ -91,14 +91,14 @@ export default function SettingsPage() {
             >
               <TabsTrigger
                 value="profile"
-                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-[hsl(var(--surface-4))] data-[state=active]:text-foreground data-[state=active]:shadow-[inset_0_-2px_0_hsl(var(--primary-accent))]"
               >
                 <UserRound className="h-4 w-4 shrink-0" aria-hidden />
                 <span>{t("Профиль")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="security"
-                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-primary/10 data-[state=active]:text-foreground data-[state=active]:shadow-none"
+                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-[hsl(var(--surface-4))] data-[state=active]:text-foreground data-[state=active]:shadow-[inset_0_-2px_0_hsl(var(--primary-accent))]"
               >
                 <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
                 <span>{t("Защита")}</span>

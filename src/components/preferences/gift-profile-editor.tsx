@@ -150,7 +150,7 @@ function QuickTextField({
   return (
     <section className={cn("space-y-4", uiSurface.formSection)}>
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary-accent">
+        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/55 bg-[hsl(var(--surface-3))] text-primary-accent">
           <Icon className="h-4 w-4" aria-hidden />
         </div>
         <div>
@@ -245,7 +245,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
   return (
     <section className={cn("space-y-4", uiSurface.formSection)}>
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary-accent">
+        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/55 bg-[hsl(var(--surface-3))] text-primary-accent">
           <Ruler className="h-4 w-4" aria-hidden />
         </div>
         <div>
@@ -418,7 +418,7 @@ export function GiftProfileEditor({
                 "group flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-lg border px-2 text-center transition-[color,background-color,border-color,transform] duration-base active:scale-[0.98] sm:gap-3 sm:px-3",
                 uiState.focusRing,
                 active
-                  ? "border-primary-accent/70 bg-primary/10 text-foreground"
+                  ? "border-border/70 bg-[hsl(var(--surface-4))] text-foreground shadow-[inset_0_-2px_0_hsl(var(--primary-accent))]"
                   : "border-transparent text-muted-foreground hover:bg-accent/55 hover:text-foreground",
               )}
             >

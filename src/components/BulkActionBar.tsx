@@ -49,7 +49,7 @@ export function BulkActionBar({
               aria-live="polite"
               aria-atomic="true"
             >
-              <CheckSquare className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+              <CheckSquare className="h-4 w-4 shrink-0 text-primary-accent" aria-hidden />
               <span className="text-sm font-medium tabular-nums">{selectedCount}</span>
               <span className="sr-only">{t("выбрано")}</span>
             </div>

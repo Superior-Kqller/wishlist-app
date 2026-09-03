@@ -218,7 +218,7 @@ export function ProfileForm({
     <>
       <div className={cn(uiSurface.contentPanel, "p-4 sm:p-6")}>
         <div className="mb-5 flex items-start gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/55 bg-[hsl(var(--surface-3))] text-primary-accent">
             <UserRound className="h-5 w-5" aria-hidden />
           </span>
           <div className="min-w-0">
@@ -272,7 +272,7 @@ export function ProfileForm({
 
           <div className="space-y-4 border-t border-border/45 pt-5">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-3))] text-primary-accent">
                 <UsersRound className="h-4 w-4" aria-hidden />
               </span>
               <div className="min-w-0">
@@ -326,7 +326,7 @@ export function ProfileForm({
 
           <div className="space-y-4 border-t border-border/45 pt-5">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-3))] text-primary-accent">
                 <CalendarDays className="h-4 w-4" aria-hidden />
               </span>
               <div className="min-w-0 flex-1">
@@ -437,7 +437,7 @@ export function ProfileForm({
 
           <div className="space-y-4 border-t border-border/45 pt-5">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-3))] text-primary-accent">
                 <Send className="h-4 w-4" aria-hidden />
               </span>
               <div className="min-w-0">

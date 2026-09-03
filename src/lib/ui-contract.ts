@@ -64,18 +64,23 @@ export const uiState = {
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   navBase:
     "h-11 gap-2.5 border border-transparent px-3 text-muted-foreground/85 hover:bg-[hsl(var(--surface-3)/0.74)] hover:text-foreground",
-  navActive:
-    "border-primary/32 bg-primary/10 text-foreground shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)]",
+  /*
+   * Текущий раздел — это состояние, а не действие: тон поверхности плюс голос
+   * краски на значке. Заливка `bg-primary/10` давала 1.2:1 — читалась дымкой,
+   * а не указателем, и повторяла рецепт главной кнопки.
+   */
+  navActive: "border-border/55 bg-[hsl(var(--surface-3))] text-foreground",
   selectionIdle:
     "h-9 gap-1.5 px-3 border border-border bg-card text-muted-foreground hover:text-foreground",
-  selectionActive: "h-9 gap-1.5 px-3 border border-primary/55 bg-primary/16 text-foreground",
+  selectionActive:
+    "h-9 gap-1.5 px-3 border border-primary-accent/70 bg-[hsl(var(--surface-4))] text-foreground",
   /**
-   * Выбранный чип: рамка цветом роли поверх заливки того же цвета, как требует
-   * DESIGN.md → Chips / Badges. Ступень `/70` — минимальная, которая берёт 3:1
-   * во всех четырёх темах; `/45` давала 1.95–2.22, сплошная краска брала вдвое
-   * больше громкости, чем нужно.
+   * Выбранный чип: рамка голосом краски, заливка — ступень поверхности.
+   * Ступень `/70` у рамки — минимальная, которая берёт 3:1. Заливка была
+   * `bg-primary/16` (1.18:1 к соседу): она не отличала выбранный чип, а лишь
+   * добавляла тона в общую дымку — выбор виден рамкой и уровнем поверхности.
    */
-  chipSelected: "border-primary-accent/70 bg-primary/16 text-foreground",
+  chipSelected: "border-primary-accent/70 bg-[hsl(var(--surface-4))] text-foreground",
   chipSelectedDanger: "border-destructive/70 bg-destructive/10 text-destructive",
   chipIdle:
     "border-border/55 bg-[hsl(var(--surface-3)/0.45)] text-muted-foreground hover:bg-accent hover:text-foreground",

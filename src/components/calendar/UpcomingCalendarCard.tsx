@@ -60,7 +60,7 @@ export function UpcomingCalendarCard({ className }: { className?: string }) {
         <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground/70" aria-hidden />
         <span className="min-w-0 truncate">{t("Ближайших событий пока нет")}</span>
         <ArrowRight
-          className="h-4 w-4 shrink-0 text-primary transition-transform duration-200 ease-[var(--ease-expo)] group-hover:translate-x-0.5"
+          className="h-4 w-4 shrink-0 text-primary-accent transition-transform duration-200 ease-[var(--ease-expo)] group-hover:translate-x-0.5"
           aria-hidden
         />
       </Link>
@@ -73,10 +73,10 @@ export function UpcomingCalendarCard({ className }: { className?: string }) {
       aria-label={`${t("Весь календарь")}: ${getOccurrenceTitle(nextOccurrence)}`}
       className={cn(stripClass, className)}
     >
-      <CalendarDays className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+      <CalendarDays className="h-4 w-4 shrink-0 text-primary-accent" aria-hidden />
       <time
         dateTime={nextOccurrence.date}
-        className="shrink-0 font-semibold tabular-nums text-primary"
+        className="shrink-0 font-semibold tabular-nums text-primary-accent"
       >
         {new Date(`${nextOccurrence.date}T12:00:00`).toLocaleDateString(locale, {
           day: "numeric",
@@ -86,7 +86,7 @@ export function UpcomingCalendarCard({ className }: { className?: string }) {
       <span aria-hidden className="h-3.5 w-px shrink-0 bg-border/70" />
       <span className="min-w-0 truncate text-foreground">{getOccurrenceTitle(nextOccurrence)}</span>
       <ArrowRight
-        className="h-4 w-4 shrink-0 text-primary transition-transform duration-200 ease-[var(--ease-expo)] group-hover:translate-x-0.5"
+        className="h-4 w-4 shrink-0 text-primary-accent transition-transform duration-200 ease-[var(--ease-expo)] group-hover:translate-x-0.5"
         aria-hidden
       />
     </Link>

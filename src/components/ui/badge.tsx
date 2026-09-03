@@ -7,9 +7,12 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border border-primary/32 bg-primary/16 text-foreground",
+        // Заливка фирменной краской принадлежит одному элементу продукта —
+        // главной кнопке. Бейдж называет роль или статус, поэтому берёт
+        // голос: рамка и текст акцентом на ступени поверхности.
+        default: "border border-primary-accent/45 bg-[hsl(var(--surface-4))] text-primary-accent",
         secondary: "border border-border bg-secondary text-secondary-foreground",
-        brand: "border border-primary/32 bg-primary/10 text-foreground",
+        brand: "border border-primary-accent/45 bg-[hsl(var(--surface-4))] text-primary-accent",
         success: "border border-success/45 bg-success/16 text-success",
         warning: "border border-warning/45 bg-warning/16 text-foreground",
         info: "border border-info/45 bg-info/16 text-info",

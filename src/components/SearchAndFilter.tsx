@@ -37,7 +37,7 @@ export function WishlistSearchInput({
       placeholder={t("Поиск…")}
       aria-label={t("Поиск")}
       wrapperClassName={cn("group", className)}
-      iconClassName="left-3.5 text-muted-foreground/55 transition-colors duration-200 group-focus-within:text-primary/85"
+      iconClassName="left-3.5 text-muted-foreground/55 transition-colors duration-200 group-focus-within:text-primary-accent/85"
       inputClassName={cn(
         filterBarTriggerClass,
         // Поиск равняется по общей высоте ряда и больше не несёт собственной

@@ -113,6 +113,10 @@ export function AppSidebar() {
                 "relative justify-start rounded-lg font-medium",
                 uiState.navBase,
                 active && "text-foreground hover:bg-transparent",
+                // Значок текущего раздела берёт голос краски: подсветка
+                // самой строки теперь тональная, и без него «текущий»
+                // читался бы только по фону.
+                active && "[&_svg]:text-primary-accent",
               )}
               aria-current={active ? "page" : undefined}
               title={item.label}
@@ -127,7 +131,7 @@ export function AppSidebar() {
                   transition={
                     reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }
                   }
-                  className="absolute inset-0 -z-10 rounded-lg border border-primary/32 bg-primary/10 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)]"
+                  className="absolute inset-0 -z-10 rounded-lg border border-border/55 bg-[hsl(var(--surface-3))]"
                 />
               ) : null}
               <Icon className="h-4 w-4" />

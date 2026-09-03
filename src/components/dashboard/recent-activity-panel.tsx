@@ -70,7 +70,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
             type="button"
             variant="ghost"
             size="sm"
-            className="h-8 shrink-0 gap-1 rounded-lg px-2 text-[11px] text-primary/85 hover:bg-primary/10 hover:text-primary"
+            className="h-8 shrink-0 gap-1 rounded-lg px-2 text-[11px] text-primary-accent/85 hover:bg-primary/10 hover:text-primary-accent"
             onClick={() => setExpanded((value) => !value)}
           >
             {expanded ? t("Свернуть") : t("Все изменения")}

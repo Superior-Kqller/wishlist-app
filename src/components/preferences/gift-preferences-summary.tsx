@@ -156,7 +156,7 @@ export function GiftPreferencesSummary({
     >
       {!embedded ? (
         <div className="flex items-center gap-3 px-4 py-3 sm:px-5">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/24 bg-primary/10 text-primary-accent">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/55 bg-[hsl(var(--surface-3))] text-primary-accent">
             <Gift className="h-5 w-5" aria-hidden />
           </div>
           {/* Надстрочная подпись «ПОДАРОЧНЫЙ ПРОФИЛЬ» убрана: она повторяла

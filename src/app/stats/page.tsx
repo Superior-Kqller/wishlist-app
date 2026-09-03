@@ -249,7 +249,7 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
                   <CardTitle className="truncate text-lg">
                     <Link
                       href={`/?userId=${user.id}`}
-                      className="rounded transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="rounded transition-colors hover:text-primary-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {user.name}
                     </Link>
@@ -413,7 +413,7 @@ function StatsOverview({
             </div>
             <div className="min-w-0 border-l border-border/55 pl-5 sm:pl-7">
               <dt className="flex items-center gap-1.5 text-[11px] text-muted-foreground sm:text-xs">
-                <Users className="size-3.5 text-primary" aria-hidden />
+                <Users className="size-3.5 text-primary-accent" aria-hidden />
                 {t("Участников")}
               </dt>
               <dd className="mt-1 text-2xl font-semibold tabular-nums">{summary.memberCount}</dd>

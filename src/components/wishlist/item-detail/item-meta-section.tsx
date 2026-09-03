@@ -104,7 +104,7 @@ export function ItemMetaSection({
           {hasLongNotes ? (
             <button
               type="button"
-              className="rounded-sm text-xs font-medium text-primary hover:text-primary/85 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="rounded-sm text-xs font-medium text-primary-accent hover:text-primary-accent/85 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onClick={() => setShowFullNotes((value) => !value)}
             >
               {showFullNotes ? t("Свернуть") : t("Показать полностью")}

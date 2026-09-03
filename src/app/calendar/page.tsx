@@ -69,7 +69,7 @@ const FILTERS: Array<{ value: CalendarFilter; label: string }> = [
  */
 const EVENT_TYPE_META = {
   BIRTHDAY: { icon: Cake, label: "День рождения", chip: "bg-info/16" },
-  HOLIDAY: { icon: PartyPopper, label: "Общий праздник", chip: "bg-primary/16" },
+  HOLIDAY: { icon: PartyPopper, label: "Общий праздник", chip: "bg-[hsl(var(--surface-4))]" },
   PERSONAL: { icon: Clock3, label: "Личное событие", chip: "bg-success/16" },
 } as const;
 
@@ -99,7 +99,7 @@ function EventRow({
           size="lg"
         />
       ) : (
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary sm:h-12 sm:w-12 sm:border sm:border-primary/24">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--surface-3))] text-primary-accent sm:h-12 sm:w-12 sm:border sm:border-border/55">
           <Icon className="h-5 w-5" aria-hidden />
         </span>
       )}
@@ -135,7 +135,7 @@ function EventRow({
             className={cn(
               "inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-9 sm:min-w-0",
               muted
-                ? "border-primary/32 bg-primary/10 text-foreground"
+                ? "border-primary-accent/70 bg-[hsl(var(--surface-4))] text-foreground"
                 : "border-border/55 text-muted-foreground hover:bg-accent",
             )}
           >
@@ -277,8 +277,11 @@ function MonthGrid({
                     className={cn(
                       "min-h-14 border-b border-r border-border/32 p-1 transition-colors duration-[var(--dur-base)] md:min-h-28 md:p-2",
                       isWeekendColumn(columnIndex) && "bg-[hsl(var(--surface-1)/0.4)]",
-                      entries.length > 0 && "bg-primary/[0.05]",
-                      isToday && "bg-primary/[0.08]",
+                      // Ступени поверхности вместо фирменной заливки: 0.05 и 0.08
+                      // не лежали на лестнице прозрачностей и добавляли сетке
+                      // сиреневого тона, ничего при этом не различая.
+                      entries.length > 0 && "bg-[hsl(var(--surface-3)/0.55)]",
+                      isToday && "bg-[hsl(var(--surface-4)/0.55)]",
                     )}
                     role="cell"
                     aria-label={[
@@ -297,7 +300,10 @@ function MonthGrid({
                       dateTime={date}
                       className={cn(
                         "inline-flex h-6 min-w-6 items-center justify-center rounded-md px-1 text-xs font-semibold md:h-7 md:min-w-7 md:rounded-lg md:px-1.5 md:text-sm",
-                        isToday && "bg-primary text-primary-foreground",
+                        // Сплошная фирменная плашка здесь спорила с единственной
+                        // сплошной заливкой продукта — главной кнопкой. Сегодня —
+                        // это состояние, значит рамка и голос.
+                        isToday && "border border-primary-accent text-primary-accent",
                       )}
                     >
                       {day}
@@ -386,7 +392,7 @@ function MonthGrid({
                   <>
                     <time
                       dateTime={date}
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-semibold text-foreground"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-4))] text-xs font-semibold text-foreground"
                     >
                       {Number(date.slice(-2))}
                     </time>

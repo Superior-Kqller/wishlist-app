@@ -192,7 +192,7 @@ export const WishCard = memo(function WishCard({
                   className={cn(
                     "absolute right-2.5 top-2.5 z-20 rounded-full border px-2.5 py-1 text-[11px] font-semibold backdrop-blur-md",
                     isSelected
-                      ? "border-primary/55 bg-primary/24 text-foreground"
+                      ? "border-primary-accent/70 bg-[hsl(var(--surface-4))] text-foreground"
                       : "border-white/24 bg-zinc-950/70 text-white/95",
                   )}
                 >

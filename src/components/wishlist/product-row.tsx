@@ -85,7 +85,7 @@ export const ProductRow = memo(function ProductRow({
       className={cn(
         "group/row outline-none",
         isInteractive && "cursor-pointer",
-        isSelected && "bg-primary/10",
+        isSelected && "bg-[hsl(var(--surface-4)/0.7)]",
         isBought && "opacity-55",
       )}
       onClick={isInteractive ? handleRowClick : undefined}
@@ -264,7 +264,7 @@ export const ProductRow = memo(function ProductRow({
               "rounded-md px-2 py-1 text-xs transition-colors",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               isSelected
-                ? "bg-primary/10 text-foreground"
+                ? "bg-[hsl(var(--surface-4))] text-foreground"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >

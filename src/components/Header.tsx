@@ -47,7 +47,7 @@ function MobileNavIndicator({ reduceMotion }: { reduceMotion: boolean | null }) 
       layoutId="mobile-nav-active"
       aria-hidden
       transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }}
-      className="absolute inset-0 -z-10 rounded-xl border border-primary/32 bg-primary/10 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.055)]"
+      className="absolute inset-0 -z-10 rounded-xl border border-border/55 bg-[hsl(var(--surface-3))]"
     />
   );
 }

@@ -10,10 +10,21 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        /*
+         * Единственная сплошная заливка фирменной краской во всём продукте.
+         *
+         * Раньше главное действие носило `bg-primary/16` — полупрозрачный слой,
+         * дающий 1.18:1 к соседней поверхности, то есть невидимый как указатель.
+         * Краску приходилось добирать рамкой, а тот же рецепт носил и «выбранный
+         * сегмент», и активный пункт меню: одна кнопка не отличалась от восьми
+         * состояний вокруг. Fill-and-Voice Rule требует ровно этого: `--primary`
+         * — заливка, и на ней лежит только `--primary-foreground`.
+         *
+         * Ховер темнее, а не светлее: `--primary-accent` светлее заливки на две
+         * ступени, и белая подпись на нём теряет норму.
+         */
         default:
-          "border border-primary/45 bg-primary/16 text-foreground shadow-[var(--shadow-brand-action)] hover:border-primary/55 hover:bg-primary/24",
-        gradient:
-          "border border-primary/45 bg-[linear-gradient(180deg,hsl(var(--primary)/0.24),hsl(var(--primary)/0.15))] text-foreground shadow-[var(--shadow-brand-action)] hover:border-primary/55 hover:bg-primary/24 active:bg-primary/24",
+          "bg-primary text-primary-foreground shadow-[var(--shadow-brand-action)] hover:bg-[hsl(var(--primary)/0.88)]",
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/95",
         outline:
           "border border-border bg-card text-foreground shadow-none hover:border-border/95 hover:bg-accent",
@@ -27,10 +38,10 @@ const buttonVariants = cva(
          * объявлен, но не использован ни разу.
          */
         segmentActive:
-          "border border-primary/45 bg-primary/16 text-foreground shadow-none transition-colors hover:bg-primary/16",
+          "border border-border/70 bg-[hsl(var(--surface-4))] text-foreground shadow-[inset_0_-2px_0_hsl(var(--primary-accent))] transition-colors",
         ghost:
           "border border-transparent bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        link: "text-primary-accent underline-offset-4 hover:underline",
       },
       size: {
         default: "min-h-11 px-4 py-2 sm:min-h-10",

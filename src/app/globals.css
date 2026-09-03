@@ -197,8 +197,22 @@
     --glass-bg: 224 14% 10% / 0.78;
     --glass-border: 224 11% 32% / 0.34;
     --glass-blur: 20px;
+    /*
+     * Две лампы, а не одна.
+     *
+     * `--theme-cool` и `--theme-warm` — источники неровного света комнаты:
+     * четыре пятна холста, градиент панелей, свет за иконкой пустого
+     * состояния. Когда четыре темы свернулись в одну, оба оказались
+     * фиолетовыми (262° и 286°, разница 24°) и совпали по тону с самой
+     * фирменной краской — комната осталась освещена одной лампой цвета
+     * кнопки, и весь интерфейс лёг под ровную сиреневую дымку.
+     *
+     * Тёплый уводится в янтарь: 126° от холодного. Это не второй фирменный
+     * цвет — краска действия по-прежнему одна; это тёплый угол комнаты,
+     * который на альфе 0.06–0.11 читается не цветом, а температурой.
+     */
     --theme-cool: 262 58% 62%;
-    --theme-warm: 286 45% 48%;
+    --theme-warm: 28 52% 44%;
     --canvas-cool-alpha: 0.14;
     --canvas-warm-alpha: 0.11;
     --canvas-primary-alpha: 0.09;
@@ -209,8 +223,6 @@
     --panel-highlight: var(--foreground);
     --panel-highlight-alpha: 0.045;
     --panel-depth-alpha: 0.3;
-    --calendar-glow-alpha: 0.2;
-    --interactive-glow-primary: 262 58% 62% / 0.16;
     --overlay-backdrop: 224 28% 4% / 0.68;
     --overlay-image-scrim: 224 28% 4% / 0.58;
 
@@ -380,14 +392,6 @@
   }
 }
 
-.interactive-glow:hover,
-.interactive-glow:focus-visible,
-.interactive-glow[data-state="active"] {
-  box-shadow:
-    0 0 0 1px hsl(var(--primary) / 0.36),
-    0 0 18px hsl(var(--interactive-glow-primary));
-}
-
 .elevation-sidebar {
   box-shadow: var(--shadow-sidebar);
 }
@@ -452,22 +456,6 @@
       hsl(var(--primary) / 0.14) 78%,
       hsl(var(--theme-warm) / 0.1) 100%
     );
-}
-
-.calendar-preview-panel {
-  background:
-    radial-gradient(
-      circle at 8% 12%,
-      hsl(var(--theme-cool) / var(--calendar-glow-alpha)) 0%,
-      transparent 40%
-    ),
-    radial-gradient(
-      circle at 96% 100%,
-      hsl(var(--theme-warm) / var(--calendar-glow-alpha)) 0%,
-      transparent 48%
-    ),
-    linear-gradient(145deg, hsl(var(--surface-2) / 0.98) 0%, hsl(var(--surface-3) / 0.9) 100%);
-  box-shadow: var(--shadow-hero-panel);
 }
 
 .home-toolbar-panel {
