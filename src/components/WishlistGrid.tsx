@@ -113,6 +113,14 @@ export function WishlistGrid({
     );
   }
 
+  /*
+   * Пустая колонка — это не «нет данных», а лишний столбец: одиннадцать строк
+   * с прочерком в «Категории» и одинаковыми пустыми квадратами превью читались
+   * как незаполненная таблица, хотя заполнять там нечего.
+   */
+  const showPreviewColumn = items.some((item) => Boolean(item.images?.[0]));
+  const showCategoryColumn = items.some((item) => Boolean(item.category));
+
   if (viewMode === "table") {
     return (
       <div
@@ -129,7 +137,7 @@ export function WishlistGrid({
               <TableHead>{t("Товар")}</TableHead>
               <TableHead>{t("Владелец")}</TableHead>
               <TableHead className="text-right">{t("Ориентировочная стоимость")}</TableHead>
-              <TableHead>{t("Категория")}</TableHead>
+              {showCategoryColumn ? <TableHead>{t("Категория")}</TableHead> : null}
               <TableHead className="text-right">{t("Действия")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -147,6 +155,8 @@ export function WishlistGrid({
                 selectionMode={selectionMode}
                 isSelected={selectedIds?.has(item.id)}
                 onToggleSelect={onToggleSelect}
+                showPreviewColumn={showPreviewColumn}
+                showCategoryColumn={showCategoryColumn}
                 currentUserId={currentUserId}
                 currentUserRole={currentUserRole}
               />
@@ -161,7 +171,12 @@ export function WishlistGrid({
     <div
       role="region"
       aria-label={t("Список желаний")}
-      className={cn(catalogGridClassName, "items-stretch")}
+      // `items-start`, а не `stretch`: желания со снимком и без него имеют
+      // разную высоту по делу, и растяжка переносила эту разницу внутрь
+      // карточки — пустота между строкой фактов и ценой читалась как
+      // потерянное содержимое. Теперь карточка ровно такой высоты, сколько
+      // в ней есть.
+      className={cn(catalogGridClassName, "items-start")}
     >
       <p aria-live="polite" className="sr-only">
         {items.length} {getItemWord(language, items.length)}

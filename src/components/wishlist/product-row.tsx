@@ -34,6 +34,10 @@ export interface ProductRowProps {
   onToggleSelect?: (id: string) => void;
   currentUserId?: string;
   currentUserRole?: "ADMIN" | "USER" | null;
+  /** Снимок есть хотя бы у одной строки таблицы. */
+  showPreviewColumn?: boolean;
+  /** Категория указана хотя бы у одной строки таблицы. */
+  showCategoryColumn?: boolean;
 }
 
 export const ProductRow = memo(function ProductRow({
@@ -49,6 +53,8 @@ export const ProductRow = memo(function ProductRow({
   onToggleSelect,
   currentUserId,
   currentUserRole,
+  showPreviewColumn = true,
+  showCategoryColumn = true,
 }: ProductRowProps) {
   const { language, t } = useI18n();
   const [imageError, setImageError] = useState(false);
@@ -92,28 +98,35 @@ export const ProductRow = memo(function ProductRow({
     >
       <TableCell className="min-w-[22rem]">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-border bg-[hsl(var(--surface-1))]">
-            {showImage ? (
-              <Image
-                src={imageUrl!}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="56px"
-                unoptimized
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              /*
-               * Отсутствие снимка не украшается. Здесь стоял глобус — иконка,
-               * которая не означает «нет фотографии» ни в одном словаре, а
-               * повторённая на каждой строке читалась как столбец одинакового
-               * шума. Клетка остаётся ради выравнивания столбца, но пустая:
-               * та же тонировка, что у кадра карточки без снимка.
-               */
-              <div className="h-full w-full bg-[linear-gradient(140deg,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_100%)]" />
-            )}
-          </div>
+          {/*
+           * Столбец превью держится только тогда, когда снимок есть хотя бы у
+           * одной строки таблицы. Иначе он давал колонку одинаковых пустых
+           * квадратов 56×56 — столбец шума, отодвигающий название товара.
+           */}
+          {showPreviewColumn ? (
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-border bg-[hsl(var(--surface-1))]">
+              {showImage ? (
+                <Image
+                  src={imageUrl!}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="56px"
+                  unoptimized
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                /*
+                 * Отсутствие снимка не украшается. Здесь стоял глобус — иконка,
+                 * которая не означает «нет фотографии» ни в одном словаре, а
+                 * повторённая на каждой строке читалась как столбец одинакового
+                 * шума. Клетка остаётся ради выравнивания столбца, но пустая:
+                 * та же тонировка, что у кадра карточки без снимка.
+                 */
+                <div className="h-full w-full bg-[linear-gradient(140deg,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_100%)]" />
+              )}
+            </div>
+          ) : null}
           <div className="min-w-0">
             {isInteractive ? (
               <button
@@ -192,16 +205,18 @@ export const ProductRow = memo(function ProductRow({
         {item.price != null ? formatPrice(item.price, item.currency, language) : "—"}
       </TableCell>
 
-      <TableCell>
-        {item.category ? (
-          <Badge variant="outline" className="max-w-[10rem] gap-1.5 truncate text-[10px]">
-            <ProductCategoryIcon category={item.category} className="size-3.5 shrink-0" />
-            {categoryLabel}
-          </Badge>
-        ) : (
-          <span className="text-xs text-muted-foreground">—</span>
-        )}
-      </TableCell>
+      {showCategoryColumn ? (
+        <TableCell>
+          {item.category ? (
+            <Badge variant="outline" className="max-w-[10rem] gap-1.5 truncate text-[10px]">
+              <ProductCategoryIcon category={item.category} className="size-3.5 shrink-0" />
+              {categoryLabel}
+            </Badge>
+          ) : (
+            <span className="text-xs text-muted-foreground">—</span>
+          )}
+        </TableCell>
+      ) : null}
 
       <TableCell className="w-[3rem] text-right">
         {canManage ? (

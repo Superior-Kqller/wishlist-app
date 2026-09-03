@@ -23,7 +23,7 @@ import {
 import { WishlistItem } from "@/types";
 import { cn, formatPrice } from "@/lib/utils";
 import { getAvatarColor } from "@/lib/avatar-utils";
-import { PriorityBadgeOverlay } from "./priority-badge";
+import { PriorityBadgeInline, PriorityBadgeOverlay } from "./priority-badge";
 import { IconButton } from "@/components/ui/icon-button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getProductCategoryLabel } from "@/lib/categories";
@@ -101,7 +101,7 @@ export const WishCard = memo(function WishCard({
     <Card
       data-testid="wishlist-card-v2"
       className={cn(
-        "group/card flex h-full flex-col overflow-hidden rounded-2xl border-border/45 bg-[hsl(var(--surface-2))] shadow-none",
+        "group/card relative flex h-full flex-col overflow-hidden rounded-2xl border-border/45 bg-[hsl(var(--surface-2))] shadow-none",
         isBought && "opacity-[0.88] saturate-[0.85]",
         isCardInteractive &&
           "transition-[border-color,transform,box-shadow] duration-[var(--dur-base)] ease-[var(--ease-soft)] hover:-translate-y-1 hover:border-primary/45 hover:shadow-[var(--shadow-interactive-card-hover)]",
@@ -122,28 +122,32 @@ export const WishCard = memo(function WishCard({
             onClick={isCardInteractive ? handleCardClick : undefined}
             aria-pressed={selectionMode ? isSelected : undefined}
           >
-            <div
-              data-testid="wishlist-card-v2-media"
-              className={cn(
-                "relative w-full shrink-0 overflow-hidden bg-[hsl(var(--surface-1))]",
-                showImage
-                  ? // На узком экране карточки идут в один столбец, поэтому кадр
-                    // здесь шире: иначе один товар занимает пол-экрана по высоте.
-                    "aspect-[16/10] sm:aspect-[4/3]"
-                  : // Без снимка кадр незачем держать: желания, набранные руками,
-                    // отдавали половину экрана телефона подарочной иконке в пустой
-                    // рамке. Остаётся полоса — ровно чтобы принять метку важности,
-                    // которая живёт поверх кадра.
-                    "h-14 sm:h-[3.75rem]",
-              )}
-            >
-              {/*
-               * Фотографии товаров приходят с чужих сайтов: разные пропорции и
-               * разные фоны. Размытая копия снимка заполняет кадр целиком, а
-               * резкая версия остаётся целой поверх — так карточки выстраиваются
-               * в ровную сетку, и ни один товар не обрезается.
-               */}
-              {showImage ? (
+            {/*
+             * Кадра нет, если нет снимка.
+             *
+             * Раньше карточка без изображения держала полосу 60px — ровно чтобы
+             * принять метку важности, которая жила поверх кадра. На сетке из
+             * желаний, набранных руками, это давало ряд пустых рамок: четверть
+             * высоты каждой карточки уходила на подложку под одну метку, а сама
+             * сетка читалась как «не загрузилось». Важность переехала в строку
+             * фактов, и полоса стала не нужна.
+             */}
+            {showImage ? (
+              <div
+                data-testid="wishlist-card-v2-media"
+                className={cn(
+                  "relative w-full shrink-0 overflow-hidden bg-[hsl(var(--surface-1))]",
+                  // На узком экране карточки идут в один столбец, поэтому кадр
+                  // здесь шире: иначе один товар занимает пол-экрана по высоте.
+                  "aspect-[16/10] sm:aspect-[4/3]",
+                )}
+              >
+                {/*
+                 * Фотографии товаров приходят с чужих сайтов: разные пропорции и
+                 * разные фоны. Размытая копия снимка заполняет кадр целиком, а
+                 * резкая версия остаётся целой поверх — так карточки выстраиваются
+                 * в ровную сетку, и ни один товар не обрезается.
+                 */}
                 <>
                   {/*
                    * Подложка — CSS-фон, а не второй <Image>: адрес тот же, браузер
@@ -166,40 +170,30 @@ export const WishCard = memo(function WishCard({
                     onError={() => setImageError(true)}
                   />
                 </>
-              ) : (
-                // Подарочная иконка убрана вместе с кадром: в полосе высотой
-                // 56px она сталкивалась бы с меткой важности, а украшать
-                // отсутствие снимка нечем и незачем.
-                <div className="h-full w-full bg-[linear-gradient(140deg,hsl(var(--surface-3))_0%,hsl(var(--surface-1))_100%)]" />
-              )}
 
-              {/*
-               * Растушёвка нижней кромки принадлежит снимку: она гасит его край
-               * перед текстом. В полосе без снимка её 80px накрыли бы всю
-               * полосу целиком, вместе с меткой важности.
-               */}
-              {showImage ? (
+                {/* Растушёвка нижней кромки принадлежит снимку: она гасит его край
+                  перед текстом. */}
                 <div
                   aria-hidden
                   className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[hsl(var(--surface-2))] via-[hsl(var(--surface-2)/0.55)] to-transparent"
                 />
-              ) : null}
 
-              <PriorityBadgeOverlay priority={item.priority} />
+                <PriorityBadgeOverlay priority={item.priority} />
+              </div>
+            ) : null}
 
-              {selectionMode ? (
-                <div
-                  className={cn(
-                    "absolute right-2.5 top-2.5 z-20 rounded-full border px-2.5 py-1 text-[11px] font-semibold backdrop-blur-md",
-                    isSelected
-                      ? "border-primary-accent/70 bg-[hsl(var(--surface-4))] text-foreground"
-                      : "border-white/24 bg-zinc-950/70 text-white/95",
-                  )}
-                >
-                  {isSelected ? t("Выбрано") : t("Выбрать")}
-                </div>
-              ) : null}
-            </div>
+            {selectionMode ? (
+              <div
+                className={cn(
+                  "absolute right-2.5 top-2.5 z-20 rounded-full border px-2.5 py-1 text-[11px] font-semibold",
+                  isSelected
+                    ? "border-primary-accent/70 bg-[hsl(var(--surface-4))] text-foreground"
+                    : "border-border/70 bg-[hsl(var(--surface-3))] text-muted-foreground",
+                )}
+              >
+                {isSelected ? t("Выбрано") : t("Выбрать")}
+              </div>
+            ) : null}
 
             <div className="flex min-w-0 flex-1 flex-col gap-2 px-3.5 pb-3 pt-3 sm:px-4">
               <h3
@@ -212,62 +206,68 @@ export const WishCard = memo(function WishCard({
                 {item.title}
               </h3>
 
-              {item.category || ownerName ? (
-                <div
-                  data-testid="wishlist-card-v2-meta"
-                  className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-muted-foreground"
-                >
-                  {item.category ? (
-                    <span
-                      data-testid="wishlist-card-v2-category"
-                      className="inline-flex min-w-0 items-center gap-1.5"
-                    >
-                      <ProductCategoryIcon
-                        category={item.category}
-                        className="size-3.5 shrink-0 text-muted-foreground/70"
-                      />
-                      <span className="truncate">{categoryLabel}</span>
-                    </span>
-                  ) : null}
+              <div
+                data-testid="wishlist-card-v2-meta"
+                className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-muted-foreground"
+              >
+                {/* Важность стоит первой: на карточке со снимком она лежит
+                      поверх кадра, здесь — среди прочих фактов о желании. */}
+                {!showImage ? <PriorityBadgeInline priority={item.priority} /> : null}
 
-                  {item.category && ownerName ? (
-                    <span aria-hidden className="size-0.5 rounded-full bg-muted-foreground/45" />
-                  ) : null}
+                {!showImage && item.category ? (
+                  <span aria-hidden className="size-0.5 rounded-full bg-muted-foreground/45" />
+                ) : null}
 
-                  {ownerName ? (
-                    <span
-                      data-testid="wishlist-card-v2-owner"
-                      className="inline-flex min-w-0 items-center gap-1.5"
-                    >
-                      <Avatar className="size-[18px] shrink-0">
-                        {ownerImage && !ownerImageError ? (
-                          <Image
-                            src={ownerImage}
-                            alt={ownerName}
-                            fill
-                            className="object-cover"
-                            sizes="20px"
-                            unoptimized={ownerImage.startsWith("/uploads/")}
-                            onError={() => setOwnerImageError(true)}
-                          />
-                        ) : (
-                          /*
-                           * Кружок без букв. Инициалы здесь набирались 8px в
-                           * круге 16px — ниже всякого порога читаемости, — и
-                           * при этом полное имя владельца стоит той же строкой
-                           * в 11px. То есть буквы не сообщали ничего, чего нет
-                           * рядом, а скринридер зачитывал их дважды: «UO User
-                           * One». Остаётся цветная метка: она помогает
-                           * выхватывать своё в сетке, и это вся её работа.
-                           */
-                          <AvatarFallback aria-hidden className={getAvatarColor(ownerId)} />
-                        )}
-                      </Avatar>
-                      <span className="min-w-0 truncate">{ownerName}</span>
-                    </span>
-                  ) : null}
-                </div>
-              ) : null}
+                {item.category ? (
+                  <span
+                    data-testid="wishlist-card-v2-category"
+                    className="inline-flex min-w-0 items-center gap-1.5"
+                  >
+                    <ProductCategoryIcon
+                      category={item.category}
+                      className="size-3.5 shrink-0 text-muted-foreground/70"
+                    />
+                    <span className="truncate">{categoryLabel}</span>
+                  </span>
+                ) : null}
+
+                {item.category && ownerName ? (
+                  <span aria-hidden className="size-0.5 rounded-full bg-muted-foreground/45" />
+                ) : null}
+
+                {ownerName ? (
+                  <span
+                    data-testid="wishlist-card-v2-owner"
+                    className="inline-flex min-w-0 items-center gap-1.5"
+                  >
+                    <Avatar className="size-[18px] shrink-0">
+                      {ownerImage && !ownerImageError ? (
+                        <Image
+                          src={ownerImage}
+                          alt={ownerName}
+                          fill
+                          className="object-cover"
+                          sizes="20px"
+                          unoptimized={ownerImage.startsWith("/uploads/")}
+                          onError={() => setOwnerImageError(true)}
+                        />
+                      ) : (
+                        /*
+                         * Кружок без букв. Инициалы здесь набирались 8px в
+                         * круге 16px — ниже всякого порога читаемости, — и
+                         * при этом полное имя владельца стоит той же строкой
+                         * в 11px. То есть буквы не сообщали ничего, чего нет
+                         * рядом, а скринридер зачитывал их дважды: «UO User
+                         * One». Остаётся цветная метка: она помогает
+                         * выхватывать своё в сетке, и это вся её работа.
+                         */
+                        <AvatarFallback aria-hidden className={getAvatarColor(ownerId)} />
+                      )}
+                    </Avatar>
+                    <span className="min-w-0 truncate">{ownerName}</span>
+                  </span>
+                ) : null}
+              </div>
 
               {isBought ? (
                 <div
