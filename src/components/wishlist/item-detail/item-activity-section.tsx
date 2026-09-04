@@ -111,7 +111,7 @@ export function ItemActivitySection({
           value={commentText}
           onChange={(event) => onCommentTextChange(event.target.value)}
           placeholder={t("Добавить комментарий…")}
-          className="min-h-20 resize-y border-border/55 bg-[hsl(var(--surface-1))] sm:min-h-24"
+          className="min-h-20 resize-y border-border/55 sm:min-h-24"
           maxLength={2000}
           disabled={submittingComment}
         />

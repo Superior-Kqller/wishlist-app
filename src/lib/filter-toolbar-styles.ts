@@ -9,4 +9,4 @@
 export const TOOLBAR_CONTROL_HEIGHT = "h-10";
 
 export const filterBarTriggerClass =
-  "h-10 border-border/85 bg-[hsl(var(--surface-3)/0.85)] shadow-none hover:border-primary/32 hover:bg-[hsl(var(--surface-4)/0.85)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+  "h-10 border-border/85 bg-[hsl(var(--surface-3)/0.85)] shadow-none hover:border-primary/32 hover:bg-[hsl(var(--surface-4)/0.85)]";

@@ -75,6 +75,26 @@ export const uiState = {
    */
   focusRing:
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  /**
+   * Поля ввода фокусируются иначе, чем кнопки и карточки.
+   *
+   * `focusRing` рассчитан на компактный элемент: кольцо в полный тон, отбитое
+   * зазором от края. На поле ввода тот же рецепт даёт полосу яркой краски по
+   * периметру прямоугольника в половину диалога, оторванную от рамки тёмным
+   * зазором, — и чем крупнее поле, тем громче она звучит. Textarea был худшим
+   * случаем.
+   *
+   * У поля, в отличие от кнопки, уже есть собственный периметр, которому есть
+   * куда загореться. Рамка берёт голос краски целиком (3:1 и выше на любой
+   * ступени поверхности), кольцо ложится вплотную (`ring-offset-0`) и
+   * приглушённо (`/32`) — поле не обводится снаружи, а включается само.
+   *
+   * Рецепт не новый: так уже фокусировался поиск. Раньше это была вторая,
+   * необъявленная конвенция рядом с `focusRing`; теперь она названа и одна на
+   * все поля.
+   */
+  focusField:
+    "focus-visible:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/32 focus-visible:ring-offset-0",
   navBase:
     "h-11 gap-2.5 border border-transparent px-3 text-muted-foreground/85 hover:bg-[hsl(var(--surface-3)/0.7)] hover:text-foreground",
   /*
