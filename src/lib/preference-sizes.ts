@@ -88,7 +88,7 @@ function categoryNames(category: SizeCategory) {
   return [category.label, ...(category.aliases ?? [])];
 }
 
-export function startsWithSizeCategory(part: string) {
+function startsWithSizeCategory(part: string) {
   return sizeCategories.some((category) =>
     categoryNames(category).some((name) => categoryPrefixMatcher(name).test(part)),
   );
@@ -166,7 +166,7 @@ export function composeSizePreferences(fields: Record<SizeCategoryId, string>, c
 }
 
 /** Значения внутри одной категории: «M, L» — это два размера, а не один. */
-export function sizeTokens(value: string) {
+function sizeTokens(value: string) {
   return value
     .split(",")
     .map((part) => part.trim())

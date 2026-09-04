@@ -45,7 +45,7 @@ function channelLuminance(channel: number): number {
 }
 
 /** Относительная яркость по WCAG 2.1. */
-export function relativeLuminance({ r, g, b }: Rgb): number {
+function relativeLuminance({ r, g, b }: Rgb): number {
   return 0.2126 * channelLuminance(r) + 0.7152 * channelLuminance(g) + 0.0722 * channelLuminance(b);
 }
 

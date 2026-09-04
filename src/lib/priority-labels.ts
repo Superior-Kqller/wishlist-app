@@ -1,6 +1,6 @@
 import { type Language, translate } from "@/lib/i18n";
 
-export const PRIORITY_LABELS: Record<number, string> = {
+const PRIORITY_LABELS: Record<number, string> = {
   1: "Хочу при случае",
   2: "Было бы классно",
   3: "Сильно нужно",
@@ -13,7 +13,7 @@ export function getPriorityLabel(priority: number, language: Language = "ru"): s
   return label ? translate(language, label) : `${translate(language, "Приоритет")} ${priority}`;
 }
 
-export const PRIORITY_SHORT_LABELS: Record<number, string> = {
+const PRIORITY_SHORT_LABELS: Record<number, string> = {
   1: "При случае",
   2: "Классно",
   3: "Нужно",

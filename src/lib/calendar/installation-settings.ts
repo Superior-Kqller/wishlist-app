@@ -9,7 +9,7 @@ export interface CalendarSettingsActor {
   role: "USER" | "ADMIN";
 }
 
-export function isValidIanaTimeZone(timeZone: string): boolean {
+function isValidIanaTimeZone(timeZone: string): boolean {
   try {
     new Intl.DateTimeFormat("en-US", { timeZone }).format();
     return true;

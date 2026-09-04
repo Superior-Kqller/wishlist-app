@@ -20,7 +20,7 @@ const PRIORITY_ICONS: Record<WishlistPriority, IconComponent> = {
   5: Flame,
 };
 
-export function getPriorityIcon(priority: number): IconComponent {
+function getPriorityIcon(priority: number): IconComponent {
   return PRIORITY_ICONS[clampWishlistPriority(priority)];
 }
 

@@ -5,7 +5,7 @@ import useSWRInfinite from "swr/infinite";
 import { fetcher } from "@/lib/fetcher";
 import type { ItemsPage } from "@/types";
 
-export const WISHLIST_ITEMS_PAGE_SIZE = 30;
+const WISHLIST_ITEMS_PAGE_SIZE = 30;
 
 export function useInfiniteWishlistItems(
   normalizedSelectedUserId: string | null,
