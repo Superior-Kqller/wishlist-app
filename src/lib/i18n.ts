@@ -789,7 +789,7 @@ const en: Dictionary = {
     "Password must contain special characters (!@#$%^&*, etc.)",
 };
 
-export const dictionaries: Record<Language, Dictionary> = {
+const dictionaries: Record<Language, Dictionary> = {
   ru: {},
   en,
 };
@@ -804,7 +804,7 @@ export const languageShortLabels: Record<Language, string> = {
   en: "EN",
 };
 
-export const languageLocales: Record<Language, string> = {
+const languageLocales: Record<Language, string> = {
   ru: "ru-RU",
   en: "en-US",
 };
@@ -820,7 +820,7 @@ export const appMetadataCopy: Record<Language, { title: string; description: str
   },
 };
 
-export function isLanguage(value: string | null | undefined): value is Language {
+function isLanguage(value: string | null | undefined): value is Language {
   return LANGUAGES.includes(value as Language);
 }
 
@@ -832,7 +832,7 @@ export function translate(language: Language, key: string): string {
   return dictionaries[language][key] ?? key;
 }
 
-export function interpolate(template: string, values?: Record<string, string | number>) {
+function interpolate(template: string, values?: Record<string, string | number>) {
   if (!values) return template;
   return Object.entries(values).reduce(
     (result, [key, value]) => result.replaceAll(`{${key}}`, String(value)),
@@ -868,13 +868,4 @@ export function getItemWord(language: Language, count: number): string {
   if (mod10 === 1 && mod100 !== 11) return "товар";
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "товара";
   return "товаров";
-}
-
-export function getCardWord(language: Language, count: number): string {
-  if (language === "en") return count === 1 ? "card" : "cards";
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-  if (mod10 === 1 && mod100 !== 11) return "карточка";
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "карточки";
-  return "карточек";
 }

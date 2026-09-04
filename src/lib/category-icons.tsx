@@ -38,7 +38,7 @@ const CATEGORY_ICONS: Record<ProductCategory, IconComponent> = {
   other: Shapes,
 };
 
-export function getProductCategoryIcon(category: string | null | undefined): IconComponent {
+function getProductCategoryIcon(category: string | null | undefined): IconComponent {
   const normalized = normalizeProductCategory(category);
   return normalized ? CATEGORY_ICONS[normalized] : Shapes;
 }

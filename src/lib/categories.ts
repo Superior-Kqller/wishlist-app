@@ -38,7 +38,7 @@ export const PRODUCT_CATEGORIES: ProductCategoryOption[] = [
 
 const CATEGORY_IDS = new Set(PRODUCT_CATEGORIES.map((category) => category.id));
 
-export function isProductCategory(value: string | null | undefined): value is ProductCategory {
+function isProductCategory(value: string | null | undefined): value is ProductCategory {
   return Boolean(value && CATEGORY_IDS.has(value as ProductCategory));
 }
 
@@ -47,7 +47,7 @@ export function normalizeProductCategory(value: string | null | undefined): Prod
   return isProductCategory(normalized) ? normalized : null;
 }
 
-export function getProductCategoryOption(
+function getProductCategoryOption(
   category: string | null | undefined,
 ): ProductCategoryOption | null {
   const normalized = normalizeProductCategory(category);

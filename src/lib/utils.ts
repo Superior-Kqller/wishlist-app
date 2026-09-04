@@ -113,14 +113,3 @@ export function priorityColor(priority: number): string {
   };
   return colors[priority] || colors[3];
 }
-
-export function priorityBgColor(priority: number): string {
-  const colors: Record<number, string> = {
-    1: "bg-[hsl(var(--priority-1)/0.12)]",
-    2: "bg-[hsl(var(--priority-2)/0.12)]",
-    3: "bg-[hsl(var(--priority-3)/0.14)]",
-    4: "bg-[hsl(var(--priority-4)/0.15)]",
-    5: "bg-[hsl(var(--priority-5)/0.16)]",
-  };
-  return colors[priority] || colors[3];
-}

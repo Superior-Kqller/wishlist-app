@@ -13,7 +13,7 @@ interface SessionUser {
 /**
  * Получить текущего пользователя из сессии
  */
-export async function getCurrentUser(): Promise<SessionUser | null> {
+async function getCurrentUser(): Promise<SessionUser | null> {
   const session = await getServerSession(authOptions);
   if (!session?.user) return null;
 
@@ -24,7 +24,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
 /**
  * Получить ID текущего пользователя
  */
-export async function getCurrentUserId(): Promise<string | null> {
+async function getCurrentUserId(): Promise<string | null> {
   const user = await getCurrentUser();
   return user?.id || null;
 }
@@ -41,21 +41,6 @@ export async function getSessionUserIdVerified(): Promise<string | null> {
     select: { id: true },
   });
   return row?.id ?? null;
-}
-
-/**
- * Проверить, является ли пользователь администратором
- */
-export async function isAdmin(): Promise<boolean> {
-  const user = await getCurrentUser();
-  return user?.role === "ADMIN";
-}
-
-/**
- * Проверить, является ли пользователь администратором (синхронная версия для клиента)
- */
-export function isAdminClient(user: SessionUser | null): boolean {
-  return user?.role === "ADMIN";
 }
 
 /**

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import { test as setup } from "@playwright/test";
 import { loginAsUser } from "./helpers/auth";
 
-export const AUTH_STATE = "playwright/.auth/user.json";
+const AUTH_STATE = "playwright/.auth/user.json";
 
 /**
  * Один вход на весь прогон — и по возможности на несколько прогонов подряд.

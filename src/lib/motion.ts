@@ -17,19 +17,3 @@ export const duration = {
   slow: 0.42,
   reveal: 0.62,
 } as const;
-
-/** Шаг задержки для последовательного появления элементов списка. */
-export const STAGGER_STEP_MS = 45;
-
-/** Дальше этого индекса каскад не читается как ритм, а ощущается как лаг. */
-export const STAGGER_MAX_STEPS = 10;
-
-export function staggerDelayMs(index: number, step = STAGGER_STEP_MS): number {
-  return Math.min(index, STAGGER_MAX_STEPS) * step;
-}
-
-export const pageTransition = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: duration.slow, ease: easing.expo },
-} as const;

@@ -62,10 +62,6 @@ export function splitPreferenceList(value: string): string[] {
     });
 }
 
-export function joinPreferenceList(value: string[]): string {
-  return value.join(", ");
-}
-
 export function countGiftPreferences(value: GiftPreferences): number {
   return (
     value.favoriteColors.length +
