@@ -1,3 +1,12 @@
+/*
+ * Наполнение базы.
+ *
+ * Скрипт намеренно на голом CommonJS: его запускает `node ./prisma/seed.js`
+ * — из docker-entrypoint.sh, seed-production.sh и `npm run db:seed`, — а в
+ * production-образе нет ни TypeScript, ни ts-node. Рядом долго лежала
+ * вторая, типизированная копия: тесты проверяли её, а исполнялась эта, и
+ * защита от пароля `changeme` в проде оставалась непокрытой.
+ */
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
 const { Pool } = require("pg");
@@ -109,6 +118,10 @@ function assertSafeSeedUsernames(env = process.env) {
   return { user1Username, user2Username };
 }
 
+async function seedDefaultHolidays(prisma) {
+  await prisma.holiday.createMany({ data: DEFAULT_HOLIDAYS, skipDuplicates: true });
+}
+
 async function main() {
   assertSafeSeedConfig(process.env);
   const { user1Username, user2Username } = assertSafeSeedUsernames(process.env);
@@ -118,10 +131,7 @@ async function main() {
   const prisma = new PrismaClient({ adapter });
 
   try {
-    await prisma.holiday.createMany({
-      data: DEFAULT_HOLIDAYS,
-      skipDuplicates: true,
-    });
+    await seedDefaultHolidays(prisma);
     const userCount = await prisma.user.count();
 
     // Если пользователей нет, создаем их
@@ -176,7 +186,16 @@ async function main() {
   }
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+module.exports = {
+  DEFAULT_HOLIDAYS,
+  seedDefaultHolidays,
+  assertSafeSeedConfig,
+  assertSafeSeedUsernames,
+};
+
+if (require.main === module) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

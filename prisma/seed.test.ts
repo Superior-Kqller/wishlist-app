@@ -1,11 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-// Расширение обязательно: рядом лежит prisma/seed.js, и без него резолвер выберет его.
 import {
   assertSafeSeedConfig,
   assertSafeSeedUsernames,
   DEFAULT_HOLIDAYS,
   seedDefaultHolidays,
-} from "./seed.ts";
+} from "./seed.js";
 
 describe("assertSafeSeedConfig", () => {
   it("throws in production when seed password uses changeme", () => {
