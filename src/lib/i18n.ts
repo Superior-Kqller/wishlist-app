@@ -852,20 +852,43 @@ export function getLanguageLocale(language: Language): string {
   return languageLocales[language];
 }
 
-export function getWishWord(language: Language, count: number): string {
-  if (language === "en") return count === 1 ? "wish" : "wishes";
+/** Формы слова при числе: английскому хватает двух, русскому нужно три. */
+interface WordForms {
+  en: { one: string; other: string };
+  ru: { one: string; few: string; many: string };
+}
+
+/**
+ * Выбор формы принадлежит языку, а не слову.
+ *
+ * Правило было выписано заново под каждое слово — желание, товар, карточка,
+ * — и копии различались только тремя строками. Достаточно было поправить
+ * условие в одной, чтобы слова начали склоняться по-разному, и ничто бы об
+ * этом не сказало.
+ *
+ * Русское число: одна форма при 1, 21, 31…, вторая при 2–4, 22–24…, третья
+ * на всё прочее — включая 11–14, которые ведут себя не как 1–4.
+ */
+function pluralize(language: Language, count: number, forms: WordForms): string {
+  if (language === "en") return count === 1 ? forms.en.one : forms.en.other;
+
   const mod10 = count % 10;
   const mod100 = count % 100;
-  if (mod10 === 1 && mod100 !== 11) return "желание";
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "желания";
-  return "желаний";
+  if (mod10 === 1 && mod100 !== 11) return forms.ru.one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms.ru.few;
+  return forms.ru.many;
+}
+
+export function getWishWord(language: Language, count: number): string {
+  return pluralize(language, count, {
+    en: { one: "wish", other: "wishes" },
+    ru: { one: "желание", few: "желания", many: "желаний" },
+  });
 }
 
 export function getItemWord(language: Language, count: number): string {
-  if (language === "en") return count === 1 ? "item" : "items";
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-  if (mod10 === 1 && mod100 !== 11) return "товар";
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "товара";
-  return "товаров";
+  return pluralize(language, count, {
+    en: { one: "item", other: "items" },
+    ru: { one: "товар", few: "товара", many: "товаров" },
+  });
 }
