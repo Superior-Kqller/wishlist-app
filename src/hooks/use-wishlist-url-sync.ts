@@ -1,19 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
+import {
+  serializeWishlistFilters,
+  type WishlistFiltersState,
+} from "@/lib/home/wishlist-filters-url";
 
 type RouterReplace = (href: string, options?: { scroll?: boolean }) => void;
 
 type SyncParams = {
   replace: RouterReplace;
+  /** Текущие фильтры — как их прочитали из адреса, кроме черновика поиска. */
+  filters: WishlistFiltersState;
   normalizedSelectedUserId: string | null;
-  selectedListId: string | null;
-  selectedUserId: string | null;
-  search: string;
-  sortBy: string;
-  viewMode: "grid" | "table";
-  showPurchased: boolean;
-  selectedCategories: string[];
   listIdParam: string | null;
   currentUserId: string | undefined;
   allowedListIdsForFilters: Set<string>;
@@ -21,47 +20,27 @@ type SyncParams = {
 
 export function useWishlistUrlSync({
   replace,
+  filters,
   normalizedSelectedUserId,
-  selectedListId,
-  selectedUserId,
-  search,
-  sortBy,
-  viewMode,
-  showPurchased,
-  selectedCategories,
   listIdParam,
   currentUserId,
   allowedListIdsForFilters,
 }: SyncParams) {
+  /*
+   * Адрес — хранилище фильтров, а не их отражение. Любая правка идёт сюда:
+   * состояние страницы после неё перечитывается из ссылки, поэтому переход
+   * по другой ссылке не может оставить прежнюю сортировку или категории.
+   */
   const syncFiltersToUrl = useCallback(
-    (overrides: Record<string, string | null> = {}) => {
-      const params = new URLSearchParams();
-      const vals: Record<string, string | null> = {
+    (overrides: Partial<WishlistFiltersState> = {}) => {
+      const qs = serializeWishlistFilters({
+        ...filters,
         userId: normalizedSelectedUserId,
-        listId: selectedListId,
-        search: search || null,
-        sort: sortBy !== "newest" ? sortBy : null,
-        view: viewMode === "table" ? "table" : null,
-        purchased: showPurchased ? "show" : null,
-        categories: selectedCategories.length > 0 ? selectedCategories.join(",") : null,
         ...overrides,
-      };
-      for (const [k, v] of Object.entries(vals)) {
-        if (v) params.set(k, v);
-      }
-      const qs = params.toString();
+      });
       replace(qs ? `/?${qs}` : "/", { scroll: false });
     },
-    [
-      normalizedSelectedUserId,
-      selectedListId,
-      search,
-      sortBy,
-      viewMode,
-      showPurchased,
-      selectedCategories,
-      replace,
-    ],
+    [filters, normalizedSelectedUserId, replace],
   );
 
   useEffect(() => {
@@ -70,26 +49,38 @@ export function useWishlistUrlSync({
   }, [listIdParam, syncFiltersToUrl]);
 
   useEffect(() => {
-    if (selectedUserId !== normalizedSelectedUserId) {
+    if (filters.userId !== normalizedSelectedUserId) {
       syncFiltersToUrl({ userId: normalizedSelectedUserId, listId: null });
     }
-  }, [selectedUserId, normalizedSelectedUserId, syncFiltersToUrl]);
+  }, [filters.userId, normalizedSelectedUserId, syncFiltersToUrl]);
 
+  useEffect(() => {
+    const listId = filters.listId;
+    if (!listId || !currentUserId) return;
+    if (!allowedListIdsForFilters.has(listId)) {
+      syncFiltersToUrl({ listId: null });
+    }
+  }, [filters.listId, allowedListIdsForFilters, currentUserId, syncFiltersToUrl]);
+
+  return { syncFiltersToUrl };
+}
+
+/**
+ * Поиск — единственный черновик: печатать в адресную строку по букве нельзя,
+ * поэтому в ссылку попадает уже успокоившееся значение.
+ */
+export function useSearchDraftUrlSync(
+  debouncedSearch: string,
+  urlSearch: string,
+  syncFiltersToUrl: (overrides: Partial<WishlistFiltersState>) => void,
+) {
   const isInitialMount = useRef(true);
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-    syncFiltersToUrl();
-  }, [search, sortBy, viewMode, showPurchased, selectedCategories]); // eslint-disable-line react-hooks/exhaustive-deps -- только локальные фильтры, не весь syncFiltersToUrl
-
-  useEffect(() => {
-    if (!selectedListId || !currentUserId) return;
-    if (!allowedListIdsForFilters.has(selectedListId)) {
-      syncFiltersToUrl({ listId: null });
-    }
-  }, [selectedListId, allowedListIdsForFilters, currentUserId, syncFiltersToUrl]);
-
-  return { syncFiltersToUrl };
+    if (debouncedSearch === urlSearch) return;
+    syncFiltersToUrl({ search: debouncedSearch });
+  }, [debouncedSearch, urlSearch, syncFiltersToUrl]);
 }

@@ -66,6 +66,13 @@ export type WishlistScope = {
   onListChange: (listId: string | null) => void;
   onCreateList: () => void;
   onEditSelectedList?: () => void;
+  /**
+   * Люди и подборки не загрузились. Переключатель охвата при этом покажет
+   * пустой выбор, поэтому молчать нельзя: пустой список и недоступный список —
+   * разные вещи, и вторая лечится повтором.
+   */
+  scopeError: boolean;
+  onRetryScope: () => void;
 };
 
 /** Чем сузили выдачу и как её отсортировали. */
@@ -168,6 +175,8 @@ export function WishlistWorkspace({
     onListChange,
     onCreateList,
     onEditSelectedList,
+    scopeError,
+    onRetryScope,
   } = scope;
 
   const {
@@ -243,6 +252,12 @@ export function WishlistWorkspace({
     // профиля, режим выбора, сетка), и расстояние между ними не должно
     // зависеть от того, кто её отрисовал.
     <div className="flex min-w-0 flex-col gap-3 sm:gap-5">
+      {scopeError ? (
+        <RetryNotice onRetry={onRetryScope}>
+          {t("Не удалось загрузить людей и подборки. Показан весь доступный каталог.")}
+        </RetryNotice>
+      ) : null}
+
       {/*
        * Панель реагирует на собственную ширину, а не на ширину окна.
        * Ширина контента здесь немонотонна: на 1023px сайдбара ещё нет и под

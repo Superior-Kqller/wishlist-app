@@ -79,6 +79,11 @@ const en: Dictionary = {
   "Не удалось загрузить состояние напоминаний.": "Could not load reminder settings.",
   "Не удалось загрузить активность. Остальная статистика доступна.":
     "Could not load recent activity. The rest of the stats are available.",
+  "Не удалось загрузить список желаний.": "Could not load the wishlist.",
+  "Не удалось загрузить следующие желания. Показаны уже загруженные.":
+    "Could not load more wishes. The ones already loaded are shown.",
+  "Не удалось загрузить людей и подборки. Показан весь доступный каталог.":
+    "Could not load people and lists. The whole available catalog is shown.",
   "Что подойдёт": "What suits them",
   Загрузка: "Loading",
   "Открыть вишлисты": "Open wishlists",

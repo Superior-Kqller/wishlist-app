@@ -42,7 +42,8 @@ import { filterListsBySelectedUser, getFirstOwnedListId } from "@/lib/list-filte
 import { normalizeSelectedUserId } from "@/lib/filter-state";
 import { useInfiniteWishlistItems } from "@/hooks/use-infinite-wishlist-items";
 import { BulkDeleteFailure, useWishlistItemEditor } from "@/hooks/use-wishlist-item-editor";
-import { useWishlistUrlSync } from "@/hooks/use-wishlist-url-sync";
+import { useSearchDraftUrlSync, useWishlistUrlSync } from "@/hooks/use-wishlist-url-sync";
+import { parseWishlistFilters } from "@/lib/home/wishlist-filters-url";
 import { useWishlistAddUrlDeepLink } from "@/hooks/use-wishlist-add-url-deeplink";
 import { useI18n } from "@/components/i18n/language-provider";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
@@ -69,39 +70,36 @@ function HomePageContent() {
     };
   }
 
-  // Получаем userId и listId из URL параметров
-  const userIdParam = searchParams.get("userId");
-  const selectedUserId = userIdParam === "me" ? "me" : userIdParam || null;
+  /*
+   * Все фильтры читаются из адреса на каждом рендере — это и есть их хранилище.
+   * Раньше сортировка, категории и показ купленного брались из URL только при
+   * первом рендере, и переход на другую ссылку той же страницы оставлял
+   * прежние значения.
+   */
+  const urlFilters = useMemo(() => parseWishlistFilters(searchParams), [searchParams]);
+  const {
+    userId: selectedUserId,
+    listId: selectedListId,
+    sort: sortBy,
+    view: viewMode,
+    showPurchased,
+    categories: selectedCategories,
+  } = urlFilters;
   const listIdParam = searchParams.get("listId");
-  /** Конкретная подборка или null = «все подборки». Значение `all` в URL (legacy) = то же самое. */
-  const selectedListId = listIdParam && listIdParam !== "all" ? listIdParam : null;
 
-  // Filter states — инициализация из URL
-  const [search, setSearch] = useState(() => searchParams.get("search") || "");
-  const searchParamValue = searchParams.get("search") || "";
+  // Единственный черновик: печатать в адресную строку по букве нельзя.
+  const [search, setSearch] = useState(urlFilters.search);
   const debouncedSearch = useDebounce(search, 300);
-  const [sortBy, setSortBy] = useState(() => searchParams.get("sort") || "newest");
-  const [viewMode, setViewMode] = useState<WishlistViewMode>(() =>
-    searchParams.get("view") === "table" ? "table" : "grid",
-  );
-  const viewParamValue: WishlistViewMode = searchParams.get("view") === "table" ? "table" : "grid";
-  const [showPurchased, setShowPurchased] = useState(
-    () => searchParams.get("purchased") === "show",
-  );
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
-    const categoriesParam = searchParams.get("categories");
-    return categoriesParam ? categoriesParam.split(",").filter(Boolean) : [];
-  });
 
   useEffect(() => {
-    setSearch(searchParamValue);
-  }, [searchParamValue]);
+    setSearch(urlFilters.search);
+  }, [urlFilters.search]);
 
-  useEffect(() => {
-    setViewMode(viewParamValue);
-  }, [viewParamValue]);
-
-  const { data: usersStatsData } = useSWR<{ users: UserWithStats[] }>("/api/users/stats", fetcher, {
+  const {
+    data: usersStatsData,
+    error: usersStatsError,
+    mutate: mutateUsersStats,
+  } = useSWR<{ users: UserWithStats[] }>("/api/users/stats", fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: true,
     dedupingInterval: 10000, // Статистика меняется реже
@@ -141,10 +139,21 @@ function HomePageContent() {
     showPurchased,
     categories: effectiveSelectedCategories,
   });
-  const { data: listsData, mutate: mutateLists } = useSWR<ListWithMeta[]>("/api/lists", fetcher, {
+  const {
+    data: listsData,
+    error: listsError,
+    mutate: mutateLists,
+  } = useSWR<ListWithMeta[]>("/api/lists", fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 10000,
   });
+
+  /* Пустой выбор охвата не должен выдавать отказ сети за отсутствие людей. */
+  const scopeError = Boolean(usersStatsError || listsError);
+  const retryScope = useCallback(() => {
+    void mutateUsersStats();
+    void mutateLists();
+  }, [mutateUsersStats, mutateLists]);
   const lists = useMemo(() => listsData ?? [], [listsData]);
 
   /** Только свои подборки — для диалога создания (подстановка первой + обязательный выбор). */
@@ -245,18 +254,23 @@ function HomePageContent() {
 
   const { syncFiltersToUrl } = useWishlistUrlSync({
     replace: router.replace,
+    filters: urlFilters,
     normalizedSelectedUserId,
-    selectedListId,
-    selectedUserId,
-    search,
-    sortBy,
-    viewMode,
-    showPurchased,
-    selectedCategories,
     listIdParam,
     currentUserId,
     allowedListIdsForFilters,
   });
+  useSearchDraftUrlSync(debouncedSearch, urlFilters.search, syncFiltersToUrl);
+
+  const setSortBy = useCallback(
+    (value: string) => syncFiltersToUrl({ sort: value }),
+    [syncFiltersToUrl],
+  );
+
+  const setViewMode = useCallback(
+    (value: WishlistViewMode) => syncFiltersToUrl({ view: value }),
+    [syncFiltersToUrl],
+  );
 
   useWishlistAddUrlDeepLink(
     deepLinkRef,
@@ -310,7 +324,7 @@ function HomePageContent() {
       chips.push({
         key: "purchased",
         label: t("Показаны купленные"),
-        onRemove: () => setShowPurchased(false),
+        onRemove: () => syncFiltersToUrl({ showPurchased: false }),
       });
     }
     if (sortBy !== "newest") {
@@ -327,7 +341,7 @@ function HomePageContent() {
       chips.push({
         key: "sort",
         label: `${t("Сортировка")}: ${sortLabel}`,
-        onRemove: () => setSortBy("newest"),
+        onRemove: () => syncFiltersToUrl({ sort: "newest" }),
       });
     }
     effectiveSelectedCategories.forEach((categoryId) => {
@@ -336,9 +350,8 @@ function HomePageContent() {
       chips.push({
         key: `category-${categoryId}`,
         label: `${t("Категория")}: ${category.label}`,
-        onRemove: () => {
-          setSelectedCategories((prev) => prev.filter((id) => id !== categoryId));
-        },
+        onRemove: () =>
+          syncFiltersToUrl({ categories: selectedCategories.filter((id) => id !== categoryId) }),
       });
     });
     return chips;
@@ -349,6 +362,7 @@ function HomePageContent() {
     showPurchased,
     sortBy,
     effectiveSelectedCategories,
+    selectedCategories,
     syncFiltersToUrl,
     t,
   ]);
@@ -464,17 +478,18 @@ function HomePageContent() {
 
   const handleClearAllFilters = useCallback(() => {
     setSearch("");
-    setSortBy("newest");
-    setShowPurchased(false);
-    setSelectedCategories([]);
     router.replace("/", { scroll: false });
   }, [router]);
 
-  const handleToggleCategory = useCallback((categoryId: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId],
-    );
-  }, []);
+  const handleToggleCategory = useCallback(
+    (categoryId: string) => {
+      const next = selectedCategories.includes(categoryId)
+        ? selectedCategories.filter((id) => id !== categoryId)
+        : [...selectedCategories, categoryId];
+      syncFiltersToUrl({ categories: next });
+    },
+    [selectedCategories, syncFiltersToUrl],
+  );
 
   const handleUserChange = useCallback(
     (userId: string | null) => {
@@ -517,9 +532,15 @@ function HomePageContent() {
     }
   }, [lists, selectedListId]);
 
-  const handleClearCategories = useCallback(() => setSelectedCategories([]), []);
+  const handleClearCategories = useCallback(
+    () => syncFiltersToUrl({ categories: [] }),
+    [syncFiltersToUrl],
+  );
 
-  const handleTogglePurchasedVisibility = useCallback(() => setShowPurchased((prev) => !prev), []);
+  const handleTogglePurchasedVisibility = useCallback(
+    () => syncFiltersToUrl({ showPurchased: !showPurchased }),
+    [showPurchased, syncFiltersToUrl],
+  );
 
   // Апдейтер состояния обязан быть чистым: побочный сброс выбора вынесен наружу.
   const handleToggleSelectionMode = useCallback(() => {
@@ -552,6 +573,8 @@ function HomePageContent() {
       onListChange: handleListChange,
       onCreateList: handleCreateList,
       onEditSelectedList: selectedListId ? handleEditSelectedList : undefined,
+      scopeError,
+      onRetryScope: retryScope,
     }),
     [
       currentUserId,
@@ -566,6 +589,8 @@ function HomePageContent() {
       handleListChange,
       handleCreateList,
       handleEditSelectedList,
+      scopeError,
+      retryScope,
     ],
   );
 
@@ -596,6 +621,7 @@ function HomePageContent() {
       handleToggleCategory,
       handleClearCategories,
       sortBy,
+      setSortBy,
       showPurchased,
       handleTogglePurchasedVisibility,
       handleClearAllFilters,
@@ -644,6 +670,7 @@ function HomePageContent() {
       size,
       handleLoadMore,
       viewMode,
+      setViewMode,
     ],
   );
 
