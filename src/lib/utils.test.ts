@@ -3,7 +3,6 @@ import {
   formatPrice,
   formatStatsPurchasedSummary,
   formatStatsUnpurchasedSummary,
-  priorityColor,
   sortCurrencyTotalsEntries,
   statsHasPurchasedPrices,
 } from "./utils";
@@ -115,18 +114,5 @@ describe("statsHasPurchasedPrices", () => {
         totalPurchasedValue: 10,
       }),
     ).toBe(true);
-  });
-});
-
-describe("priorityColor", () => {
-  it("возвращает цвет для каждого приоритета 1-5", () => {
-    for (let i = 1; i <= 5; i++) {
-      expect(priorityColor(i)).toContain("text-");
-    }
-  });
-
-  it("возвращает дефолт для неизвестного приоритета", () => {
-    expect(priorityColor(0)).toBe(priorityColor(3));
-    expect(priorityColor(99)).toBe(priorityColor(3));
   });
 });

@@ -102,14 +102,3 @@ export function statsHasPurchasedPrices(stats: {
   }
   return stats.totalPurchasedValue > 0;
 }
-
-export function priorityColor(priority: number): string {
-  const colors: Record<number, string> = {
-    1: "text-[hsl(var(--priority-1))]",
-    2: "text-[hsl(var(--priority-2))]",
-    3: "text-[hsl(var(--priority-3))]",
-    4: "text-[hsl(var(--priority-4))]",
-    5: "text-[hsl(var(--priority-5))]",
-  };
-  return colors[priority] || colors[3];
-}
