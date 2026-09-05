@@ -1,10 +1,14 @@
-import type {
-  BirthdayOccurrence,
-  HolidayOccurrence,
-  PersonalEventOccurrence,
-} from "./calendar-events";
+import type { CalendarOccurrence } from "./calendar-events";
 
-export type CalendarOccurrence = BirthdayOccurrence | PersonalEventOccurrence | HolidayOccurrence;
+/*
+ * Событие календаря собирается в `calendar-events` — там же оно и
+ * объявлено, один раз. Здесь тип только пере-экспортирован: экраны берут
+ * весь календарный инструментарий из этого модуля, и тип, в котором выражен
+ * его API, не должен быть исключением, ради которого приходится тянуться в
+ * серверный. Раньше вместо этого союз был собран заново из тех же трёх
+ * составляющих — копия, которую ничто не удерживало от расхождения.
+ */
+export type { CalendarOccurrence };
 
 export type CalendarFilter = "ALL" | CalendarOccurrence["type"];
 export type CalendarView = "list" | "month";
