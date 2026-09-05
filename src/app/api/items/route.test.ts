@@ -1,9 +1,11 @@
+import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockRateLimit = vi.fn();
 const mockGetSessionUserIdVerified = vi.fn();
 const mockFindUniqueList = vi.fn();
 const mockItemCreate = vi.fn();
+const mockItemFindMany = vi.fn();
 const mockNotifyItemCreated = vi.fn();
 
 vi.mock("@/lib/rate-limit", () => ({
@@ -22,7 +24,7 @@ vi.mock("@/lib/prisma", () => ({
   prisma: {
     item: {
       create: mockItemCreate,
-      findMany: vi.fn(),
+      findMany: mockItemFindMany,
     },
     list: {
       findUnique: mockFindUniqueList,
@@ -30,9 +32,11 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+const mockGetVisibleListIdsForUser = vi.fn();
+
 vi.mock("@/lib/list-utils", () => ({
   canUserSeeList: vi.fn(),
-  getVisibleListIdsForUser: vi.fn(),
+  getVisibleListIdsForUser: mockGetVisibleListIdsForUser,
 }));
 
 vi.mock("@/lib/telegram/notifications", () => ({
@@ -87,5 +91,70 @@ describe("POST /api/items", () => {
       itemId: "item-1",
       itemTitle: "Книга",
     });
+  });
+});
+
+describe("GET /api/items", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRateLimit.mockResolvedValue(null);
+    mockGetSessionUserIdVerified.mockResolvedValue("user-1");
+    mockGetVisibleListIdsForUser.mockResolvedValue(["list-1"]);
+    mockItemFindMany.mockResolvedValue([]);
+  });
+
+  async function get(query: string) {
+    const { GET } = await import("./route");
+    const req = new NextRequest(`http://localhost/api/items?${query}`);
+    return GET(req);
+  }
+
+  it("отбирает и упорядочивает каталог в запросе, а не после выдачи", async () => {
+    await get("sort=price-low&categories=books,electronics&limit=30");
+
+    const args = mockItemFindMany.mock.calls[0][0];
+    expect(args.orderBy).toEqual([
+      { currency: "asc" },
+      { price: { sort: "asc", nulls: "last" } },
+      { id: "desc" },
+    ]);
+    expect(args.where.AND).toContainEqual({ category: { in: ["books", "electronics"] } });
+    expect(args.where.AND).toContainEqual({
+      AND: [{ purchased: false }, { status: { not: "PURCHASED" } }],
+    });
+    // Берём на одну карточку больше — по ней и виден следующий шаг.
+    expect(args.take).toBe(31);
+  });
+
+  it("показывает купленное только по явной просьбе", async () => {
+    await get("purchased=show");
+
+    const args = mockItemFindMany.mock.calls[0][0];
+    expect(JSON.stringify(args.where)).not.toContain("PURCHASED");
+  });
+
+  it("возвращает курсор в том же порядке, в каком отдал страницу", async () => {
+    const row = (id: string, price: number | null) => ({
+      id,
+      title: id,
+      price,
+      currency: "RUB",
+      priority: 3,
+      createdAt: new Date("2026-06-15T12:00:00.000Z"),
+    });
+    mockItemFindMany.mockResolvedValue([row("a", 100), row("b", 200)]);
+
+    const response = await get("sort=price-low&limit=1");
+    const body = await response.json();
+
+    expect(body.pagination.hasMore).toBe(true);
+    expect(body.pagination.nextCursor).toBe("RUB|100|a");
+  });
+
+  it("отвечает 400 на курсор, который не подходит выбранному порядку", async () => {
+    const response = await get("sort=price-low&cursor=2026-01-01T00%3A00%3A00.000Z");
+
+    expect(response.status).toBe(400);
+    expect(mockItemFindMany).not.toHaveBeenCalled();
   });
 });

@@ -6,6 +6,18 @@ import { sanitizeError } from "@/lib/logger";
 import { canUserSeeList, getVisibleListIdsForUser } from "@/lib/list-utils";
 import { notifyItemCreated } from "@/lib/telegram/notifications";
 import { normalizeProductCategory } from "@/lib/categories";
+import {
+  buildWishlistCursorCondition,
+  encodeWishlistCursor,
+  getWishlistOrderBy,
+  InvalidWishlistCursorError,
+  parseWishlistSort,
+} from "@/lib/wishlist/item-sort";
+import {
+  buildCategoryCondition,
+  buildPurchasedCondition,
+  parseCategoriesParam,
+} from "@/lib/wishlist/item-filters";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 
@@ -43,30 +55,28 @@ export async function GET(req: NextRequest) {
   const userIdParam = searchParams.get("userId");
   const listIdParam = searchParams.get("listId");
   const search = searchParams.get("search")?.trim() || "";
+  const sort = parseWishlistSort(searchParams.get("sort"));
+  const showPurchased = searchParams.get("purchased") === "show";
+  const categories = parseCategoriesParam(searchParams.get("categories"));
 
   const conditions: Prisma.ItemWhereInput[] = [];
 
   if (cursor) {
-    const [cursorDateRaw, cursorIdRaw] = cursor.split("|");
-    const cursorDate = new Date(cursorDateRaw);
-    const cursorId = cursorIdRaw?.trim();
-    if (Number.isNaN(cursorDate.getTime())) {
-      return NextResponse.json({ error: "Неверный курсор" }, { status: 400 });
-    }
-    if (cursorId) {
-      conditions.push({
-        OR: [
-          { createdAt: { lt: cursorDate } },
-          {
-            AND: [{ createdAt: cursorDate }, { id: { lt: cursorId } }],
-          },
-        ],
-      });
-    } else {
-      // Backward compatibility for old cursor format (date only).
-      conditions.push({ createdAt: { lt: cursorDate } });
+    try {
+      conditions.push(buildWishlistCursorCondition(sort, cursor));
+    } catch (err) {
+      if (err instanceof InvalidWishlistCursorError) {
+        return NextResponse.json({ error: "Неверный курсор" }, { status: 400 });
+      }
+      throw err;
     }
   }
+
+  const purchasedCondition = buildPurchasedCondition(showPurchased);
+  if (purchasedCondition) conditions.push(purchasedCondition);
+
+  const categoryCondition = buildCategoryCondition(categories);
+  if (categoryCondition) conditions.push(categoryCondition);
 
   if (search) {
     conditions.push({
@@ -114,16 +124,14 @@ export async function GET(req: NextRequest) {
     include: {
       user: { select: { id: true, name: true, avatarUrl: true } },
     },
-    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    orderBy: getWishlistOrderBy(sort),
     take: limit + 1, // Берем на 1 больше для проверки наличия следующей страницы
   });
 
   const hasMore = items.length > limit;
   const data = hasMore ? items.slice(0, limit) : items;
   const nextCursor =
-    hasMore && data.length > 0
-      ? `${data[data.length - 1].createdAt.toISOString()}|${data[data.length - 1].id}`
-      : null;
+    hasMore && data.length > 0 ? encodeWishlistCursor(sort, data[data.length - 1]) : null;
 
   // Кэширование на 30 секунд для списка items (данные могут часто меняться)
   return NextResponse.json(

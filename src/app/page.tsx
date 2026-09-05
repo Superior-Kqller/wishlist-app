@@ -40,7 +40,6 @@ import { fetcher } from "@/lib/fetcher";
 import { useDebounce } from "@/lib/use-debounce";
 import { filterListsBySelectedUser, getFirstOwnedListId } from "@/lib/list-filter-client";
 import { normalizeSelectedUserId } from "@/lib/filter-state";
-import { filterAndSortWishlistItems } from "@/lib/home/filter-wishlist-items";
 import { useInfiniteWishlistItems } from "@/hooks/use-infinite-wishlist-items";
 import { BulkDeleteFailure, useWishlistItemEditor } from "@/hooks/use-wishlist-item-editor";
 import { useWishlistUrlSync } from "@/hooks/use-wishlist-url-sync";
@@ -113,8 +112,35 @@ function HomePageContent() {
     [selectedUserId, currentUserId, usersWithStats],
   );
 
-  const { items, hasMore, isLoading, isLoadingMore, mutateItems, setSize, size, sentinelRef } =
-    useInfiniteWishlistItems(normalizedSelectedUserId, selectedListId, debouncedSearch);
+  /*
+   * Отбор и порядок задаёт сервер: клиент видит только одну страницу из
+   * тридцати карточек и не может решать за весь каталог. Категории здесь
+   * заранее сведены к известным — чужое значение из ссылки в запрос не идёт.
+   */
+  const effectiveSelectedCategories = useMemo(() => {
+    const availableCategoryIds = new Set<string>(PRODUCT_CATEGORIES.map((category) => category.id));
+    return selectedCategories.filter((id) => availableCategoryIds.has(id));
+  }, [selectedCategories]);
+
+  const {
+    items,
+    hasMore,
+    isLoading,
+    isLoadingMore,
+    loadError,
+    retry,
+    mutateItems,
+    setSize,
+    size,
+    sentinelRef,
+  } = useInfiniteWishlistItems({
+    normalizedSelectedUserId,
+    selectedListId,
+    debouncedSearch,
+    sortBy,
+    showPurchased,
+    categories: effectiveSelectedCategories,
+  });
   const { data: listsData, mutate: mutateLists } = useSWR<ListWithMeta[]>("/api/lists", fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 10000,
@@ -253,21 +279,6 @@ function HomePageContent() {
       scroll: false,
     });
   }, [router, searchParams]);
-
-  const effectiveSelectedCategories = useMemo(() => {
-    const availableCategoryIds = new Set<string>(PRODUCT_CATEGORIES.map((category) => category.id));
-    return selectedCategories.filter((id) => availableCategoryIds.has(id));
-  }, [selectedCategories]);
-
-  const filteredItems = useMemo(
-    () =>
-      filterAndSortWishlistItems(items, {
-        sortBy,
-        showPurchased,
-        effectiveSelectedCategories,
-      }),
-    [items, sortBy, showPurchased, effectiveSelectedCategories],
-  );
 
   const selectedListName = useMemo(
     () => lists.find((list) => list.id === selectedListId)?.name ?? null,
@@ -611,8 +622,9 @@ function HomePageContent() {
   const feed = useMemo<WishlistFeed>(
     () => ({
       items,
-      filteredItems,
       isLoading,
+      loadError,
+      onRetry: retry,
       hasMore,
       isLoadingMore,
       sentinelRef,
@@ -623,8 +635,9 @@ function HomePageContent() {
     }),
     [
       items,
-      filteredItems,
       isLoading,
+      loadError,
+      retry,
       hasMore,
       isLoadingMore,
       sentinelRef,

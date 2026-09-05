@@ -32,6 +32,7 @@ import {
   type ActiveFilterChip,
 } from "@/components/wishlist/active-filter-chips";
 import { WishlistScopePicker } from "@/components/wishlist/wishlist-scope-picker";
+import { RetryNotice } from "@/components/ui/retry-notice";
 import { uiSurface } from "@/lib/ui-contract";
 import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
 import type { ListWithMeta, UserWithStats, WishlistItem } from "@/types";
@@ -97,10 +98,15 @@ export type WishlistSelection = {
 
 /** Сама лента: что показываем и как дочитываем. */
 export type WishlistFeed = {
-  /** Всё загруженное — по нему отличается «список пуст» от «фильтры пусты». */
+  /** Страница каталога как её отобрал и упорядочил сервер. */
   items: WishlistItem[];
-  filteredItems: WishlistItem[];
   isLoading: boolean | undefined;
+  /**
+   * Что именно не загрузилось. `initial` — показывать нечего; `next-page` —
+   * загруженное остаётся на экране, не хватает только продолжения.
+   */
+  loadError: "initial" | "next-page" | null;
+  onRetry: () => void;
   hasMore: boolean;
   isLoadingMore: boolean;
   sentinelRef: RefObject<HTMLDivElement | null>;
@@ -195,8 +201,9 @@ export function WishlistWorkspace({
 
   const {
     items,
-    filteredItems,
     isLoading,
+    loadError,
+    onRetry,
     hasMore,
     isLoadingMore,
     sentinelRef,
@@ -465,7 +472,7 @@ export function WishlistWorkspace({
             <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border/32 pt-2.5">
               <ActiveFilterChips chips={activeFilterChips} onClearAll={onClearAllFilters} />
               <span className="shrink-0 text-xs text-muted-foreground-subtle tabular-nums">
-                {t("Найдено")}: {filteredItems.length}
+                {t("Найдено")}: {items.length}
               </span>
             </div>
           ) : null}
@@ -492,7 +499,7 @@ export function WishlistWorkspace({
           onToggleCategory={onToggleCategory}
           onClearCategories={onClearCategories}
           activeFilterCount={activeFilterCount}
-          resultCount={filteredItems.length}
+          resultCount={items.length}
           onClearAllFilters={onClearAllFilters}
         />
       </div>
@@ -518,63 +525,76 @@ export function WishlistWorkspace({
         </div>
       ) : null}
 
-      <WishlistGrid
-        items={filteredItems}
-        isLoading={isLoading}
-        onEdit={onEditItem}
-        onDelete={onDeleteItem}
-        onTogglePurchased={onTogglePurchased}
-        onSetStatus={onSetStatus}
-        pendingStatusByItemId={pendingStatusByItemId}
-        justPurchasedId={justPurchasedId}
-        viewMode={viewMode}
-        onEmptyAdd={onEmptyAdd}
-        onOpenDetail={onOpenDetail}
-        selectionMode={selectionMode}
-        selectedIds={selectedIds}
-        onToggleSelect={onToggleSelect}
-        currentUserId={currentUserId}
-        currentUserRole={currentUserRole}
-        emptyTitle={
-          items.length === 0 ? t("В списке пока пусто") : t("По этим фильтрам ничего нет")
-        }
-        emptyDescription={
-          items.length === 0
-            ? ownedListsForCreate.length === 0
-              ? t("Сначала создайте подборку, затем добавьте первое желание.")
-              : t("Добавьте первое желание вручную или вставьте ссылку на страницу товара.")
-            : t("Попробуйте сбросить часть фильтров или изменить поиск.")
-        }
-        emptyActionLabel={
-          items.length === 0
-            ? ownedListsForCreate.length === 0
-              ? t("Создать подборку")
-              : t("Добавить желание")
-            : undefined
-        }
-        onEmptyAction={
-          items.length === 0
-            ? ownedListsForCreate.length === 0
-              ? onCreateList
-              : onEmptyAdd
-            : undefined
-        }
-        emptySecondaryLabel={
-          items.length > 0 && hasActiveFilters ? t("Сбросить фильтры") : undefined
-        }
-        onEmptySecondaryAction={
-          items.length > 0 && hasActiveFilters ? onClearAllFilters : undefined
-        }
-      />
+      {loadError === "initial" ? (
+        <RetryNotice onRetry={onRetry}>{t("Не удалось загрузить список желаний.")}</RetryNotice>
+      ) : (
+        <WishlistGrid
+          items={items}
+          isLoading={isLoading}
+          onEdit={onEditItem}
+          onDelete={onDeleteItem}
+          onTogglePurchased={onTogglePurchased}
+          onSetStatus={onSetStatus}
+          pendingStatusByItemId={pendingStatusByItemId}
+          justPurchasedId={justPurchasedId}
+          viewMode={viewMode}
+          onEmptyAdd={onEmptyAdd}
+          onOpenDetail={onOpenDetail}
+          selectionMode={selectionMode}
+          selectedIds={selectedIds}
+          onToggleSelect={onToggleSelect}
+          currentUserId={currentUserId}
+          currentUserRole={currentUserRole}
+          emptyTitle={
+            hasActiveFilters ? t("По этим фильтрам ничего нет") : t("В списке пока пусто")
+          }
+          emptyDescription={
+            hasActiveFilters
+              ? t("Попробуйте сбросить часть фильтров или изменить поиск.")
+              : ownedListsForCreate.length === 0
+                ? t("Сначала создайте подборку, затем добавьте первое желание.")
+                : t("Добавьте первое желание вручную или вставьте ссылку на страницу товара.")
+          }
+          emptyActionLabel={
+            hasActiveFilters
+              ? undefined
+              : ownedListsForCreate.length === 0
+                ? t("Создать подборку")
+                : t("Добавить желание")
+          }
+          onEmptyAction={
+            hasActiveFilters
+              ? undefined
+              : ownedListsForCreate.length === 0
+                ? onCreateList
+                : onEmptyAdd
+          }
+          emptySecondaryLabel={hasActiveFilters ? t("Сбросить фильтры") : undefined}
+          onEmptySecondaryAction={hasActiveFilters ? onClearAllFilters : undefined}
+        />
+      )}
 
-      <div ref={sentinelRef} className="flex justify-center">
-        {isLoadingMore ? <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /> : null}
-        {!isLoadingMore && hasMore ? (
-          <Button variant="outline" onClick={() => setSize(size + 1)}>
-            {t("Загрузить ещё")}
-          </Button>
-        ) : null}
-      </div>
+      {/*
+       * Провал догрузки — не пустой каталог: показанные карточки остаются, а
+       * повтор человек запрашивает сам. Автодогрузка по сентинелу до этого
+       * момента молча повторяла бы тот же неудачный запрос.
+       */}
+      {loadError === "next-page" ? (
+        <RetryNotice onRetry={onRetry}>
+          {t("Не удалось загрузить следующие желания. Показаны уже загруженные.")}
+        </RetryNotice>
+      ) : (
+        <div ref={sentinelRef} className="flex justify-center">
+          {isLoadingMore ? (
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          ) : null}
+          {!isLoadingMore && hasMore ? (
+            <Button variant="outline" onClick={() => setSize(size + 1)}>
+              {t("Загрузить ещё")}
+            </Button>
+          ) : null}
+        </div>
+      )}
 
       {/*
        * Главное действие раздела на мобильном. В панели инструментов оно

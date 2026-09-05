@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getVisibleListIdsForUser } from "@/lib/list-utils";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
+import { selectTopItems } from "@/lib/stats-top-items";
 import { normalizeGiftPreferences } from "@/lib/preferences";
 
 // GET /api/users/stats — статистика по пользователям из «круга» общих подборок
@@ -144,19 +145,15 @@ export async function GET(req: NextRequest) {
     }
 
     const userNameById = new Map(users.map((user) => [user.id, user.name]));
-    const topItems = items
-      .filter((item) => !item.purchased && item.price != null)
-      .sort((a, b) => (b.price ?? 0) - (a.price ?? 0))
-      .slice(0, 3)
-      .map((item) => ({
-        id: item.id,
-        title: item.title,
-        price: item.price ?? 0,
-        currency: item.currency || "RUB",
-        priority: item.priority,
-        userId: item.userId,
-        userName: userNameById.get(item.userId) ?? "",
-      }));
+    const topItems = selectTopItems(items).map((item) => ({
+      id: item.id,
+      title: item.title,
+      price: item.price ?? 0,
+      currency: item.currency || "RUB",
+      priority: item.priority,
+      userId: item.userId,
+      userName: userNameById.get(item.userId) ?? "",
+    }));
 
     const summary = {
       totalItems: items.length,
