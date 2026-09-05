@@ -45,7 +45,6 @@ enum CalendarReminderSourceType {
 
 enum ItemStatus {
   AVAILABLE
-  CLAIMED
   PURCHASED
 }
 
@@ -76,7 +75,6 @@ model User {
   calendarReminderDeliveries CalendarReminderDelivery[]
   role          Role          @default(USER)
   items         Item[]
-  claimedItems  Item[]         @relation("ItemClaimedByUser")
   lists         List[]
   listViewers   ListViewer[]
   itemComments  ItemComment[]
@@ -213,9 +211,6 @@ model Item {
   purchased   Boolean       @default(false)
   purchasedAt DateTime?
   status      ItemStatus    @default(AVAILABLE)
-  claimedByUserId String?
-  claimedByUser   User?     @relation("ItemClaimedByUser", fields: [claimedByUserId], references: [id], onDelete: SetNull)
-  claimedAt   DateTime?
   userId      String
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   listId      String?
@@ -232,7 +227,6 @@ model Item {
   @@index([userId, purchased])
   @@index([userId, createdAt])
   @@index([status])
-  @@index([claimedByUserId])
   @@index([category])
 }
 

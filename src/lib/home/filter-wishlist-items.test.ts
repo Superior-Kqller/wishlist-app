@@ -14,15 +14,12 @@ function item(partial: Partial<WishlistItem> & Pick<WishlistItem, "id">): Wishli
     purchased: false,
     purchasedAt: null,
     status: "AVAILABLE",
-    claimedByUserId: null,
-    claimedAt: null,
     userId: "u1",
     listId: null,
     category: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     user: { id: "u1", name: "U", avatarUrl: null },
-    claimedByUser: null,
     ...partial,
   };
 }

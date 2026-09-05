@@ -4,8 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { canUserSeeList, getVisibleListIdsForUser } from "@/lib/list-utils";
-import { canSeeClaimerIdentity } from "@/lib/access-policy";
-import { itemResponseWithoutList } from "@/lib/item-json";
 import { notifyItemCreated } from "@/lib/telegram/notifications";
 import { normalizeProductCategory } from "@/lib/categories";
 import type { Prisma } from "@prisma/client";
@@ -22,27 +20,6 @@ const createItemSchema = z.object({
   category: z.string().trim().max(80).nullable().optional(),
   listId: z.string().trim().nullable().optional(),
 });
-
-function maskClaimedByUserForActor<
-  T extends {
-    claimedByUserId: string | null;
-    claimedByUser: unknown;
-    list: { userId: string } | null;
-    userId: string;
-  },
->(item: T, actorUserId: string) {
-  const ownerUserId = item.list?.userId ?? item.userId;
-  const canSee = canSeeClaimerIdentity({
-    actorUserId,
-    ownerUserId,
-    claimerUserId: item.claimedByUserId,
-    isClaimPrivate: true,
-  });
-  return {
-    ...item,
-    claimedByUser: canSee ? item.claimedByUser : null,
-  };
-}
 
 // GET /api/items — элементы в подборках, доступных текущему пользователю
 export async function GET(req: NextRequest) {
@@ -136,18 +113,13 @@ export async function GET(req: NextRequest) {
     where,
     include: {
       user: { select: { id: true, name: true, avatarUrl: true } },
-      claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
-      list: { select: { userId: true } },
     },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: limit + 1, // Берем на 1 больше для проверки наличия следующей страницы
   });
 
   const hasMore = items.length > limit;
-  const data = (hasMore ? items.slice(0, limit) : items).map((item) => {
-    const masked = maskClaimedByUserForActor(item, currentUserId);
-    return itemResponseWithoutList(masked);
-  });
+  const data = hasMore ? items.slice(0, limit) : items;
   const nextCursor =
     hasMore && data.length > 0
       ? `${data[data.length - 1].createdAt.toISOString()}|${data[data.length - 1].id}`
@@ -216,8 +188,6 @@ export async function POST(req: NextRequest) {
       },
       include: {
         user: { select: { id: true, name: true, avatarUrl: true } },
-        claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
-        list: { select: { userId: true } },
       },
     });
     await notifyItemCreated({
@@ -226,8 +196,7 @@ export async function POST(req: NextRequest) {
       actorUserId: userId,
       actorName: item.user?.name ?? "Пользователь",
     });
-    const masked = maskClaimedByUserForActor(item, userId);
-    return NextResponse.json(itemResponseWithoutList(masked), { status: 201 });
+    return NextResponse.json(item, { status: 201 });
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(

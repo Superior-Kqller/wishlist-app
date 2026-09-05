@@ -31,7 +31,7 @@ describe("telegram notifications", () => {
     process.env = originalEnv;
   });
 
-  it("does not send reservation notifications", async () => {
+  it("does not notify when an item goes back to available", async () => {
     mockFindUnique.mockResolvedValueOnce({ id: "actor-1", name: "Аня" }).mockResolvedValue({
       telegramId: null,
       telegramConfirmedAt: null,
@@ -45,10 +45,7 @@ describe("telegram notifications", () => {
       itemTitle: "Книга",
       ownerUserId: "owner-1",
       actorUserId: "actor-1",
-      previousStatus: "AVAILABLE",
-      nextStatus: "CLAIMED",
-      previousClaimerUserId: null,
-      nextClaimerUserId: "actor-1",
+      nextStatus: "AVAILABLE",
     });
 
     expect(mockSendTelegramMessage).not.toHaveBeenCalled();
@@ -68,10 +65,7 @@ describe("telegram notifications", () => {
       itemTitle: "Книга",
       ownerUserId: "owner-1",
       actorUserId: "actor-1",
-      previousStatus: "AVAILABLE",
       nextStatus: "PURCHASED",
-      previousClaimerUserId: null,
-      nextClaimerUserId: null,
     });
 
     expect(mockSendTelegramMessage).toHaveBeenCalledWith({

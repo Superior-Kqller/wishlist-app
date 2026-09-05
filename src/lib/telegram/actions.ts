@@ -192,7 +192,6 @@ async function transitionItemStatusViaTelegram(params: {
       id: true,
       title: true,
       status: true,
-      claimedByUserId: true,
       userId: true,
       list: {
         select: {
@@ -220,7 +219,6 @@ async function transitionItemStatusViaTelegram(params: {
     !canTransitionStatus(existing.status, params.nextStatus, {
       actorUserId: params.actorUserId,
       ownerUserId: existing.userId,
-      claimerUserId: existing.claimedByUserId,
     })
   ) {
     return { ok: false, message: "Недопустимый переход статуса" };
@@ -245,7 +243,6 @@ async function transitionItemStatusViaTelegram(params: {
       where: {
         id: params.itemId,
         status: existing.status,
-        claimedByUserId: existing.claimedByUserId,
       },
       data: updateData,
     });
@@ -259,7 +256,6 @@ async function transitionItemStatusViaTelegram(params: {
         title: true,
         status: true,
         userId: true,
-        claimedByUserId: true,
       },
     });
   });
@@ -273,10 +269,7 @@ async function transitionItemStatusViaTelegram(params: {
     itemTitle: updated.title,
     ownerUserId: updated.userId,
     actorUserId: params.actorUserId,
-    previousStatus: existing.status,
     nextStatus: updated.status,
-    previousClaimerUserId: existing.claimedByUserId,
-    nextClaimerUserId: updated.claimedByUserId,
   });
 
   return { ok: true, message: "Подарок отмечен купленным" };

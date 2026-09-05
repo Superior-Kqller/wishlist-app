@@ -6,14 +6,8 @@ import { sanitizeError } from "@/lib/logger";
 import { canUserSeeItem } from "@/lib/list-utils";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
-import { canSeeClaimerIdentity } from "@/lib/access-policy";
-import {
-  canTransitionStatus,
-  hasConflictingStatusPayload,
-  normalizeItemStatus,
-} from "@/lib/item-status";
+import { canTransitionStatus, hasConflictingStatusPayload } from "@/lib/item-status";
 import { notifyStatusTransition } from "@/lib/telegram/notifications";
-import { itemResponseWithoutList } from "@/lib/item-json";
 import { normalizeProductCategory } from "@/lib/categories";
 
 const updateItemSchema = z.object({
@@ -29,27 +23,6 @@ const updateItemSchema = z.object({
   category: z.string().trim().max(80).nullable().optional(),
   listId: z.string().trim().nullable().optional(),
 });
-
-function maskClaimedByUserForActor<
-  T extends {
-    claimedByUserId: string | null;
-    claimedByUser: unknown;
-    list: { userId: string } | null;
-    userId: string;
-  },
->(item: T, actorUserId: string) {
-  const ownerUserId = item.list?.userId ?? item.userId;
-  const canSee = canSeeClaimerIdentity({
-    actorUserId,
-    ownerUserId,
-    claimerUserId: item.claimedByUserId,
-    isClaimPrivate: true,
-  });
-  return {
-    ...item,
-    claimedByUser: canSee ? item.claimedByUser : null,
-  };
-}
 
 // GET /api/items/[id] — только если пользователь имеет доступ (через подборку)
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -72,8 +45,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     where: { id },
     include: {
       user: { select: { id: true, name: true, avatarUrl: true } },
-      claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
-      list: { select: { userId: true } },
     },
   });
 
@@ -81,8 +52,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Не найдено" }, { status: 404 });
   }
 
-  const masked = maskClaimedByUserForActor(item, userId);
-  return NextResponse.json(itemResponseWithoutList(masked));
+  return NextResponse.json(item);
 }
 
 // PATCH /api/items/[id]
@@ -172,22 +142,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       updateData.purchased = data.purchased;
       updateData.purchasedAt = data.purchased ? new Date() : null;
       updateData.status = data.purchased ? "PURCHASED" : "AVAILABLE";
-      if (!data.purchased) {
-        updateData.claimedByUserId = null;
-        updateData.claimedAt = null;
-      }
     }
 
     if (data.status !== undefined) {
-      const currentStatus = normalizeItemStatus(existing.status, existing.purchased);
       const nextStatus = data.status;
-      const claimerUserId = existing.claimedByUserId;
 
       if (
         !canTransitionStatus(existing.status, nextStatus, {
           actorUserId: userId,
           ownerUserId: existing.userId,
-          claimerUserId,
         })
       ) {
         return NextResponse.json({ error: "Недопустимый переход статуса" }, { status: 409 });
@@ -199,8 +162,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       };
 
       if (nextStatus === "AVAILABLE") {
-        atomicUpdateData.claimedByUserId = null;
-        atomicUpdateData.claimedAt = null;
         atomicUpdateData.purchased = false;
         atomicUpdateData.purchasedAt = null;
       } else if (nextStatus === "PURCHASED") {
@@ -213,8 +174,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           where: {
             id,
             status: existing.status,
-            claimedByUserId:
-              existing.status === "CLAIMED" ? claimerUserId : existing.claimedByUserId,
           },
           data: atomicUpdateData,
         });
@@ -224,8 +183,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           where: { id },
           include: {
             user: { select: { id: true, name: true, avatarUrl: true } },
-            claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
-            list: { select: { userId: true } },
           },
         });
       });
@@ -242,14 +199,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         itemTitle: updated.title,
         ownerUserId: updated.userId,
         actorUserId: userId,
-        previousStatus: currentStatus,
         nextStatus: updated.status,
-        previousClaimerUserId: existing.claimedByUserId,
-        nextClaimerUserId: updated.claimedByUserId,
       });
 
-      const masked = maskClaimedByUserForActor(updated, userId);
-      return NextResponse.json(itemResponseWithoutList(masked));
+      return NextResponse.json(updated);
     }
 
     if (data.listId !== undefined) {
@@ -273,8 +226,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       data: updateData,
       include: {
         user: { select: { id: true, name: true, avatarUrl: true } },
-        claimedByUser: { select: { id: true, name: true, avatarUrl: true } },
-        list: { select: { userId: true } },
       },
     });
 
@@ -284,15 +235,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         itemTitle: item.title,
         ownerUserId: item.userId,
         actorUserId: userId,
-        previousStatus: existing.status,
         nextStatus: item.status,
-        previousClaimerUserId: existing.claimedByUserId,
-        nextClaimerUserId: item.claimedByUserId,
       });
     }
 
-    const masked = maskClaimedByUserForActor(item, userId);
-    return NextResponse.json(itemResponseWithoutList(masked));
+    return NextResponse.json(item);
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(

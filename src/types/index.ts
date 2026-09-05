@@ -1,6 +1,6 @@
 import type { GiftPreferences } from "@/lib/preferences";
 
-export type ItemStatus = "AVAILABLE" | "CLAIMED" | "PURCHASED";
+export type ItemStatus = "AVAILABLE" | "PURCHASED";
 
 export interface WishlistItem {
   id: string;
@@ -15,12 +15,9 @@ export interface WishlistItem {
   purchased: boolean;
   purchasedAt: string | null;
   status: ItemStatus;
-  claimedByUserId: string | null;
-  claimedAt: string | null;
   userId: string;
   listId: string | null;
   user?: { id: string; name: string; avatarUrl?: string | null };
-  claimedByUser?: { id: string; name: string; avatarUrl?: string | null } | null;
   category: string | null;
   createdAt: string;
   updatedAt: string;

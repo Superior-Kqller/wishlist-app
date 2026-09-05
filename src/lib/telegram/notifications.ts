@@ -9,10 +9,7 @@ interface NotifyStatusTransitionInput {
   itemTitle: string;
   ownerUserId: string;
   actorUserId: string;
-  previousStatus: ItemStatus;
   nextStatus: ItemStatus;
-  previousClaimerUserId: string | null;
-  nextClaimerUserId: string | null;
 }
 
 interface NotifyItemCreatedInput {
@@ -127,18 +124,11 @@ export async function notifyStatusTransition(input: NotifyStatusTransitionInput)
 
     const actorName = actor?.name ?? "Пользователь";
 
-    if (input.nextStatus === "CLAIMED") return;
-    if (input.previousStatus === "CLAIMED" && input.nextStatus === "AVAILABLE") return;
-
     if (input.nextStatus === "PURCHASED") {
       const text = formatPurchasedMessage(actorName, input.itemTitle);
       await sendTelegramToConfiguredChats(text);
 
       await sendTelegramToUser(input.ownerUserId, text);
-
-      if (input.nextClaimerUserId) {
-        await sendTelegramToUser(input.nextClaimerUserId, text);
-      }
     }
   } catch (error) {
     sanitizeError("Telegram notification send error", error, {
