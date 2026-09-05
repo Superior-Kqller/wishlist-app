@@ -112,7 +112,20 @@ if [ "${RUN_MIGRATIONS_ON_START:-1}" = "1" ]; then
 
   echo ""
   echo "🌱 Seeding users (if needed)..."
-  node ./prisma/seed.js 2>/dev/null && echo "   ✓ Seed complete" || echo "   ⊘ Seed skipped (already exists)"
+  # Сид идемпотентен: на уже наполненной базе он не падает, а проверяет,
+  # остался ли администратор, и выходит с нулём. Поэтому ненулевой код —
+  # всегда настоящая ошибка: небезопасный SEED_*_PASSWORD, одинаковые
+  # логины, недоступная база.
+  #
+  # Раньше здесь стояло `2>/dev/null && ... || echo "Seed skipped (already
+  # exists)"`. Оно гасило сообщение об ошибке и выдавало любой сбой за
+  # штатный пропуск: на чистой установке с паролем `changeme` человек видел
+  # бодрый рапорт, а получал приложение без единого пользователя.
+  #
+  # Ведём себя как миграции выше: шаг запуска либо проходит, либо роняет
+  # контейнер. Отключаются оба шага одинаково — RUN_MIGRATIONS_ON_START=0.
+  node ./prisma/seed.js
+  echo "   ✓ Seed complete"
 else
   echo ""
   echo "⊘ Database migrations skipped for this container"
