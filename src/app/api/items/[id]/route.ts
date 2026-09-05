@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
@@ -194,13 +194,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         );
       }
 
-      await notifyStatusTransition({
-        itemId: updated.id,
-        itemTitle: updated.title,
-        ownerUserId: updated.userId,
-        actorUserId: userId,
-        nextStatus: updated.status,
-      });
+      after(() =>
+        notifyStatusTransition({
+          itemId: updated.id,
+          itemTitle: updated.title,
+          ownerUserId: updated.userId,
+          actorUserId: userId,
+          nextStatus: updated.status,
+        }),
+      );
 
       return NextResponse.json(updated);
     }
@@ -230,13 +232,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     });
 
     if (existing.status !== item.status) {
-      await notifyStatusTransition({
-        itemId: item.id,
-        itemTitle: item.title,
-        ownerUserId: item.userId,
-        actorUserId: userId,
-        nextStatus: item.status,
-      });
+      after(() =>
+        notifyStatusTransition({
+          itemId: item.id,
+          itemTitle: item.title,
+          ownerUserId: item.userId,
+          actorUserId: userId,
+          nextStatus: item.status,
+        }),
+      );
     }
 
     return NextResponse.json(item);

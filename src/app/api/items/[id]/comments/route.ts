@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { canUserSeeItem } from "@/lib/list-utils";
@@ -89,14 +89,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         ...(item.list?.viewers.map((viewer) => viewer.userId) ?? []),
       ];
 
-      await notifyCommentCreated({
-        itemId: item.id,
-        itemTitle: item.title,
-        actorUserId: currentUserId,
-        actorName: comment.user.name,
-        commentText: comment.text,
-        recipientUserIds,
-      });
+      after(() =>
+        notifyCommentCreated({
+          itemId: item.id,
+          itemTitle: item.title,
+          actorUserId: currentUserId,
+          actorName: comment.user.name,
+          commentText: comment.text,
+          recipientUserIds,
+        }),
+      );
     }
 
     return NextResponse.json(comment, { status: 201 });

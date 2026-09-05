@@ -25,7 +25,7 @@ describe("rate-limit (in-memory fallback)", () => {
       headers: { "x-forwarded-for": "1.2.3.4" },
     });
 
-    const options = { maxRequests: 3, windowMs: 60000, useIP: true };
+    const options = { category: "read", maxRequests: 3, windowMs: 60000, useIP: true } as const;
 
     const r1 = await rateLimit(mockReq, options);
     expect(r1).toBeNull();
@@ -44,7 +44,7 @@ describe("rate-limit (in-memory fallback)", () => {
       headers: { "x-forwarded-for": "10.0.0.1" },
     });
 
-    const options = { maxRequests: 2, windowMs: 60000, useIP: true };
+    const options = { category: "read", maxRequests: 2, windowMs: 60000, useIP: true } as const;
 
     await rateLimit(mockReq, options);
     await rateLimit(mockReq, options);
@@ -61,5 +61,47 @@ describe("rate-limit (in-memory fallback)", () => {
     expect(rateLimitPresets.default.maxRequests).toBe(60);
     expect(rateLimitPresets.read.maxRequests).toBe(100);
     expect(rateLimitPresets.auth.useIP).toBe(true);
+  });
+
+  it("считает разбор ссылок отдельно от чтений того же человека", async () => {
+    const { rateLimit, rateLimitPresets } = await import("./rate-limit");
+    const req = new NextRequest("http://localhost/");
+
+    // Читаем ровно столько, сколько раньше выбирало весь запас разбора.
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      expect(await rateLimit(req, rateLimitPresets.read)).toBeNull();
+    }
+
+    expect(await rateLimit(req, rateLimitPresets.parse)).toBeNull();
+    expect(await rateLimit(req, rateLimitPresets.default)).toBeNull();
+  });
+
+  it("исчерпанная категория не задевает остальные", async () => {
+    const { rateLimit, rateLimitPresets } = await import("./rate-limit");
+    const req = new NextRequest("http://localhost/");
+
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      expect(await rateLimit(req, rateLimitPresets.parse)).toBeNull();
+    }
+    const blocked = await rateLimit(req, rateLimitPresets.parse);
+
+    expect(blocked?.status).toBe(429);
+    expect(await rateLimit(req, rateLimitPresets.read)).toBeNull();
+  });
+
+  it("разделяет людей внутри одной категории", async () => {
+    vi.resetModules();
+    const nextAuth = await import("next-auth");
+    const getServerSession = vi.mocked(nextAuth.getServerSession);
+    const { rateLimit } = await import("./rate-limit");
+    const req = new NextRequest("http://localhost/");
+    const options = { category: "parse", maxRequests: 1, windowMs: 60000 } as const;
+
+    getServerSession.mockResolvedValue({ user: { id: "user-a", role: "USER" } } as never);
+    expect(await rateLimit(req, options)).toBeNull();
+    expect((await rateLimit(req, options))?.status).toBe(429);
+
+    getServerSession.mockResolvedValue({ user: { id: "user-b", role: "USER" } } as never);
+    expect(await rateLimit(req, options)).toBeNull();
   });
 });

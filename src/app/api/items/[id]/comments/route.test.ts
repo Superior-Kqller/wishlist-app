@@ -35,6 +35,14 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+/* `after` в тесте выполняется сразу: уведомление уходит уже вне ответа. */
+vi.mock("next/server", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/server")>()),
+  after: (task: () => unknown) => {
+    void task();
+  },
+}));
+
 vi.mock("@/lib/telegram/notifications", () => ({
   notifyCommentCreated: mockNotifyCommentCreated,
 }));

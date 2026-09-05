@@ -43,6 +43,17 @@ vi.mock("@/lib/telegram/notifications", () => ({
   notifyItemCreated: mockNotifyItemCreated,
 }));
 
+/*
+ * `after` в тесте выполняется сразу: проверяем, что уведомление уходит и с
+ * какими данными, — но уже за пределами ответа, а не внутри него.
+ */
+vi.mock("next/server", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/server")>()),
+  after: (task: () => unknown) => {
+    void task();
+  },
+}));
+
 describe("POST /api/items", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -69,6 +80,22 @@ describe("POST /api/items", () => {
       createdAt: new Date("2026-06-15T12:00:00.000Z"),
       updatedAt: new Date("2026-06-15T12:00:00.000Z"),
     });
+  });
+
+  it("отвечает, не дожидаясь Telegram", async () => {
+    // Уведомление, которое никогда не завершится: раньше оно держало ответ.
+    mockNotifyItemCreated.mockReturnValue(new Promise(() => {}));
+    const { POST } = await import("./route");
+    const req = new Request("http://localhost/api/items", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title: "Книга", listId: "list-1" }),
+    });
+
+    const response = await POST(req as never);
+
+    expect(response.status).toBe(201);
+    expect(mockNotifyItemCreated).toHaveBeenCalled();
   });
 
   it("notifies Telegram chats when a user adds an item", async () => {

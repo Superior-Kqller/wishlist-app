@@ -88,11 +88,35 @@ export async function setItemStatus(id: string, status: ItemStatus): Promise<Ite
  * тронуто. Поэтому оба попадают в failedIds, а не теряются: вызывающий оставляет
  * уцелевшие выбранными и повторяет попытку ровно по ним.
  */
+/**
+ * Одновременных запросов — не больше этого числа.
+ *
+ * Выбор из сотни желаний уходил на сервер сотней одновременных запросов:
+ * всплеск нагрузки и часть отказов 429 на ровном месте. Очередь не отменяет
+ * лимит частоты — при достаточно большом выборе отказ всё равно возможен, и
+ * поимённый отчёт остаётся тем же способом повторить только неудавшееся.
+ */
+const BULK_CONCURRENCY = 6;
+
 async function runBulk(
   ids: string[],
   request: (id: string) => Promise<Response>,
 ): Promise<BulkMutationResult> {
-  const results = await Promise.allSettled(ids.map(request));
+  const results = new Array<PromiseSettledResult<Response>>(ids.length);
+  let next = 0;
+
+  async function worker(): Promise<void> {
+    while (next < ids.length) {
+      const index = next;
+      next += 1;
+      results[index] = await Promise.allSettled([request(ids[index])]).then(
+        (settled) => settled[0],
+      );
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(BULK_CONCURRENCY, ids.length) }, () => worker()));
+
   const failedIds = ids.filter((_, index) => {
     const result = results[index];
     return result.status === "rejected" || !result.value.ok;

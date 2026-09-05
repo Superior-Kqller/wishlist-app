@@ -2,7 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./auth";
 
+/**
+ * Категория операции — часть ключа, а не подпись.
+ *
+ * Ключ состоял из одного лишь пользователя, поэтому десять обычных чтений
+ * съедали весь запас разбора ссылок: лимиты read=100, default=60 и parse=10
+ * сверялись с одним и тем же счётчиком. Категории считаются отдельно, а общий
+ * потолок, если он понадобится, будет отдельной политикой поверх этих.
+ */
+type RateLimitCategory = "read" | "write" | "parse" | "auth";
+
 interface RateLimitOptions {
+  category: RateLimitCategory;
   maxRequests: number;
   windowMs: number;
   useIP?: boolean;
@@ -112,11 +123,15 @@ function getClientIP(req: NextRequest): string {
   return "unknown";
 }
 
-async function getRateLimitKey(req: NextRequest, useIP: boolean): Promise<string | null> {
-  if (useIP) return `ip:${getClientIP(req)}`;
+async function getRateLimitKey(
+  req: NextRequest,
+  category: RateLimitCategory,
+  useIP: boolean,
+): Promise<string | null> {
+  if (useIP) return `${category}:ip:${getClientIP(req)}`;
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
-  return userId ? `user:${userId}` : null;
+  return userId ? `${category}:user:${userId}` : null;
 }
 
 // --- Main ---
@@ -125,7 +140,7 @@ export async function rateLimit(
   req: NextRequest,
   options: RateLimitOptions,
 ): Promise<NextResponse | null> {
-  const key = await getRateLimitKey(req, options.useIP ?? false);
+  const key = await getRateLimitKey(req, options.category, options.useIP ?? false);
 
   if (!key) {
     if (!options.useIP) {
@@ -163,8 +178,8 @@ export async function rateLimit(
 }
 
 export const rateLimitPresets = {
-  parse: { maxRequests: 10, windowMs: 60_000 },
-  default: { maxRequests: 60, windowMs: 60_000 },
-  read: { maxRequests: 100, windowMs: 60_000 },
-  auth: { maxRequests: 5, windowMs: 15 * 60_000, useIP: true },
-} as const;
+  parse: { category: "parse", maxRequests: 10, windowMs: 60_000 },
+  default: { category: "write", maxRequests: 60, windowMs: 60_000 },
+  read: { category: "read", maxRequests: 100, windowMs: 60_000 },
+  auth: { category: "auth", maxRequests: 5, windowMs: 15 * 60_000, useIP: true },
+} as const satisfies Record<string, RateLimitOptions>;

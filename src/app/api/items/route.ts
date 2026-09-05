@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
@@ -198,12 +198,19 @@ export async function POST(req: NextRequest) {
         user: { select: { id: true, name: true, avatarUrl: true } },
       },
     });
-    await notifyItemCreated({
-      itemId: item.id,
-      itemTitle: item.title,
-      actorUserId: userId,
-      actorName: item.user?.name ?? "Пользователь",
-    });
+    /*
+     * Желание уже записано — ответ не ждёт Telegram. Раньше внешний сервис
+     * стоял между записью и ответом: его задержка становилась задержкой
+     * сохранения, хотя на судьбу желания она не влияет.
+     */
+    after(() =>
+      notifyItemCreated({
+        itemId: item.id,
+        itemTitle: item.title,
+        actorUserId: userId,
+        actorName: item.user?.name ?? "Пользователь",
+      }),
+    );
     return NextResponse.json(item, { status: 201 });
   } catch (err) {
     if (err instanceof z.ZodError) {

@@ -91,6 +91,36 @@ describe("массовая правка", () => {
     });
   });
 
+  it("не отправляет весь выбор разом", async () => {
+    let inFlight = 0;
+    let peak = 0;
+    const release: Array<() => void> = [];
+    stubFetch(
+      () =>
+        new Promise((resolve) => {
+          inFlight += 1;
+          peak = Math.max(peak, inFlight);
+          release.push(() => {
+            inFlight -= 1;
+            resolve(new Response(null, { status: 200 }));
+          });
+        }),
+    );
+
+    const ids = Array.from({ length: 25 }, (_, index) => `item-${index}`);
+    const pending = deleteItems(ids);
+    // Отпускаем запросы по мере их появления: очередь должна дойти до конца.
+    for (let done = 0; done < ids.length; done += 1) {
+      while (release.length === 0) await Promise.resolve();
+      release.shift()!();
+      await Promise.resolve();
+    }
+
+    await expect(pending).resolves.toEqual({ requestedIds: ids, failedIds: [] });
+    expect(peak).toBeLessThanOrEqual(6);
+    expect(peak).toBeGreaterThan(1);
+  });
+
   it("на пустом наборе не ходит в сеть", async () => {
     const fetchMock = stubFetch(() => respond());
     await expect(deleteItems([])).resolves.toEqual({ requestedIds: [], failedIds: [] });

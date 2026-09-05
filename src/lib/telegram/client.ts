@@ -1,6 +1,9 @@
 import { getTelegramConfig } from "@/lib/telegram/config";
 import type { TelegramParseMode, TelegramReplyMarkup } from "@/lib/telegram/types";
 
+/** Дольше этого ждать ответа Telegram незачем: уведомление не стоит очереди. */
+const TELEGRAM_REQUEST_TIMEOUT_MS = 5000;
+
 interface SendMessageInput {
   chatId: string;
   text: string;
@@ -30,6 +33,9 @@ async function callTelegramApi<T>(method: string, payload: Record<string, unknow
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
+    // Свой срок ожидания: без него зависший Telegram держит вызывающего
+    // столько, сколько решит платформенный таймаут, то есть неизвестно сколько.
+    signal: AbortSignal.timeout(TELEGRAM_REQUEST_TIMEOUT_MS),
   });
 
   const json = (await response.json()) as TelegramApiResponse<T>;
