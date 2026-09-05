@@ -24,11 +24,10 @@ export type WishlistFiltersState = {
 type ReadableParams = { get(name: string): string | null };
 
 export function parseWishlistFilters(params: ReadableParams): WishlistFiltersState {
-  const userId = params.get("userId");
   const listId = params.get("listId");
   const categories = params.get("categories");
   return {
-    userId: userId === "me" ? "me" : userId || null,
+    userId: params.get("userId") || null,
     // `all` из старых ссылок значит то же, что отсутствие подборки.
     listId: listId && listId !== "all" ? listId : null,
     search: params.get("search") || "",

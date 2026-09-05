@@ -25,8 +25,7 @@ interface WishlistGridProps {
   isLoading?: boolean;
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
-  onTogglePurchased: (id: string, purchased: boolean) => void;
-  onSetStatus?: (id: string, status: ItemStatus) => void;
+  onSetStatus: (id: string, status: ItemStatus) => void;
   pendingStatusByItemId?: Record<string, boolean>;
   /** Товар, только что отмеченный купленным: получает подтверждающую анимацию. */
   justPurchasedId?: string | null;
@@ -66,7 +65,6 @@ export function WishlistGrid({
   isLoading,
   onEdit,
   onDelete,
-  onTogglePurchased,
   onSetStatus,
   pendingStatusByItemId,
   justPurchasedId,
@@ -149,7 +147,6 @@ export function WishlistGrid({
                 item={item}
                 onEdit={onEdit}
                 onDelete={onDelete}
-                onTogglePurchased={onTogglePurchased}
                 onSetStatus={onSetStatus}
                 statusPending={!!pendingStatusByItemId?.[item.id]}
                 onOpenDetail={onOpenDetail}
@@ -203,7 +200,6 @@ export function WishlistGrid({
               item={item}
               onEdit={onEdit}
               onDelete={onDelete}
-              onTogglePurchased={onTogglePurchased}
               onSetStatus={onSetStatus}
               statusPending={!!pendingStatusByItemId?.[item.id]}
               justPurchased={justPurchasedId === item.id}

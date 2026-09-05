@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
-import { SearchField } from "@/components/ui/search-field";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WishlistGrid } from "@/components/WishlistGrid";
-import { WishlistSearchInput } from "@/components/SearchAndFilter";
+import { WishlistSearchInput } from "@/components/wishlist/wishlist-search-input";
 import { FiltersDrawer } from "@/components/FiltersDrawer";
 import {
   WishlistViewToggle,
@@ -127,7 +126,6 @@ export type WishlistFeed = {
 export type WishlistItemActions = {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
-  onTogglePurchased: (id: string, purchased: boolean) => void;
   onSetStatus: (id: string, status: ItemStatus) => void;
   pendingStatusByItemId: Record<string, boolean>;
   justPurchasedId?: string | null;
@@ -225,7 +223,6 @@ export function WishlistWorkspace({
   const {
     onEdit: onEditItem,
     onDelete: onDeleteItem,
-    onTogglePurchased,
     onSetStatus,
     pendingStatusByItemId,
     justPurchasedId,
@@ -268,14 +265,11 @@ export function WishlistWorkspace({
         className={`@container ${uiSurface.homeToolbar} overflow-hidden @max-[52rem]:rounded-xl @max-[52rem]:px-2 @max-[52rem]:py-2`}
       >
         <div className="flex min-w-0 items-center gap-2 @min-[52rem]:hidden">
-          <SearchField
-            value={search}
-            onValueChange={onSearchChange}
-            placeholder={t("Поиск…")}
-            aria-label={t("Поиск")}
-            wrapperClassName="group min-w-0 flex-1"
-            iconClassName="left-3.5 text-muted-foreground/55 transition-colors duration-200 group-focus-within:text-primary-accent/85"
-            inputClassName="h-11 min-h-[44px] rounded-xl border-border/55 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] placeholder:text-muted-foreground-subtle"
+          <WishlistSearchInput
+            search={search}
+            onSearchChange={onSearchChange}
+            variant="mobile"
+            className="min-w-0 flex-1"
           />
           <Button
             type="button"
@@ -548,7 +542,6 @@ export function WishlistWorkspace({
           isLoading={isLoading}
           onEdit={onEditItem}
           onDelete={onDeleteItem}
-          onTogglePurchased={onTogglePurchased}
           onSetStatus={onSetStatus}
           pendingStatusByItemId={pendingStatusByItemId}
           justPurchasedId={justPurchasedId}

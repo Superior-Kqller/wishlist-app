@@ -34,8 +34,7 @@ export interface WishCardProps {
   item: WishlistItem;
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
-  onTogglePurchased: (id: string, purchased: boolean) => void;
-  onSetStatus?: (id: string, status: ItemStatus) => void;
+  onSetStatus: (id: string, status: ItemStatus) => void;
   statusPending?: boolean;
   /** Товар только что отмечен купленным в этой сессии. */
   justPurchased?: boolean;
@@ -51,7 +50,6 @@ export const WishCard = memo(function WishCard({
   item,
   onEdit,
   onDelete,
-  onTogglePurchased,
   onSetStatus,
   statusPending = false,
   justPurchased = false,
@@ -87,11 +85,7 @@ export const WishCard = memo(function WishCard({
   };
 
   const handleMarkPurchased = () => {
-    if (onSetStatus) {
-      onSetStatus(item.id, getPurchaseToggleTarget(item));
-    } else {
-      onTogglePurchased(item.id, !item.purchased);
-    }
+    onSetStatus(item.id, getPurchaseToggleTarget(item));
   };
 
   const showImage = Boolean(imageUrl && !imageError);

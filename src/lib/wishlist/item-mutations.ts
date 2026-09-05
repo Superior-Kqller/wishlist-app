@@ -70,13 +70,6 @@ export async function deleteItem(id: string): Promise<ItemMutationResult> {
   return toResult(await fetch(`/api/items/${id}`, { method: "DELETE" }));
 }
 
-export async function setItemPurchased(
-  id: string,
-  purchased: boolean,
-): Promise<ItemMutationResult> {
-  return updateItem(id, { purchased });
-}
-
 export async function setItemStatus(id: string, status: ItemStatus): Promise<ItemMutationResult> {
   return updateItem(id, { status });
 }
@@ -129,11 +122,12 @@ export async function deleteItems(ids: string[]): Promise<BulkMutationResult> {
 }
 
 export async function markItemsPurchased(ids: string[]): Promise<BulkMutationResult> {
+  // Тот же переход, что и у одиночной карточки: проверка и защита от гонки общие.
   return runBulk(ids, (id) =>
     fetch(`/api/items/${id}`, {
       method: "PATCH",
       headers: JSON_HEADERS,
-      body: JSON.stringify({ purchased: true }),
+      body: JSON.stringify({ status: "PURCHASED" }),
     }),
   );
 }

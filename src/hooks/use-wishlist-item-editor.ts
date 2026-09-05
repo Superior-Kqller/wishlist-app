@@ -13,7 +13,6 @@ import {
   exportItems,
   importItems,
   markItemsPurchased,
-  setItemPurchased,
   setItemStatus,
   updateItem as updateItemRequest,
 } from "@/lib/wishlist/item-mutations";
@@ -114,20 +113,6 @@ export function useWishlistItemEditor({ mutateItems, t }: EditorParams) {
         );
       }
       toast.success(t("Удалено"));
-      await mutateItems();
-    },
-    [mutateItems, t],
-  );
-
-  const handleTogglePurchased = useCallback(
-    async (id: string, purchased: boolean) => {
-      const result = await setItemPurchased(id, purchased);
-      if (result.kind !== "ok") {
-        throw new Error(
-          (result.kind === "error" && result.message) || t("Ошибка при обновлении желания"),
-        );
-      }
-      toast.success(purchased ? t("Отмечено как купленное") : t("Отметка снята"));
       await mutateItems();
     },
     [mutateItems, t],
@@ -271,7 +256,6 @@ export function useWishlistItemEditor({ mutateItems, t }: EditorParams) {
       handleCreateItem,
       updateItemById,
       confirmDeleteItem,
-      handleTogglePurchased,
       handleSetItemStatus,
       handleBulkDelete,
       handleBulkMarkPurchased,
@@ -286,7 +270,6 @@ export function useWishlistItemEditor({ mutateItems, t }: EditorParams) {
       handleCreateItem,
       updateItemById,
       confirmDeleteItem,
-      handleTogglePurchased,
       handleSetItemStatus,
       handleBulkDelete,
       handleBulkMarkPurchased,

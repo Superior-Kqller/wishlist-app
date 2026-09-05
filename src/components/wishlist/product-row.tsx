@@ -25,8 +25,7 @@ export interface ProductRowProps {
   item: WishlistItem;
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
-  onTogglePurchased: (id: string, purchased: boolean) => void;
-  onSetStatus?: (id: string, status: ItemStatus) => void;
+  onSetStatus: (id: string, status: ItemStatus) => void;
   statusPending?: boolean;
   onOpenDetail?: (item: WishlistItem) => void;
   selectionMode?: boolean;
@@ -44,7 +43,6 @@ export const ProductRow = memo(function ProductRow({
   item,
   onEdit,
   onDelete,
-  onTogglePurchased,
   onSetStatus,
   statusPending = false,
   onOpenDetail,
@@ -78,11 +76,7 @@ export const ProductRow = memo(function ProductRow({
   };
 
   const handleMarkPurchased = () => {
-    if (onSetStatus) {
-      onSetStatus(item.id, getPurchaseToggleTarget(item));
-    } else {
-      onTogglePurchased(item.id, !item.purchased);
-    }
+    onSetStatus(item.id, getPurchaseToggleTarget(item));
   };
 
   return (

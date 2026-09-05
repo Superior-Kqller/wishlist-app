@@ -32,10 +32,19 @@ describe("item-status transitions", () => {
     ).toBe(true);
   });
 
-  it("не даёт отменить покупку через смену статуса", () => {
+  it("разрешает владельцу снять отметку о покупке", () => {
     expect(
       canTransitionStatus("PURCHASED", "AVAILABLE", {
         actorUserId: "u1",
+        ownerUserId: "u1",
+      }),
+    ).toBe(true);
+  });
+
+  it("не даёт снять чужую отметку", () => {
+    expect(
+      canTransitionStatus("PURCHASED", "AVAILABLE", {
+        actorUserId: "u2",
         ownerUserId: "u1",
       }),
     ).toBe(false);

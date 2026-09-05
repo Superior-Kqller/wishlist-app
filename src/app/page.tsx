@@ -493,8 +493,7 @@ function HomePageContent() {
 
   const handleUserChange = useCallback(
     (userId: string | null) => {
-      const uid = userId === null ? null : userId === "me" ? "me" : userId;
-      syncFiltersToUrl({ userId: uid, listId: null });
+      syncFiltersToUrl({ userId, listId: null });
     },
     [syncFiltersToUrl],
   );
@@ -678,7 +677,6 @@ function HomePageContent() {
     () => ({
       onEdit: handleEditItem,
       onDelete: handleDeleteItem,
-      onTogglePurchased: editor.handleTogglePurchased,
       onSetStatus: editor.handleSetItemStatus,
       pendingStatusByItemId: editor.pendingStatusByItemId,
       justPurchasedId: editor.justPurchasedId,
@@ -761,7 +759,6 @@ function HomePageContent() {
           setParsedData(null);
         }}
         onDelete={handleDeleteItem}
-        onTogglePurchased={editor.handleTogglePurchased}
         onSetStatus={editor.handleSetItemStatus}
         statusPending={detailItem ? !!editor.pendingStatusByItemId[detailItem.id] : false}
       />

@@ -121,6 +121,18 @@ describe("массовая правка", () => {
     expect(peak).toBeGreaterThan(1);
   });
 
+  it("отмечает купленным той же командой, что и одиночная карточка", async () => {
+    const fetchMock = stubFetch(() => respond());
+    await markItemsPurchased(["item-1"]);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/items/item-1",
+      expect.objectContaining({
+        method: "PATCH",
+        body: JSON.stringify({ status: "PURCHASED" }),
+      }),
+    );
+  });
+
   it("на пустом наборе не ходит в сеть", async () => {
     const fetchMock = stubFetch(() => respond());
     await expect(deleteItems([])).resolves.toEqual({ requestedIds: [], failedIds: [] });

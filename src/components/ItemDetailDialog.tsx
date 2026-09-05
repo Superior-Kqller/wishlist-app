@@ -31,8 +31,7 @@ interface ItemDetailDialogProps {
   onClose: () => void;
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
-  onTogglePurchased: (id: string, purchased: boolean) => void;
-  onSetStatus?: (id: string, status: ItemStatus) => void;
+  onSetStatus: (id: string, status: ItemStatus) => void;
   statusPending?: boolean;
 }
 
@@ -43,7 +42,6 @@ export function ItemDetailDialog({
   onClose,
   onEdit,
   onDelete,
-  onTogglePurchased,
   onSetStatus,
   statusPending = false,
 }: ItemDetailDialogProps) {
@@ -132,11 +130,7 @@ export function ItemDetailDialog({
 
   const handleTogglePurchased = () => {
     if (statusPending) return;
-    if (onSetStatus) {
-      onSetStatus(item.id, getPurchaseToggleTarget(item));
-      return;
-    }
-    onTogglePurchased(item.id, !item.purchased);
+    onSetStatus(item.id, getPurchaseToggleTarget(item));
   };
 
   return (

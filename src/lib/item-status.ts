@@ -5,18 +5,20 @@ type TransitionOptions = {
   ownerUserId: string;
 };
 
+/*
+ * Отметку о покупке ставит и снимает владелец желания — в обе стороны.
+ *
+ * Снятие раньше было запрещено здесь и разрешено соседним путём через поле
+ * purchased. Карточка отправляла именно смену статуса, получала 409 и
+ * показывала «статус уже изменился», хотя не изменилось ничего.
+ */
 export function canTransitionStatus(
   from: ItemStatus,
   to: ItemStatus,
   options: TransitionOptions,
 ): boolean {
   if (from === to) return true;
-
-  if (from === "AVAILABLE" && to === "PURCHASED") {
-    return options.actorUserId === options.ownerUserId;
-  }
-
-  return false;
+  return options.actorUserId === options.ownerUserId;
 }
 
 /*

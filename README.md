@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="./assets/readme/hero.svg" width="100%" alt="Wishlist — shared wishlists, private gift reservations, and self-hosted gift planning">
+  <img src="./assets/readme/hero.svg" width="100%" alt="Wishlist — shared wishlists, gift preferences, and self-hosted gift planning">
 </p>
 
 Wishlist is a self-hosted web app for families, friends, and small teams. It keeps wish ideas, preferences, important dates, and gift coordination in one place—without turning the group chat into a planning database.
@@ -15,7 +15,7 @@ Wishlist is a self-hosted web app for families, friends, and small teams. It kee
 ## One place for the whole gift loop
 
 - **Collect ideas** — create personal or shared lists with product links, photos, prices, notes, categories, and priorities.
-- **Choose without spoilers** — reserve a wish privately so other gift-givers avoid duplicates while the list owner keeps the surprise.
+- **Share list by list** — every list stays yours until you name who else may see it, so each person opens only the lists meant for them.
 - **Plan around people** — use preferences, birthdays, personal dates, shared holidays, and automatic reminders to decide what matters and when.
 - **Stay in sync** — track available and purchased items, comment on activity, export data, and optionally receive Telegram notifications.
 

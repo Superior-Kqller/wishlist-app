@@ -6,7 +6,11 @@ import { sanitizeError } from "@/lib/logger";
 import { canUserSeeItem } from "@/lib/list-utils";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
-import { canTransitionStatus, hasConflictingStatusPayload } from "@/lib/item-status";
+import {
+  canTransitionStatus,
+  hasConflictingStatusPayload,
+  type ItemStatus,
+} from "@/lib/item-status";
 import { notifyStatusTransition } from "@/lib/telegram/notifications";
 import { normalizeProductCategory } from "@/lib/categories";
 
@@ -111,9 +115,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       data.notes !== undefined ||
       data.category !== undefined ||
       data.listId !== undefined;
-    const hasNonStatusFields = hasOwnerOnlyFields || data.purchased !== undefined;
+    /*
+     * Покупка меняется одной командой, как бы её ни назвали в запросе.
+     * Поле purchased оставлено ради старых клиентов, но ведёт туда же, где
+     * живут проверка перехода и защита от одновременной правки, — раньше это
+     * были два пути с разным поведением.
+     */
+    const nextStatus: ItemStatus | undefined =
+      data.status ??
+      (data.purchased === undefined ? undefined : data.purchased ? "PURCHASED" : "AVAILABLE");
 
-    if (data.status !== undefined && hasNonStatusFields) {
+    if (nextStatus !== undefined && hasOwnerOnlyFields) {
       return NextResponse.json(
         { error: "Операция смены status должна быть отдельным запросом" },
         { status: 400 },
@@ -135,18 +147,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       updateData.category = normalizeProductCategory(data.category);
     }
 
-    if (data.purchased !== undefined) {
-      if (!isOwner) {
-        return NextResponse.json({ error: "Доступ запрещён" }, { status: 403 });
-      }
-      updateData.purchased = data.purchased;
-      updateData.purchasedAt = data.purchased ? new Date() : null;
-      updateData.status = data.purchased ? "PURCHASED" : "AVAILABLE";
-    }
-
-    if (data.status !== undefined) {
-      const nextStatus = data.status;
-
+    if (nextStatus !== undefined) {
       if (
         !canTransitionStatus(existing.status, nextStatus, {
           actorUserId: userId,
