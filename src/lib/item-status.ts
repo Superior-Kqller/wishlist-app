@@ -35,7 +35,7 @@ export function isItemPurchased(item: { status: ItemStatus; purchased: boolean }
 export function getPurchaseToggleTarget(item: {
   status: ItemStatus;
   purchased: boolean;
-}): "AVAILABLE" | "PURCHASED" {
+}): ItemStatus {
   return isItemPurchased(item) ? "AVAILABLE" : "PURCHASED";
 }
 

@@ -24,6 +24,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { fetcher } from "@/lib/fetcher";
 import type { BirthdayAudience, BirthdayProfile } from "@/types";
 import type { ProfileGender } from "@/lib/calendar/profile-gender";
+import type { TelegramLinkStatus } from "@/lib/telegram/link-status";
 
 interface AudienceOption {
   id: string;
@@ -36,7 +37,7 @@ interface ProfileFormProps {
   initialUsername: string;
   initialAvatarUrl?: string | null;
   initialTelegramId?: string | null;
-  initialTelegramLinkStatus?: "not_configured" | "pending" | "linked";
+  initialTelegramLinkStatus?: TelegramLinkStatus;
   initialTelegramNotificationsEnabled?: boolean;
   initialCalendarNotificationsEnabled?: boolean;
   initialBirthday?: BirthdayProfile | null;
@@ -47,7 +48,7 @@ interface ProfileFormProps {
 }
 
 function getTelegramStatusText(
-  status: "not_configured" | "pending" | "linked" | undefined,
+  status: TelegramLinkStatus | undefined,
   t: (key: string) => string,
 ): string {
   if (status === "linked") return t("Подключено");

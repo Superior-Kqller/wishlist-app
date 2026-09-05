@@ -38,6 +38,7 @@ import type { ListWithMeta, UserWithStats, WishlistItem } from "@/types";
 import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
 import type { ProductCategoryOption } from "@/lib/categories";
 import { cn } from "@/lib/utils";
+import type { ItemStatus } from "@/lib/item-status";
 
 /*
  * Мастерская принимает шесть связок, а не полсотни россыпью.
@@ -114,7 +115,7 @@ export type WishlistItemActions = {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
-  onSetStatus: (id: string, status: "AVAILABLE" | "PURCHASED") => void;
+  onSetStatus: (id: string, status: ItemStatus) => void;
   pendingStatusByItemId: Record<string, boolean>;
   justPurchasedId?: string | null;
   onOpenDetail: (item: WishlistItem) => void;

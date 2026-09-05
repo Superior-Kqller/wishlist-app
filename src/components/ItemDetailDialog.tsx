@@ -16,7 +16,7 @@ import {
 } from "@/components/wishlist/item-detail/item-meta-section";
 import { ItemActivitySection } from "@/components/wishlist/item-detail/item-activity-section";
 import { useI18n } from "@/components/i18n/language-provider";
-import { getPurchaseToggleTarget } from "@/lib/item-status";
+import { getPurchaseToggleTarget, type ItemStatus } from "@/lib/item-status";
 
 const fetcher = (url: string) =>
   fetch(url).then((r) => {
@@ -32,7 +32,7 @@ interface ItemDetailDialogProps {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
-  onSetStatus?: (id: string, status: "AVAILABLE" | "PURCHASED") => void;
+  onSetStatus?: (id: string, status: ItemStatus) => void;
   statusPending?: boolean;
 }
 

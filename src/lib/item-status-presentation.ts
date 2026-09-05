@@ -1,4 +1,4 @@
-import type { ItemStatus } from "@/types";
+import type { ItemStatus } from "@/lib/item-status";
 import { type Language, translate } from "@/lib/i18n";
 
 export function getItemStatusLabel(status: ItemStatus, language: Language = "ru"): string {

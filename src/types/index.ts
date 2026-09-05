@@ -1,6 +1,6 @@
+import type { ItemStatus } from "@/lib/item-status";
 import type { GiftPreferences } from "@/lib/preferences";
-
-export type ItemStatus = "AVAILABLE" | "PURCHASED";
+import type { TelegramLinkStatus } from "@/lib/telegram/link-status";
 
 export interface WishlistItem {
   id: string;
@@ -89,7 +89,6 @@ export interface ParsedProductResponse {
 }
 
 export type UserRole = "USER" | "ADMIN";
-export type TelegramLinkStatus = "not_configured" | "pending" | "linked";
 export type BirthdayAudience = "ALL" | "SELECTED" | "PRIVATE";
 
 export interface BirthdayProfile {

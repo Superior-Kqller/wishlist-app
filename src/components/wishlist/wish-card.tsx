@@ -27,7 +27,7 @@ import { PriorityBadgeInline, PriorityBadgeOverlay } from "./priority-badge";
 import { IconButton } from "@/components/ui/icon-button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getProductCategoryLabel } from "@/lib/categories";
-import { getPurchaseToggleTarget, isItemPurchased } from "@/lib/item-status";
+import { getPurchaseToggleTarget, isItemPurchased, type ItemStatus } from "@/lib/item-status";
 import { ProductCategoryIcon } from "@/lib/category-icons";
 
 export interface WishCardProps {
@@ -35,7 +35,7 @@ export interface WishCardProps {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
-  onSetStatus?: (id: string, status: "AVAILABLE" | "PURCHASED") => void;
+  onSetStatus?: (id: string, status: ItemStatus) => void;
   statusPending?: boolean;
   /** Товар только что отмечен купленным в этой сессии. */
   justPurchased?: boolean;

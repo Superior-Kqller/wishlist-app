@@ -15,6 +15,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { getItemWord } from "@/lib/i18n";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { duration, easing } from "@/lib/motion";
+import type { ItemStatus } from "@/lib/item-status";
 
 const catalogGridClassName =
   "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 min-[1600px]:grid-cols-5 min-[2200px]:grid-cols-6";
@@ -25,7 +26,7 @@ interface WishlistGridProps {
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
   onTogglePurchased: (id: string, purchased: boolean) => void;
-  onSetStatus?: (id: string, status: "AVAILABLE" | "PURCHASED") => void;
+  onSetStatus?: (id: string, status: ItemStatus) => void;
   pendingStatusByItemId?: Record<string, boolean>;
   /** Товар, только что отмеченный купленным: получает подтверждающую анимацию. */
   justPurchasedId?: string | null;

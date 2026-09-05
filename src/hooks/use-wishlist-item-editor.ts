@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
 import type { CreateItemPayload, UpdateItemPayload } from "@/types";
+import type { ItemStatus } from "@/lib/item-status";
 import {
   buildImportPayload,
   createItem,
@@ -133,7 +134,7 @@ export function useWishlistItemEditor({ mutateItems, t }: EditorParams) {
   );
 
   const handleSetItemStatus = useCallback(
-    async (id: string, status: "AVAILABLE" | "PURCHASED") => {
+    async (id: string, status: ItemStatus) => {
       if (inFlightIds.current.has(id)) return;
       inFlightIds.current.add(id);
       setPendingStatusByItemId((prev) => ({ ...prev, [id]: true }));

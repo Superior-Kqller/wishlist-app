@@ -1,4 +1,5 @@
 import type { CreateItemPayload, UpdateItemPayload } from "@/types";
+import type { ItemStatus } from "@/lib/item-status";
 
 /*
  * Правка желаний: транспорт и его исходы, без React и без словаря.
@@ -76,10 +77,7 @@ export async function setItemPurchased(
   return updateItem(id, { purchased });
 }
 
-export async function setItemStatus(
-  id: string,
-  status: "AVAILABLE" | "PURCHASED",
-): Promise<ItemMutationResult> {
+export async function setItemStatus(id: string, status: ItemStatus): Promise<ItemMutationResult> {
   return updateItem(id, { status });
 }
 
