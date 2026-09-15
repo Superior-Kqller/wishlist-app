@@ -11,17 +11,13 @@ export function filterListsBySelectedUser(
   selectedUserId: string | null,
 ): ListWithMeta[] {
   const userScope = resolveUserScope(selectedUserId, currentUserId);
-  const isAllMode = userScope === "all";
-  const isMyMode = userScope === "me";
-  const selectedOtherUser =
-    !isAllMode && !isMyMode ? users.find((u) => u.id === selectedUserId) : undefined;
-  const myLists = lists.filter((l) => l.userId === currentUserId);
-  if (isAllMode) return lists;
-  if (isMyMode) return myLists;
-  if (selectedOtherUser) {
-    return lists.filter((l) => l.userId === selectedOtherUser.id);
-  }
-  return lists;
+  const owner =
+    userScope === "me"
+      ? currentUserId
+      : userScope === "user" && users.some((u) => u.id === selectedUserId)
+        ? selectedUserId
+        : null;
+  return owner ? lists.filter((l) => l.userId === owner) : lists;
 }
 
 /** Первая подборка текущего пользователя по названию (например, значение по умолчанию в форме создания). */

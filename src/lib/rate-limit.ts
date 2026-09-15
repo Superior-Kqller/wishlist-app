@@ -57,12 +57,6 @@ function cleanupMemoryStore() {
   for (const [key, entry] of memoryStore.entries()) {
     if (now > entry.resetAt) memoryStore.delete(key);
   }
-  if (memoryStore.size > 10000) {
-    const sorted = Array.from(memoryStore.entries()).sort((a, b) => a[1].resetAt - b[1].resetAt);
-    for (const [key] of sorted.slice(0, sorted.length - 10000)) {
-      memoryStore.delete(key);
-    }
-  }
 }
 
 function checkMemoryRateLimit(key: string, max: number, windowMs: number) {
@@ -123,15 +117,17 @@ function getClientIP(req: NextRequest): string {
   return "unknown";
 }
 
+/*
+ * Ключ — пользователь, а без сессии — IP. Отказ в доступе даёт сам маршрут,
+ * лимитер лишь считает попытки.
+ */
 async function getRateLimitKey(
   req: NextRequest,
   category: RateLimitCategory,
   useIP: boolean,
-): Promise<string | null> {
-  if (useIP) return `${category}:ip:${getClientIP(req)}`;
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
-  return userId ? `${category}:user:${userId}` : null;
+): Promise<string> {
+  const userId = useIP ? null : (await getServerSession(authOptions))?.user?.id;
+  return userId ? `${category}:user:${userId}` : `${category}:ip:${getClientIP(req)}`;
 }
 
 // --- Main ---
@@ -141,14 +137,6 @@ export async function rateLimit(
   options: RateLimitOptions,
 ): Promise<NextResponse | null> {
   const key = await getRateLimitKey(req, options.category, options.useIP ?? false);
-
-  if (!key) {
-    if (!options.useIP) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return null;
-  }
-
   const redis = await getRedis();
   const result = redis
     ? await checkRedisRateLimit(redis, key, options.maxRequests, options.windowMs)
