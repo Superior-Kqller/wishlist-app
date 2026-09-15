@@ -18,9 +18,9 @@ export type PreferenceTone = "neutral" | "avoid";
  * кромкой: смысл несёт раздел, в котором чип лежит («Не подойдёт»), а краска
  * лишь помогает выхватить его при беглом чтении.
  */
-export function preferenceChipClass(tone: PreferenceTone) {
+function preferenceChipClass(tone: PreferenceTone) {
   return cn(
-    "inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-md border px-2 py-1 text-xs leading-tight",
+    "inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs leading-tight",
     tone === "avoid"
       ? "border-destructive/45 bg-destructive/8"
       : "border-border/55 bg-[hsl(var(--surface-3)/0.55)]",

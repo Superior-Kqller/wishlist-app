@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { User, UpdateUserPayload } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
 import { uiLayout } from "@/lib/ui-contract";
+import { responseError } from "@/lib/response-error";
 
 interface EditUserDialogProps {
   open: boolean;
@@ -89,10 +90,7 @@ export function EditUserDialog({
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || t("Ошибка при обновлении пользователя"));
-      }
+      if (!res.ok) throw await responseError(res, t("Ошибка при обновлении пользователя"));
 
       toast.success(t("Пользователь обновлен"));
       onSuccess();

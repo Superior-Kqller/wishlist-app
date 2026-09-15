@@ -93,7 +93,7 @@ function PreferencesPageSkeleton() {
             и страница дёргалась на загрузке. */}
         <div className="animate-pulse space-y-5">
           <div className="h-24 rounded-2xl bg-muted/55" />
-          <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,32rem))]">
+          <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fill,minmax(22rem,1fr))]">
             <div className="h-44 rounded-2xl bg-muted/45" />
             <div className="h-44 rounded-2xl bg-muted/32" />
             <div className="h-44 rounded-2xl bg-muted/32" />
@@ -259,7 +259,7 @@ function PreferencesPageContent() {
                * и профиль читался не карточкой, а полосой. Раскрытая карточка
                * меряет себя контейнером, поэтому потолок ей не мешает.
                */
-              <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,32rem))]">
+              <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fill,minmax(22rem,1fr))]">
                 {circleUsers.map((user) => {
                   const isCurrent = user.id === data?.id;
                   const isExpanded = expandedUserId === user.id;

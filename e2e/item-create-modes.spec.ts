@@ -1,26 +1,20 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const scenarios = [
-  { name: "desktop classic", width: 1440, height: 900, theme: "classic" },
-  { name: "desktop light", width: 1440, height: 900, theme: "light" },
-  { name: "phone classic", width: 390, height: 844, theme: "classic" },
-  { name: "phone light", width: 390, height: 844, theme: "light" },
+  { name: "desktop", width: 1440, height: 900 },
+  { name: "phone", width: 390, height: 844 },
 ] as const;
 
 async function openCreateDialog(page: Page) {
   const addItemCard = page.getByTestId("add-item-card");
   await expect(addItemCard).toBeVisible();
   await addItemCard.click();
-  return page.getByRole("dialog", { name: "Добавить товар" });
+  return page.getByRole("dialog", { name: "Добавить желание" });
 }
 
 for (const scenario of scenarios) {
   test(`create modes: ${scenario.name}`, async ({ page }) => {
     await page.setViewportSize({ width: scenario.width, height: scenario.height });
-    await page.addInitScript((theme) => {
-      window.localStorage.setItem("wishlist-color-theme", theme);
-    }, scenario.theme);
-
     let parseAttempt = 0;
     const parsedTitle = `E2E ${scenario.name} ${Date.now()}`;
     await page.route("**/api/parse", async (route) => {
@@ -49,7 +43,6 @@ for (const scenario of scenarios) {
     });
 
     await page.goto("/");
-    await expect(page.locator("html")).toHaveClass(new RegExp(`theme-${scenario.theme}`));
 
     const addItemCard = page.getByTestId("add-item-card");
     const dialog = await openCreateDialog(page);
@@ -131,7 +124,7 @@ test("creation mode labels are available in English", async ({ page }) => {
   await expect(addItemCard).toBeVisible();
   await addItemCard.click();
 
-  const dialog = page.getByRole("dialog", { name: "Add item" });
+  const dialog = page.getByRole("dialog", { name: "Add a wish" });
   await expect(dialog.getByRole("button", { name: "From a link", exact: true })).toBeVisible();
   await expect(dialog.getByRole("button", { name: "Manually", exact: true })).toBeVisible();
   await dialog.getByRole("button", { name: "Cancel" }).click();
@@ -143,8 +136,8 @@ test("editing opens the full form without link autofill", async ({ page }) => {
 
   const firstCard = page.getByTestId("wishlist-card-v2").first();
   await expect(firstCard).toBeVisible();
-  await firstCard.hover();
-  await firstCard.getByTestId("wishlist-card-edit").click();
+  await firstCard.getByTestId("wishlist-card-actions").click();
+  await page.getByRole("menuitem", { name: "Редактировать" }).click();
 
   const dialog = page.getByRole("dialog", { name: "Редактировать" });
   await expect(dialog.getByLabel("Название")).toBeVisible();

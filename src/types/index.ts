@@ -78,16 +78,6 @@ export interface UpdateItemPayload extends Partial<
   status?: ItemStatus;
 }
 
-export interface ParsedProductResponse {
-  title: string;
-  price: number | null;
-  currency: string;
-  images: string[];
-  url: string;
-  /** Краткое описание со страницы (Open Graph) */
-  description?: string;
-}
-
 export type UserRole = "USER" | "ADMIN";
 export type BirthdayAudience = "ALL" | "SELECTED" | "PRIVATE";
 
@@ -134,7 +124,7 @@ export interface UserWithStats extends User {
   stats: UserStats;
 }
 
-export interface StatsTopItem {
+interface StatsTopItem {
   id: string;
   title: string;
   price: number;

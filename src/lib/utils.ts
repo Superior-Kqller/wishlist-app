@@ -36,7 +36,7 @@ export function formatPrice(
 }
 
 /** Суммы по валютам в статистике вишлиста */
-export type CurrencyTotals = { unpurchased: number; purchased: number };
+type CurrencyTotals = { unpurchased: number; purchased: number };
 
 /** Стабильный порядок валют для отображения */
 export function sortCurrencyTotalsEntries(

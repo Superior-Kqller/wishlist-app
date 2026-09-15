@@ -6,6 +6,7 @@ import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
+import { unauthorizedResponse } from "@/lib/api-responses";
 
 const updateListSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const currentUserId = await getSessionUserIdVerified();
   if (!currentUserId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   const { id } = await params;
@@ -66,7 +67,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const currentUserId = await getSessionUserIdVerified();
   if (!currentUserId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   const { id } = await params;
@@ -166,7 +167,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   const currentUserId = await getSessionUserIdVerified();
   if (!currentUserId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   const { id } = await params;

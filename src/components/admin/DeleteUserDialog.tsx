@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { User } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
 import { uiLayout } from "@/lib/ui-contract";
+import { responseError } from "@/lib/response-error";
 
 interface DeleteUserDialogProps {
   open: boolean;
@@ -50,10 +51,7 @@ export function DeleteUserDialog({
         method: "DELETE",
       });
 
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || t("Ошибка при удалении пользователя"));
-      }
+      if (!res.ok) throw await responseError(res, t("Ошибка при удалении пользователя"));
 
       toast.success(t("Пользователь удален"));
       onSuccess();

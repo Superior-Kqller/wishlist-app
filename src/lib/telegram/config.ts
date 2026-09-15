@@ -1,4 +1,4 @@
-export interface TelegramConfig {
+interface TelegramConfig {
   enabled: boolean;
   botToken: string;
   chatIds: string[];

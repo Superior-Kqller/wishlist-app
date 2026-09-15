@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { z } from "zod";
+import { accessErrorResponse } from "@/lib/api-responses";
 
 const updateUserSchema = z.object({
   username: z
@@ -23,14 +24,6 @@ const ADMIN_INVARIANT_LOCK = "wishlist.admin.invariant";
 
 async function lockAdminInvariant(tx: Prisma.TransactionClient): Promise<void> {
   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${ADMIN_INVARIANT_LOCK}))`;
-}
-
-function adminAuthErrorResponse(err: unknown) {
-  const message = err instanceof Error ? err.message : "Forbidden";
-  return NextResponse.json(
-    { error: message || "Forbidden" },
-    { status: message === "Unauthorized" ? 401 : 403 },
-  );
 }
 
 /**
@@ -81,7 +74,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     await requireAdmin();
   } catch (err: unknown) {
-    return adminAuthErrorResponse(err);
+    return accessErrorResponse(err);
   }
 
   const { id } = await params;
@@ -115,7 +108,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   try {
     await requireAdmin();
   } catch (err: unknown) {
-    return adminAuthErrorResponse(err);
+    return accessErrorResponse(err);
   }
 
   const { id } = await params;
@@ -220,7 +213,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   try {
     await requireAdmin();
   } catch (err: unknown) {
-    return adminAuthErrorResponse(err);
+    return accessErrorResponse(err);
   }
 
   const { id } = await params;

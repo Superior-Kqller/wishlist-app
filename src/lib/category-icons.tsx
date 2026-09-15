@@ -43,7 +43,7 @@ function getProductCategoryIcon(category: string | null | undefined): IconCompon
   return normalized ? CATEGORY_ICONS[normalized] : Shapes;
 }
 
-export interface ProductCategoryIconProps {
+interface ProductCategoryIconProps {
   category: string | null | undefined;
   className?: string;
 }

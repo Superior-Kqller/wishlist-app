@@ -12,8 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetcher } from "@/lib/fetcher";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
-import { uiLayout } from "@/lib/ui-contract";
-import { cn } from "@/lib/utils";
+import { uiLayout, uiSurface } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";
 
 export default function SettingsPage() {
@@ -73,8 +72,8 @@ export default function SettingsPage() {
                 <Badge variant={user.role === "ADMIN" ? "default" : "outline"}>
                   {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
                 </Badge>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-border/55 bg-background/24 px-2.5 py-1.5">
-                  <CalendarDays className="h-3.5 w-3.5" aria-hidden />
+                <span className={uiSurface.metaPill}>
+                  <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden />
                   {t("С нами с")}{" "}
                   {new Date(user.createdAt).toLocaleDateString(locale, {
                     day: "2-digit",
@@ -87,23 +86,14 @@ export default function SettingsPage() {
           />
 
           <Tabs defaultValue="profile" className="grid gap-5">
-            <TabsList
-              aria-label={t("Разделы настроек")}
-              className={cn(uiLayout.segmentBar, "h-auto grid-cols-2")}
-            >
-              <TabsTrigger
-                value="profile"
-                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-[hsl(var(--surface-4))] data-[state=active]:text-foreground data-[state=active]:shadow-[inset_0_-2px_0_hsl(var(--primary-accent))]"
-              >
+            <TabsList aria-label={t("Разделы настроек")}>
+              <TabsTrigger value="profile">
                 <UserRound className="h-4 w-4 shrink-0" aria-hidden />
-                <span>{t("Профиль")}</span>
+                <span className="truncate">{t("Профиль")}</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="security"
-                className="min-h-11 gap-2 rounded-lg px-2.5 data-[state=active]:bg-[hsl(var(--surface-4))] data-[state=active]:text-foreground data-[state=active]:shadow-[inset_0_-2px_0_hsl(var(--primary-accent))]"
-              >
+              <TabsTrigger value="security">
                 <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
-                <span>{t("Защита")}</span>
+                <span className="truncate">{t("Защита")}</span>
               </TabsTrigger>
             </TabsList>
 

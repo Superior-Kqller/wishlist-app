@@ -1,5 +1,8 @@
 import { test, expect } from "@playwright/test";
 
+/* Проект `chromium` входит под сохранённой сессией — здесь она отключается. */
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe("Элементы вишлиста (требуется авторизация)", () => {
   test("GET /api/items без авторизации возвращает 401", async ({ request }) => {
     const response = await request.get("/api/items");

@@ -48,6 +48,7 @@ import { useWishlistAddUrlDeepLink } from "@/hooks/use-wishlist-add-url-deeplink
 import { useI18n } from "@/components/i18n/language-provider";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
 import { UpcomingCalendarCard } from "@/components/calendar/UpcomingCalendarCard";
+import { responseError } from "@/lib/response-error";
 
 function HomePageContent() {
   const { t } = useI18n();
@@ -426,10 +427,7 @@ function HomePageContent() {
     if (!listDeleteTarget) return;
     const { id } = listDeleteTarget;
     const res = await fetch(`/api/lists/${id}`, { method: "DELETE" });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || t("Не удалось удалить подборку"));
-    }
+    if (!res.ok) throw await responseError(res, t("Не удалось удалить подборку"));
     toast.success(t("Подборка удалена"));
     await mutateLists();
     await mutateItems();

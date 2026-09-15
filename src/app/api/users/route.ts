@@ -8,6 +8,7 @@ import { decodeUserListCursor, encodeUserListCursor } from "@/lib/user-paginatio
 import bcrypt from "bcryptjs";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
+import { accessErrorResponse } from "@/lib/api-responses";
 
 const createUserSchema = z.object({
   username: z
@@ -29,11 +30,7 @@ export async function GET(req: NextRequest) {
   try {
     await requireAdmin();
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Forbidden";
-    return NextResponse.json(
-      { error: message || "Forbidden" },
-      { status: message === "Unauthorized" ? 401 : 403 },
-    );
+    return accessErrorResponse(err);
   }
 
   const searchParams = req.nextUrl.searchParams;
@@ -99,11 +96,7 @@ export async function POST(req: NextRequest) {
   try {
     await requireAdmin();
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Forbidden";
-    return NextResponse.json(
-      { error: message || "Forbidden" },
-      { status: message === "Unauthorized" ? 401 : 403 },
-    );
+    return accessErrorResponse(err);
   }
 
   try {

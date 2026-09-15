@@ -37,7 +37,7 @@ export function isAllowedLocalAvatarPath(value: string): boolean {
   return true;
 }
 
-export type AvatarUrlNormalizationResult =
+type AvatarUrlNormalizationResult =
   | { ok: true; value: string | null }
   | { ok: false; reason: "invalid-local-path" | "invalid-url" | "host-not-allowed" };
 

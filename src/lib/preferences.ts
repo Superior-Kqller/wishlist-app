@@ -100,7 +100,7 @@ export const giftPreferenceSections = {
   details: ["sizes", "occasions", "budget", "notes"],
 } as const satisfies Record<string, ReadonlyArray<keyof GiftPreferences>>;
 
-export type GiftPreferenceSection = keyof typeof giftPreferenceSections;
+type GiftPreferenceSection = keyof typeof giftPreferenceSections;
 
 export function isGiftPreferenceSectionFilled(
   value: GiftPreferences,

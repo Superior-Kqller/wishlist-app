@@ -82,7 +82,9 @@ export default function LoginPage() {
           <div className="hidden justify-end lg:flex">
             <LanguageSwitcher />
           </div>
-          <div className="flex flex-1 items-center py-2 sm:py-6 lg:py-12">
+          {/* Ниже `lg` форма прижата к верху колонки: центрирование по всей
+                высоте экрана отбивало её от заголовка пустой третью страницы. */}
+          <div className="flex flex-1 items-start py-2 sm:py-6 lg:items-center lg:py-12">
             <div className="mx-auto w-full max-w-[27rem]">
               <div className="mb-5 sm:mb-7">
                 <h2 id="login-heading" className="section-title text-balance">
@@ -120,14 +122,14 @@ export default function LoginPage() {
                 {error ? (
                   <p
                     role="alert"
-                    className="rounded-md border border-destructive/32 bg-destructive/10 px-3 py-2 text-center text-sm text-destructive animate-fade-in"
+                    className="rounded-lg border border-destructive/32 bg-destructive/10 px-3 py-2 text-sm text-destructive animate-fade-in"
                   >
                     {error}
                   </p>
                 ) : null}
 
                 <Button type="submit" className="mt-1 w-full" disabled={loading}>
-                  {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden /> : null}
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
                   {t("Войти")}
                 </Button>
               </form>

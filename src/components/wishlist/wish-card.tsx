@@ -30,7 +30,7 @@ import { getProductCategoryLabel } from "@/lib/categories";
 import { getPurchaseToggleTarget, isItemPurchased, type ItemStatus } from "@/lib/item-status";
 import { ProductCategoryIcon } from "@/lib/category-icons";
 
-export interface WishCardProps {
+interface WishCardProps {
   item: WishlistItem;
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
@@ -202,16 +202,19 @@ export const WishCard = memo(function WishCard({
 
               <div
                 data-testid="wishlist-card-v2-meta"
-                className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-muted-foreground"
+                className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground"
               >
                 {/* Важность стоит первой: на карточке со снимком она лежит
                       поверх кадра, здесь — среди прочих фактов о желании. */}
                 {!showImage ? <PriorityBadgeInline priority={item.priority} /> : null}
 
-                {!showImage && item.category ? (
-                  <span aria-hidden className="size-0.5 rounded-full bg-muted-foreground/45" />
-                ) : null}
-
+                {/*
+                 * Разделительных точек в строке нет. Каждый факт начинается со
+                 * своего значка — важность, категория, аватар владельца, — и
+                 * точка между ними ничего не разделяла, зато при переносе
+                 * оставалась висеть в конце строки: «Винтажные пластинки ·» и
+                 * пустота до края карточки. Разделяет теперь зазор.
+                 */}
                 {item.category ? (
                   <span
                     data-testid="wishlist-card-v2-category"
@@ -223,10 +226,6 @@ export const WishCard = memo(function WishCard({
                     />
                     <span className="truncate">{categoryLabel}</span>
                   </span>
-                ) : null}
-
-                {item.category && ownerName ? (
-                  <span aria-hidden className="size-0.5 rounded-full bg-muted-foreground/45" />
                 ) : null}
 
                 {ownerName ? (
@@ -361,9 +360,9 @@ export const WishCard = memo(function WishCard({
                             disabled={statusPending}
                           >
                             {isBought ? (
-                              <Undo2 className="mr-2 h-4 w-4" />
+                              <Undo2 className="h-4 w-4" />
                             ) : (
-                              <Check className="mr-2 h-4 w-4" />
+                              <Check className="h-4 w-4" />
                             )}
                             {isBought ? t("Вернуть в доступные") : t("Отметить купленным")}
                           </DropdownMenuItem>
@@ -374,7 +373,7 @@ export const WishCard = memo(function WishCard({
                             }}
                             disabled={statusPending}
                           >
-                            <Pencil className="mr-2 h-4 w-4" />
+                            <Pencil className="h-4 w-4" />
                             {t("Редактировать")}
                           </DropdownMenuItem>
                           <DropdownMenuItem
@@ -384,7 +383,7 @@ export const WishCard = memo(function WishCard({
                             }}
                             className="text-destructive focus:text-destructive"
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
+                            <Trash2 className="h-4 w-4" />
                             {t("Удалить")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>

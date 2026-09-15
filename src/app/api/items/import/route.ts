@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { normalizeProductCategory } from "@/lib/categories";
+import { unauthorizedResponse } from "@/lib/api-responses";
 
 const importItemSchema = z.object({
   title: z.string().trim().min(1).max(500),
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
 
   const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   try {

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { canUserSeeItem } from "@/lib/list-utils";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
+import { unauthorizedResponse, forbiddenResponse } from "@/lib/api-responses";
 
 // DELETE /api/items/[id]/comments/[commentId] — только автор комментария
 export async function DELETE(
@@ -15,7 +16,7 @@ export async function DELETE(
 
   const currentUserId = await getSessionUserIdVerified();
   if (!currentUserId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   const { id: itemId, commentId } = await params;
@@ -34,7 +35,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Комментарий не найден" }, { status: 404 });
     }
     if (comment.userId !== currentUserId) {
-      return NextResponse.json({ error: "Нельзя удалить чужой комментарий" }, { status: 403 });
+      return forbiddenResponse("Нельзя удалить чужой комментарий");
     }
 
     await prisma.itemComment.delete({ where: { id: commentId } });

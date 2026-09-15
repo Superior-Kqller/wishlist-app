@@ -25,8 +25,8 @@ function discoverPageRoutes(): string[] {
 
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
-      // Служебные и невидимые пользователю каталоги: api, приватные (_), QA.
-      if (entry.name === "api" || entry.name.startsWith("_") || entry.name === "qa-ui") continue;
+      // Служебные и невидимые пользователю каталоги: api и приватные (_).
+      if (entry.name === "api" || entry.name.startsWith("_")) continue;
       walk(join(dir, entry.name), `${route}/${entry.name}`);
     }
   };

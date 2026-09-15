@@ -49,6 +49,7 @@ import {
 } from "@/lib/calendar/client-calendar";
 import { occurrenceReminderKey } from "@/lib/calendar/reminder-event-key";
 import { thematicWishlistHref } from "@/lib/calendar/wishlist-link";
+import { responseError } from "@/lib/response-error";
 
 const FILTERS: Array<{ value: CalendarFilter; label: string }> = [
   { value: "ALL", label: "Все события" },
@@ -270,7 +271,7 @@ function MonthGrid({
                       key={key}
                       className={cn(
                         "min-h-14 border-b border-r border-border/32 bg-[hsl(var(--surface-1)/0.45)]",
-                        isSparse ? "md:min-h-16" : "md:min-h-28",
+                        isSparse ? "md:min-h-20" : "md:min-h-28",
                         isWeekendColumn(columnIndex) && "bg-[hsl(var(--surface-1)/0.7)]",
                       )}
                       role="cell"
@@ -285,7 +286,10 @@ function MonthGrid({
                     key={key}
                     className={cn(
                       "min-h-14 border-b border-r border-border/32 p-1 transition-colors duration-[var(--dur-base)] md:p-2",
-                      isSparse ? "md:min-h-16" : "md:min-h-28",
+                      // Высота ячейки взята с запасом на одну метку события: при
+                      // `min-h-16` строка с событием вырастала на 12px, и сетка
+                      // переставала быть сеткой.
+                      isSparse ? "md:min-h-20" : "md:min-h-28",
                       isWeekendColumn(columnIndex) && "bg-[hsl(var(--surface-1)/0.45)]",
                       // Ступени поверхности вместо фирменной заливки: 0.05 и 0.08
                       // не лежали на лестнице прозрачностей и добавляли сетке
@@ -318,7 +322,7 @@ function MonthGrid({
                     >
                       {day}
                     </time>
-                    <div className="mt-1 flex min-h-2 flex-wrap items-center gap-0.5 md:mt-1.5 md:block md:space-y-1">
+                    <div className="mt-1 flex h-4 flex-wrap items-center gap-0.5 overflow-hidden md:mt-1.5 md:block md:h-auto md:space-y-1">
                       {entries.slice(0, 3).map((entry) => {
                         const href =
                           entry.type === "BIRTHDAY" && !entry.isOwn
@@ -418,7 +422,7 @@ function MonthGrid({
                   </>
                 );
                 const itemClassName =
-                  "flex min-h-11 items-center gap-3 rounded-xl px-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+                  "flex min-h-11 items-center gap-3 rounded-lg px-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
                 return href ? (
                   <Link
                     key={`${date}:${entry.id}`}
@@ -523,10 +527,7 @@ export default function CalendarPage() {
           muted: !muted,
         }),
       });
-      if (!res.ok) {
-        const body = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(body.error || t("Не удалось изменить напоминания"));
-      }
+      if (!res.ok) throw await responseError(res, t("Не удалось изменить напоминания"));
       toast.success(muted ? t("Напоминания включены") : t("Напоминания выключены"));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("Не удалось изменить напоминания"));
@@ -550,7 +551,10 @@ export default function CalendarPage() {
           <section aria-label={t("Управление календарём")}>
             <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
               <div
-                className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] max-xl:hidden [&::-webkit-scrollbar]:hidden"
+                className={cn(
+                  uiLayout.segmentBarInline,
+                  "overflow-x-auto [scrollbar-width:none] max-xl:hidden [&::-webkit-scrollbar]:hidden",
+                )}
                 role="group"
                 aria-label={t("Фильтры календаря")}
               >
@@ -586,8 +590,11 @@ export default function CalendarPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center justify-between gap-2">
-                <div className="inline-flex rounded-lg border border-border/55 p-0.5">
+              {/* Строка растягивается по высоте: полоса переключателя и выбор
+                  года — два контрола одной строки, и разной высоты им быть
+                  незачем. Раньше полоса была 50px, а список — 44. */}
+              <div className="flex items-stretch justify-between gap-2">
+                <div className={uiLayout.segmentBarInline}>
                   <Button
                     type="button"
                     size="sm"
@@ -618,7 +625,7 @@ export default function CalendarPage() {
                   <Select value={String(year)} onValueChange={(value) => setYear(Number(value))}>
                     <SelectTrigger
                       aria-label={t("Год")}
-                      className="h-9 w-auto gap-2 tabular-nums max-sm:h-11"
+                      className="h-auto w-auto gap-2 tabular-nums"
                     >
                       <SelectValue />
                     </SelectTrigger>

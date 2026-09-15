@@ -737,6 +737,8 @@ const en: Dictionary = {
   Файл: "File",
   "Выберите файл": "Choose file",
   "Выбран файл": "Selected file",
+  "Выбрать файл": "Select file",
+  "Файл не выбран": "No file selected",
   "Максимальный размер: 2MB. Форматы: JPEG, PNG, WebP, GIF":
     "Maximum size: 2MB. Formats: JPEG, PNG, WebP, GIF",
   "URL изображения": "Image URL",

@@ -9,7 +9,7 @@ import type {
 } from "./calendar-event-source";
 
 export type CalendarEventSourceType = "BIRTHDAY" | "PERSONAL" | "HOLIDAY";
-export type CalendarEventsErrorCode = "INVALID_DATE_RANGE" | "INVALID_EVENT_SOURCE";
+type CalendarEventsErrorCode = "INVALID_DATE_RANGE" | "INVALID_EVENT_SOURCE";
 
 export class CalendarEventsError extends Error {
   constructor(readonly code: CalendarEventsErrorCode) {
@@ -18,7 +18,7 @@ export class CalendarEventsError extends Error {
   }
 }
 
-export interface BirthdayOccurrence {
+interface BirthdayOccurrence {
   id: string;
   sourceId: string;
   type: "BIRTHDAY";
@@ -31,7 +31,7 @@ export interface BirthdayOccurrence {
   isOwn: boolean;
 }
 
-export interface PersonalEventOccurrence {
+interface PersonalEventOccurrence {
   id: string;
   sourceId: string;
   type: "PERSONAL";
@@ -42,7 +42,7 @@ export interface PersonalEventOccurrence {
   isOwn: boolean;
 }
 
-export interface HolidayOccurrence {
+interface HolidayOccurrence {
   id: string;
   sourceId: string;
   type: "HOLIDAY";

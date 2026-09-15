@@ -1,6 +1,6 @@
 import type { UserWithStats } from "@/types";
 
-export type UserScope = "all" | "me" | "user";
+type UserScope = "all" | "me" | "user";
 
 export function resolveUserScope(selectedUserId: string | null, currentUserId: string): UserScope {
   if (selectedUserId === null) return "all";

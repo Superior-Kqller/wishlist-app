@@ -3,7 +3,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export type SwitchProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type">;
+type SwitchProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type">;
 
 /**
  * Переключатель включения возможности.

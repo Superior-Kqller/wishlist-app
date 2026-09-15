@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { CalendarOccurrence, CalendarRange } from "@/lib/calendar/calendar-events";
 import { sanitizeError } from "@/lib/logger";
 import { parseLocalDate } from "@/lib/calendar/local-date";
+import { unauthorizedResponse } from "@/lib/api-responses";
 
 interface CalendarGetDependencies {
   getActorId(): Promise<string | null>;
@@ -12,7 +13,7 @@ export function createCalendarGetHandler(dependencies: CalendarGetDependencies) 
   return async function calendarGet(request: Request): Promise<Response> {
     const actorId = await dependencies.getActorId();
     if (!actorId) {
-      return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+      return unauthorizedResponse();
     }
 
     const { searchParams } = new URL(request.url);

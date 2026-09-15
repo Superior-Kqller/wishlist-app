@@ -35,6 +35,7 @@ import type {
   PersonalEventInput,
   PersonalEventRecurrence,
 } from "@/lib/calendar/personal-events";
+import { responseError } from "@/lib/response-error";
 
 interface AudienceUser {
   id: string;
@@ -104,8 +105,7 @@ export function PersonalEventsPanel() {
           body: JSON.stringify(form),
         },
       );
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || t("Не удалось сохранить событие"));
+      if (!response.ok) throw await responseError(response, t("Не удалось сохранить событие"));
       await refresh();
       setOpen(false);
       toast.success(editingId ? t("Событие изменено") : t("Событие создано"));
@@ -182,7 +182,7 @@ export function PersonalEventsPanel() {
             />
           </div>
         ) : error ? (
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/32 bg-destructive/10 px-4 py-3">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/32 bg-destructive/10 px-4 py-3">
             <p className="text-sm text-destructive">{t("Не удалось загрузить личные события")}</p>
             <Button type="button" variant="ghost" size="sm" onClick={() => void refresh()}>
               {t("Повторить")}
@@ -230,7 +230,7 @@ export function PersonalEventsPanel() {
             ))}
           </div>
         ) : (
-          <p className="mt-2 text-sm text-muted-foreground sm:mt-4">
+          <p className="mt-4 rounded-lg border border-dashed border-border/70 px-4 py-6 text-center text-sm text-muted-foreground">
             {t("Личных событий пока нет")}
           </p>
         )}
@@ -282,7 +282,7 @@ export function PersonalEventsPanel() {
                 }
               />
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="personal-event-recurrence">{t("Повторение")}</Label>
                 <Select
@@ -294,7 +294,7 @@ export function PersonalEventsPanel() {
                     }))
                   }
                 >
-                  <SelectTrigger id="personal-event-recurrence" className="h-11">
+                  <SelectTrigger id="personal-event-recurrence">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -309,7 +309,7 @@ export function PersonalEventsPanel() {
                   value={form.audience}
                   onValueChange={(value) => setAudience(value as CalendarAudience)}
                 >
-                  <SelectTrigger id="personal-event-audience" className="h-11">
+                  <SelectTrigger id="personal-event-audience">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -323,11 +323,11 @@ export function PersonalEventsPanel() {
             {form.audience === "SELECTED" ? (
               <fieldset className="grid gap-2">
                 <legend className="text-sm font-medium">{t("Кому показать")}</legend>
-                <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border border-border p-2">
+                <div className="max-h-40 space-y-1 overflow-y-auto rounded-lg border border-border p-2">
                   {(audienceData?.users ?? []).map((user) => (
                     <label
                       key={user.id}
-                      className="flex min-h-10 items-center gap-3 rounded-md px-2 hover:bg-accent"
+                      className="flex min-h-11 items-center gap-3 rounded-lg px-2 hover:bg-accent sm:min-h-10"
                     >
                       <Checkbox
                         checked={form.selectedViewerIds.includes(user.id)}
@@ -357,7 +357,7 @@ export function PersonalEventsPanel() {
               {t("Отмена")}
             </Button>
             <Button type="button" onClick={save} disabled={saving || !canSubmit}>
-              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden /> : null}
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
               {editingId ? t("Сохранить") : t("Создать")}
             </Button>
           </DialogFooter>

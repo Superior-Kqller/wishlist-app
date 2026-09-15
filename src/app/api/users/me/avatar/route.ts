@@ -5,6 +5,7 @@ import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
+import { unauthorizedResponse } from "@/lib/api-responses";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
 
   const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   try {

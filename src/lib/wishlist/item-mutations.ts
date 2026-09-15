@@ -1,5 +1,6 @@
 import type { CreateItemPayload, UpdateItemPayload } from "@/types";
 import type { ItemStatus } from "@/lib/item-status";
+import { readErrorMessage } from "@/lib/response-error";
 
 /*
  * Правка желаний: транспорт и его исходы, без React и без словаря.
@@ -12,28 +13,19 @@ import type { ItemStatus } from "@/lib/item-status";
  */
 
 /** Ответ сервера на правку одного желания. */
-export type ItemMutationResult =
+type ItemMutationResult =
   | { kind: "ok" }
   /** 409: состояние изменилось под руками, список нужно перечитать. */
   | { kind: "stale" }
   | { kind: "error"; message: string | null };
 
 /** Исход массовой правки: что просили и что не получилось. */
-export interface BulkMutationResult {
+interface BulkMutationResult {
   requestedIds: string[];
   failedIds: string[];
 }
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
-
-async function readErrorMessage(res: Response): Promise<string | null> {
-  const body: unknown = await res.json().catch(() => null);
-  if (body && typeof body === "object" && "error" in body) {
-    const { error } = body as { error?: unknown };
-    return typeof error === "string" && error.trim() ? error : null;
-  }
-  return null;
-}
 
 async function toResult(res: Response): Promise<ItemMutationResult> {
   if (res.ok) return { kind: "ok" };
@@ -132,8 +124,7 @@ export async function markItemsPurchased(ids: string[]): Promise<BulkMutationRes
   );
 }
 
-export type ImportResult =
-  { kind: "ok"; imported: number } | { kind: "error"; message: string | null };
+type ImportResult = { kind: "ok"; imported: number } | { kind: "error"; message: string | null };
 
 /*
  * Файл импорта приходит в двух формах: голый массив желаний или объект с полем
@@ -173,8 +164,7 @@ export async function importItems(payload: unknown): Promise<ImportResult> {
   return { kind: "ok", imported };
 }
 
-export type ExportResult =
-  { kind: "ok"; blob: Blob; filename: string } | { kind: "error"; message: null };
+type ExportResult = { kind: "ok"; blob: Blob; filename: string } | { kind: "error"; message: null };
 
 /** Имя файла называет сервер; на молчание отвечаем предсказуемым запасным именем. */
 export function exportFilename(contentDisposition: string | null, format: string): string {

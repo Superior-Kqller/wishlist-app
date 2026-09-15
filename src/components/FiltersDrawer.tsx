@@ -190,7 +190,7 @@ export function FiltersDrawer({
             <button
               type="button"
               className={cn(
-                "flex min-h-12 w-full touch-manipulation items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "flex min-h-12 w-full touch-manipulation items-center gap-3 rounded-lg border px-3.5 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 showPurchased
                   ? "border-primary-accent/70 bg-[hsl(var(--surface-4))] text-foreground"
                   : "border-border/70 bg-[hsl(var(--surface-2)/0.45)] text-muted-foreground",
@@ -315,7 +315,7 @@ function FilterChoice({
     <button
       type="button"
       className={cn(
-        "relative flex min-h-11 touch-manipulation items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "relative flex min-h-11 touch-manipulation items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         fill ? "w-full min-w-0" : "shrink-0",
         selected
           ? "border-primary-accent/70 bg-[hsl(var(--surface-4))] pr-8 text-foreground"

@@ -25,6 +25,7 @@ import { fetcher } from "@/lib/fetcher";
 import type { BirthdayAudience, BirthdayProfile } from "@/types";
 import type { ProfileGender } from "@/lib/calendar/profile-gender";
 import type { TelegramLinkStatus } from "@/lib/telegram/link-status";
+import { responseError } from "@/lib/response-error";
 
 interface AudienceOption {
   id: string;
@@ -201,10 +202,7 @@ export function ProfileForm({
         }),
       });
 
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || t("Ошибка при обновлении профиля"));
-      }
+      if (!res.ok) throw await responseError(res, t("Ошибка при обновлении профиля"));
 
       toast.success(t("Профиль обновлен"));
       onSuccess();
@@ -243,10 +241,14 @@ export function ProfileForm({
                 type="button"
                 variant="outline"
                 size="sm"
-                className="ml-auto"
+                /* На телефоне кнопка добирает строку до края — иначе между
+                   40-пиксельным аватаром и подписью оставалась дыра в треть
+                   экрана. На широком экране она снова по содержимому и стоит
+                   сразу за аватаром. */
+                className="flex-1 sm:flex-none"
                 onClick={() => setAvatarDialogOpen(true)}
               >
-                <Camera className="mr-2 h-4 w-4" />
+                <Camera className="h-4 w-4" />
                 {t("Изменить аватар")}
               </Button>
             </div>
@@ -408,7 +410,7 @@ export function ProfileForm({
                       {(audienceData?.users ?? []).map((user) => (
                         <label
                           key={user.id}
-                          className="flex min-h-10 cursor-pointer items-center gap-2 rounded-md px-2 hover:bg-accent/45"
+                          className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-2 hover:bg-accent/45 sm:min-h-10"
                         >
                           <Checkbox
                             checked={selectedViewerIds.includes(user.id)}

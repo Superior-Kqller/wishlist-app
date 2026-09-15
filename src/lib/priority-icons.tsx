@@ -24,7 +24,7 @@ function getPriorityIcon(priority: number): IconComponent {
   return PRIORITY_ICONS[clampWishlistPriority(priority)];
 }
 
-export interface PriorityIconProps {
+interface PriorityIconProps {
   priority: number;
   className?: string;
 }

@@ -24,7 +24,7 @@ const INPUT_CLASS_BY_VARIANT = {
     "rounded-lg border-border/55 bg-[hsl(var(--surface-3)/0.7)] pl-10 pr-3 text-sm placeholder:text-muted-foreground-subtle hover:border-primary/32 hover:bg-[hsl(var(--surface-3)/0.85)]",
   ),
   mobile:
-    "h-11 min-h-[44px] rounded-xl border-border/55 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] placeholder:text-muted-foreground-subtle",
+    "h-11 min-h-[44px] rounded-lg border-border/55 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] placeholder:text-muted-foreground-subtle",
 } as const;
 
 export function WishlistSearchInput({

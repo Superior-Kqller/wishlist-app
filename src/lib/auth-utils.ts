@@ -2,6 +2,7 @@ import "server-only";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./auth";
 import { prisma } from "./prisma";
+import { ApiAccessError } from "./api-responses";
 import type { UserRole } from "@/types";
 
 interface SessionUser {
@@ -67,11 +68,7 @@ export async function getCurrentUserWithDbCheck(): Promise<{
  */
 export async function requireAdmin(): Promise<{ id: string; role: UserRole }> {
   const user = await getCurrentUserWithDbCheck();
-  if (!user) {
-    throw new Error("Unauthorized");
-  }
-  if (user.role !== "ADMIN") {
-    throw new Error("Forbidden: Admin access required");
-  }
+  if (!user) throw new ApiAccessError(401, "Необходима авторизация");
+  if (user.role !== "ADMIN") throw new ApiAccessError(403, "Недостаточно прав");
   return user;
 }

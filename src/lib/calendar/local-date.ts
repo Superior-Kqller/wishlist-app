@@ -1,4 +1,4 @@
-export interface LocalDate {
+interface LocalDate {
   year: number;
   month: number;
   day: number;

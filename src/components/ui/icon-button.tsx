@@ -13,8 +13,7 @@ const iconButtonVariants = cva(
         default:
           "h-11 w-11 min-h-[44px] min-w-[44px] rounded-lg sm:h-10 sm:w-10 sm:min-h-10 sm:min-w-10 [&_svg]:h-5 [&_svg]:w-5",
         sm: "h-9 w-9 rounded-lg [&_svg]:h-4 [&_svg]:w-4",
-        lg: "h-12 w-12 rounded-xl [&_svg]:h-5 [&_svg]:w-5",
-        toolbar: "h-9 w-9 rounded-lg [&_svg]:h-4 [&_svg]:w-4",
+        lg: "h-12 w-12 rounded-lg [&_svg]:h-5 [&_svg]:w-5",
       },
       intent: {
         default:
@@ -32,7 +31,7 @@ const iconButtonVariants = cva(
   },
 );
 
-export interface IconButtonProps
+interface IconButtonProps
   extends Omit<ButtonProps, "size">, VariantProps<typeof iconButtonVariants> {
   "aria-label": string;
 }

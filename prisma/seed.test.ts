@@ -20,7 +20,7 @@ describe("assertSafeSeedConfig", () => {
   it("throws when NODE_ENV is undefined and seed password uses changeme", () => {
     expect(() =>
       assertSafeSeedConfig({
-        NODE_ENV: "production",
+        NODE_ENV: undefined as string | undefined,
         SEED_USER1_PASSWORD: "changeme",
         SEED_USER2_PASSWORD: "very-strong-password",
       } as NodeJS.ProcessEnv),

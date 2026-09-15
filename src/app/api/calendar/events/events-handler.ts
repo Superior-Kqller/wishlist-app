@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import type { PersonalEventInput, PersonalEventRecord } from "@/lib/calendar/personal-events";
 import { sanitizeError } from "@/lib/logger";
+import { unauthorizedResponse } from "@/lib/api-responses";
 
 const personalEventSchema = z
   .object({
@@ -24,7 +25,6 @@ const personalEventSchema = z
 
 type EventContext = { params: Promise<{ id: string }> };
 
-const unauthorized = () => NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
 const invalidInput = (error: z.ZodError) =>
   NextResponse.json({ error: "Ошибка проверки данных", details: error.issues }, { status: 400 });
 
@@ -38,7 +38,7 @@ export function createPersonalEventsHandlers(dependencies: EventsDependencies) {
   return {
     async GET(): Promise<Response> {
       const actorId = await dependencies.getActorId();
-      if (!actorId) return unauthorized();
+      if (!actorId) return unauthorizedResponse();
       try {
         return NextResponse.json({
           events: await dependencies.listOwnPersonalEvents(actorId),
@@ -50,7 +50,7 @@ export function createPersonalEventsHandlers(dependencies: EventsDependencies) {
     },
     async POST(request: Request): Promise<Response> {
       const actorId = await dependencies.getActorId();
-      if (!actorId) return unauthorized();
+      if (!actorId) return unauthorizedResponse();
       try {
         const input = personalEventSchema.parse(await request.json());
         const event = await dependencies.createPersonalEvent(actorId, input);
@@ -81,7 +81,7 @@ export function createPersonalEventItemHandlers(dependencies: EventItemDependenc
   return {
     async PATCH(request: Request, context: EventContext): Promise<Response> {
       const actorId = await dependencies.getActorId();
-      if (!actorId) return unauthorized();
+      if (!actorId) return unauthorizedResponse();
       const { id } = await context.params;
       try {
         const input = personalEventSchema.parse(await request.json());
@@ -100,7 +100,7 @@ export function createPersonalEventItemHandlers(dependencies: EventItemDependenc
     },
     async DELETE(_request: Request, context: EventContext): Promise<Response> {
       const actorId = await dependencies.getActorId();
-      if (!actorId) return unauthorized();
+      if (!actorId) return unauthorizedResponse();
       const { id } = await context.params;
       try {
         const deleted = await dependencies.deletePersonalEvent(actorId, id);

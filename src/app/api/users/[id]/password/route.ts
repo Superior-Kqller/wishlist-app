@@ -6,6 +6,7 @@ import { sanitizeError } from "@/lib/logger";
 import { passwordSchema } from "@/lib/password-validation";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { unauthorizedResponse, forbiddenResponse } from "@/lib/api-responses";
 
 const changePasswordSchema = z.object({
   password: passwordSchema,
@@ -21,7 +22,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const currentUserId = await getSessionUserIdVerified();
 
   if (!currentUserId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   const dbUser = await getCurrentUserWithDbCheck();
@@ -29,7 +30,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const isOwnAccount = currentUserId === id;
 
   if (!userIsAdmin && !isOwnAccount) {
-    return NextResponse.json({ error: "Можно менять только свой пароль" }, { status: 403 });
+    return forbiddenResponse("Можно менять только свой пароль");
   }
 
   try {

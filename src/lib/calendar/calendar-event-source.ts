@@ -1,7 +1,7 @@
 import type { HolidayRule } from "./holiday-rules";
 import type { CalendarAudience, PersonalEventRecurrence } from "./personal-events";
 
-export interface CalendarPersonSource {
+interface CalendarPersonSource {
   id: string;
   name: string;
   avatarUrl: string | null;
@@ -24,7 +24,7 @@ export interface CalendarPersonalEventSource {
   viewerIds: string[];
 }
 
-export interface CalendarHolidaySource {
+interface CalendarHolidaySource {
   id: string;
   name: string;
   rule: HolidayRule;

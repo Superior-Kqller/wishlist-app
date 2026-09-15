@@ -3,7 +3,7 @@ import { promises as dns } from "node:dns";
 import net from "node:net";
 import { Agent, type Dispatcher } from "undici";
 
-export interface ParsedProduct {
+interface ParsedProduct {
   title: string;
   price: number | null;
   currency: string;

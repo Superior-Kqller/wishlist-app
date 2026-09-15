@@ -109,7 +109,7 @@ export function WishlistScopePicker({
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" className="w-64 rounded-xl p-1.5">
+      <DropdownMenuContent align="start" className="w-64 p-1.5">
         <DropdownMenuLabel className="px-2 py-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
           {t("Чей список")}
         </DropdownMenuLabel>
@@ -189,7 +189,7 @@ export function WishlistScopePicker({
                 onClick={onEditList}
                 className="cursor-pointer rounded-md px-2.5 py-2 text-sm"
               >
-                <Pencil className="mr-2 h-4 w-4" aria-hidden />
+                <Pencil className="h-4 w-4" aria-hidden />
                 {t("Изменить подборку")}
               </DropdownMenuItem>
             ) : null}
@@ -198,7 +198,7 @@ export function WishlistScopePicker({
                 onClick={onCreateList}
                 className="cursor-pointer rounded-md px-2.5 py-2 text-sm"
               >
-                <ListPlus className="mr-2 h-4 w-4" aria-hidden />
+                <ListPlus className="h-4 w-4" aria-hidden />
                 {t("Создать подборку")}
               </DropdownMenuItem>
             ) : null}

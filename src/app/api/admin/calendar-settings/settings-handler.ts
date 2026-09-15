@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { CalendarSettingsActor } from "@/lib/calendar/installation-settings";
+import { unauthorizedResponse, forbiddenResponse } from "@/lib/api-responses";
 
 interface Dependencies {
   getActor(): Promise<CalendarSettingsActor | null>;
@@ -11,9 +12,9 @@ interface Dependencies {
 }
 
 function deny(actor: CalendarSettingsActor | null) {
-  if (!actor) return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+  if (!actor) return unauthorizedResponse();
   if (actor.role !== "ADMIN") {
-    return NextResponse.json({ error: "Недостаточно прав" }, { status: 403 });
+    return forbiddenResponse();
   }
   return null;
 }

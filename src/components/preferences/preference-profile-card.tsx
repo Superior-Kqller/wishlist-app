@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronDown, Pencil } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { PreferenceHintChip } from "@/components/preferences/preference-hint-chip";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getWishWord } from "@/lib/i18n";
@@ -143,11 +144,7 @@ export function PreferenceProfileCard({
                   {name}
                 </button>
               </h2>
-              {isCurrent ? (
-                <span className="rounded-full border border-primary-accent/32 bg-primary-accent/10 px-2 py-0.5 text-[11px] font-medium text-primary-accent">
-                  {t("Это вы")}
-                </span>
-              ) : null}
+              {isCurrent ? <Badge variant="brand">{t("Это вы")}</Badge> : null}
               {/* Незаконченный черновик виден на любом экране: подпись кнопки
                   правки ниже `sm` скрыта, и на телефоне — там, где анкету
                   бросают на полпути чаще всего — о нём не оставалось следа. */}
@@ -157,9 +154,7 @@ export function PreferenceProfileCard({
                    единственный след брошенной работы оказывался самым бледным
                    элементом карточки. Смысл несёт само слово, а краска
                    осталась в рамке и заливке. */
-                <span className="rounded-full border border-warning/45 bg-warning/10 px-2 py-0.5 text-[11px] font-medium text-foreground">
-                  {t("Черновик")}
-                </span>
+                <Badge variant="warning">{t("Черновик")}</Badge>
               ) : null}
             </div>
             {/* Число желаний — единственный счётчик, который остался: он говорит,

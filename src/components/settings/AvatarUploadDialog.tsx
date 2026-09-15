@@ -4,9 +4,10 @@ import { useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ import { Loader2, Upload, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/components/i18n/language-provider";
 import { uiLayout } from "@/lib/ui-contract";
+import { responseError } from "@/lib/response-error";
 
 interface AvatarUploadDialogProps {
   open: boolean;
@@ -95,10 +97,7 @@ export function AvatarUploadDialog({
           body: formData,
         });
 
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.error || t("Ошибка при загрузке файла"));
-        }
+        if (!res.ok) throw await responseError(res, t("Ошибка при загрузке файла"));
 
         toast.success(t("Аватар загружен"));
       } else if (uploadMethod === "url" && url.trim()) {
@@ -118,10 +117,7 @@ export function AvatarUploadDialog({
           body: JSON.stringify({ avatarUrl: url.trim() }),
         });
 
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.error || t("Ошибка при обновлении аватара"));
-        }
+        if (!res.ok) throw await responseError(res, t("Ошибка при обновлении аватара"));
 
         toast.success(t("Аватар обновлен"));
       } else {
@@ -156,10 +152,7 @@ export function AvatarUploadDialog({
         body: JSON.stringify({ avatarUrl: "" }),
       });
 
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || t("Ошибка при удалении аватара"));
-      }
+      if (!res.ok) throw await responseError(res, t("Ошибка при удалении аватара"));
 
       toast.success(t("Аватар удален"));
       onSuccess();
@@ -206,21 +199,29 @@ export function AvatarUploadDialog({
           <Tabs value={uploadMethod} onValueChange={(v) => setUploadMethod(v as "file" | "url")}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="file">
-                <Upload className="w-4 h-4 mr-2" />
+                <Upload className="h-4 w-4" aria-hidden />
                 {t("Файл")}
               </TabsTrigger>
               <TabsTrigger value="url">
-                <LinkIcon className="w-4 h-4 mr-2" />
+                <LinkIcon className="h-4 w-4" aria-hidden />
                 URL
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="file" className="space-y-4">
+            <TabsContent value="file" className="mt-4 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="avatar-file">{t("Выберите файл")}</Label>
-                <Input
+                {/*
+                 * Нативное поле выбора файла показывало браузерную кнопку
+                 * «Choose File / No file chosen» — единственный элемент
+                 * продукта на чужом языке и в чужом оформлении. Само поле
+                 * осталось (по нему работает подпись и клавиатура), но
+                 * видимая часть — обычная кнопка продукта и имя файла рядом.
+                 */}
+                <input
                   id="avatar-file"
                   type="file"
+                  className="sr-only"
                   accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
                   onChange={handleFileSelect}
                   onInput={(e) =>
@@ -236,18 +237,28 @@ export function AvatarUploadDialog({
                   ref={fileInputRef}
                   disabled={uploading}
                 />
-                {fileLabel && (
-                  <p className="text-xs text-muted-foreground">
-                    {t("Выбран файл")}: {fileLabel}
+                <div className="flex min-w-0 items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="shrink-0"
+                    disabled={uploading}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="h-4 w-4" aria-hidden />
+                    {t("Выбрать файл")}
+                  </Button>
+                  <p className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
+                    {fileLabel || t("Файл не выбран")}
                   </p>
-                )}
+                </div>
                 <p className="text-xs text-muted-foreground">
                   {t("Максимальный размер: 2MB. Форматы: JPEG, PNG, WebP, GIF")}
                 </p>
               </div>
             </TabsContent>
 
-            <TabsContent value="url" className="space-y-4">
+            <TabsContent value="url" className="mt-4 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="avatar-url">{t("URL изображения")}</Label>
                 <Input
@@ -262,17 +273,17 @@ export function AvatarUploadDialog({
             </TabsContent>
           </Tabs>
 
-          <div className="flex gap-2 justify-end">
+          <DialogFooter>
             {currentAvatarUrl && (
               <Button type="button" variant="outline" onClick={handleRemove} disabled={uploading}>
                 {t("Удалить")}
               </Button>
             )}
             <Button type="button" onClick={handleSubmit} disabled={submitDisabled}>
-              {uploading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {uploading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
               {t("Сохранить")}
             </Button>
-          </div>
+          </DialogFooter>
         </div>
       </DialogContent>
     </Dialog>

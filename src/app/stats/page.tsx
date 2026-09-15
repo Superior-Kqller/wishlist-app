@@ -394,29 +394,39 @@ function StatsOverview({
             </div>
           </div>
 
-          <dl className="flex shrink-0 items-start gap-5 sm:gap-7">
-            <div className="min-w-0">
-              <dt className="flex items-center gap-1.5 text-[11px] text-muted-foreground sm:text-xs">
-                <Package className="size-3.5 text-info" aria-hidden />
-                {t("Всего желаний")}
+          {/*
+           * На телефоне три показателя не помещаются в строку: раньше блок
+           * стоял `shrink-0` и выезжал за правый край экрана на 36px.
+           * Ниже `sm` это сетка в треть ширины, а подпись лежит под числом —
+           * так числа держат общую линию, даже когда подпись переносится.
+           */}
+          <dl className="grid w-full grid-cols-3 gap-x-3 sm:flex sm:w-auto sm:shrink-0 sm:items-start sm:gap-7">
+            <div className="flex min-w-0 flex-col-reverse gap-1">
+              <dt className="flex items-start gap-1.5 text-[11px] leading-tight text-muted-foreground sm:text-xs">
+                <Package className="mt-px size-3.5 shrink-0 text-info" aria-hidden />
+                <span className="min-w-0">{t("Всего желаний")}</span>
               </dt>
-              <dd className="mt-1 text-2xl font-semibold tabular-nums">{summary.totalItems}</dd>
+              <dd className="text-2xl font-semibold leading-none tabular-nums">
+                {summary.totalItems}
+              </dd>
             </div>
-            <div className="min-w-0 border-l border-border/55 pl-5 sm:pl-7">
-              <dt className="flex items-center gap-1.5 text-[11px] text-muted-foreground sm:text-xs">
-                <Target className="size-3.5 text-warning" aria-hidden />
-                {t("Активных желаний")}
+            <div className="flex min-w-0 flex-col-reverse gap-1 border-l border-border/55 pl-3 sm:pl-7">
+              <dt className="flex items-start gap-1.5 text-[11px] leading-tight text-muted-foreground sm:text-xs">
+                <Target className="mt-px size-3.5 shrink-0 text-warning" aria-hidden />
+                <span className="min-w-0">{t("Активных желаний")}</span>
               </dt>
-              <dd className="mt-1 text-2xl font-semibold tabular-nums">
+              <dd className="text-2xl font-semibold leading-none tabular-nums">
                 {summary.unpurchasedItems}
               </dd>
             </div>
-            <div className="min-w-0 border-l border-border/55 pl-5 sm:pl-7">
-              <dt className="flex items-center gap-1.5 text-[11px] text-muted-foreground sm:text-xs">
-                <Users className="size-3.5 text-primary-accent" aria-hidden />
-                {t("Участников")}
+            <div className="flex min-w-0 flex-col-reverse gap-1 border-l border-border/55 pl-3 sm:pl-7">
+              <dt className="flex items-start gap-1.5 text-[11px] leading-tight text-muted-foreground sm:text-xs">
+                <Users className="mt-px size-3.5 shrink-0 text-primary-accent" aria-hidden />
+                <span className="min-w-0">{t("Участников")}</span>
               </dt>
-              <dd className="mt-1 text-2xl font-semibold tabular-nums">{summary.memberCount}</dd>
+              <dd className="text-2xl font-semibold leading-none tabular-nums">
+                {summary.memberCount}
+              </dd>
             </div>
           </dl>
         </div>
@@ -452,18 +462,23 @@ function StatsOverview({
                   />
                 ))}
               </div>
-              <ul className="mt-3.5 flex flex-wrap gap-x-5 gap-y-2">
+              {/*
+               * Легенда — сетка, а не свободный поток: при `flex-wrap` подписи
+               * разной длины расставляли счётчики по случайным позициям, и
+               * колонка чисел не читалась колонкой.
+               */}
+              <ul className="mt-3.5 grid grid-cols-2 gap-x-5 gap-y-2 sm:grid-cols-3 lg:grid-cols-5">
                 {shares.map((entry) => (
-                  <li key={entry.priority} className="flex items-center gap-2 text-xs">
+                  <li key={entry.priority} className="flex min-w-0 items-center gap-2 text-xs">
                     <span
                       aria-hidden
                       className="size-2 shrink-0 rounded-full"
                       style={{ backgroundColor: `hsl(var(--priority-${entry.priority}))` }}
                     />
-                    <span className="text-muted-foreground">
+                    <span className="min-w-0 flex-1 truncate text-muted-foreground">
                       {getPriorityLabel(entry.priority, language)}
                     </span>
-                    <span className="font-semibold tabular-nums">{entry.count}</span>
+                    <span className="shrink-0 font-semibold tabular-nums">{entry.count}</span>
                   </li>
                 ))}
               </ul>

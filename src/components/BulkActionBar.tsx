@@ -59,9 +59,9 @@ export function BulkActionBar({
               size="sm"
               onClick={onMarkPurchased}
               disabled={isProcessing}
-              className="h-10 flex-1 px-3 sm:flex-none"
+              className="flex-1 px-3 sm:flex-none"
             >
-              <ShoppingCart className="mr-1.5 h-4 w-4" />
+              <ShoppingCart className="h-4 w-4" />
               {t("Куплено")}
             </Button>
 
@@ -70,9 +70,9 @@ export function BulkActionBar({
               size="sm"
               onClick={onDelete}
               disabled={isProcessing}
-              className="h-10 flex-1 px-3 sm:flex-none"
+              className="flex-1 px-3 sm:flex-none"
             >
-              <Trash2 className="mr-1.5 h-4 w-4" />
+              <Trash2 className="h-4 w-4" />
               {t("Удалить")}
             </Button>
 

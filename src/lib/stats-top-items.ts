@@ -7,13 +7,13 @@
  * Так все три строки списка сравнимы между собой и с подписью цены.
  */
 
-export type PricedItem = {
+type PricedItem = {
   price: number | null;
   currency: string;
   purchased: boolean;
 };
 
-export const TOP_ITEMS_LIMIT = 3;
+const TOP_ITEMS_LIMIT = 3;
 
 export function pickDominantCurrency(items: PricedItem[]): string | null {
   const counts = new Map<string, number>();

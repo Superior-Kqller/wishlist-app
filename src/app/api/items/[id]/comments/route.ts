@@ -6,6 +6,7 @@ import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { notifyCommentCreated } from "@/lib/telegram/notifications";
 import { z } from "zod";
+import { unauthorizedResponse } from "@/lib/api-responses";
 
 const createCommentSchema = z.object({
   text: z.string().trim().min(1).max(2000),
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const currentUserId = await getSessionUserIdVerified();
   if (!currentUserId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   const { id: itemId } = await params;
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const currentUserId = await getSessionUserIdVerified();
   if (!currentUserId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   const { id: itemId } = await params;

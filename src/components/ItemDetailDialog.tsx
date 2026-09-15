@@ -17,6 +17,7 @@ import {
 import { ItemActivitySection } from "@/components/wishlist/item-detail/item-activity-section";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getPurchaseToggleTarget, type ItemStatus } from "@/lib/item-status";
+import { responseError } from "@/lib/response-error";
 
 const fetcher = (url: string) =>
   fetch(url).then((r) => {
@@ -85,10 +86,7 @@ export function ItemDetailDialog({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),
       });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || t("Ошибка при отправке"));
-      }
+      if (!res.ok) throw await responseError(res, t("Ошибка при отправке"));
       setCommentText("");
       mutateComments();
     } catch (err) {
@@ -105,10 +103,7 @@ export function ItemDetailDialog({
       const res = await fetch(`/api/items/${item.id}/comments/${commentId}`, {
         method: "DELETE",
       });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || t("Не удалось удалить"));
-      }
+      if (!res.ok) throw await responseError(res, t("Не удалось удалить"));
       toast.success(t("Комментарий удалён"));
       mutateComments();
     } catch (err) {
@@ -137,7 +132,7 @@ export function ItemDetailDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         className={cn(
-          "item-detail-dialog-surface bottom-0 left-0 top-auto h-[min(96dvh,calc(100dvh-env(safe-area-inset-top,0px)))] max-h-none w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl border-border/70 bg-[hsl(var(--surface-2))] shadow-[var(--shadow-dialog)]",
+          "item-detail-dialog-surface bottom-0 left-0 top-auto max-h-[min(96dvh,calc(100dvh-env(safe-area-inset-top,0px)))] w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl border-border/70 bg-[hsl(var(--surface-2))] shadow-[var(--shadow-dialog)]",
           "sm:bottom-auto sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.5rem))] sm:w-[min(100%,calc(100vw-1rem))] sm:max-w-5xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl",
         )}
         bodyClassName="relative gap-0 overflow-hidden p-0 sm:overflow-y-auto"

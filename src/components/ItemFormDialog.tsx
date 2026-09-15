@@ -36,6 +36,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
 import { ProductCategoryIcon } from "@/lib/category-icons";
 import { uiLayout } from "@/lib/ui-contract";
+import { responseError } from "@/lib/response-error";
 
 interface ItemFormDialogProps {
   open: boolean;
@@ -175,10 +176,7 @@ export function ItemFormDialog({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: u }),
       });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || t("Не удалось получить данные по ссылке"));
-      }
+      if (!res.ok) throw await responseError(res, t("Не удалось получить данные по ссылке"));
       const data: {
         title?: string;
         price?: number | null;
@@ -338,7 +336,7 @@ export function ItemFormDialog({
               <div
                 role="group"
                 aria-label={t("Способ заполнения")}
-                className="grid grid-cols-2 rounded-lg bg-muted p-1"
+                className={cn(uiLayout.segmentBar, "grid-cols-2")}
               >
                 {CREATE_MODE_OPTIONS.map((option) => {
                   const Icon = option.icon;
@@ -347,12 +345,9 @@ export function ItemFormDialog({
                     <Button
                       key={option.value}
                       type="button"
-                      variant="ghost"
+                      variant={selected ? "segmentActive" : "ghost"}
                       aria-pressed={selected}
-                      className={cn(
-                        "gap-2 shadow-none",
-                        selected && "bg-background text-foreground shadow-sm hover:bg-background",
-                      )}
+                      className="min-w-0 gap-2 px-2.5 shadow-none"
                       onClick={() => setCreateMode(option.value)}
                     >
                       <Icon className="h-4 w-4" aria-hidden />
@@ -676,9 +671,7 @@ export function ItemFormDialog({
               {t("Отмена")}
             </Button>
             <Button type="submit" disabled={saving || parsingUrl || (!showFullForm && !url.trim())}>
-              {(saving || parsingUrl) && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
-              )}
+              {(saving || parsingUrl) && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
               {!showFullForm
                 ? parsingUrl
                   ? t("Получаем данные…")

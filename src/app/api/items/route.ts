@@ -20,6 +20,7 @@ import {
 } from "@/lib/wishlist/item-filters";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
+import { unauthorizedResponse } from "@/lib/api-responses";
 
 const createItemSchema = z.object({
   title: z.string().min(1).max(500),
@@ -42,7 +43,7 @@ export async function GET(req: NextRequest) {
   // Получаем userId один раз (устраняем дублирование)
   const currentUserId = await getSessionUserIdVerified();
   if (!currentUserId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   const searchParams = req.nextUrl.searchParams;
@@ -159,7 +160,7 @@ export async function POST(req: NextRequest) {
 
   const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   try {

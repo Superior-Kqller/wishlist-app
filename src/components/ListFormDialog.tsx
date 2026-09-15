@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { MemberList } from "@/components/wishlist/member-list";
 import { useI18n } from "@/components/i18n/language-provider";
 import { uiLayout } from "@/lib/ui-contract";
+import { responseError } from "@/lib/response-error";
 
 interface ListFormDialogProps {
   open: boolean;
@@ -77,10 +78,7 @@ export function ListFormDialog({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: name.trim(), viewerIds }),
         });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || t("Ошибка при обновлении"));
-        }
+        if (!res.ok) throw await responseError(res, t("Ошибка при обновлении"));
         toast.success(t("Подборка обновлена"));
       } else {
         const res = await fetch("/api/lists", {
@@ -88,10 +86,7 @@ export function ListFormDialog({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: name.trim(), viewerIds }),
         });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || t("Ошибка при создании"));
-        }
+        if (!res.ok) throw await responseError(res, t("Ошибка при создании"));
         toast.success(t("Подборка создана"));
       }
       onSuccess();
@@ -142,14 +137,14 @@ export function ListFormDialog({
                   />
                 </div>
               ) : null}
-              <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-2 border rounded-md bg-muted/32">
+              <div className="flex max-h-32 flex-wrap gap-2 overflow-y-auto rounded-lg border p-2 bg-muted/32">
                 {otherUsers.map((user) => (
                   <button
                     key={user.id}
                     type="button"
                     onClick={() => toggleViewer(user.id)}
                     className={cn(
-                      "px-3 py-1.5 rounded-md text-sm font-medium transition-colors border",
+                      "inline-flex min-h-11 items-center rounded-full border px-3 text-sm font-medium transition-colors sm:min-h-9",
                       viewerIds.includes(user.id)
                         ? "border-primary/45 bg-primary/16 text-foreground"
                         : "bg-background border-input hover:bg-accent",
@@ -175,7 +170,7 @@ export function ListFormDialog({
                     onOpenChange(false);
                   }}
                 >
-                  <Trash2 className="mr-2 h-4 w-4" />
+                  <Trash2 className="h-4 w-4" />
                   {t("Удалить подборку")}
                 </Button>
               ) : null}

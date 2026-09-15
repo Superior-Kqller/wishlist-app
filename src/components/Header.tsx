@@ -4,21 +4,13 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  BarChart3,
-  CalendarDays,
-  Home,
-  LogOut,
-  MoreHorizontal,
-  Gift,
-  Settings,
-  Shield,
-} from "lucide-react";
+import { LogOut, MoreHorizontal } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { useI18n } from "@/components/i18n/language-provider";
 import { cn } from "@/lib/utils";
 import { signOutToLogin } from "@/lib/client-auth";
+import { getAppNavItems } from "@/lib/app-navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +20,7 @@ import {
 
 const mobileNavButtonClass = (active: boolean) =>
   cn(
-    "relative h-11 min-w-0 flex-col gap-0.5 rounded-xl border border-transparent px-0.5 py-1.5 text-[10px] font-semibold leading-none tracking-[-0.01em] transition-[color] active:bg-accent/45 sm:flex-row sm:gap-1.5 sm:px-3 sm:text-xs sm:tracking-normal",
+    "relative h-11 min-w-0 flex-col gap-0.5 rounded-lg border border-transparent px-0.5 py-1.5 text-[10px] font-semibold leading-none tracking-[-0.01em] transition-[color] active:bg-accent/45 sm:flex-row sm:gap-1.5 sm:px-3 sm:text-xs sm:tracking-normal",
     active ? "text-foreground" : "text-muted-foreground hover:bg-accent/45 hover:text-foreground",
   );
 
@@ -47,7 +39,7 @@ function MobileNavIndicator({ reduceMotion }: { reduceMotion: boolean | null }) 
       layoutId="mobile-nav-active"
       aria-hidden
       transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }}
-      className="absolute inset-0 -z-10 rounded-xl border border-border/55 bg-[hsl(var(--surface-3))]"
+      className="absolute inset-0 -z-10 rounded-lg border border-border/55 bg-[hsl(var(--surface-3))]"
     />
   );
 }
@@ -60,32 +52,9 @@ export function Header() {
   const reduceMotion = useReducedMotion();
   const isAdmin = session?.user?.role === "ADMIN";
 
-  /**
-   * `shortLabel` — подпись для узкой вкладки: «Подарочные профили» не
-   * помещаются в пятую часть телефонного экрана ни в одном кегле. Короткая
-   * форма берёт второе слово названия, а не обрезает первое, и `aria-label`
-   * возвращает полное — раньше он возвращал третье имя, «Предпочтения».
-   */
-  const primaryNavItems: Array<{
-    label: string;
-    shortLabel?: string;
-    href: string;
-    icon: React.ComponentType<{ className?: string }>;
-  }> = [
-    { label: t("Главная"), href: "/", icon: Home },
-    { label: t("Календарь"), href: "/calendar", icon: CalendarDays },
-    { label: t("Статистика"), href: "/stats", icon: BarChart3 },
-    {
-      label: t("Подарочные профили"),
-      shortLabel: t("Профили"),
-      href: "/preferences",
-      icon: Gift,
-    },
-  ];
-  const secondaryNavItems = [
-    { label: t("Настройки"), href: "/settings", icon: Settings },
-    ...(isAdmin ? [{ label: t("Администрирование"), href: "/admin", icon: Shield }] : []),
-  ];
+  const navItems = getAppNavItems(t, { isAdmin });
+  const primaryNavItems = navItems.filter((item) => item.group === "primary");
+  const secondaryNavItems = navItems.filter((item) => item.group === "secondary");
   const secondaryNavActive = secondaryNavItems.some((item) => pathname === item.href);
 
   return (
@@ -95,7 +64,7 @@ export function Header() {
           <div className="flex min-h-[48px] items-center gap-1">
             <button
               onClick={() => router.push("/")}
-              className="flex min-w-0 flex-1 items-center rounded-xl py-1 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="flex min-h-11 min-w-0 flex-1 items-center rounded-lg py-1 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               title={t("На главную")}
               aria-label={t("Вишлист — на главную")}
             >
@@ -165,7 +134,7 @@ export function Header() {
                       className={cn(active && "bg-accent text-accent-foreground")}
                       aria-current={active ? "page" : undefined}
                     >
-                      <Icon className="mr-2 h-4 w-4" />
+                      <Icon className="h-4 w-4" />
                       {item.label}
                     </DropdownMenuItem>
                   );

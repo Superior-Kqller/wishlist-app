@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
+import { unauthorizedResponse } from "@/lib/api-responses";
 
 export async function GET(request: NextRequest) {
   const rateLimitResponse = await rateLimit(request, rateLimitPresets.read);
@@ -9,7 +10,7 @@ export async function GET(request: NextRequest) {
 
   const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   const users = await prisma.user.findMany({

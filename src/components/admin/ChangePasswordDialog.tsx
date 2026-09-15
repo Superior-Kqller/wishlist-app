@@ -18,6 +18,7 @@ import { validatePasswordComplexity } from "@/lib/password-validation";
 import { User } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
 import { uiLayout } from "@/lib/ui-contract";
+import { responseError } from "@/lib/response-error";
 
 interface ChangePasswordDialogProps {
   open: boolean;
@@ -77,10 +78,7 @@ export function ChangePasswordDialog({
         body: JSON.stringify({ password }),
       });
 
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || t("Ошибка при изменении пароля"));
-      }
+      if (!res.ok) throw await responseError(res, t("Ошибка при изменении пароля"));
 
       toast.success(t("Пароль изменен"));
       onSuccess();

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 
-export interface EmptyStateProps extends React.HTMLAttributes<HTMLElement> {
+interface EmptyStateProps extends React.HTMLAttributes<HTMLElement> {
   icon?: React.ReactNode;
   title: string;
   description?: string;

@@ -2,12 +2,12 @@ import { parseLocalDate } from "./local-date";
 import type { CalendarEventSourceType, CalendarRange, ReminderEventFact } from "./calendar-events";
 import { reminderEventKey } from "./reminder-event-key";
 
-export type CalendarReminderSourceType = CalendarEventSourceType;
-export type CalendarReminderCheckpoint = 30 | 21 | 7 | 0;
+type CalendarReminderSourceType = CalendarEventSourceType;
+type CalendarReminderCheckpoint = 30 | 21 | 7 | 0;
 
-export type CalendarReminderEvent = ReminderEventFact;
+type CalendarReminderEvent = ReminderEventFact;
 
-export interface CalendarReminderRecipient {
+interface CalendarReminderRecipient {
   id: string;
   telegramId: string | null;
   telegramNotificationsEnabled: boolean;
@@ -15,7 +15,7 @@ export interface CalendarReminderRecipient {
   mutedEventKeys: string[];
 }
 
-export interface CalendarReminderDelivery {
+interface CalendarReminderDelivery {
   recipientId: string;
   sourceType: CalendarReminderSourceType;
   sourceId: string;
@@ -29,15 +29,15 @@ export interface CalendarReminderRepository {
   releaseDelivery(delivery: CalendarReminderDelivery): Promise<void>;
 }
 
-export interface CalendarReminderEventSource {
+interface CalendarReminderEventSource {
   reminderFacts(range: CalendarRange): Promise<ReminderEventFact[]>;
 }
 
-export interface CalendarTelegramAdapter {
+interface CalendarTelegramAdapter {
   send(message: { chatId: string; text: string }): Promise<void>;
 }
 
-export interface CalendarReminderLogger {
+interface CalendarReminderLogger {
   deliveryError(
     error: unknown,
     context: {

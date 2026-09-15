@@ -10,6 +10,7 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { isValidCalendarDate } from "@/lib/calendar/local-date";
 import { profileGenderSchema, type ProfileGender } from "@/lib/calendar/profile-gender";
+import { unauthorizedResponse } from "@/lib/api-responses";
 
 const telegramIdSchema = z
   .string()
@@ -79,7 +80,7 @@ export async function GET(req: NextRequest) {
 
   const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   const user = await prisma.user.findUnique({
@@ -132,7 +133,7 @@ export async function PATCH(req: NextRequest) {
 
   const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   try {

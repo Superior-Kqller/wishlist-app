@@ -60,8 +60,9 @@ export function UserTable({ users, currentUserId, onRefresh }: UserTableProps) {
   const renderActions = (user: User, mobile = false) => (
     <div
       className={cn(
-        "flex items-center gap-1",
-        mobile ? "grid grid-cols-[1fr_1fr_2.75rem] gap-2" : "justify-end",
+        mobile
+          ? "grid grid-cols-[1fr_1fr_2.75rem] items-center gap-2"
+          : "flex items-center justify-end gap-1",
       )}
     >
       <Button
@@ -87,7 +88,10 @@ export function UserTable({ users, currentUserId, onRefresh }: UserTableProps) {
         {mobile ? <span>{t("Пароль")}</span> : null}
       </Button>
       <Button
-        variant="ghost"
+        /* Третье действие строки носит ту же оболочку, что и два соседних:
+           на телефоне ghost-кнопка без рамки читалась объектом другого рода
+           в ряду из трёх равных. */
+        variant={mobile ? "outline" : "ghost"}
         size="icon"
         className={cn(
           mobile && "min-h-11 min-w-11 text-muted-foreground",

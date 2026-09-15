@@ -4,16 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import useSWR from "swr";
-import {
-  BarChart3,
-  CalendarDays,
-  Folder,
-  Home,
-  LogOut,
-  Gift,
-  Settings,
-  Shield,
-} from "lucide-react";
+import { Folder, LogOut } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -22,14 +13,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { fetcher } from "@/lib/fetcher";
 import { signOutToLogin } from "@/lib/client-auth";
+import { getAppNavItems } from "@/lib/app-navigation";
 import { uiState, uiSurface } from "@/lib/ui-contract";
 import type { ListWithMeta } from "@/types";
-
-type NavItem = {
-  label: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-};
 
 type SidebarUser = {
   id: string;
@@ -62,17 +48,7 @@ export function AppSidebar() {
   const pinnedLists = lists.slice(0, 4);
   const totalListItems = lists.reduce((sum, list) => sum + list._count.items, 0);
 
-  const navItems: NavItem[] = [
-    { label: t("Главная"), href: "/", icon: Home },
-    { label: t("Календарь"), href: "/calendar", icon: CalendarDays },
-    { label: t("Статистика"), href: "/stats", icon: BarChart3 },
-    { label: t("Подарочные профили"), href: "/preferences", icon: Gift },
-    { label: t("Настройки"), href: "/settings", icon: Settings },
-  ];
-
-  if (session.user.role === "ADMIN") {
-    navItems.push({ label: t("Администрирование"), href: "/admin", icon: Shield });
-  }
+  const navItems = getAppNavItems(t, { isAdmin: session.user.role === "ADMIN" });
 
   return (
     <aside
@@ -85,7 +61,7 @@ export function AppSidebar() {
       <button
         type="button"
         onClick={() => router.push("/")}
-        className="mb-6 rounded-xl text-left transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="mb-6 rounded-lg text-left transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         aria-label={t("Вишлист — на главную")}
       >
         <BrandLockup />

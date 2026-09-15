@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fetcher } from "@/lib/fetcher";
 import { useI18n } from "@/components/i18n/language-provider";
+import { readErrorMessage } from "@/lib/response-error";
 
 const COMMON_TIME_ZONES = [
   "Europe/Moscow",
@@ -34,8 +35,7 @@ export function CalendarSettings() {
       body: JSON.stringify({ timeZone: value }),
     });
     if (!response.ok) {
-      const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      toast.error(body?.error ?? t("Не удалось сохранить временную зону"));
+      toast.error((await readErrorMessage(response)) ?? t("Не удалось сохранить временную зону"));
       return;
     }
     setDraft(null);

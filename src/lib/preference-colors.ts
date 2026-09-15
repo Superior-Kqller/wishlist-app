@@ -9,7 +9,7 @@
  * обязан выглядеть бордовым, и заменить его `--surface-*` нельзя.
  */
 
-export type PreferenceColor = {
+type PreferenceColor = {
   /** Русская подпись: она же то, что хранится в профиле. */
   label: string;
   hex: string;

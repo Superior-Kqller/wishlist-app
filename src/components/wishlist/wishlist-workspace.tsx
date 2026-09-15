@@ -275,7 +275,7 @@ export function WishlistWorkspace({
             type="button"
             variant={hasActiveFilters ? "secondary" : "outline"}
             className={cn(
-              "relative h-11 w-11 shrink-0 rounded-xl p-0",
+              "relative h-11 w-11 shrink-0 rounded-lg p-0",
               hasActiveFilters
                 ? "border-primary/45 bg-primary/10 text-foreground"
                 : "border-border/55 bg-[hsl(var(--surface-3)/0.55)]",
@@ -298,7 +298,7 @@ export function WishlistWorkspace({
           <Button
             variant="ghost"
             className={cn(
-              "h-11 w-11 shrink-0 rounded-xl p-0 text-muted-foreground disabled:pointer-events-none disabled:opacity-100",
+              "h-11 w-11 shrink-0 rounded-lg p-0 text-muted-foreground disabled:pointer-events-none disabled:opacity-100",
               selectionMode && "bg-primary/10 text-foreground",
             )}
             onClick={onToggleSelectionMode}
@@ -314,7 +314,7 @@ export function WishlistWorkspace({
               <Button
                 type="button"
                 variant="ghost"
-                className="h-11 w-11 shrink-0 rounded-xl p-0 text-muted-foreground"
+                className="h-11 w-11 shrink-0 rounded-lg p-0 text-muted-foreground"
                 aria-label={t("Ещё действия")}
                 title={t("Ещё действия")}
               >
@@ -324,18 +324,18 @@ export function WishlistWorkspace({
             <DropdownMenuContent align="end" className="w-52">
               <DropdownMenuItem onClick={onImport} disabled={isImporting}>
                 {isImporting ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Upload className="mr-2 h-4 w-4" />
+                  <Upload className="h-4 w-4" />
                 )}
                 {t("Импорт JSON")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onExport("csv")}>
-                <Download className="mr-2 h-4 w-4" />
+                <Download className="h-4 w-4" />
                 {t("Экспорт CSV")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onExport("json")}>
-                <Download className="mr-2 h-4 w-4" />
+                <Download className="h-4 w-4" />
                 {t("Экспорт JSON")}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -356,7 +356,7 @@ export function WishlistWorkspace({
           <Button
             type="button"
             onClick={onAddItem}
-            className="hidden h-11 shrink-0 gap-2 rounded-xl px-3.5 sm:inline-flex"
+            className="hidden h-11 shrink-0 gap-2 rounded-lg px-3.5 sm:inline-flex"
             title={t("Добавить желание")}
             aria-label={t("Добавить желание")}
           >
@@ -445,24 +445,24 @@ export function WishlistWorkspace({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
                   <DropdownMenuItem onClick={onToggleSelectionMode} disabled={hasSelectedCards}>
-                    <CheckSquare className="mr-2 h-4 w-4" aria-hidden />
+                    <CheckSquare className="h-4 w-4" aria-hidden />
                     {selectionMode ? t("Отменить выбор") : t("Выбрать несколько")}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onImport} disabled={isImporting}>
                     {isImporting ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                     ) : (
-                      <Upload className="mr-2 h-4 w-4" aria-hidden />
+                      <Upload className="h-4 w-4" aria-hidden />
                     )}
                     {t("Импорт JSON")}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onExport("csv")}>
-                    <Download className="mr-2 h-4 w-4" aria-hidden />
+                    <Download className="h-4 w-4" aria-hidden />
                     {t("Экспорт CSV")}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onExport("json")}>
-                    <Download className="mr-2 h-4 w-4" aria-hidden />
+                    <Download className="h-4 w-4" aria-hidden />
                     {t("Экспорт JSON")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>

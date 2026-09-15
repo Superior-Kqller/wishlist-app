@@ -4,6 +4,7 @@ import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { reminderEventKey } from "@/lib/calendar/reminder-event-key";
+import { unauthorizedResponse } from "@/lib/api-responses";
 
 const muteSchema = z.object({
   sourceType: z.enum(["BIRTHDAY", "PERSONAL", "HOLIDAY"]),
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
   const limited = await rateLimit(request, rateLimitPresets.read);
   if (limited) return limited;
   const userId = await getSessionUserIdVerified();
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!userId) return unauthorizedResponse();
   const mutes = await prisma.calendarEventMute.findMany({
     where: { userId },
     select: { sourceType: true, sourceId: true },
@@ -29,7 +30,7 @@ export async function PUT(request: NextRequest) {
   const limited = await rateLimit(request, rateLimitPresets.default);
   if (limited) return limited;
   const userId = await getSessionUserIdVerified();
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!userId) return unauthorizedResponse();
 
   const parsed = muteSchema.safeParse(await request.json());
   if (!parsed.success) {

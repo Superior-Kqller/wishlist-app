@@ -1,11 +1,11 @@
-export interface TelegramUser {
+interface TelegramUser {
   id: number;
   is_bot: boolean;
   first_name: string;
   username?: string;
 }
 
-export interface TelegramChat {
+interface TelegramChat {
   id: number;
   type: "private" | "group" | "supergroup" | "channel";
 }
@@ -32,7 +32,7 @@ export interface TelegramUpdate {
 
 export type TelegramParseMode = "MarkdownV2" | "HTML";
 
-export interface TelegramInlineButton {
+interface TelegramInlineButton {
   text: string;
   callback_data: string;
 }

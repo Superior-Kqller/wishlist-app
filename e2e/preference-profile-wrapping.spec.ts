@@ -9,19 +9,13 @@ const longNotes = `Первая строка заметки\n${"непрерыв
 const longName = "Александринапетровнаконстантинопольская-Зауральская";
 
 const scenarios = [
-  { name: "desktop classic", width: 1440, height: 900, theme: "classic" },
-  { name: "desktop light", width: 1440, height: 900, theme: "light" },
-  { name: "phone classic", width: 390, height: 844, theme: "classic" },
-  { name: "phone light", width: 390, height: 844, theme: "light" },
+  { name: "desktop", width: 1440, height: 900 },
+  { name: "phone", width: 390, height: 844 },
 ] as const;
 
 for (const scenario of scenarios) {
   test(`expanded preference profile wraps full values: ${scenario.name}`, async ({ page }) => {
     await page.setViewportSize({ width: scenario.width, height: scenario.height });
-    await page.addInitScript((theme) => {
-      window.localStorage.setItem("wishlist-color-theme", theme);
-    }, scenario.theme);
-
     await page.goto("/");
     const originalResponse = await page.request.get("/api/users/me");
     expect(originalResponse.ok()).toBeTruthy();
@@ -54,7 +48,6 @@ for (const scenario of scenarios) {
 
     try {
       await page.goto("/preferences");
-      await expect(page.locator("html")).toHaveClass(new RegExp(`theme-${scenario.theme}`));
 
       const ownProfile = page
         .locator("article")

@@ -9,7 +9,7 @@ const dotSizes = {
   lg: "size-4",
 } as const;
 
-export type PreferenceColorDotProps = {
+type PreferenceColorDotProps = {
   value: string;
   size?: keyof typeof dotSizes;
   /** Разделять соседние кружки краской карточки, когда они идут внахлёст. */

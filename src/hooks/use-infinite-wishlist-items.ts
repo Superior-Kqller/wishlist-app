@@ -8,9 +8,9 @@ import type { ItemsPage } from "@/types";
 const WISHLIST_ITEMS_PAGE_SIZE = 30;
 
 /** Что именно не загрузилось: список целиком или только его продолжение. */
-export type WishlistFeedError = "initial" | "next-page";
+type WishlistFeedError = "initial" | "next-page";
 
-export type WishlistFeedQuery = {
+type WishlistFeedQuery = {
   normalizedSelectedUserId: string | null;
   selectedListId: string | null;
   debouncedSearch: string;

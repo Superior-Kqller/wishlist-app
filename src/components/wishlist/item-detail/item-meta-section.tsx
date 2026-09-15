@@ -196,22 +196,18 @@ export function ItemDetailActions({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem onClick={onEdit}>
-              <Pencil className="mr-2 h-4 w-4" />
+              <Pencil className="h-4 w-4" />
               {t("Редактировать")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onTogglePurchased} disabled={statusPending}>
-              {isBought ? (
-                <Undo2 className="mr-2 h-4 w-4" />
-              ) : (
-                <ShoppingCart className="mr-2 h-4 w-4" />
-              )}
+              {isBought ? <Undo2 className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
               {isBought ? t("Снять отметку") : t("Отметить купленным")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={onDelete}
               className="text-destructive focus:text-destructive"
             >
-              <Trash2 className="mr-2 h-4 w-4" />
+              <Trash2 className="h-4 w-4" />
               {t("Удалить")}
             </DropdownMenuItem>
           </DropdownMenuContent>

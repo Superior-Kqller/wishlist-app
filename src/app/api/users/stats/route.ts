@@ -6,6 +6,7 @@ import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { selectTopItems } from "@/lib/stats-top-items";
 import { normalizeGiftPreferences } from "@/lib/preferences";
+import { unauthorizedResponse } from "@/lib/api-responses";
 
 // GET /api/users/stats — статистика по пользователям из «круга» общих подборок
 export async function GET(req: NextRequest) {
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
 
   const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   try {

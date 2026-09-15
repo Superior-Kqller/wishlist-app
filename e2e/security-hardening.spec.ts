@@ -6,8 +6,8 @@ import {
   type APIRequestContext,
 } from "@playwright/test";
 
-const E2E_USERNAME = process.env.SEED_USER1_USERNAME || "user1";
-const E2E_PASSWORD = process.env.SEED_USER1_PASSWORD || "changeme";
+const E2E_USERNAME = process.env.E2E_USERNAME || process.env.SEED_USER1_USERNAME || "user1";
+const E2E_PASSWORD = process.env.E2E_PASSWORD || process.env.SEED_USER1_PASSWORD || "changeme";
 
 async function createAuthenticatedApiContext(): Promise<APIRequestContext> {
   const api = await playwrightRequest.newContext({

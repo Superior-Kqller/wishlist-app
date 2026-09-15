@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { HolidayActor, HolidayCatalog } from "@/lib/calendar/holiday-catalog";
+import { unauthorizedResponse, forbiddenResponse } from "@/lib/api-responses";
 
 interface Dependencies {
   getActor(): Promise<HolidayActor | null>;
@@ -7,13 +8,13 @@ interface Dependencies {
 }
 
 function unauthorized(actor: HolidayActor | null) {
-  if (!actor) return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+  if (!actor) return unauthorizedResponse();
   return null;
 }
 
 function domainError(error: unknown) {
   if (error instanceof Error && error.message === "FORBIDDEN") {
-    return NextResponse.json({ error: "Недостаточно прав" }, { status: 403 });
+    return forbiddenResponse();
   }
   if (error instanceof Error && error.message === "INVALID_HOLIDAY") {
     return NextResponse.json({ error: "Ошибка проверки данных" }, { status: 400 });

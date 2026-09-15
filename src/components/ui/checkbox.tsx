@@ -4,7 +4,7 @@ import * as React from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type CheckboxProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type">;
+type CheckboxProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type">;
 
 /**
  * Флажок продукта.
@@ -20,7 +20,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
       <input
         ref={ref}
         type="checkbox"
-        className="peer size-full cursor-pointer appearance-none rounded-[0.3rem] border border-input bg-[hsl(var(--surface-3))] outline-none transition-[background-color,border-color,box-shadow] duration-[var(--dur-fast)] checked:border-primary checked:bg-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+        className="peer size-full cursor-pointer appearance-none rounded-sm border border-input bg-[hsl(var(--surface-3))] outline-none transition-[background-color,border-color,box-shadow] duration-[var(--dur-fast)] checked:border-primary checked:bg-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
         {...props}
       />
       <Check

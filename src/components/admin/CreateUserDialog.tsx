@@ -25,6 +25,7 @@ import { passwordSchema, validatePasswordComplexity } from "@/lib/password-valid
 import { CreateUserPayload } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
 import { uiLayout } from "@/lib/ui-contract";
+import { responseError } from "@/lib/response-error";
 
 interface CreateUserDialogProps {
   open: boolean;
@@ -86,10 +87,7 @@ export function CreateUserDialog({ open, onOpenChange, onSuccess }: CreateUserDi
         } as CreateUserPayload),
       });
 
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || t("Ошибка при создании пользователя"));
-      }
+      if (!res.ok) throw await responseError(res, t("Ошибка при создании пользователя"));
 
       toast.success(t("Пользователь создан"));
       onSuccess();

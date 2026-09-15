@@ -13,6 +13,7 @@ import {
 } from "@/lib/item-status";
 import { notifyStatusTransition } from "@/lib/telegram/notifications";
 import { normalizeProductCategory } from "@/lib/categories";
+import { unauthorizedResponse, forbiddenResponse } from "@/lib/api-responses";
 
 const updateItemSchema = z.object({
   title: z.string().min(1).max(500).optional(),
@@ -35,7 +36,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   const { id } = await params;
@@ -66,7 +67,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   const { id } = await params;
@@ -133,7 +134,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     if (hasOwnerOnlyFields && !isOwner) {
-      return NextResponse.json({ error: "Доступ запрещён" }, { status: 403 });
+      return forbiddenResponse("Доступ запрещён");
     }
 
     if (data.title !== undefined) updateData.title = data.title;
@@ -265,7 +266,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   const userId = await getSessionUserIdVerified();
   if (!userId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   const { id } = await params;

@@ -34,7 +34,7 @@ const AVOID_PREVIEW_LIMIT = 3;
  * `note` — свободная запись стоп-листа («сладости — аллергия на орехи»): она
  * уже сформулирована предложением, и род ей приписывать нечего.
  */
-export type PreferenceHintKind = "category" | "hobby" | "brand" | "material" | "color" | "note";
+type PreferenceHintKind = "category" | "hobby" | "brand" | "material" | "color" | "note";
 
 export type PreferenceHint = {
   kind: PreferenceHintKind;
@@ -50,7 +50,7 @@ export const preferenceHintLabels: Partial<Record<PreferenceHintKind, string>> =
   color: "цвет",
 };
 
-export type PreferenceHighlights = {
+type PreferenceHighlights = {
   likes: PreferenceHint[];
   likesHidden: number;
   avoid: PreferenceHint[];

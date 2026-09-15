@@ -5,6 +5,7 @@ import { parseWishlistProductUrl } from "@/lib/parser";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { z } from "zod";
+import { unauthorizedResponse } from "@/lib/api-responses";
 
 const parseSchema = z.object({
   url: z.string().url().max(2048),
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
   if (!session?.user || !userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   try {

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { z } from "zod";
+import { unauthorizedResponse } from "@/lib/api-responses";
 
 const createListSchema = z.object({
   name: z.string().trim().min(1).max(200),
@@ -27,7 +28,7 @@ export async function GET(req: NextRequest) {
 
   const currentUserId = await getSessionUserIdVerified();
   if (!currentUserId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   try {
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest) {
 
   const currentUserId = await getSessionUserIdVerified();
   if (!currentUserId) {
-    return NextResponse.json({ error: "Необходима авторизация" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
   try {

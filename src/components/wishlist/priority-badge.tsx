@@ -6,7 +6,7 @@ import { clampWishlistPriority } from "@/lib/priority-styles";
 import { PriorityIcon } from "@/lib/priority-icons";
 import { useI18n } from "@/components/i18n/language-provider";
 
-export interface PriorityBadgeOverlayProps {
+interface PriorityBadgeOverlayProps {
   priority: number;
   className?: string;
 }

@@ -27,7 +27,7 @@ export function WishlistViewToggle({ value, onValueChange, className }: Wishlist
         variant={value === "grid" ? "segmentActive" : "ghost"}
         size="iconToolbar"
         className={cn(
-          "h-9 w-9 rounded-md border-0",
+          "h-9 w-9 rounded-lg border-0",
           value === "grid"
             ? "bg-[hsl(var(--surface-4)/0.85)] text-foreground hover:bg-[hsl(var(--surface-4)/0.95)]"
             : "hover:bg-[hsl(var(--surface-4)/0.55)]",
@@ -43,7 +43,7 @@ export function WishlistViewToggle({ value, onValueChange, className }: Wishlist
         variant={value === "table" ? "segmentActive" : "ghost"}
         size="iconToolbar"
         className={cn(
-          "h-9 w-9 rounded-md border-0",
+          "h-9 w-9 rounded-lg border-0",
           value === "table"
             ? "bg-[hsl(var(--surface-4)/0.85)] text-foreground hover:bg-[hsl(var(--surface-4)/0.95)]"
             : "hover:bg-[hsl(var(--surface-4)/0.55)]",

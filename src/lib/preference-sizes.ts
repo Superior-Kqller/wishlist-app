@@ -8,7 +8,7 @@
 
 export type SizeCategoryId = "clothes" | "shoes" | "pants" | "outerwear" | "rings" | "belts";
 
-export type SizeCategory = {
+type SizeCategory = {
   id: SizeCategoryId;
   label: string;
   aliases?: string[];

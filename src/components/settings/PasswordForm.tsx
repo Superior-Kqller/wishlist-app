@@ -10,6 +10,7 @@ import { validatePasswordComplexity } from "@/lib/password-validation";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";
+import { responseError } from "@/lib/response-error";
 
 interface PasswordFormProps {
   userId: string;
@@ -60,10 +61,7 @@ export function PasswordForm({ userId }: PasswordFormProps) {
         body: JSON.stringify({ currentPassword, password }),
       });
 
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || t("Ошибка при изменении пароля"));
-      }
+      if (!res.ok) throw await responseError(res, t("Ошибка при изменении пароля"));
 
       toast.success(t("Пароль изменен"));
       setCurrentPassword("");

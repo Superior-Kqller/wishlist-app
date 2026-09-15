@@ -28,7 +28,14 @@ export const uiLayout = {
   pageStack: "space-y-5",
   /** Полоса разделов: настройки, редактор профиля, переключатели вида. */
   segmentBar:
-    "grid min-w-0 gap-1 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.55)] p-1.5",
+    "grid min-w-0 gap-1 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.55)] p-1",
+  /**
+   * Та же полоса, но по содержимому — когда переключатель стоит в строке
+   * рядом с другим контролом. Отдельная строка нужна ровно из-за раскладки:
+   * рамка, фон, зазор и отступ у обеих одни.
+   */
+  segmentBarInline:
+    "inline-grid auto-cols-auto grid-flow-col min-w-0 gap-1 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.55)] p-1",
   /*
    * Ширин диалога ровно две. Было пять — 384, 448, 500, 1024 и 1088, — и
    * ни одна не совпадала с обещанной в DESIGN.md: три окна подряд читались
@@ -59,6 +66,13 @@ export const uiSurface = {
     "home-summary-panel relative overflow-hidden rounded-2xl border border-border/55 elevation-hero-panel",
   homeToolbar:
     "home-toolbar-panel relative z-20 flex min-w-0 flex-col gap-2.5 rounded-2xl border border-border/55 px-2.5 py-2.5 elevation-panel sm:z-auto sm:px-3 sm:py-3",
+  /**
+   * Пилюля метаданных под заголовком страницы: дата, счётчик, статус. Раньше
+   * такие подписи выписывались на месте и вставали рядом с `Badge` разной
+   * высоты — 22px против 30px в одной строке.
+   */
+  metaPill:
+    "inline-flex min-h-7 items-center gap-1.5 rounded-full border border-border/55 bg-[hsl(var(--surface-3)/0.45)] px-2.5 py-1 text-xs font-medium text-muted-foreground",
   homeSelectionState:
     "rounded-lg border border-primary/45 bg-primary/10 px-3 py-2 text-sm text-foreground",
 } as const;
@@ -85,16 +99,20 @@ export const uiState = {
    * случаем.
    *
    * У поля, в отличие от кнопки, уже есть собственный периметр, которому есть
-   * куда загореться. Рамка берёт голос краски целиком (3:1 и выше на любой
-   * ступени поверхности), кольцо ложится вплотную (`ring-offset-0`) и
-   * приглушённо (`/32`) — поле не обводится снаружи, а включается само.
+   * куда загореться. Указатель несёт рамка: она берёт голос краски целиком
+   * (3:1 и выше на любой ступени поверхности). Всё, что снаружи, — свет, а не
+   * вторая обводка: узкий ореол в 10% и мягкое размытое свечение в 45%.
+   *
+   * Кольцо `ring-2` в 32% давало сплошную фиолетовую полосу по периметру
+   * прямоугольника в половину диалога — на большом поле она звучала громче
+   * самого поля и читалась вторым контуром вокруг первого.
    *
    * Рецепт не новый: так уже фокусировался поиск. Раньше это была вторая,
    * необъявленная конвенция рядом с `focusRing`; теперь она названа и одна на
    * все поля.
    */
   focusField:
-    "focus-visible:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/32 focus-visible:ring-offset-0",
+    "focus-visible:outline-none focus-visible:border-ring focus-visible:shadow-[0_0_0_3px_hsl(var(--ring)/0.10),0_0_16px_-4px_hsl(var(--ring)/0.45)]",
   navBase:
     "h-11 gap-2.5 border border-transparent px-3 text-muted-foreground/85 hover:bg-[hsl(var(--surface-3)/0.7)] hover:text-foreground",
   /*
@@ -103,6 +121,19 @@ export const uiState = {
    * а не указателем, и повторяла рецепт главной кнопки.
    */
   navActive: "border-border/55 bg-[hsl(var(--surface-3))] text-foreground",
+  /**
+   * Выбранный сегмент переключателя: ступень поверхности плюс короткая метка
+   * голосом краски.
+   *
+   * Метка рисуется псевдоэлементом, а не `inset`-тенью. Тень `inset 0 -2px`
+   * кладёт прямую линию во всю ширину прямоугольника и не знает о скруглении:
+   * на скруглённом сегменте её концы выходили за дугу угла и читались как
+   * поломанная обводка. Псевдоэлемент отбит от краёв и скруглён сам.
+   */
+  segmentActive:
+    "relative border-border/70 bg-[hsl(var(--surface-4))] text-foreground after:pointer-events-none after:absolute after:inset-x-2 after:bottom-1 after:h-0.5 after:rounded-full after:bg-primary-accent",
+  segmentIdle:
+    "border-transparent bg-transparent text-muted-foreground hover:bg-[hsl(var(--surface-3)/0.7)] hover:text-foreground",
   selectionIdle:
     "h-9 gap-1.5 px-3 border border-border bg-card text-muted-foreground hover:text-foreground",
   selectionActive:

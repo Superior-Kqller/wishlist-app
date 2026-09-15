@@ -21,7 +21,7 @@ import { getProductCategoryLabel } from "@/lib/categories";
 import { getPurchaseToggleTarget, isItemPurchased, type ItemStatus } from "@/lib/item-status";
 import { ProductCategoryIcon } from "@/lib/category-icons";
 
-export interface ProductRowProps {
+interface ProductRowProps {
   item: WishlistItem;
   onEdit: (item: WishlistItem) => void;
   onDelete: (id: string) => void;
@@ -234,7 +234,7 @@ export const ProductRow = memo(function ProductRow({
                 }}
                 disabled={statusPending}
               >
-                {isBought ? <Undo2 className="mr-2 h-4 w-4" /> : <Check className="mr-2 h-4 w-4" />}
+                {isBought ? <Undo2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                 {isBought ? t("Вернуть в доступные") : t("Отметить купленным")}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -244,7 +244,7 @@ export const ProductRow = memo(function ProductRow({
                 }}
                 disabled={statusPending}
               >
-                <Pencil className="mr-2 h-4 w-4" />
+                <Pencil className="h-4 w-4" />
                 {t("Редактировать")}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -254,7 +254,7 @@ export const ProductRow = memo(function ProductRow({
                 }}
                 className="text-destructive focus:text-destructive"
               >
-                <Trash2 className="mr-2 h-4 w-4" />
+                <Trash2 className="h-4 w-4" />
                 {t("Удалить")}
               </DropdownMenuItem>
             </DropdownMenuContent>
