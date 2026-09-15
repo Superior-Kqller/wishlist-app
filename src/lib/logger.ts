@@ -51,39 +51,19 @@ function sanitizeObject(obj: unknown, depth = 0): unknown {
 }
 
 /**
- * Проверить, является ли значение объектом для spread
- */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-/**
  * Безопасное логирование ошибок
  */
 export function sanitizeError(message: string, error: unknown, context?: LogContext): void {
-  const sanitizedContext = context ? sanitizeObject(context) : undefined;
+  const sanitizedError =
+    error instanceof Error
+      ? {
+          name: error.name,
+          message: error.message,
+          stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+        }
+      : sanitizeObject(error);
 
-  if (error instanceof Error) {
-    const sanitizedError = {
-      name: error.name,
-      message: error.message,
-      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-    };
-
-    const logData: Record<string, unknown> = { error: sanitizedError };
-    if (sanitizedContext && isRecord(sanitizedContext)) {
-      Object.assign(logData, sanitizedContext);
-    }
-
-    console.error(message, logData);
-  } else {
-    const logData: Record<string, unknown> = { error: sanitizeObject(error) };
-    if (sanitizedContext && isRecord(sanitizedContext)) {
-      Object.assign(logData, sanitizedContext);
-    }
-
-    console.error(message, logData);
-  }
+  console.error(message, { error: sanitizedError, ...(sanitizeObject(context ?? {}) as object) });
 }
 
 /**
