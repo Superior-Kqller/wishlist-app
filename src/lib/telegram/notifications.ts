@@ -104,9 +104,7 @@ export async function notifyCommentCreated(input: NotifyCommentCreatedInput): Pr
       (userId) => userId !== input.actorUserId,
     );
 
-    for (const userId of recipientUserIds) {
-      await sendTelegramToUser(userId, text);
-    }
+    await Promise.allSettled(recipientUserIds.map((userId) => sendTelegramToUser(userId, text)));
   } catch (error) {
     sanitizeError("Telegram comment notification send error", error, {
       itemId: input.itemId,

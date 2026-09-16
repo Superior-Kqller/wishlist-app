@@ -5,9 +5,15 @@ vi.mock("next-auth", () => ({
   getServerSession: vi.fn().mockResolvedValue({ user: { id: "user1", role: "USER" } }),
 }));
 
-vi.mock("./auth", () => ({
-  authOptions: {},
-}));
+vi.mock("./auth", async () => {
+  const nextAuth = await import("next-auth");
+  return {
+    authOptions: {},
+    getCachedServerSession: vi
+      .fn()
+      .mockImplementation(() => nextAuth.getServerSession({} as never)),
+  };
+});
 
 vi.mock("ioredis", () => {
   throw new Error("No valkey in test");

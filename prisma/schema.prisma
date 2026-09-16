@@ -84,6 +84,7 @@ model User {
   @@index([username])
   @@index([role])
   @@index([telegramConfirmedAt])
+  @@index([createdAt(sort: Desc), id(sort: Desc)])
 }
 
 model CalendarEventMute {
@@ -228,6 +229,7 @@ model Item {
   @@index([userId, createdAt])
   @@index([status])
   @@index([category])
+  @@index([listId, createdAt(sort: Desc)])
 }
 
 model ItemComment {
@@ -241,4 +243,5 @@ model ItemComment {
 
   @@index([itemId])
   @@index([userId])
+  @@index([itemId, createdAt])
 }

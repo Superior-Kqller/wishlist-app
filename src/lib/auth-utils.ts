@@ -1,6 +1,6 @@
 import "server-only";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./auth";
+import { cache } from "react";
+import { getCachedServerSession } from "./auth";
 import { prisma } from "./prisma";
 import { ApiAccessError } from "./api-responses";
 import type { UserRole } from "@/types";
@@ -14,27 +14,29 @@ interface SessionUser {
 /**
  * Получить текущего пользователя из сессии
  */
-async function getCurrentUser(): Promise<SessionUser | null> {
-  const session = await getServerSession(authOptions);
+export const getCurrentUser = cache(async function getCurrentUser(): Promise<SessionUser | null> {
+  const session = await getCachedServerSession();
   if (!session?.user) return null;
 
   const user = session.user as SessionUser;
   return user;
-}
+});
 
 /**
  * Получить ID текущего пользователя
  */
-async function getCurrentUserId(): Promise<string | null> {
+export const getCurrentUserId = cache(async function getCurrentUserId(): Promise<string | null> {
   const user = await getCurrentUser();
   return user?.id || null;
-}
+});
 
 /**
  * ID из сессии только если запись пользователя есть в БД
  * (устраняет «битую» сессию после сброса БД / рассинхрон).
  */
-export async function getSessionUserIdVerified(): Promise<string | null> {
+export const getSessionUserIdVerified = cache(async function getSessionUserIdVerified(): Promise<
+  string | null
+> {
   const userId = await getCurrentUserId();
   if (!userId) return null;
   const row = await prisma.user.findUnique({
@@ -42,13 +44,13 @@ export async function getSessionUserIdVerified(): Promise<string | null> {
     select: { id: true },
   });
   return row?.id ?? null;
-}
+});
 
 /**
  * Получить пользователя с проверкой существования в БД
  * Используется для проверки актуальности сессии после изменений в БД
  */
-export async function getCurrentUserWithDbCheck(): Promise<{
+export const getCurrentUserWithDbCheck = cache(async function getCurrentUserWithDbCheck(): Promise<{
   id: string;
   role: UserRole;
 } | null> {
@@ -61,7 +63,7 @@ export async function getCurrentUserWithDbCheck(): Promise<{
   });
 
   return user;
-}
+});
 
 /**
  * Проверить права администратора и вернуть ошибку, если нет прав

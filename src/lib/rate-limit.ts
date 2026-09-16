@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./auth";
+import { getCachedServerSession } from "./auth";
 
 /**
  * Категория операции — часть ключа, а не подпись.
@@ -80,6 +79,15 @@ function checkMemoryRateLimit(key: string, max: number, windowMs: number) {
 
 // --- Valkey rate limit ---
 
+const RATE_LIMIT_LUA = `
+local count = redis.call('INCR', KEYS[1])
+if count == 1 then
+  redis.call('EXPIRE', KEYS[1], ARGV[1])
+end
+local ttl = redis.call('TTL', KEYS[1])
+return {count, ttl}
+`;
+
 async function checkRedisRateLimit(
   redis: import("ioredis").default,
   key: string,
@@ -90,13 +98,10 @@ async function checkRedisRateLimit(
   const ttlSec = Math.ceil(windowMs / 1000);
 
   try {
-    const count = await redis.incr(redisKey);
-    if (count === 1) {
-      await redis.expire(redisKey, ttlSec);
-    }
-
-    const ttl = await redis.ttl(redisKey);
-    const resetAt = Date.now() + ttl * 1000;
+    const res = (await redis.eval(RATE_LIMIT_LUA, 1, redisKey, ttlSec)) as [number, number];
+    const count = Number(res[0]);
+    const ttl = Number(res[1]);
+    const resetAt = Date.now() + Math.max(0, ttl) * 1000;
 
     if (count > max) {
       return { allowed: false, remaining: 0, resetAt };
@@ -126,7 +131,7 @@ async function getRateLimitKey(
   category: RateLimitCategory,
   useIP: boolean,
 ): Promise<string> {
-  const userId = useIP ? null : (await getServerSession(authOptions))?.user?.id;
+  const userId = useIP ? null : (await getCachedServerSession())?.user?.id;
   return userId ? `${category}:user:${userId}` : `${category}:ip:${getClientIP(req)}`;
 }
 

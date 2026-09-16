@@ -63,31 +63,33 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    for (const item of items) {
+    const itemsToCreate = items.map((item) => {
       const createdAt = parseDate(item.createdAt);
       const purchasedAt = item.purchased
         ? (parseDate(item.purchasedAt) ?? createdAt ?? new Date())
         : null;
 
-      await prisma.item.create({
-        data: {
-          title: item.title,
-          url: item.url || null,
-          price: item.price ?? null,
-          currency: item.currency,
-          priority: item.priority,
-          images: item.images,
-          notes: item.notes || null,
-          category: normalizeProductCategory(item.category),
-          purchased: item.purchased,
-          purchasedAt,
-          status: item.purchased ? "PURCHASED" : "AVAILABLE",
-          userId,
-          listId,
-          ...(createdAt ? { createdAt } : {}),
-        },
-      });
-    }
+      return {
+        title: item.title,
+        url: item.url || null,
+        price: item.price ?? null,
+        currency: item.currency,
+        priority: item.priority,
+        images: item.images,
+        notes: item.notes || null,
+        category: normalizeProductCategory(item.category),
+        purchased: item.purchased,
+        purchasedAt,
+        status: item.purchased ? ("PURCHASED" as const) : ("AVAILABLE" as const),
+        userId,
+        listId,
+        ...(createdAt ? { createdAt } : {}),
+      };
+    });
+
+    await prisma.item.createMany({
+      data: itemsToCreate,
+    });
 
     return NextResponse.json({ imported: items.length });
   } catch (err) {

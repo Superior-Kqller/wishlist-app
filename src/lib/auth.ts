@@ -1,7 +1,12 @@
-import { NextAuthOptions } from "next-auth";
+import { cache } from "react";
+import { NextAuthOptions, getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
+
+export const getCachedServerSession = cache(async () => {
+  return getServerSession(authOptions);
+});
 
 if (!process.env.NEXTAUTH_SECRET || process.env.NEXTAUTH_SECRET.length < 32) {
   const message = "NEXTAUTH_SECRET should be at least 32 characters for security";

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockRateLimit = vi.fn();
 const mockGetSessionUserIdVerified = vi.fn();
-const mockItemCreate = vi.fn();
+const mockItemCreateMany = vi.fn();
 const mockListFindUnique = vi.fn();
 
 vi.mock("@/lib/rate-limit", () => ({
@@ -18,7 +18,7 @@ vi.mock("@/lib/auth-utils", () => ({
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    item: { create: mockItemCreate },
+    item: { createMany: mockItemCreateMany },
     list: { findUnique: mockListFindUnique },
   },
 }));
@@ -28,7 +28,7 @@ describe("POST /api/items/import", () => {
     vi.clearAllMocks();
     mockRateLimit.mockResolvedValue(null);
     mockGetSessionUserIdVerified.mockResolvedValue("user-1");
-    mockItemCreate.mockResolvedValue({ id: "item-1" });
+    mockItemCreateMany.mockResolvedValue({ count: 1 });
   });
 
   it("rejects anonymous imports", async () => {
@@ -44,7 +44,7 @@ describe("POST /api/items/import", () => {
     );
 
     expect(response.status).toBe(401);
-    expect(mockItemCreate).not.toHaveBeenCalled();
+    expect(mockItemCreateMany).not.toHaveBeenCalled();
   });
 
   it("rejects invalid import payloads", async () => {
@@ -61,7 +61,7 @@ describe("POST /api/items/import", () => {
 
     expect(response.status).toBe(400);
     expect(json.error).toBe("Ошибка проверки данных");
-    expect(mockItemCreate).not.toHaveBeenCalled();
+    expect(mockItemCreateMany).not.toHaveBeenCalled();
   });
 
   it("imports exported JSON items with category and preserved item state", async () => {
@@ -90,23 +90,25 @@ describe("POST /api/items/import", () => {
 
     expect(response.status).toBe(200);
     expect(json).toEqual({ imported: 1 });
-    expect(mockItemCreate).toHaveBeenCalledWith({
-      data: {
-        title: "Книга",
-        url: "https://example.com/book",
-        price: 1200,
-        currency: "RUB",
-        priority: 4,
-        images: [],
-        notes: "Подарочное издание",
-        category: "books",
-        purchased: true,
-        purchasedAt: new Date("2026-01-02T03:04:05.000Z"),
-        status: "PURCHASED",
-        userId: "user-1",
-        listId: null,
-        createdAt: new Date("2026-01-02T03:04:05.000Z"),
-      },
+    expect(mockItemCreateMany).toHaveBeenCalledWith({
+      data: [
+        {
+          title: "Книга",
+          url: "https://example.com/book",
+          price: 1200,
+          currency: "RUB",
+          priority: 4,
+          images: [],
+          notes: "Подарочное издание",
+          category: "books",
+          purchased: true,
+          purchasedAt: new Date("2026-01-02T03:04:05.000Z"),
+          status: "PURCHASED",
+          userId: "user-1",
+          listId: null,
+          createdAt: new Date("2026-01-02T03:04:05.000Z"),
+        },
+      ],
     });
   });
 
@@ -127,10 +129,8 @@ describe("POST /api/items/import", () => {
       where: { id: "list-1" },
       select: { userId: true },
     });
-    expect(mockItemCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ listId: "list-1" }),
-      }),
-    );
+    expect(mockItemCreateMany).toHaveBeenCalledWith({
+      data: [expect.objectContaining({ listId: "list-1", title: "Чай" })],
+    });
   });
 });
