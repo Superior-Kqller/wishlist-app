@@ -5,6 +5,7 @@ import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
+import sharp from "sharp";
 import { unauthorizedResponse } from "@/lib/api-responses";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -41,16 +42,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Файл слишком большой. Максимум: 2 МБ" }, { status: 400 });
     }
 
-    // Определяем расширение файла на основе MIME типа (безопаснее чем имя файла)
-    const mimeToExt: Record<string, string> = {
-      "image/jpeg": "jpg",
-      "image/jpg": "jpg",
-      "image/png": "png",
-      "image/webp": "webp",
-      "image/gif": "gif",
-    };
-    const extension = mimeToExt[file.type] || "jpg";
-    const filename = `${userId}.${extension}`;
+    const filename = `${userId}.webp`;
     const uploadDir = join(process.cwd(), "public", "uploads", "avatars");
     const filepath = join(uploadDir, filename);
 
@@ -78,9 +70,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Конвертируем File в Buffer и сохраняем
+    // Конвертируем File в оптимизированный WebP Buffer и сохраняем
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const rawBuffer = Buffer.from(bytes);
+    const buffer = await sharp(rawBuffer)
+      .resize(256, 256, { fit: "cover" })
+      .webp({ quality: 85 })
+      .toBuffer();
     await writeFile(filepath, buffer);
 
     // Обновляем avatarUrl в БД

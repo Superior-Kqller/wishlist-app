@@ -3,7 +3,7 @@
 import { memo, useState } from "react";
 import Image from "next/image";
 import { Check, ExternalLink, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import { cn, formatPrice } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -56,7 +55,6 @@ export const ProductRow = memo(function ProductRow({
 }: ProductRowProps) {
   const { language, t } = useI18n();
   const [imageError, setImageError] = useState(false);
-  const [ownerImageError, setOwnerImageError] = useState(false);
   const imageUrl = item.images?.[0] ?? null;
   const isBought = isItemPurchased(item);
   const canManage = currentUserId === item.userId || currentUserRole === "ADMIN";
@@ -166,28 +164,13 @@ export const ProductRow = memo(function ProductRow({
       <TableCell className="min-w-[10rem]">
         {ownerName ? (
           <div className="flex min-w-0 items-center gap-2">
-            <Avatar className="h-7 w-7 shrink-0">
-              {ownerImage && !ownerImageError ? (
-                <Image
-                  src={ownerImage}
-                  alt={ownerName}
-                  fill
-                  className="object-cover"
-                  sizes="28px"
-                  unoptimized={ownerImage.startsWith("/uploads/")}
-                  onError={() => setOwnerImageError(true)}
-                />
-              ) : (
-                <AvatarFallback
-                  className={cn(
-                    "text-[10px] font-semibold text-avatar-foreground",
-                    getAvatarColor(ownerId),
-                  )}
-                >
-                  {getInitials(ownerName)}
-                </AvatarFallback>
-              )}
-            </Avatar>
+            <UserAvatar
+              avatarUrl={ownerImage}
+              name={ownerName}
+              userId={ownerId}
+              size="sm"
+              className="h-7 w-7 shrink-0 text-[10px]"
+            />
             <span className="truncate text-xs text-muted-foreground">{ownerName}</span>
           </div>
         ) : (

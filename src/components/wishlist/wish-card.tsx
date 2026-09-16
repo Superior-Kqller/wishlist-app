@@ -11,9 +11,8 @@ import {
   Trash2,
   Undo2,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +23,6 @@ import { WishlistItem } from "@/types";
 import { cn, formatPrice } from "@/lib/utils";
 import { getAvatarColor } from "@/lib/avatar-utils";
 import { PriorityBadgeInline, PriorityBadgeOverlay } from "./priority-badge";
-import { IconButton } from "@/components/ui/icon-button";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getProductCategoryLabel } from "@/lib/categories";
 import { getPurchaseToggleTarget, isItemPurchased, type ItemStatus } from "@/lib/item-status";
@@ -233,7 +231,7 @@ export const WishCard = memo(function WishCard({
                     data-testid="wishlist-card-v2-owner"
                     className="inline-flex min-w-0 items-center gap-1.5"
                   >
-                    <Avatar className="size-[18px] shrink-0">
+                    <span className="relative size-[18px] shrink-0 overflow-hidden rounded-full border border-primary/32">
                       {ownerImage && !ownerImageError ? (
                         <Image
                           src={ownerImage}
@@ -245,18 +243,15 @@ export const WishCard = memo(function WishCard({
                           onError={() => setOwnerImageError(true)}
                         />
                       ) : (
-                        /*
-                         * Кружок без букв. Инициалы здесь набирались 8px в
-                         * круге 16px — ниже всякого порога читаемости, — и
-                         * при этом полное имя владельца стоит той же строкой
-                         * в 11px. То есть буквы не сообщали ничего, чего нет
-                         * рядом, а скринридер зачитывал их дважды: «UO User
-                         * One». Остаётся цветная метка: она помогает
-                         * выхватывать своё в сетке, и это вся её работа.
-                         */
-                        <AvatarFallback aria-hidden className={getAvatarColor(ownerId)} />
+                        <span
+                          aria-hidden
+                          className={cn(
+                            "flex size-full items-center justify-center rounded-full",
+                            getAvatarColor(ownerId),
+                          )}
+                        />
                       )}
-                    </Avatar>
+                    </span>
                     <span className="min-w-0 truncate">{ownerName}</span>
                   </span>
                 ) : null}
@@ -306,91 +301,83 @@ export const WishCard = memo(function WishCard({
               )}
 
               {item.url || canManage ? (
-                <TooltipProvider delayDuration={450} skipDelayDuration={200}>
-                  <div className="flex shrink-0 items-center gap-1">
-                    {/*
-                     * Действия — иконки, а не подписанные кнопки: повторённое
-                     * восемь раз в сетке слово «Открыть» весит больше, чем
-                     * названия самих товаров. Подписи остаются во всплывающей
-                     * подсказке и в `aria-label`.
-                     */}
-                    {item.url ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <IconButton
-                            asChild
-                            iconSize="sm"
-                            aria-label={t("Открыть ссылку на товар в новой вкладке")}
-                            className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-transparent text-muted-foreground hover:border-primary/32 hover:bg-primary/10 hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
-                          >
-                            <a
-                              href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <ExternalLink aria-hidden />
-                            </a>
-                          </IconButton>
-                        </TooltipTrigger>
-                        <TooltipContent>{t("Открыть в новой вкладке")}</TooltipContent>
-                      </Tooltip>
-                    ) : null}
+                <div className="flex shrink-0 items-center gap-1">
+                  {/*
+                   * Действия — иконки, а не подписанные кнопки: повторённое
+                   * восемь раз в сетке слово «Открыть» весит больше, чем
+                   * названия самих товаров. Подписи остаются во всплывающей
+                   * подсказке и в `aria-label`.
+                   */}
+                  {item.url ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      title={t("Открыть в новой вкладке")}
+                      aria-label={t("Открыть ссылку на товар в новой вкладке")}
+                      className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-transparent text-muted-foreground hover:border-primary/32 hover:bg-primary/10 hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
+                    >
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink aria-hidden />
+                      </a>
+                    </Button>
+                  ) : null}
 
-                    {canManage ? (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <IconButton
-                            type="button"
-                            data-testid="wishlist-card-actions"
-                            iconSize="sm"
-                            aria-label={t("Действия с карточкой")}
-                            className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-transparent text-muted-foreground hover:border-primary/32 hover:bg-primary/10 hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <MoreHorizontal aria-hidden />
-                          </IconButton>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleMarkPurchased();
-                            }}
-                            disabled={statusPending}
-                          >
-                            {isBought ? (
-                              <Undo2 className="h-4 w-4" />
-                            ) : (
-                              <Check className="h-4 w-4" />
-                            )}
-                            {isBought ? t("Вернуть в доступные") : t("Отметить купленным")}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onEdit(item);
-                            }}
-                            disabled={statusPending}
-                          >
-                            <Pencil className="h-4 w-4" />
-                            {t("Редактировать")}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDelete(item.id);
-                            }}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            {t("Удалить")}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    ) : null}
-                  </div>
-                </TooltipProvider>
+                  {canManage ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          data-testid="wishlist-card-actions"
+                          aria-label={t("Действия с карточкой")}
+                          className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-transparent text-muted-foreground hover:border-primary/32 hover:bg-primary/10 hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreHorizontal aria-hidden />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMarkPurchased();
+                          }}
+                          disabled={statusPending}
+                        >
+                          {isBought ? <Undo2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                          {isBought ? t("Вернуть в доступные") : t("Отметить купленным")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(item);
+                          }}
+                          disabled={statusPending}
+                        >
+                          <Pencil className="h-4 w-4" />
+                          {t("Редактировать")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(item.id);
+                          }}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          {t("Удалить")}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : null}
+                </div>
               ) : null}
             </>
           )}
