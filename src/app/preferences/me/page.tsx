@@ -16,10 +16,9 @@ import {
   type EditorSection,
   type ListPreferenceKey,
 } from "@/components/preferences/gift-profile-editor";
-import { fetcher } from "@/lib/fetcher";
-import { giftPreferencesDraftKey } from "@/lib/preferences-draft";
+import { giftPreferencesDraftKey } from "@/lib/preference-profiles";
 import { uiSurface } from "@/lib/ui-contract";
-import { cn } from "@/lib/utils";
+import { cn, fetcher } from "@/lib/utils";
 import {
   type GiftPreferences,
   emptyGiftPreferences,

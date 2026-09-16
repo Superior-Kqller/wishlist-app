@@ -13,7 +13,7 @@ import {
 import { UserAvatar } from "@/components/UserAvatar";
 import { useI18n } from "@/components/i18n/language-provider";
 import { filterListsBySelectedUser } from "@/lib/list-filter-client";
-import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
+import { uiLayout } from "@/lib/ui-contract";
 import { cn } from "@/lib/utils";
 import type { ListWithMeta, UserWithStats } from "@/types";
 import { useMemo } from "react";
@@ -82,7 +82,7 @@ export function WishlistScopePicker({
           variant="outline"
           className={cn(
             "min-w-0 max-w-[18rem] gap-2 px-2.5 text-foreground",
-            filterBarTriggerClass,
+            uiLayout.filterBarTrigger,
             className,
           )}
           aria-label={`${t("Чей список")}: ${ownerLabel}, ${listLabel}`}

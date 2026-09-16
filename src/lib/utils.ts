@@ -102,3 +102,9 @@ export function statsHasPurchasedPrices(stats: {
   }
   return stats.totalPurchasedValue > 0;
 }
+
+export const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error("Ошибка загрузки");
+    return r.json();
+  });

@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { sanitizeError } from "@/lib/logger";
-import { canViewList } from "@/lib/access-policy";
 import { canTransitionStatus, type ItemStatus } from "@/lib/item-status";
 import { answerTelegramCallback, sendTelegramMessage } from "@/lib/telegram/client";
 import {
@@ -206,11 +205,9 @@ async function transitionItemStatusViaTelegram(params: {
     return { ok: false, message: "Товар не найден" };
   }
 
-  const isVisible = canViewList({
-    ownerUserId: existing.list.userId,
-    viewerUserIds: existing.list.viewers.map((viewer) => viewer.userId),
-    actorUserId: params.actorUserId,
-  });
+  const isVisible =
+    existing.list.userId === params.actorUserId ||
+    existing.list.viewers.some((viewer) => viewer.userId === params.actorUserId);
   if (!isVisible) {
     return { ok: false, message: "Нет доступа к товару" };
   }

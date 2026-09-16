@@ -26,8 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetcher } from "@/lib/fetcher";
-import { capitalizeFirst, cn } from "@/lib/utils";
+import { capitalizeFirst, cn, fetcher } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import type {
   CalendarAudience,

@@ -5,6 +5,11 @@ const avatarAllowedHosts = parseAvatarAllowedHosts(process.env.AVATAR_ALLOWED_HO
 
 const nextConfig = {
   output: "standalone",
+  // В Docker версия приходит из APP_VERSION (build-arg); футер читает её на клиенте.
+  env: { NEXT_PUBLIC_APP_VERSION: process.env.APP_VERSION },
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
   images: {
     // Disable the Image Optimization API until Next supports sharp >= 0.35.
     unoptimized: true,

@@ -10,7 +10,7 @@ import { CalendarDays, Loader2, ShieldCheck, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { fetcher } from "@/lib/fetcher";
+import { fetcher } from "@/lib/utils";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { uiLayout, uiSurface } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";

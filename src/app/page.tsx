@@ -22,9 +22,20 @@ import {
   type WishlistScope,
   type WishlistSelection,
 } from "@/components/wishlist/wishlist-workspace";
-import { ItemFormDialog } from "@/components/ItemFormDialog";
-import { ListFormDialog } from "@/components/ListFormDialog";
-import { ItemDetailDialog } from "@/components/ItemDetailDialog";
+import dynamic from "next/dynamic";
+
+const ItemFormDialog = dynamic(
+  () => import("@/components/ItemFormDialog").then((mod) => mod.ItemFormDialog),
+  { ssr: false },
+);
+const ListFormDialog = dynamic(
+  () => import("@/components/ListFormDialog").then((mod) => mod.ListFormDialog),
+  { ssr: false },
+);
+const ItemDetailDialog = dynamic(
+  () => import("@/components/ItemDetailDialog").then((mod) => mod.ItemDetailDialog),
+  { ssr: false },
+);
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { BulkActionBar } from "@/components/BulkActionBar";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
@@ -36,7 +47,7 @@ import {
   ListWithMeta,
 } from "@/types";
 import { toast } from "sonner";
-import { fetcher } from "@/lib/fetcher";
+import { fetcher } from "@/lib/utils";
 import { useDebounce } from "@/lib/use-debounce";
 import { filterListsBySelectedUser, getFirstOwnedListId } from "@/lib/list-filter-client";
 import { normalizeSelectedUserId } from "@/lib/filter-state";

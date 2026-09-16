@@ -1,5 +1,4 @@
 import { prisma } from "./prisma";
-import { canViewList } from "./access-policy";
 
 /**
  * Проверяет, может ли пользователь видеть подборку (владелец или в ListViewer).
@@ -10,11 +9,7 @@ export async function canUserSeeList(listId: string, userId: string): Promise<bo
     select: { userId: true, viewers: { select: { userId: true } } },
   });
   if (!list) return false;
-  return canViewList({
-    ownerUserId: list.userId,
-    viewerUserIds: list.viewers.map((v) => v.userId),
-    actorUserId: userId,
-  });
+  return list.userId === userId || list.viewers.some((v) => v.userId === userId);
 }
 
 /**

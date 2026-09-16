@@ -12,16 +12,16 @@ import { ItemsPage, StatsSummary, UserStats, UserWithStats } from "@/types";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { EmptyState } from "@/components/ui/empty-state";
 import { RecentActivityPanel } from "@/components/dashboard/recent-activity-panel";
-import { getPriorityLabel } from "@/lib/priority-labels";
+import { getPriorityLabel } from "@/lib/priority";
 import {
   cn,
+  fetcher,
   formatPrice,
   formatStatsPurchasedSummary,
   formatStatsUnpurchasedSummary,
   sortCurrencyTotalsEntries,
   statsHasPurchasedPrices,
 } from "@/lib/utils";
-import { fetcher } from "@/lib/fetcher";
 import { uiSurface } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";
 import { RetryNotice } from "@/components/ui/retry-notice";

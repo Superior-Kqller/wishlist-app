@@ -4,8 +4,7 @@ import Link from "next/link";
 import useSWR from "swr";
 import { ArrowRight, CalendarDays, Loader2 } from "lucide-react";
 import { useI18n } from "@/components/i18n/language-provider";
-import { fetcher } from "@/lib/fetcher";
-import { cn } from "@/lib/utils";
+import { cn, fetcher } from "@/lib/utils";
 import {
   getUpcomingOccurrences,
   getClientLocalDate,
@@ -28,6 +27,10 @@ export function UpcomingCalendarCard({ className }: { className?: string }) {
   const { data, isLoading, error, mutate } = useSWR<{ occurrences: CalendarOccurrence[] }>(
     `/api/calendar?from=${today}&to=${through}`,
     fetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60000,
+    },
   );
   const nextOccurrence = getUpcomingOccurrences(data?.occurrences ?? [], today, 1)[0];
 

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import useSWRInfinite from "swr/infinite";
-import { fetcher } from "@/lib/fetcher";
+import { fetcher } from "@/lib/utils";
 import type { ItemsPage } from "@/types";
 
 const WISHLIST_ITEMS_PAGE_SIZE = 30;

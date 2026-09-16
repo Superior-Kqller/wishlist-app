@@ -278,18 +278,19 @@ function trimText(s: string | undefined | null): string {
 
 function absolutizeUrl(src: string | undefined, base: string): string | null {
   if (!src?.trim()) return null;
-  try {
-    return new URL(src.trim(), base).href;
-  } catch {
-    return null;
-  }
+  const trimmed = src.trim();
+  return URL.canParse(trimmed, base) ? new URL(trimmed, base).href : null;
 }
 
 /**
  * Извлекает Open Graph и связанные meta: заголовок, описание, картинки, цену (meta / JSON-LD offers).
  */
-function parseOpenGraphFromHtml(html: string, pageUrl: string): ParsedProduct {
-  const $ = cheerio.load(html);
+function parseOpenGraphFromHtml(
+  html: string,
+  pageUrl: string,
+  loadedCheerio?: cheerio.CheerioAPI,
+): ParsedProduct {
+  const $ = loadedCheerio ?? cheerio.load(html);
   const base = pageUrl;
 
   const title =
@@ -477,25 +478,12 @@ function getWbImageUrl(id: number, photoIndex: number): string {
   const vol = Math.floor(id / 100000);
   const part = Math.floor(id / 1000);
 
-  let basket: number;
-  if (vol >= 0 && vol <= 143) basket = 1;
-  else if (vol <= 287) basket = 2;
-  else if (vol <= 431) basket = 3;
-  else if (vol <= 719) basket = 4;
-  else if (vol <= 1007) basket = 5;
-  else if (vol <= 1061) basket = 6;
-  else if (vol <= 1115) basket = 7;
-  else if (vol <= 1169) basket = 8;
-  else if (vol <= 1313) basket = 9;
-  else if (vol <= 1601) basket = 10;
-  else if (vol <= 1655) basket = 11;
-  else if (vol <= 1919) basket = 12;
-  else if (vol <= 2045) basket = 13;
-  else if (vol <= 2189) basket = 14;
-  else if (vol <= 2405) basket = 15;
-  else if (vol <= 2621) basket = 16;
-  else if (vol <= 2837) basket = 17;
-  else basket = 18;
+  const WB_BASKET_THRESHOLDS = [
+    143, 287, 431, 719, 1007, 1061, 1115, 1169, 1313, 1601, 1655, 1919, 2045, 2189, 2405, 2621,
+    2837,
+  ];
+  const idx = WB_BASKET_THRESHOLDS.findIndex((threshold) => vol <= threshold);
+  const basket = idx === -1 ? 18 : idx + 1;
 
   return `https://basket-${String(basket).padStart(2, "0")}.wbbasket.ru/vol${vol}/part${part}/${id}/images/big/${photoIndex}.webp`;
 }
@@ -628,35 +616,52 @@ async function parseOzonViaApi(url: string, productPath: string): Promise<Parsed
   };
 }
 
-async function parseOzonViaHtml(url: string, html: string): Promise<ParsedProduct> {
-  const $ = cheerio.load(html);
+function extractCommonProductMetadata(
+  html: string,
+  loadedCheerio?: cheerio.CheerioAPI,
+): {
+  $: cheerio.CheerioAPI;
+  title: string;
+  price: number | null;
+  currency: string;
+  images: string[];
+} {
+  const $ = loadedCheerio ?? cheerio.load(html);
   const jsonLd = extractJsonLd($);
   const og = extractOpenGraph($);
   const embedded = extractFromEmbeddedJson(html);
 
-  let title = titleFromJsonLdName(jsonLd) || og.title || embedded.title || "";
-  let price: number | null = null;
-  let currency = "RUB";
-  let images = og.images || embedded.images || [];
-
+  const title = titleFromJsonLdName(jsonLd) || og.title || embedded.title || "";
   const offers = extractOffersFromJsonLd(jsonLd);
-  price = offers.price;
-  currency = offers.currency;
+  let price = offers.price;
+  let currency = offers.currency;
 
   if (price === null && embedded.price !== undefined) {
     price = embedded.price;
     currency = embedded.currency || "RUB";
   }
 
+  let images = og.images || embedded.images || [];
   images = extractImagesFromJsonLd(jsonLd, images);
 
-  title = title
+  return { $, title, price, currency, images };
+}
+
+async function parseOzonViaHtml(url: string, html: string): Promise<ParsedProduct> {
+  const meta = extractCommonProductMetadata(html);
+  const title = meta.title
     .replace(/\s+/g, " ")
     .replace(/ - купить.*$/i, "")
     .replace(/ \| OZON$/i, "")
     .trim();
 
-  return { title, price, currency, images: Array.from(new Set(images)), url };
+  return {
+    title,
+    price: meta.price,
+    currency: meta.currency,
+    images: Array.from(new Set(meta.images)),
+    url,
+  };
 }
 
 async function parseOzon(url: string): Promise<ParsedProduct> {
@@ -677,65 +682,37 @@ async function parseOzon(url: string): Promise<ParsedProduct> {
 // --- AliExpress ---
 
 async function parseAliexpress(url: string, html: string): Promise<ParsedProduct> {
-  const $ = cheerio.load(html);
-  const jsonLd = extractJsonLd($);
-  const og = extractOpenGraph($);
-  const embedded = extractFromEmbeddedJson(html);
-
-  let title = titleFromJsonLdName(jsonLd) || og.title || embedded.title || "";
-  let price: number | null = null;
-  let currency = "RUB";
-  let images = og.images || embedded.images || [];
-
-  const offers = extractOffersFromJsonLd(jsonLd);
-  price = offers.price;
-  currency = offers.currency;
-
-  if (price === null && embedded.price !== undefined) {
-    price = embedded.price;
-    currency = embedded.currency || "RUB";
-  }
-
-  images = extractImagesFromJsonLd(jsonLd, images);
-
-  title = title
+  const meta = extractCommonProductMetadata(html);
+  const title = meta.title
     .replace(/\s+/g, " ")
     .replace(/ \| .*$/, "")
     .replace(/ - AliExpress.*$/i, "")
     .replace(/ купить.*$/i, "")
     .trim();
 
-  return { title, price, currency, images: Array.from(new Set(images)), url };
+  return {
+    title,
+    price: meta.price,
+    currency: meta.currency,
+    images: Array.from(new Set(meta.images)),
+    url,
+  };
 }
 
 // --- Generic ---
 
-async function parseGeneric(url: string, html: string): Promise<ParsedProduct> {
-  const $ = cheerio.load(html);
-  const jsonLd = extractJsonLd($);
-  const og = extractOpenGraph($);
-  const embedded = extractFromEmbeddedJson(html);
+async function parseGeneric(
+  url: string,
+  html: string,
+  loadedCheerio?: cheerio.CheerioAPI,
+): Promise<ParsedProduct> {
+  const meta = extractCommonProductMetadata(html, loadedCheerio);
+  const $ = meta.$;
 
-  let title =
-    titleFromJsonLdName(jsonLd) ||
-    og.title ||
-    embedded.title ||
-    $("h1").first().text().trim() ||
-    "";
-  let price: number | null = null;
-  let currency = "RUB";
-  let images = og.images || embedded.images || [];
-
-  const offers = extractOffersFromJsonLd(jsonLd);
-  price = offers.price;
-  currency = offers.currency;
-
-  images = extractImagesFromJsonLd(jsonLd, images);
-
-  if (price === null && embedded.price !== undefined) {
-    price = embedded.price;
-    currency = embedded.currency || "RUB";
-  }
+  const title = (meta.title || $("h1").first().text().trim() || "").replace(/\s+/g, " ").trim();
+  let price = meta.price;
+  let currency = meta.currency;
+  const images = [...meta.images];
 
   if (!price) {
     const priceSelectors = ['[class*="price"]', "[data-price]", '[itemprop="price"]'];
@@ -760,8 +737,6 @@ async function parseGeneric(url: string, html: string): Promise<ParsedProduct> {
       }
     });
   }
-
-  title = title.replace(/\s+/g, " ").trim();
 
   return {
     title,
@@ -1029,7 +1004,8 @@ export async function parseWishlistProductUrl(url: string): Promise<ParsedProduc
   }
 
   const html = await fetchHtml(resolvedUrl);
-  const og = parseOpenGraphFromHtml(html, resolvedUrl);
-  const generic = await parseGeneric(resolvedUrl, html);
+  const $ = cheerio.load(html);
+  const og = parseOpenGraphFromHtml(html, resolvedUrl, $);
+  const generic = await parseGeneric(resolvedUrl, html, $);
   return mergeGenericWithOg(og, generic);
 }

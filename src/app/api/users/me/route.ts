@@ -9,7 +9,7 @@ import { normalizeGiftPreferences, giftPreferencesSchema } from "@/lib/preferenc
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { isValidCalendarDate } from "@/lib/calendar/local-date";
-import { profileGenderSchema, type ProfileGender } from "@/lib/calendar/profile-gender";
+import { profileGenderSchema, type ProfileGender } from "@/lib/calendar/calendar-events";
 import { unauthorizedResponse } from "@/lib/api-responses";
 
 const telegramIdSchema = z

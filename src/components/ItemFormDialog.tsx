@@ -21,13 +21,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { WishlistItem, CreateItemPayload, UpdateItemPayload, ListWithMeta } from "@/types";
-import { getPriorityLabel, getPriorityShortLabel } from "@/lib/priority-labels";
 import {
   clampWishlistPriority,
+  getPriorityLabel,
+  getPriorityShortLabel,
   priorityBadgeToneByPriority,
   priorityDotClassByPriority,
   type WishlistPriority,
-} from "@/lib/priority-styles";
+} from "@/lib/priority";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, Link2, Loader2, PenLine, X } from "lucide-react";
 import { toast } from "sonner";

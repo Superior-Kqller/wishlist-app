@@ -9,7 +9,7 @@ import { BrandLockup } from "@/components/BrandLockup";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { useI18n } from "@/components/i18n/language-provider";
 import { cn } from "@/lib/utils";
-import { signOutToLogin } from "@/lib/client-auth";
+import { signOut } from "next-auth/react";
 import { getAppNavItems } from "@/lib/app-navigation";
 import {
   DropdownMenu,
@@ -76,7 +76,7 @@ export function Header() {
               variant="ghost"
               size="icon"
               className="h-11 w-11 shrink-0 text-muted-foreground hover:text-foreground"
-              onClick={signOutToLogin}
+              onClick={() => signOut({ callbackUrl: "/login" })}
               title={t("Выйти")}
               aria-label={t("Выйти")}
             >

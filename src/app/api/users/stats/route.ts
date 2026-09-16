@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUserIdVerified } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-import { getVisibleListIdsForUser } from "@/lib/list-utils";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { selectTopItems } from "@/lib/stats-top-items";
@@ -19,9 +18,18 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const visibleListIds = await getVisibleListIdsForUser(userId);
+    const lists = await prisma.list.findMany({
+      where: {
+        OR: [{ userId }, { viewers: { some: { userId } } }],
+      },
+      select: {
+        id: true,
+        userId: true,
+        viewers: { select: { userId: true } },
+      },
+    });
 
-    if (visibleListIds.length === 0) {
+    if (lists.length === 0) {
       return NextResponse.json(
         { users: [] },
         {
@@ -32,13 +40,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const lists = await prisma.list.findMany({
-      where: { id: { in: visibleListIds } },
-      select: {
-        userId: true,
-        viewers: { select: { userId: true } },
-      },
-    });
+    const visibleListIds = lists.map((l) => l.id);
 
     const circleIds = new Set<string>([userId]);
     for (const list of lists) {
@@ -75,12 +77,7 @@ export async function GET(req: NextRequest) {
         priority: true,
       },
     });
-    const itemsByUserId = new Map<string, typeof items>();
-    for (const item of items) {
-      const arr = itemsByUserId.get(item.userId);
-      if (arr) arr.push(item);
-      else itemsByUserId.set(item.userId, [item]);
-    }
+    const itemsByUserId = Map.groupBy(items, (item) => item.userId);
 
     const usersWithStats = users.map((user) => {
       const userItems = itemsByUserId.get(user.id) || [];

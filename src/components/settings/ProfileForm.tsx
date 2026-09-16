@@ -18,12 +18,11 @@ import { CalendarDays, Camera, Loader2, Send, UserRound, UsersRound } from "luci
 import { toast } from "sonner";
 import { UserAvatar } from "@/components/UserAvatar";
 import { AvatarUploadDialog } from "./AvatarUploadDialog";
-import { cn } from "@/lib/utils";
+import { cn, fetcher } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";
-import { fetcher } from "@/lib/fetcher";
 import type { BirthdayAudience, BirthdayProfile } from "@/types";
-import type { ProfileGender } from "@/lib/calendar/profile-gender";
+import type { ProfileGender } from "@/lib/calendar/calendar-events";
 import type { TelegramLinkStatus } from "@/lib/telegram/link-status";
 import { responseError } from "@/lib/response-error";
 

@@ -1,12 +1,23 @@
+import { z } from "zod";
 import { dateForHolidayRule } from "./holiday-rules";
 import { formatLocalDate, isLeapYear, parseLocalDate } from "./local-date";
-import { thematicWishlistHref } from "./wishlist-link";
 import type { CalendarAudience, PersonalEventRecurrence } from "./personal-events";
 import type {
   CalendarEventSource,
   CalendarPersonalEventSource,
   CalendarWishlistSource,
 } from "./calendar-event-source";
+
+export const profileGenderSchema = z.enum(["MALE", "FEMALE"]);
+export type ProfileGender = z.infer<typeof profileGenderSchema>;
+
+export function thematicWishlistHref(personId: string, wishlistId: string): string {
+  const params = new URLSearchParams({
+    userId: personId,
+    listId: wishlistId,
+  });
+  return `/?${params.toString()}`;
+}
 
 export type CalendarEventSourceType = "BIRTHDAY" | "PERSONAL" | "HOLIDAY";
 type CalendarEventsErrorCode = "INVALID_DATE_RANGE" | "INVALID_EVENT_SOURCE";

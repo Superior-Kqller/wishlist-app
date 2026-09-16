@@ -150,3 +150,9 @@ export function searchPreferenceProfiles(
       return first.name.localeCompare(second.name, "ru-RU");
     });
 }
+
+const DRAFT_STORAGE_PREFIX = "wishlist:gift-preferences-draft:";
+
+export function giftPreferencesDraftKey(userId: string): string {
+  return `${DRAFT_STORAGE_PREFIX}${userId}`;
+}

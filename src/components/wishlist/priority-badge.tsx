@@ -1,9 +1,13 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getPriorityLabel } from "@/lib/priority-labels";
-import { clampWishlistPriority } from "@/lib/priority-styles";
-import { PriorityIcon } from "@/lib/priority-icons";
+import {
+  clampWishlistPriority,
+  getPriorityLabel,
+  priorityBadgeToneByPriority,
+  PriorityIcon,
+} from "@/lib/priority";
 import { useI18n } from "@/components/i18n/language-provider";
 
 interface PriorityBadgeOverlayProps {
@@ -75,5 +79,26 @@ export function PriorityBadgeInline({ priority, className }: PriorityBadgeOverla
       </span>
       <span className="min-w-0 truncate">{label}</span>
     </span>
+  );
+}
+
+export function PriorityBadge({ priority, className }: PriorityBadgeOverlayProps) {
+  const { language, t } = useI18n();
+  const normalizedPriority = clampWishlistPriority(priority);
+  const label = getPriorityLabel(normalizedPriority, language);
+
+  return (
+    <Badge
+      variant="outline"
+      className={cn(
+        "inline-flex items-center gap-1.5 border text-xs font-medium",
+        priorityBadgeToneByPriority[normalizedPriority],
+        className,
+      )}
+      data-testid="priority-badge"
+      aria-label={`${t("Приоритет")}: ${label}`}
+    >
+      {label}
+    </Badge>
   );
 }

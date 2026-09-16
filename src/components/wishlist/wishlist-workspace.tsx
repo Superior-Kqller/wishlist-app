@@ -32,8 +32,7 @@ import {
 } from "@/components/wishlist/active-filter-chips";
 import { WishlistScopePicker } from "@/components/wishlist/wishlist-scope-picker";
 import { RetryNotice } from "@/components/ui/retry-notice";
-import { uiSurface } from "@/lib/ui-contract";
-import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
+import { uiLayout, uiSurface } from "@/lib/ui-contract";
 import type { ListWithMeta, UserWithStats, WishlistItem } from "@/types";
 import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
 import type { ProductCategoryOption } from "@/lib/categories";
@@ -403,7 +402,7 @@ export function WishlistWorkspace({
                 type="button"
                 variant="outline"
                 className={cn(
-                  filterBarTriggerClass,
+                  uiLayout.filterBarTrigger,
                   "gap-2 px-3",
                   hasActiveFilters
                     ? "border-primary-accent/70 bg-[hsl(var(--surface-4))] text-foreground"
@@ -433,7 +432,7 @@ export function WishlistWorkspace({
                     type="button"
                     variant="outline"
                     className={cn(
-                      filterBarTriggerClass,
+                      uiLayout.filterBarTrigger,
                       "w-10 px-0 text-muted-foreground hover:text-foreground",
                       selectionMode && "border-primary/45 bg-primary/10 text-foreground",
                     )}

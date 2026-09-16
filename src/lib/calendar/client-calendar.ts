@@ -9,6 +9,7 @@ import type { CalendarOccurrence } from "./calendar-events";
  * составляющих — копия, которую ничто не удерживало от расхождения.
  */
 export type { CalendarOccurrence };
+export { thematicWishlistHref } from "./calendar-events";
 
 export type CalendarFilter = "ALL" | CalendarOccurrence["type"];
 export type CalendarView = "list" | "month";
@@ -27,6 +28,7 @@ export function getOccurrenceTitle(occurrence: CalendarOccurrence): string {
 export function groupCalendarOccurrences(
   occurrences: CalendarOccurrence[],
 ): Array<[string, CalendarOccurrence[]]> {
+  // Не Map.groupBy: код клиентский, Safari до 17.4 его не знает.
   const groups = new Map<string, CalendarOccurrence[]>();
   for (const occurrence of occurrences) {
     const entries = groups.get(occurrence.date);

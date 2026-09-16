@@ -1,59 +1,37 @@
 import { z } from "zod";
 
+const PASSWORD_CHECKS: Array<[check: (p: string) => boolean, error: string]> = [
+  [(p) => p.length >= 8, "Пароль должен содержать минимум 8 символов"],
+  [(p) => /[a-zA-Zа-яА-ЯёЁ]/.test(p), "Пароль должен содержать буквы (латиница или кириллица)"],
+  [(p) => /\d/.test(p), "Пароль должен содержать цифры"],
+  [
+    (p) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(p),
+    "Пароль должен содержать спецсимволы (!@#$%^&* и т.д.)",
+  ],
+];
+
+/**
+ * Zod схема для валидации пароля с одновременным сбором всех ошибок сложности
+ */
+export const passwordSchema = z.string().superRefine((val, ctx) => {
+  for (const [check, message] of PASSWORD_CHECKS) {
+    if (!check(val)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+    }
+  }
+});
+
 /**
  * Валидация сложности пароля
- * Требования:
- * - Минимум 8 символов
- * - Буквы (латиница или кириллица)
- * - Цифры
- * - Спецсимволы
  */
 export function validatePasswordComplexity(password: string): {
   valid: boolean;
   errors: string[];
 } {
-  const errors: string[] = [];
-
-  if (password.length < 8) {
-    errors.push("Пароль должен содержать минимум 8 символов");
-  }
-
-  // Проверка на наличие букв (латиница или кириллица)
-  const hasLetters = /[a-zA-Zа-яА-ЯёЁ]/.test(password);
-  if (!hasLetters) {
-    errors.push("Пароль должен содержать буквы (латиница или кириллица)");
-  }
-
-  // Проверка на наличие цифр
-  const hasNumbers = /\d/.test(password);
-  if (!hasNumbers) {
-    errors.push("Пароль должен содержать цифры");
-  }
-
-  // Проверка на наличие спецсимволов
-  const hasSpecialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password);
-  if (!hasSpecialChars) {
-    errors.push("Пароль должен содержать спецсимволы (!@#$%^&* и т.д.)");
-  }
-
+  const result = passwordSchema.safeParse(password);
+  if (result.success) return { valid: true, errors: [] };
   return {
-    valid: errors.length === 0,
-    errors,
+    valid: false,
+    errors: result.error.issues.map((i) => i.message),
   };
 }
-
-/**
- * Zod схема для валидации пароля
- */
-export const passwordSchema = z
-  .string()
-  .min(8, "Пароль должен содержать минимум 8 символов")
-  .refine(
-    (password) => /[a-zA-Zа-яА-ЯёЁ]/.test(password),
-    "Пароль должен содержать буквы (латиница или кириллица)",
-  )
-  .refine((password) => /\d/.test(password), "Пароль должен содержать цифры")
-  .refine(
-    (password) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password),
-    "Пароль должен содержать спецсимволы (!@#$%^&* и т.д.)",
-  );

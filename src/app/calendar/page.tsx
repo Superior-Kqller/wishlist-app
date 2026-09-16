@@ -32,9 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetcher } from "@/lib/fetcher";
 import { useIsomorphicLayoutEffect } from "@/lib/use-isomorphic-layout-effect";
-import { capitalizeFirst, cn } from "@/lib/utils";
+import { capitalizeFirst, cn, fetcher } from "@/lib/utils";
 import { uiLayout, uiSurface } from "@/lib/ui-contract";
 import {
   filterCalendarOccurrences,
@@ -43,12 +42,12 @@ import {
   getInitialCalendarView,
   getOccurrenceTitle,
   groupCalendarOccurrences,
+  thematicWishlistHref,
   type CalendarFilter,
   type CalendarOccurrence,
   type CalendarView,
 } from "@/lib/calendar/client-calendar";
 import { occurrenceReminderKey } from "@/lib/calendar/reminder-event-key";
-import { thematicWishlistHref } from "@/lib/calendar/wishlist-link";
 import { responseError } from "@/lib/response-error";
 
 const FILTERS: Array<{ value: CalendarFilter; label: string }> = [

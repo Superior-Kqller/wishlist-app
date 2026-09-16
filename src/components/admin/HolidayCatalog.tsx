@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetcher } from "@/lib/fetcher";
+import { fetcher } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
 import type { HolidayCatalogEntry } from "@/lib/calendar/holiday-catalog";
 import type { HolidayRule } from "@/lib/calendar/holiday-rules";

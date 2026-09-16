@@ -3,7 +3,7 @@
 import { Grid2X2, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
+import { uiLayout } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";
 
 export type WishlistViewMode = "grid" | "table";
@@ -19,7 +19,7 @@ export function WishlistViewToggle({ value, onValueChange, className }: Wishlist
 
   return (
     <div
-      className={cn("inline-flex rounded-lg p-0.5", filterBarTriggerClass, className)}
+      className={cn("inline-flex rounded-lg p-0.5", uiLayout.filterBarTrigger, className)}
       aria-label={t("Режим отображения")}
     >
       <Button

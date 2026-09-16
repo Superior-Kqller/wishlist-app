@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PriorityBadge } from "@/components/PriorityBadge";
+import { PriorityBadge } from "@/components/wishlist/priority-badge";
 import { UserAvatar } from "@/components/UserAvatar";
 import { formatPrice, cn } from "@/lib/utils";
 import type { WishlistItem } from "@/types";

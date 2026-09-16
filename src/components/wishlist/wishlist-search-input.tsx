@@ -2,7 +2,7 @@
 
 import { SearchField } from "@/components/ui/search-field";
 import { cn } from "@/lib/utils";
-import { filterBarTriggerClass } from "@/lib/filter-toolbar-styles";
+import { uiLayout } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";
 
 interface WishlistSearchInputProps {
@@ -20,7 +20,7 @@ const INPUT_CLASS_BY_VARIANT = {
   // Поиск в ряду фильтров не несёт собственной тени: он вторичный контрол,
   // а выглядел самым тяжёлым объектом экрана.
   toolbar: cn(
-    filterBarTriggerClass,
+    uiLayout.filterBarTrigger,
     "rounded-lg border-border/55 bg-[hsl(var(--surface-3)/0.7)] pl-10 pr-3 text-sm placeholder:text-muted-foreground-subtle hover:border-primary/32 hover:bg-[hsl(var(--surface-3)/0.85)]",
   ),
   mobile:

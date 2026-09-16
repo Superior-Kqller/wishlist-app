@@ -36,6 +36,9 @@ export const uiLayout = {
    */
   segmentBarInline:
     "inline-grid auto-cols-auto grid-flow-col min-w-0 gap-1 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.55)] p-1",
+  /** Общие классы для controls в панели инструментов вишлиста. */
+  filterBarTrigger:
+    "h-10 border-border/85 bg-[hsl(var(--surface-3)/0.85)] shadow-none hover:border-primary/32 hover:bg-[hsl(var(--surface-4)/0.85)]",
   /*
    * Ширин диалога ровно две. Было пять — 384, 448, 500, 1024 и 1088, — и
    * ни одна не совпадала с обещанной в DESIGN.md: три окна подряд читались

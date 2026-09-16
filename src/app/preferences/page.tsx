@@ -9,17 +9,19 @@ import { Search, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RetryNotice } from "@/components/ui/retry-notice";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
-import { cn } from "@/lib/utils";
+import { cn, fetcher } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
 import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
 import { PreferenceProfileSearch } from "@/components/preferences/preference-profile-search";
 import { PreferenceProfileCard } from "@/components/preferences/preference-profile-card";
-import { fetcher } from "@/lib/fetcher";
-import { giftPreferencesDraftKey } from "@/lib/preferences-draft";
+import {
+  PROFILE_SEARCH_THRESHOLD,
+  giftPreferencesDraftKey,
+  searchPreferenceProfiles,
+} from "@/lib/preference-profiles";
 import { duration, easing } from "@/lib/motion";
 import { uiLayout, uiSurface } from "@/lib/ui-contract";
 import { type GiftPreferences, normalizeGiftPreferences } from "@/lib/preferences";
-import { PROFILE_SEARCH_THRESHOLD, searchPreferenceProfiles } from "@/lib/preference-profiles";
 
 type PreferencesUser = {
   id: string;

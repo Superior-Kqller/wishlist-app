@@ -10,9 +10,8 @@ import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useI18n } from "@/components/i18n/language-provider";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { fetcher } from "@/lib/fetcher";
-import { signOutToLogin } from "@/lib/client-auth";
+import { cn, fetcher } from "@/lib/utils";
+import { signOut } from "next-auth/react";
 import { getAppNavItems } from "@/lib/app-navigation";
 import { uiState, uiSurface } from "@/lib/ui-contract";
 import type { ListWithMeta } from "@/types";
@@ -175,7 +174,7 @@ export function AppSidebar() {
           variant="ghost"
           size="sm"
           className="mt-1 h-11 w-full justify-start gap-2 px-2 text-muted-foreground-subtle hover:text-foreground"
-          onClick={signOutToLogin}
+          onClick={() => signOut({ callbackUrl: "/login" })}
         >
           <LogOut className="h-4 w-4" />
           {t("Выйти")}

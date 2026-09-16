@@ -9,7 +9,7 @@ import { CreateUserDialog } from "@/components/admin/CreateUserDialog";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
 import { User } from "@/types";
-import { fetcher } from "@/lib/fetcher";
+import { fetcher } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { uiLayout } from "@/lib/ui-contract";
