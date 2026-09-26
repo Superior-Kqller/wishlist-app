@@ -3,8 +3,6 @@ services:
     image: postgres:18.4-alpine
     container_name: wishlist-db
     restart: unless-stopped
-    env_file:
-      - .env
     volumes:
       - postgres18-data:/var/lib/postgresql
     environment:
@@ -16,8 +14,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    networks:
-      - proxy
 
   wishlist-app:
     image: ${WISHLIST_APP_IMAGE:-ghcr.io/superior-kqller/wishlist-app:latest}
@@ -49,7 +45,9 @@ services:
       retries: 3
     volumes:
       - uploads-data:/app/public/uploads
+    # БД и Valkey — во внутренней сети стека; в proxy только приложение
     networks:
+      - default
       - proxy
 
 networks:

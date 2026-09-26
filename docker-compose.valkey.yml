@@ -17,8 +17,6 @@ services:
       retries: 3
     volumes:
       - valkey-socket:/run/valkey
-    networks:
-      - proxy
 
   wishlist-app:
     depends_on:

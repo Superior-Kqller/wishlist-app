@@ -44,8 +44,10 @@ RUN adduser --system --uid 1001 nextjs
 
 # Copy standalone build
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# nextjs пишет в рантайме только в .next/cache (и в uploads — их chown делает entrypoint),
+# поэтому владельца ставим при копировании, а не отдельным chown -R, который дублирует слой
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Copy prisma CLI (first, so specific modules overlay it below)
 COPY --from=builder /prisma-cli/node_modules ./node_modules
@@ -95,8 +97,6 @@ COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 # Startup script
 COPY docker-entrypoint.sh ./
 RUN sed -i 's/\r$//' docker-entrypoint.sh && chmod +x docker-entrypoint.sh
-
-RUN chown -R nextjs:nodejs /app
 
 EXPOSE 4030
 ENV PORT=4030

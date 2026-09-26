@@ -23,3 +23,18 @@ playwright.config.ts
 playwright-report
 test-results
 vitest.config.ts
+coverage
+*.tsbuildinfo
+**/.npmrc
+Dockerfile
+.dockerignore
+# Локальные данные и служебные каталоги агентов: .tmp и postgres-data весят сотни МБ
+.tmp*
+postgres-data
+docs
+.agents
+.claude
+.codex
+.codegraph
+.hallmark
+.impeccable
