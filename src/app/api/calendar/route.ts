@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getSessionUserIdVerified } from "@/lib/auth-utils";
-import { calendarEvents } from "@/lib/calendar/prisma-calendar-events";
+import { calendarEvents } from "@/lib/calendar/prisma-calendar";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { createCalendarGetHandler } from "./calendar-handler";
 

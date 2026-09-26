@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -32,7 +32,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useIsomorphicLayoutEffect } from "@/lib/use-isomorphic-layout-effect";
 import { capitalizeFirst, cn, fetcher } from "@/lib/utils";
 import { uiLayout, uiSurface } from "@/lib/ui-contract";
 import {
@@ -496,7 +495,7 @@ export default function CalendarPage() {
   // Раньше это был обычный useEffect: на мобильном успевала отрисоваться
   // месячная сетка, и только потом вид дёргался в список. Layout-эффект
   // выполняется до отрисовки кадра, поэтому подмена больше не видна.
-  useIsomorphicLayoutEffect(() => {
+  useLayoutEffect(() => {
     setView(getInitialCalendarView(window.matchMedia("(max-width: 767px)").matches));
   }, []);
 

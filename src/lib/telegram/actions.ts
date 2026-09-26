@@ -2,12 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { sanitizeError } from "@/lib/logger";
 import { canTransitionStatus, type ItemStatus } from "@/lib/item-status";
 import { answerTelegramCallback, sendTelegramMessage } from "@/lib/telegram/client";
-import {
-  buildMainMenuMarkup,
-  formatAlreadyLinkedMessage,
-  formatLinkedMessage,
-  formatPendingLinkMessage,
-} from "@/lib/telegram/formatters";
 import { confirmTelegramLinkByTelegramId } from "@/lib/telegram/linking";
 import type { TelegramCallbackQuery, TelegramMessage, TelegramUpdate } from "@/lib/telegram/types";
 import { notifyStatusTransition } from "@/lib/telegram/notifications";
@@ -36,7 +30,7 @@ async function sendMainMenu(chatId: string, text: string): Promise<void> {
   await sendTelegramMessage({
     chatId,
     text,
-    replyMarkup: buildMainMenuMarkup(),
+    replyMarkup: { inline_keyboard: [[{ text: "Мои подарки", callback_data: "menu:mine" }]] },
   });
 }
 
@@ -103,18 +97,24 @@ async function handleStart(message: TelegramMessage): Promise<void> {
 
   if (!result.ok) {
     if (result.reason === "already_linked") {
-      await sendMainMenu(String(message.chat.id), formatAlreadyLinkedMessage());
+      await sendMainMenu(
+        String(message.chat.id),
+        "Привязка уже подтверждена. Используйте кнопки меню для работы с подарками.",
+      );
       return;
     }
 
     await sendTelegramMessage({
       chatId: String(message.chat.id),
-      text: formatPendingLinkMessage(),
+      text: "Не удалось подтвердить привязку. Укажите Telegram ID в настройках аккаунта wishlist и отправьте /start снова.",
     });
     return;
   }
 
-  await sendMainMenu(String(message.chat.id), formatLinkedMessage(result.userName));
+  await sendMainMenu(
+    String(message.chat.id),
+    `Telegram подключен к аккаунту ${result.userName}. Используйте кнопки ниже для быстрых действий.`,
+  );
 }
 
 async function handleMyItems(actorUserId: string, chatId: string): Promise<void> {

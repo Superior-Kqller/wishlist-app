@@ -46,61 +46,30 @@ export function sortCurrencyTotalsEntries(
   return Object.entries(pricesByCurrency).sort(([a], [b]) => a.localeCompare(b));
 }
 
-/** Текст «стоимость не купленного» с учётом нескольких валют (для компактного UI) */
-export function formatStatsUnpurchasedSummary(
+/**
+ * Сумма некупленного или купленного по валютам для компактного UI: «100 ₽ · 10 $».
+ * Без разбивки по валютам — общий итог. `null` — ненулевых сумм нет.
+ */
+export function formatStatsSummary(
   stats: {
-    totalWishlistValue: number;
+    totalWishlistValue?: number;
+    totalPurchasedValue?: number;
     currency?: string;
     pricesByCurrency?: Record<string, CurrencyTotals>;
   },
-  language: Language = "ru",
-): string {
-  const fallbackCur = stats.currency || "RUB";
-  const hasBreakdown = stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
-  if (!hasBreakdown) {
-    return formatPrice(stats.totalWishlistValue, fallbackCur, language);
-  }
-  const entries = sortCurrencyTotalsEntries(stats.pricesByCurrency).filter(
-    ([, v]) => v.unpurchased > 0,
-  );
-  if (entries.length === 0) {
-    return formatPrice(0, fallbackCur, language);
-  }
-  return entries.map(([c, v]) => formatPrice(v.unpurchased, c, language)).join(" · ");
-}
-
-/** Текст суммы купленного по валютам; null если нет купленных позиций с ценой */
-export function formatStatsPurchasedSummary(
-  stats: {
-    totalPurchasedValue: number;
-    currency?: string;
-    pricesByCurrency?: Record<string, CurrencyTotals>;
-  },
+  kind: keyof CurrencyTotals,
   language: Language = "ru",
 ): string | null {
-  const fallbackCur = stats.currency || "RUB";
-  const hasBreakdown = stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
-  if (!hasBreakdown) {
-    if (stats.totalPurchasedValue > 0) {
-      return formatPrice(stats.totalPurchasedValue, fallbackCur, language);
-    }
-    return null;
+  const entries = sortCurrencyTotalsEntries(stats.pricesByCurrency);
+  if (entries.length === 0) {
+    const total =
+      (kind === "purchased" ? stats.totalPurchasedValue : stats.totalWishlistValue) ?? 0;
+    return total > 0 ? formatPrice(total, stats.currency || "RUB", language) : null;
   }
-  const entries = sortCurrencyTotalsEntries(stats.pricesByCurrency).filter(
-    ([, v]) => v.purchased > 0,
-  );
-  if (entries.length === 0) return null;
-  return entries.map(([c, v]) => formatPrice(v.purchased, c, language)).join(" · ");
-}
-
-export function statsHasPurchasedPrices(stats: {
-  totalPurchasedValue: number;
-  pricesByCurrency?: Record<string, CurrencyTotals>;
-}): boolean {
-  if (stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0) {
-    return Object.values(stats.pricesByCurrency).some((v) => v.purchased > 0);
-  }
-  return stats.totalPurchasedValue > 0;
+  const parts = entries
+    .filter(([, v]) => v[kind] > 0)
+    .map(([c, v]) => formatPrice(v[kind], c, language));
+  return parts.length > 0 ? parts.join(" · ") : null;
 }
 
 export const fetcher = (url: string) =>

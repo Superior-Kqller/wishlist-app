@@ -7,7 +7,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n/language-provider";
-import { getItemStatusLabel, getItemStatusTone } from "@/lib/item-status-presentation";
+import { getItemStatusLabel, getItemStatusTone } from "@/lib/item-status";
 import {
   getVisibleRecentActivityItems,
   hasMoreRecentActivityItems,

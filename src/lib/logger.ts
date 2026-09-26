@@ -28,10 +28,7 @@ function sanitizeObject(obj: unknown, depth = 0): unknown {
     "authorization",
     "cookie",
     "session",
-    "apiKey",
     "apikey",
-    "accessToken",
-    "refreshToken",
     "credentials",
   ];
 

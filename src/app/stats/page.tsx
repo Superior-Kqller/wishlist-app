@@ -17,10 +17,8 @@ import {
   cn,
   fetcher,
   formatPrice,
-  formatStatsPurchasedSummary,
-  formatStatsUnpurchasedSummary,
+  formatStatsSummary,
   sortCurrencyTotalsEntries,
-  statsHasPurchasedPrices,
 } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -69,7 +67,7 @@ function StatsPurchasedValueBlock({ stats }: { stats: UserStats }) {
   const { language } = useI18n();
   const hasBreakdown = stats.pricesByCurrency && Object.keys(stats.pricesByCurrency).length > 0;
   if (!hasBreakdown) {
-    const summary = formatStatsPurchasedSummary(stats, language);
+    const summary = formatStatsSummary(stats, "purchased", language);
     return <p className="text-lg font-semibold text-muted-foreground">{summary}</p>;
   }
   const purchasedEntries = sortCurrencyTotalsEntries(stats.pricesByCurrency).filter(
@@ -86,15 +84,17 @@ function StatsPurchasedValueBlock({ stats }: { stats: UserStats }) {
       </div>
     );
   }
-  const summary = formatStatsPurchasedSummary(stats, language);
+  const summary = formatStatsSummary(stats, "purchased", language);
   return <p className="text-lg font-semibold text-muted-foreground">{summary}</p>;
 }
 
 function MobileParticipantRow({ user }: { user: UserWithStats }) {
   const { language, t } = useI18n();
   const purchasedItems = Math.max(0, user.stats.totalItems - user.stats.unpurchasedItems);
-  const wishlistValue = formatStatsUnpurchasedSummary(user.stats, language);
-  const purchasedValue = formatStatsPurchasedSummary(user.stats, language);
+  const wishlistValue =
+    formatStatsSummary(user.stats, "unpurchased", language) ??
+    formatPrice(0, user.stats.currency || "RUB", language);
+  const purchasedValue = formatStatsSummary(user.stats, "purchased", language);
 
   return (
     <details className="group overflow-hidden rounded-xl border border-border/55 bg-[hsl(var(--surface-2))]">
@@ -150,7 +150,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
           </div>
         </div>
 
-        {statsHasPurchasedPrices(user.stats) && purchasedValue ? (
+        {purchasedValue ? (
           <div className="mt-2.5 flex items-baseline justify-between gap-3 border-t border-border/55 pt-2.5">
             <p className="text-xs text-muted-foreground">{t("Отмечено купленным")}</p>
             <p className="max-w-[62%] text-right text-sm font-semibold leading-snug tabular-nums text-foreground">
@@ -279,7 +279,7 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
                 <StatsWishlistValueBlock stats={user.stats} />
               </div>
 
-              {statsHasPurchasedPrices(user.stats) ? (
+              {formatStatsSummary(user.stats, "purchased") !== null ? (
                 <div className="border-t border-border/70 pt-2">
                   <p className="mb-1 text-xs text-muted-foreground">{t("Отмечено купленным")}</p>
                   <StatsPurchasedValueBlock stats={user.stats} />

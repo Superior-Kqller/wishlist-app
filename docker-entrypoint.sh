@@ -1,45 +1,8 @@
 #!/bin/sh
 set -e
 
-# Get version from environment or default, truncate if too long
 APP_VERSION="${APP_VERSION:-dev}"
-if [ ${#APP_VERSION} -gt 12 ]; then
-  DISPLAY_VERSION="$(echo "$APP_VERSION" | cut -c1-12)..."
-else
-  DISPLAY_VERSION="$APP_VERSION"
-fi
-
-# Box interior width (must match top/bottom ┌─┐ row length)
-BOX_INNER=41
-
-# Pad to BOX_INNER bytes, or trim (ASCII-only) if длиннее — для UTF-8 строк не обрезаем посередине символа
-pad_inner() {
-  _s="$1"
-  if [ "${#_s}" -gt "$BOX_INNER" ]; then
-    _s=$(printf '%s' "$_s" | head -c "$BOX_INNER")
-  fi
-  while [ "${#_s}" -lt "$BOX_INNER" ]; do
-    _s="${_s} "
-  done
-  printf '%s' "$_s"
-}
-
-# One printf → один сгусток записи в stdout, меньше «рваного» баннера в docker compose logs
-print_startup_banner() {
-  _port="${PORT:-4030}"
-  printf '\n┌─────────────────────────────────────────┐\n│%s│\n│%s│\n│%s│\n│%s│\n├─────────────────────────────────────────┤\n│%s│\n│%s│\n│%s│\n└─────────────────────────────────────────┘\n\n' \
-    "$(pad_inner '')" \
-    "$(pad_inner '   🎁 ВИШЛИСТ')" \
-    "$(pad_inner "   Wishlist App v${DISPLAY_VERSION}")" \
-    "$(pad_inner '')" \
-    "$(pad_inner '   📦 Environment: production')" \
-    "$(pad_inner "   🌐 Port: ${_port}")" \
-    "$(pad_inner "   🔗 Listen: 0.0.0.0:${_port}")"
-}
-
-# Короткая пауза: при параллельном старте compose иногда вклиниваются строки других сервисов
-sleep 0.25 2>/dev/null || true
-print_startup_banner
+echo "🎁 Wishlist v${APP_VERSION} · port ${PORT:-4030}"
 
 echo "📁 Creating upload directories..."
 mkdir -p /app/public/uploads/avatars
@@ -98,13 +61,8 @@ if [ "${DATABASE_PROVIDER:-postgresql}" = "pglite" ]; then
 fi
 
 if [ "${RUN_MIGRATIONS_ON_START:-1}" = "1" ]; then
-  echo ""
-  echo "⏳ Waiting for database..."
-  if [ "${DATABASE_PROVIDER:-postgresql}" != "pglite" ]; then
-    sleep 3
-  fi
-  echo "   ✓ Database connection established"
-
+  # Готовность внешней базы ждёт compose (`depends_on: service_healthy`);
+  # если её нет, `migrate deploy` роняет контейнер и его поднимает restart.
   echo ""
   echo "🔄 Applying database migrations..."
   node ./node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma
@@ -132,11 +90,7 @@ else
 fi
 
 echo ""
-printf '%s\n' \
-  "────────────────────────────────────────────" \
-  "  🚀 Wishlist v${DISPLAY_VERSION} starting..." \
-  "────────────────────────────────────────────" \
-  ""
+echo "🚀 Starting..."
 
 if [ "${DATABASE_PROVIDER:-postgresql}" = "pglite" ]; then
   su-exec nextjs "$@" &

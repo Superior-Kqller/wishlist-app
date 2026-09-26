@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getSessionUserIdVerified } from "@/lib/auth-utils";
-import { personalEvents } from "@/lib/calendar/prisma-personal-events";
+import { personalEvents } from "@/lib/calendar/prisma-calendar";
 import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { createPersonalEventsHandlers } from "./events-handler";
 

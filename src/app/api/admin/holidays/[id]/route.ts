@@ -1,5 +1,5 @@
 import { getCurrentUserWithDbCheck } from "@/lib/auth-utils";
-import { holidayCatalog } from "@/lib/calendar/prisma-holiday-catalog";
+import { holidayCatalog } from "@/lib/calendar/prisma-calendar";
 import { createHolidayHandlers } from "../holiday-handler";
 
 const handlers = createHolidayHandlers({

@@ -1,12 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import {
-  fetcher,
-  formatPrice,
-  formatStatsPurchasedSummary,
-  formatStatsUnpurchasedSummary,
-  sortCurrencyTotalsEntries,
-  statsHasPurchasedPrices,
-} from "./utils";
+import { fetcher, formatPrice, formatStatsSummary, sortCurrencyTotalsEntries } from "./utils";
 
 describe("formatPrice", () => {
   it("форматирует рубли", () => {
@@ -42,79 +35,41 @@ describe("sortCurrencyTotalsEntries", () => {
   });
 });
 
-describe("formatStatsUnpurchasedSummary", () => {
+describe("formatStatsSummary", () => {
   it("складывает несколько валют в одну строку", () => {
-    const s = formatStatsUnpurchasedSummary({
-      totalWishlistValue: 0,
-      currency: "RUB",
-      pricesByCurrency: {
-        USD: { unpurchased: 10, purchased: 0 },
-        RUB: { unpurchased: 100, purchased: 0 },
+    const s = formatStatsSummary(
+      {
+        currency: "RUB",
+        pricesByCurrency: {
+          USD: { unpurchased: 10, purchased: 0 },
+          RUB: { unpurchased: 100, purchased: 0 },
+        },
       },
-    });
+      "unpurchased",
+    );
     expect(s).toContain("₽");
     expect(s).toContain("$");
     expect(s).toContain("·");
   });
 
-  it("без pricesByCurrency использует totalWishlistValue", () => {
+  it("без разбивки по валютам берёт общий итог", () => {
     expect(
-      formatStatsUnpurchasedSummary({
-        totalWishlistValue: 500,
-        currency: "RUB",
-      }),
+      formatStatsSummary({ totalWishlistValue: 500, currency: "RUB" }, "unpurchased"),
     ).toContain("500");
-  });
-
-  it("пустой pricesByCurrency использует totalWishlistValue", () => {
     expect(
-      formatStatsUnpurchasedSummary({
-        totalWishlistValue: 300,
-        currency: "RUB",
-        pricesByCurrency: {},
-      }),
+      formatStatsSummary({ totalWishlistValue: 300, pricesByCurrency: {} }, "unpurchased"),
     ).toContain("300");
+    expect(formatStatsSummary({ totalPurchasedValue: 10 }, "purchased")).toContain("10");
   });
-});
 
-describe("formatStatsPurchasedSummary", () => {
-  it("возвращает null если нет купленного с ценой", () => {
+  it("возвращает null, если ненулевых сумм нет", () => {
     expect(
-      formatStatsPurchasedSummary({
-        totalPurchasedValue: 0,
-        pricesByCurrency: { RUB: { unpurchased: 100, purchased: 0 } },
-      }),
+      formatStatsSummary(
+        { totalPurchasedValue: 0, pricesByCurrency: { RUB: { unpurchased: 100, purchased: 0 } } },
+        "purchased",
+      ),
     ).toBeNull();
-  });
-
-  it("разделяет валюты при нескольких купленных суммах", () => {
-    const s = formatStatsPurchasedSummary({
-      totalPurchasedValue: 0,
-      pricesByCurrency: {
-        RUB: { unpurchased: 0, purchased: 100 },
-        USD: { unpurchased: 0, purchased: 5 },
-      },
-    });
-    expect(s).toContain("·");
-  });
-});
-
-describe("statsHasPurchasedPrices", () => {
-  it("учитывает pricesByCurrency", () => {
-    expect(
-      statsHasPurchasedPrices({
-        totalPurchasedValue: 0,
-        pricesByCurrency: { RUB: { unpurchased: 0, purchased: 1 } },
-      }),
-    ).toBe(true);
-  });
-
-  it("fallback на totalPurchasedValue", () => {
-    expect(
-      statsHasPurchasedPrices({
-        totalPurchasedValue: 10,
-      }),
-    ).toBe(true);
+    expect(formatStatsSummary({ totalPurchasedValue: 0 }, "purchased")).toBeNull();
   });
 });
 

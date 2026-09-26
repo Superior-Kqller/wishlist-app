@@ -1,3 +1,5 @@
+import { type Language, translate } from "@/lib/i18n";
+
 export type ItemStatus = "AVAILABLE" | "PURCHASED";
 
 type TransitionOptions = {
@@ -46,4 +48,14 @@ export function hasConflictingStatusPayload(input: {
   purchased?: boolean;
 }): boolean {
   return input.status !== undefined && input.purchased !== undefined;
+}
+
+export function getItemStatusLabel(status: ItemStatus, language: Language = "ru"): string {
+  return translate(language, status === "PURCHASED" ? "Куплено" : "Доступно");
+}
+
+export function getItemStatusTone(status: ItemStatus): string {
+  return status === "PURCHASED"
+    ? "border-success/45 bg-success/16 text-success-foreground"
+    : "border-info/45 bg-info/16 text-info-foreground";
 }

@@ -8,12 +8,7 @@ vi.mock("node:dns", () => ({
 }));
 
 import { promises as dns } from "node:dns";
-import {
-  validateAndResolveUrl,
-  resolveCanonicalProductUrl,
-  parseProductUrl,
-  parseWishlistProductUrl,
-} from "./parser";
+import { resolvePublicUrl, resolveCanonicalProductUrl, parseWishlistProductUrl } from "./parser";
 
 const mockResolve4 = dns.resolve4 as ReturnType<typeof vi.fn>;
 const mockResolve6 = dns.resolve6 as ReturnType<typeof vi.fn>;
@@ -75,49 +70,49 @@ afterEach(() => {
 
 // --- SSRF validation ---
 
-describe("validateAndResolveUrl", () => {
+describe("resolvePublicUrl", () => {
   it("отклоняет не-HTTP протоколы", async () => {
-    await expect(validateAndResolveUrl("ftp://example.com")).rejects.toThrow(
+    await expect(resolvePublicUrl("ftp://example.com")).rejects.toThrow(
       "Only HTTP/HTTPS URLs are allowed",
     );
-    await expect(validateAndResolveUrl("file:///etc/passwd")).rejects.toThrow(
+    await expect(resolvePublicUrl("file:///etc/passwd")).rejects.toThrow(
       "Only HTTP/HTTPS URLs are allowed",
     );
   });
 
   it("отклоняет прямые приватные IP", async () => {
-    await expect(validateAndResolveUrl("http://127.0.0.1")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://127.0.0.1")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
-    await expect(validateAndResolveUrl("http://10.0.0.1")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://10.0.0.1")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
-    await expect(validateAndResolveUrl("http://192.168.1.1")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://192.168.1.1")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
-    await expect(validateAndResolveUrl("http://172.16.0.1")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://172.16.0.1")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
   });
 
   it("отклоняет IPv4-mapped loopback в сжатой и полной IPv6 записи", async () => {
-    await expect(validateAndResolveUrl("http://[::ffff:7f00:1]")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://[::ffff:7f00:1]")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
-    await expect(validateAndResolveUrl("http://[0:0:0:0:0:ffff:7f00:1]")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://[0:0:0:0:0:ffff:7f00:1]")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
   });
 
   it("пропускает публичные IPv4-mapped и IPv6 адреса", async () => {
-    await expect(validateAndResolveUrl("https://[::ffff:5db8:d822]")).resolves.toBeUndefined();
-    await expect(validateAndResolveUrl("https://[2001:4860:4860::8888]")).resolves.toBeUndefined();
+    await expect(resolvePublicUrl("https://[::ffff:5db8:d822]")).resolves.toBeDefined();
+    await expect(resolvePublicUrl("https://[2001:4860:4860::8888]")).resolves.toBeDefined();
   });
 
   it("отклоняет localhost", async () => {
     mockResolve4.mockResolvedValue(["127.0.0.1"]);
     mockResolve6.mockRejectedValue(new Error("no"));
-    await expect(validateAndResolveUrl("http://localhost")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://localhost")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
   });
@@ -125,7 +120,7 @@ describe("validateAndResolveUrl", () => {
   it("отклоняет DNS rebinding (домен резолвится в приватный IP)", async () => {
     mockResolve4.mockResolvedValue(["192.168.1.100"]);
     mockResolve6.mockRejectedValue(new Error("no"));
-    await expect(validateAndResolveUrl("http://evil.example.com")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://evil.example.com")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
   });
@@ -133,7 +128,7 @@ describe("validateAndResolveUrl", () => {
   it("отклоняет если IPv6 резолвится в loopback", async () => {
     mockResolve4.mockRejectedValue(new Error("no"));
     mockResolve6.mockResolvedValue(["::1"]);
-    await expect(validateAndResolveUrl("http://sneaky.example.com")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://sneaky.example.com")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
   });
@@ -141,37 +136,37 @@ describe("validateAndResolveUrl", () => {
   it("пропускает публичные IP", async () => {
     mockResolve4.mockResolvedValue(["93.184.216.34"]);
     mockResolve6.mockRejectedValue(new Error("no"));
-    await expect(validateAndResolveUrl("https://example.com")).resolves.toBeUndefined();
+    await expect(resolvePublicUrl("https://example.com")).resolves.toBeDefined();
   });
 
   it("отклоняет нерезолвимый домен", async () => {
     mockResolve4.mockRejectedValue(new Error("ENOTFOUND"));
     mockResolve6.mockRejectedValue(new Error("ENOTFOUND"));
-    await expect(validateAndResolveUrl("http://nonexistent.invalid")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://nonexistent.invalid")).rejects.toThrow(
       "Could not resolve hostname",
     );
   });
 
   it("отклоняет 169.254.x.x (link-local)", async () => {
-    await expect(validateAndResolveUrl("http://169.254.169.254")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://169.254.169.254")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
   });
 
   it("отклоняет 100.64.0.0/10 (shared address space)", async () => {
-    await expect(validateAndResolveUrl("http://100.64.0.1")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://100.64.0.1")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
-    await expect(validateAndResolveUrl("http://100.127.255.254")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://100.127.255.254")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
   });
 
   it("отклоняет 198.18.0.0/15 (benchmarking/testing)", async () => {
-    await expect(validateAndResolveUrl("http://198.18.0.1")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://198.18.0.1")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
-    await expect(validateAndResolveUrl("http://198.19.255.254")).rejects.toThrow(
+    await expect(resolvePublicUrl("http://198.19.255.254")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
   });
@@ -235,7 +230,7 @@ describe("resolveCanonicalProductUrl", () => {
 
 // --- Wildberries parsing (API-based) ---
 
-describe("parseProductUrl — Wildberries", () => {
+describe("parseWishlistProductUrl — Wildberries", () => {
   it("вызывает WB API и парсит ответ", async () => {
     mockResolve4.mockResolvedValue(["212.193.158.1"]);
     mockResolve6.mockRejectedValue(new Error("no"));
@@ -263,7 +258,7 @@ describe("parseProductUrl — Wildberries", () => {
       });
     });
 
-    const result = await parseProductUrl(
+    const result = await parseWishlistProductUrl(
       "https://www.wildberries.ru/catalog/123456789/detail.aspx",
     );
 
@@ -284,7 +279,7 @@ describe("parseProductUrl — Wildberries", () => {
       .spyOn(globalThis, "fetch")
       .mockResolvedValue(new Response(null, { status: 200 }));
 
-    await expect(parseProductUrl("https://www.wildberries.ru/some-page")).rejects.toThrow(
+    await expect(parseWishlistProductUrl("https://www.wildberries.ru/some-page")).rejects.toThrow(
       "Не удалось извлечь артикул",
     );
 
@@ -294,7 +289,7 @@ describe("parseProductUrl — Wildberries", () => {
 
 // --- Ozon parsing ---
 
-describe("parseProductUrl — Ozon", () => {
+describe("parseWishlistProductUrl — Ozon", () => {
   it("парсит Ozon через внутренний API (widgetStates)", async () => {
     mockResolve4.mockResolvedValue(["185.71.76.1"]);
     mockResolve6.mockRejectedValue(new Error("no"));
@@ -329,7 +324,9 @@ describe("parseProductUrl — Ozon", () => {
       });
     });
 
-    const result = await parseProductUrl("https://www.ozon.ru/product/naushniki-bluetooth-123456/");
+    const result = await parseWishlistProductUrl(
+      "https://www.ozon.ru/product/naushniki-bluetooth-123456/",
+    );
 
     expect(result.title).toBe("Наушники Bluetooth");
     expect(result.price).toBe(2199);
@@ -365,11 +362,11 @@ describe("parseProductUrl — Ozon", () => {
       return new Response(html, { status: 200 });
     });
 
-    const result = await parseProductUrl("https://www.ozon.ru/product/fallback-789/");
+    const result = await parseWishlistProductUrl("https://www.ozon.ru/product/fallback-789/");
 
     expect(result.title).toBe("Товар Ozon Fallback");
     expect(result.price).toBe(1999);
-    expect(nonHeadCalls).toBe(2);
+    expect(nonHeadCalls).toBe(3);
 
     fetchSpy.mockRestore();
   });
@@ -385,9 +382,9 @@ describe("parseProductUrl — Ozon", () => {
       return new Response("", { status: 200 });
     });
 
-    await expect(parseProductUrl("https://www.ozon.ru/category/electronics/")).rejects.toThrow(
-      "Не удалось извлечь ID товара",
-    );
+    await expect(
+      parseWishlistProductUrl("https://www.ozon.ru/category/electronics/"),
+    ).rejects.toThrow("Не удалось извлечь ID товара");
 
     fetchSpy.mockRestore();
   });
@@ -395,7 +392,7 @@ describe("parseProductUrl — Ozon", () => {
 
 // --- AliExpress parsing ---
 
-describe("parseProductUrl — AliExpress", () => {
+describe("parseWishlistProductUrl — AliExpress", () => {
   it("парсит aliexpress.com через JSON-LD", async () => {
     mockResolve4.mockResolvedValue(["47.254.47.1"]);
     mockResolve6.mockRejectedValue(new Error("no"));
@@ -416,7 +413,7 @@ describe("parseProductUrl — AliExpress", () => {
       return new Response(html, { status: 200 });
     });
 
-    const result = await parseProductUrl("https://www.aliexpress.com/item/123456.html");
+    const result = await parseWishlistProductUrl("https://www.aliexpress.com/item/123456.html");
     expect(result.title).toBe("Test AliExpress Product");
     expect(result.price).toBe(599);
     expect(result.images).toContain("https://ae.alicdn.com/test.jpg");
@@ -441,7 +438,7 @@ describe("parseProductUrl — AliExpress", () => {
       return new Response(html, { status: 200 });
     });
 
-    const result = await parseProductUrl("https://aliexpress.ru/item/789.html");
+    const result = await parseWishlistProductUrl("https://aliexpress.ru/item/789.html");
     expect(result.title).toBe("Товар с Ali.ru");
 
     fetchSpy.mockRestore();
@@ -464,7 +461,7 @@ describe("parseProductUrl — AliExpress", () => {
       return new Response(html, { status: 200 });
     });
 
-    const result = await parseProductUrl("https://www.aliexpress.com/item/999.html");
+    const result = await parseWishlistProductUrl("https://www.aliexpress.com/item/999.html");
     expect(result.title).toBe("Классный товар");
 
     fetchSpy.mockRestore();
@@ -473,7 +470,7 @@ describe("parseProductUrl — AliExpress", () => {
 
 // --- Generic parsing ---
 
-describe("parseProductUrl — Generic", () => {
+describe("parseWishlistProductUrl — Generic", () => {
   it("парсит через Open Graph для неизвестных сайтов", async () => {
     mockResolve4.mockResolvedValue(["93.184.216.34"]);
     mockResolve6.mockRejectedValue(new Error("no"));
@@ -495,7 +492,7 @@ describe("parseProductUrl — Generic", () => {
       return new Response(html, { status: 200 });
     });
 
-    const result = await parseProductUrl("https://shop.example.com/product/1");
+    const result = await parseWishlistProductUrl("https://shop.example.com/product/1");
     expect(result.title).toBe("Крутой гаджет");
     expect(result.price).toBe(3499);
     expect(result.currency).toBe("RUB");
@@ -523,7 +520,7 @@ describe("parseProductUrl — Generic", () => {
       return new Response(html, { status: 200 });
     });
 
-    const result = await parseProductUrl("https://example.com/product");
+    const result = await parseWishlistProductUrl("https://example.com/product");
     expect(result.title).toBe("JSON-LD Product");
     expect(result.price).toBe(1299);
     expect(result.currency).toBe("USD");
@@ -554,7 +551,7 @@ describe("parseProductUrl — Generic", () => {
       return streamed.response;
     });
 
-    await expect(parseProductUrl("https://example.com/streamed-too-large")).rejects.toThrow(
+    await expect(parseWishlistProductUrl("https://example.com/streamed-too-large")).rejects.toThrow(
       "Page too large to parse",
     );
     expect(streamed.cancelled()).toBe(true);
@@ -590,7 +587,7 @@ describe("parseProductUrl — Generic", () => {
       return streamed.response;
     });
 
-    await expect(parseProductUrl("https://example.com/streamed-boundary")).rejects.toThrow(
+    await expect(parseWishlistProductUrl("https://example.com/streamed-boundary")).rejects.toThrow(
       "Page too large to parse",
     );
     expect(streamed.cancelled()).toBe(true);
@@ -633,10 +630,10 @@ describe("parseProductUrl — Generic", () => {
       return getCount === 1 ? small.response : exact.response;
     });
 
-    const smallResult = await parseProductUrl("https://example.com/streamed-small");
+    const smallResult = await parseWishlistProductUrl("https://example.com/streamed-small");
     expect(smallResult.title).toBe("Небольшая UTF-8 страница");
 
-    const exactResult = await parseProductUrl("https://example.com/streamed-exact-limit");
+    const exactResult = await parseWishlistProductUrl("https://example.com/streamed-exact-limit");
     expect(exactResult.title).toBe("Ровно пять MiB");
 
     fetchSpy.mockRestore();
@@ -653,7 +650,7 @@ describe("parseProductUrl — Generic", () => {
       }),
     );
 
-    await expect(parseProductUrl("https://example.com/product")).rejects.toThrow(
+    await expect(parseWishlistProductUrl("https://example.com/product")).rejects.toThrow(
       "Internal URLs are not allowed",
     );
 

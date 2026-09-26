@@ -1,9 +1,8 @@
 import "server-only";
 import { sendTelegramMessage } from "@/lib/telegram/client";
 import { createCalendarReminderModule } from "./reminder-module";
-import { prismaCalendarReminderRepository } from "./prisma-reminder-repository";
 import { sanitizeError } from "@/lib/logger";
-import { calendarEvents } from "./prisma-calendar-events";
+import { calendarEvents, prismaCalendarReminderRepository } from "./prisma-calendar";
 
 export const calendarReminders = createCalendarReminderModule(
   calendarEvents,

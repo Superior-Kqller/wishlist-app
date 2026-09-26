@@ -32,92 +32,32 @@ const JSON_HEADERS: Record<string, string> = {
 
 // --- SSRF protection ---
 
-function parseIPv6Hextets(ip: string): number[] | null {
-  const sections = ip.toLowerCase().split("::");
-  if (sections.length > 2) return null;
-
-  const parseSection = (section: string): number[] | null => {
-    if (!section) return [];
-
-    const parts = section.split(":");
-    const values: number[] = [];
-    for (const [index, part] of parts.entries()) {
-      if (part.includes(".")) {
-        if (index !== parts.length - 1 || !net.isIPv4(part)) return null;
-        const octets = part.split(".").map(Number);
-        values.push((octets[0] << 8) | octets[1], (octets[2] << 8) | octets[3]);
-        continue;
-      }
-
-      if (!/^[0-9a-f]{1,4}$/.test(part)) return null;
-      values.push(Number.parseInt(part, 16));
-    }
-    return values;
-  };
-
-  const left = parseSection(sections[0]);
-  const right = sections.length === 2 ? parseSection(sections[1]) : [];
-  if (!left || !right) return null;
-
-  if (sections.length === 2) {
-    const missing = 8 - left.length - right.length;
-    if (missing < 1) return null;
-    return [...left, ...Array.from({ length: missing }, () => 0), ...right];
-  }
-
-  return left.length === 8 ? left : null;
+const privateNetworks = new net.BlockList();
+for (const [address, prefix] of [
+  ["0.0.0.0", 8], // "this network"
+  ["10.0.0.0", 8], // RFC1918
+  ["100.64.0.0", 10], // Shared Address Space (RFC6598)
+  ["127.0.0.0", 8], // loopback
+  ["169.254.0.0", 16], // link-local
+  ["172.16.0.0", 12], // RFC1918
+  ["192.168.0.0", 16], // RFC1918
+  ["198.18.0.0", 15], // benchmarking (RFC2544)
+] as const) {
+  privateNetworks.addSubnet(address, prefix, "ipv4");
+}
+for (const [address, prefix] of [
+  ["::", 128],
+  ["::1", 128],
+  ["fe80::", 10],
+  ["fc00::", 7],
+] as const) {
+  privateNetworks.addSubnet(address, prefix, "ipv6");
 }
 
-function extractMappedIPv4(ip: string): string | null {
-  const hextets = parseIPv6Hextets(ip);
-  if (
-    !hextets ||
-    hextets.length !== 8 ||
-    hextets.slice(0, 5).some((hextet) => hextet !== 0) ||
-    hextets[5] !== 0xffff
-  ) {
-    return null;
-  }
-
-  const high = hextets[6];
-  const low = hextets[7];
-  return `${high >> 8}.${high & 0xff}.${low >> 8}.${low & 0xff}`;
-}
-
+/** IPv4-mapped IPv6 (`::ffff:7f00:1`) BlockList сверяет с IPv4-подсетями сам. */
 function isPrivateIP(ip: string): boolean {
-  if (net.isIPv4(ip)) {
-    const parts = ip.split(".").map(Number);
-    const first = parts[0];
-    const second = parts[1];
-
-    // RFC1918 private ranges
-    if (first === 10) return true;
-    if (first === 172 && second >= 16 && second <= 31) return true;
-    if (first === 192 && second === 168) return true;
-
-    // Loopback, "this network", link-local
-    if (first === 127) return true;
-    if (first === 0) return true;
-    if (first === 169 && second === 254) return true;
-
-    // Shared Address Space (RFC6598): 100.64.0.0/10
-    if (first === 100 && second >= 64 && second <= 127) return true;
-
-    // Benchmarking/testing network (RFC2544): 198.18.0.0/15
-    if (first === 198 && (second === 18 || second === 19)) return true;
-
-    return false;
-  }
-  if (net.isIPv6(ip)) {
-    const lower = ip.toLowerCase();
-    if (lower === "::1" || lower === "::") return true;
-    if (lower.startsWith("fe80:")) return true;
-    if (lower.startsWith("fc") || lower.startsWith("fd")) return true;
-    const mappedIPv4 = extractMappedIPv4(lower);
-    if (mappedIPv4) return isPrivateIP(mappedIPv4);
-    return false;
-  }
-  return false;
+  const family = net.isIP(ip);
+  return family !== 0 && privateNetworks.check(ip, family === 4 ? "ipv4" : "ipv6");
 }
 
 interface PublicUrlResolution {
@@ -125,7 +65,7 @@ interface PublicUrlResolution {
   addresses: string[];
 }
 
-async function resolvePublicUrl(url: string): Promise<PublicUrlResolution> {
+export async function resolvePublicUrl(url: string): Promise<PublicUrlResolution> {
   const parsed = new URL(url);
 
   if (!["http:", "https:"].includes(parsed.protocol)) {
@@ -166,10 +106,6 @@ async function resolvePublicUrl(url: string): Promise<PublicUrlResolution> {
   }
 
   return { hostname, addresses };
-}
-
-export async function validateAndResolveUrl(url: string): Promise<void> {
-  await resolvePublicUrl(url);
 }
 
 function createPinnedDispatcher(resolution: PublicUrlResolution): Dispatcher {
@@ -357,20 +293,6 @@ function parseOpenGraphFromHtml(
   return result;
 }
 
-function extractOpenGraph($: cheerio.CheerioAPI): Partial<ParsedProduct> {
-  return {
-    title:
-      $('meta[property="og:title"]').attr("content") ||
-      $("title").text() ||
-      $("h1").first().text() ||
-      "",
-    images: [
-      $('meta[property="og:image"]').attr("content"),
-      $('meta[property="og:image:secure_url"]').attr("content"),
-    ].filter(Boolean) as string[],
-  };
-}
-
 function parsePrice(text: string): { price: number; currency: string } | null {
   if (!text) return null;
   const cleaned = text.replace(/\s/g, "").replace(/,/g, ".");
@@ -537,6 +459,13 @@ const OZON_API_HEADERS: Record<string, string> = {
   "x-o3-app-version": "17.40.1",
 };
 
+const OZON_TITLE_JUNK = [/ - купить.*$/i, / \| OZON$/i];
+const ALIEXPRESS_TITLE_JUNK = [/ \| .*$/, / - AliExpress.*$/i, / купить.*$/i];
+
+function cleanTitle(title: string, junk: RegExp[]): string {
+  return junk.reduce((t, re) => t.replace(re, ""), title.replace(/\s+/g, " ")).trim();
+}
+
 function extractOzonProductPath(url: string): string | null {
   const match = url.match(/\/product\/([\w-]*\d+)\/?/);
   return match ? match[1] : null;
@@ -583,11 +512,7 @@ async function parseOzonViaApi(url: string, productPath: string): Promise<Parsed
   const priceWidget = isJsonLdObject(priceRaw) ? priceRaw : null;
   const gallery = isJsonLdObject(galleryRaw) ? galleryRaw : null;
 
-  const title = String(heading?.title ?? "")
-    .replace(/\s+/g, " ")
-    .replace(/ - купить.*$/i, "")
-    .replace(/ \| OZON$/i, "")
-    .trim();
+  const title = cleanTitle(String(heading?.title ?? ""), OZON_TITLE_JUNK);
 
   if (!title) return null;
 
@@ -617,6 +542,7 @@ async function parseOzonViaApi(url: string, productPath: string): Promise<Parsed
 }
 
 function extractCommonProductMetadata(
+  url: string,
   html: string,
   loadedCheerio?: cheerio.CheerioAPI,
 ): {
@@ -628,7 +554,7 @@ function extractCommonProductMetadata(
 } {
   const $ = loadedCheerio ?? cheerio.load(html);
   const jsonLd = extractJsonLd($);
-  const og = extractOpenGraph($);
+  const og = parseOpenGraphFromHtml(html, url, $);
   const embedded = extractFromEmbeddedJson(html);
 
   const title = titleFromJsonLdName(jsonLd) || og.title || embedded.title || "";
@@ -647,16 +573,11 @@ function extractCommonProductMetadata(
   return { $, title, price, currency, images };
 }
 
-async function parseOzonViaHtml(url: string, html: string): Promise<ParsedProduct> {
-  const meta = extractCommonProductMetadata(html);
-  const title = meta.title
-    .replace(/\s+/g, " ")
-    .replace(/ - купить.*$/i, "")
-    .replace(/ \| OZON$/i, "")
-    .trim();
-
+/** Маркетплейс без API: общие метаданные страницы и чистка хвостов заголовка. */
+function parseMarketplaceHtml(url: string, html: string, titleJunk: RegExp[]): ParsedProduct {
+  const meta = extractCommonProductMetadata(url, html);
   return {
-    title,
+    title: cleanTitle(meta.title, titleJunk),
     price: meta.price,
     currency: meta.currency,
     images: Array.from(new Set(meta.images)),
@@ -675,28 +596,7 @@ async function parseOzon(url: string): Promise<ParsedProduct> {
   if (apiResult) return apiResult;
 
   // Fallback на HTML
-  const html = await fetchHtml(url);
-  return parseOzonViaHtml(url, html);
-}
-
-// --- AliExpress ---
-
-async function parseAliexpress(url: string, html: string): Promise<ParsedProduct> {
-  const meta = extractCommonProductMetadata(html);
-  const title = meta.title
-    .replace(/\s+/g, " ")
-    .replace(/ \| .*$/, "")
-    .replace(/ - AliExpress.*$/i, "")
-    .replace(/ купить.*$/i, "")
-    .trim();
-
-  return {
-    title,
-    price: meta.price,
-    currency: meta.currency,
-    images: Array.from(new Set(meta.images)),
-    url,
-  };
+  return parseMarketplaceHtml(url, await fetchHtml(url), OZON_TITLE_JUNK);
 }
 
 // --- Generic ---
@@ -706,7 +606,7 @@ async function parseGeneric(
   html: string,
   loadedCheerio?: cheerio.CheerioAPI,
 ): Promise<ParsedProduct> {
-  const meta = extractCommonProductMetadata(html, loadedCheerio);
+  const meta = extractCommonProductMetadata(url, html, loadedCheerio);
   const $ = meta.$;
 
   const title = (meta.title || $("h1").first().text().trim() || "").replace(/\s+/g, " ").trim();
@@ -747,83 +647,78 @@ async function parseGeneric(
   };
 }
 
-// --- Redirect chain (HEAD + manual) — короткие ссылки Ozon /t/, трекеры и т.п. ---
+// --- Fetch with redirects (manual) — короткие ссылки Ozon /t/, трекеры и т.п. ---
 
-const MAX_REDIRECT_CHAIN = 12;
+const MAX_REDIRECTS = 12;
+const MAX_RESPONSE_BYTES = 5 * 1024 * 1024;
+
+type PublicRequest = Awaited<ReturnType<typeof fetchPublicUrl>>;
 
 async function discardResponseBody(response: Response): Promise<void> {
   try {
-    if (response.body) {
-      await response.body.cancel();
-    }
+    await response.body?.cancel();
   } catch {
     /* ignore */
   }
 }
 
+async function closeRequest(request: PublicRequest): Promise<void> {
+  await discardResponseBody(request.response);
+  await request.close();
+}
+
+function fetchPage(url: string): Promise<PublicRequest> {
+  return fetchPublicUrl(url, {
+    redirect: "manual",
+    headers: { ...HEADERS, Referer: `${new URL(url).origin}/` },
+    signal: AbortSignal.timeout(15000),
+  });
+}
+
 /**
- * Разворачивает цепочку редиректов без скачивания HTML: HEAD + redirect: "manual"
- * с проверкой SSRF на каждом шаге. При 405/501 на HEAD — один запрос GET с тем же режимом.
+ * Проходит редиректы вручную, с проверкой SSRF на каждом шаге.
+ * `headFirst` — разворачивание ссылки без скачивания HTML: HEAD, а при 405/501 — GET.
  */
-async function expandRedirectChainHeadFirst(startUrl: string): Promise<string> {
-  let currentUrl = startUrl;
-  for (let step = 0; step <= MAX_REDIRECT_CHAIN; step++) {
-    const baseInit: RequestInit = {
-      redirect: "manual",
-      headers: {
-        "User-Agent": HEADERS["User-Agent"],
-        "Accept-Language": HEADERS["Accept-Language"],
-        Accept: "*/*",
-      },
-      signal: AbortSignal.timeout(12000),
-    };
-
-    let request = await fetchPublicUrl(currentUrl, { ...baseInit, method: "HEAD" });
-    let response = request.response;
-
-    if (response.status === 405 || response.status === 501) {
-      await discardResponseBody(response);
-      await request.close();
-      request = await fetchPublicUrl(currentUrl, {
-        ...baseInit,
-        method: "GET",
-        headers: {
-          ...HEADERS,
-          Referer: `${new URL(currentUrl).origin}/`,
-        },
-      });
-      response = request.response;
+async function fetchFollowingRedirects(
+  url: string,
+  headFirst: boolean,
+): Promise<{ request: PublicRequest; finalUrl: string }> {
+  let currentUrl = url;
+  for (let step = 0; step <= MAX_REDIRECTS; step++) {
+    let request = headFirst
+      ? await fetchPublicUrl(currentUrl, {
+          method: "HEAD",
+          redirect: "manual",
+          headers: {
+            "User-Agent": HEADERS["User-Agent"],
+            "Accept-Language": HEADERS["Accept-Language"],
+            Accept: "*/*",
+          },
+          signal: AbortSignal.timeout(12000),
+        })
+      : await fetchPage(currentUrl);
+    if (headFirst && (request.response.status === 405 || request.response.status === 501)) {
+      await closeRequest(request);
+      request = await fetchPage(currentUrl);
     }
 
-    if (response.status >= 300 && response.status < 400) {
-      const location = response.headers.get("location");
-      if (!location) {
-        await discardResponseBody(response);
-        await request.close();
-        throw new Error("Redirect response without location header");
-      }
-      await discardResponseBody(response);
-      await request.close();
-      currentUrl = new URL(location, currentUrl).toString();
-      continue;
-    }
+    const { status, headers } = request.response;
+    if (status < 300 || status >= 400) return { request, finalUrl: currentUrl };
 
-    await discardResponseBody(response);
-    await request.close();
-    return currentUrl;
+    const location = headers.get("location");
+    await closeRequest(request);
+    if (!location) throw new Error("Redirect response without location header");
+    currentUrl = new URL(location, currentUrl).toString();
   }
   throw new Error("Too many redirects");
 }
 
 /** Публичный канонический URL после валидации и цепочки редиректов (для парсера и ответа API). */
 export async function resolveCanonicalProductUrl(url: string): Promise<string> {
-  await validateAndResolveUrl(url);
-  return expandRedirectChainHeadFirst(url);
+  const { request, finalUrl } = await fetchFollowingRedirects(url, true);
+  await closeRequest(request);
+  return finalUrl;
 }
-
-// --- Fetch HTML helper ---
-
-const MAX_RESPONSE_BYTES = 5 * 1024 * 1024;
 
 async function readResponseTextWithLimit(response: Response): Promise<string> {
   if (!response.body) return "";
@@ -837,119 +732,34 @@ async function readResponseTextWithLimit(response: Response): Promise<string> {
       const { done, value } = await reader.read();
       if (done) break;
 
-      const chunk = value;
-      if (totalBytes + chunk.byteLength > MAX_RESPONSE_BYTES) {
+      totalBytes += value.byteLength;
+      if (totalBytes > MAX_RESPONSE_BYTES) {
         await reader.cancel().catch(() => undefined);
         throw new Error("Page too large to parse");
       }
-
-      chunks.push(chunk);
-      totalBytes += chunk.byteLength;
+      chunks.push(value);
     }
-
-    const bytes = new Uint8Array(totalBytes);
-    let offset = 0;
-    for (const chunk of chunks) {
-      bytes.set(chunk, offset);
-      offset += chunk.byteLength;
-    }
-    return new TextDecoder().decode(bytes);
+    return new TextDecoder().decode(Buffer.concat(chunks));
   } finally {
     reader.releaseLock();
   }
 }
 
-async function fetchWithSafeRedirects(
-  url: string,
-  init: RequestInit,
-  maxRedirects: number,
-): Promise<{ response: Response; finalUrl: string; close: () => Promise<void> }> {
-  let currentUrl = url;
-  for (let i = 0; i <= maxRedirects; i++) {
-    const request = await fetchPublicUrl(currentUrl, {
-      ...init,
-      redirect: "manual",
-    });
-    const response = request.response;
-    if (response.status >= 300 && response.status < 400) {
-      const location = response.headers.get("location");
-      if (!location) {
-        await request.close();
-        throw new Error("Redirect response without location header");
-      }
-      await discardResponseBody(response);
-      await request.close();
-      currentUrl = new URL(location, currentUrl).toString();
-      continue;
-    }
-    return { response, finalUrl: currentUrl, close: request.close };
-  }
-  throw new Error("Too many redirects");
-}
-
 async function fetchHtml(url: string): Promise<string> {
-  const urlObj = new URL(url);
-  const { response, close } = await fetchWithSafeRedirects(
-    url,
-    {
-      headers: { ...HEADERS, Referer: `${urlObj.protocol}//${urlObj.host}/` },
-      signal: AbortSignal.timeout(15000),
-    },
-    10,
-  );
-
-  if (!response.ok) {
-    await close();
-    throw new Error(`Failed to fetch URL: ${response.status}`);
-  }
-
-  const contentLength = response.headers.get("content-length");
-  const size = contentLength ? Number(contentLength) : NaN;
-  if (Number.isFinite(size) && size > MAX_RESPONSE_BYTES) {
-    await discardResponseBody(response);
-    await close();
-    throw new Error("Page too large to parse");
-  }
-
+  const { request } = await fetchFollowingRedirects(url, false);
+  const { response } = request;
   try {
-    const html = await readResponseTextWithLimit(response);
-    if (html.length > MAX_RESPONSE_BYTES) {
+    if (!response.ok) throw new Error(`Failed to fetch URL: ${response.status}`);
+    if (Number(response.headers.get("content-length")) > MAX_RESPONSE_BYTES) {
       throw new Error("Page too large to parse");
     }
-
-    return html;
+    return await readResponseTextWithLimit(response);
   } finally {
-    await close();
+    await closeRequest(request);
   }
 }
 
 // --- Main entry point ---
-
-async function parseProductUrlResolved(resolvedUrl: string): Promise<ParsedProduct> {
-  const marketplace = detectMarketplace(resolvedUrl);
-
-  if (marketplace === "wildberries") {
-    return parseWildberries(resolvedUrl);
-  }
-
-  if (marketplace === "ozon") {
-    return parseOzon(resolvedUrl);
-  }
-
-  const html = await fetchHtml(resolvedUrl);
-
-  switch (marketplace) {
-    case "aliexpress":
-      return parseAliexpress(resolvedUrl, html);
-    default:
-      return parseGeneric(resolvedUrl, html);
-  }
-}
-
-export async function parseProductUrl(url: string): Promise<ParsedProduct> {
-  const resolvedUrl = await resolveCanonicalProductUrl(url);
-  return parseProductUrlResolved(resolvedUrl);
-}
 
 function mergeSpecializedWithOg(specialized: ParsedProduct, og: ParsedProduct): ParsedProduct {
   const images = specialized.images.length
@@ -986,7 +796,10 @@ export async function parseWishlistProductUrl(url: string): Promise<ParsedProduc
   const marketplace = detectMarketplace(resolvedUrl);
 
   if (marketplace === "wildberries" || marketplace === "ozon") {
-    const specialized = await parseProductUrlResolved(resolvedUrl);
+    const specialized =
+      marketplace === "wildberries"
+        ? await parseWildberries(resolvedUrl)
+        : await parseOzon(resolvedUrl);
     try {
       const html = await fetchHtml(resolvedUrl);
       const og = parseOpenGraphFromHtml(html, resolvedUrl);
@@ -996,14 +809,14 @@ export async function parseWishlistProductUrl(url: string): Promise<ParsedProduc
     }
   }
 
+  const html = await fetchHtml(resolvedUrl);
+
   if (marketplace === "aliexpress") {
-    const html = await fetchHtml(resolvedUrl);
-    const specialized = await parseAliexpress(resolvedUrl, html);
+    const specialized = parseMarketplaceHtml(resolvedUrl, html, ALIEXPRESS_TITLE_JUNK);
     const og = parseOpenGraphFromHtml(html, resolvedUrl);
     return mergeSpecializedWithOg(specialized, og);
   }
 
-  const html = await fetchHtml(resolvedUrl);
   const $ = cheerio.load(html);
   const og = parseOpenGraphFromHtml(html, resolvedUrl, $);
   const generic = await parseGeneric(resolvedUrl, html, $);

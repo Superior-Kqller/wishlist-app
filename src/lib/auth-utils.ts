@@ -5,65 +5,27 @@ import { prisma } from "./prisma";
 import { ApiAccessError } from "./api-responses";
 import type { UserRole } from "@/types";
 
-interface SessionUser {
-  id: string;
-  username: string;
-  role?: UserRole;
-}
-
 /**
- * Получить текущего пользователя из сессии
- */
-export const getCurrentUser = cache(async function getCurrentUser(): Promise<SessionUser | null> {
-  const session = await getCachedServerSession();
-  if (!session?.user) return null;
-
-  const user = session.user as SessionUser;
-  return user;
-});
-
-/**
- * Получить ID текущего пользователя
- */
-export const getCurrentUserId = cache(async function getCurrentUserId(): Promise<string | null> {
-  const user = await getCurrentUser();
-  return user?.id || null;
-});
-
-/**
- * ID из сессии только если запись пользователя есть в БД
- * (устраняет «битую» сессию после сброса БД / рассинхрон).
- */
-export const getSessionUserIdVerified = cache(async function getSessionUserIdVerified(): Promise<
-  string | null
-> {
-  const userId = await getCurrentUserId();
-  if (!userId) return null;
-  const row = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true },
-  });
-  return row?.id ?? null;
-});
-
-/**
- * Получить пользователя с проверкой существования в БД
- * Используется для проверки актуальности сессии после изменений в БД
+ * Пользователь сессии, если его запись есть в БД (устраняет «битую» сессию
+ * после сброса БД / рассинхрон). Один запрос на весь рендер благодаря `cache`.
  */
 export const getCurrentUserWithDbCheck = cache(async function getCurrentUserWithDbCheck(): Promise<{
   id: string;
   role: UserRole;
 } | null> {
-  const userId = await getCurrentUserId();
+  const session = await getCachedServerSession();
+  const userId = session?.user?.id;
   if (!userId) return null;
 
-  const user = await prisma.user.findUnique({
+  return prisma.user.findUnique({
     where: { id: userId },
     select: { id: true, role: true },
   });
-
-  return user;
 });
+
+export async function getSessionUserIdVerified(): Promise<string | null> {
+  return (await getCurrentUserWithDbCheck())?.id ?? null;
+}
 
 /**
  * Проверить права администратора и вернуть ошибку, если нет прав

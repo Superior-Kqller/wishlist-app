@@ -5,7 +5,6 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import { type Language } from "@/lib/i18n";
 import { LanguageProvider } from "@/components/i18n/language-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 export function Providers({
   children,
@@ -23,9 +22,12 @@ export function Providers({
           forcedTheme="dark"
           enableSystem={false}
         >
-          <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+          {children}
           <Toaster
             position="bottom-right"
+            // Над нижней панелью разделов, пока она есть (до `lg`).
+            offset={{ bottom: "calc(var(--bottom-nav-clearance) + 1rem)" }}
+            mobileOffset={{ bottom: "calc(var(--bottom-nav-clearance) + 0.5rem)" }}
             theme="dark"
             richColors
             closeButton
