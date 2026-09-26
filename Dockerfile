@@ -24,9 +24,10 @@ RUN mkdir -p /app/public/uploads/avatars && \
 
 RUN NEXTAUTH_SECRET="build-secret-placeholder-minimum-32-chars" NEXTAUTH_URL="http://localhost:3000" npm run build
 
+# Отдельная установка Prisma CLI: корневые overrides сюда не доходят сами, переносим их целиком.
 RUN mkdir /prisma-cli && cd /prisma-cli && \
-    echo '{"dependencies":{"prisma":"'$(node -e "console.log(require('/app/node_modules/prisma/package.json').version)")'"},"overrides":{"@hono/node-server":"^1.19.13"}}'> package.json && \
-    npm install --production 2>/dev/null
+    node -e "const { overrides } = require('/app/package.json'); const { version } = require('/app/node_modules/prisma/package.json'); require('fs').writeFileSync('package.json', JSON.stringify({ dependencies: { prisma: version }, overrides }))" && \
+    npm install --omit=dev --no-audit --no-fund
 
 # --- Runner ---
 FROM node:24.16.0-alpine AS runner
