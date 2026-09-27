@@ -47,5 +47,14 @@ export default withAuth(
 export const config = {
   // Protect only real app pages. Unknown paths should reach App Router's
   // not-found handler instead of being turned into a login page with 200.
-  matcher: ["/", "/admin", "/calendar", "/preferences", "/preferences/me", "/settings", "/stats"],
+  matcher: [
+    "/",
+    "/admin",
+    "/calendar",
+    "/more",
+    "/preferences",
+    "/preferences/me",
+    "/settings",
+    "/stats",
+  ],
 };

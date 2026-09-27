@@ -5,9 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { motion, useReducedMotion } from "framer-motion";
-import { Search, Users } from "lucide-react";
+import { BarChart3, Search, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RetryNotice } from "@/components/ui/retry-notice";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StatsPanel } from "@/components/stats/stats-panel";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { cn, fetcher } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -121,7 +123,10 @@ export default function PreferencesPage() {
 function PreferencesPageContent() {
   const { t } = useI18n();
   const router = useRouter();
-  const requestedUserId = useSearchParams().get("userId");
+  const searchParams = useSearchParams();
+  const requestedUserId = searchParams.get("userId");
+  // Вкладка живёт в адресе: старые ссылки на `/stats` ведут сюда с `?tab=stats`.
+  const tab = searchParams.get("tab") === "stats" ? "stats" : "profiles";
   const reduceMotion = useReducedMotion();
   const { status } = useSession();
   const { data, isLoading, error, mutate } = useSWR<PreferencesUser>(
@@ -219,136 +224,167 @@ function PreferencesPageContent() {
               «Профилей в круге: N» — счётчик того, что видно ниже глазами. */}
           <PageIntro
             title={t("Подарочные профили")}
-            description={t(
-              "Что подойдёт каждому в вашем кругу. Откройте карточку, чтобы увидеть профиль целиком.",
-            )}
+            description={
+              tab === "stats"
+                ? t("Желания в общих подборках и ориентировочная стоимость по участникам")
+                : t(
+                    "Что подойдёт каждому в вашем кругу. Откройте карточку, чтобы увидеть профиль целиком.",
+                  )
+            }
           />
 
-          <section className="space-y-4" aria-label={t("Подарочные профили")}>
-            {/* Падение своего профиля больше не прячет круг: раньше ошибка
+          <Tabs
+            value={tab}
+            onValueChange={(value) =>
+              router.replace(value === "stats" ? "/preferences?tab=stats" : "/preferences", {
+                scroll: false,
+              })
+            }
+            className="grid gap-5"
+          >
+            <TabsList aria-label={t("Разделы профилей")} className="sm:max-w-sm">
+              <TabsTrigger value="profiles">
+                <Users className="h-4 w-4 shrink-0" aria-hidden />
+                <span className="truncate">{t("Профили")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="stats">
+                <BarChart3 className="h-4 w-4 shrink-0" aria-hidden />
+                <span className="truncate">{t("Статистика")}</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="stats" className="m-0">
+              <StatsPanel />
+            </TabsContent>
+
+            <TabsContent value="profiles" className="m-0">
+              <section className="space-y-4" aria-label={t("Подарочные профили")}>
+                {/* Падение своего профиля больше не прячет круг: раньше ошибка
                 `/api/users/me` заменяла собой весь список, хотя профили
                 друзей уже пришли и были главным, ради чего сюда идут. */}
-            {error ? (
-              <RetryNotice onRetry={() => mutate()}>
-                {t("Не удалось загрузить ваш профиль. Профили друзей ниже доступны.")}
-              </RetryNotice>
-            ) : null}
+                {error ? (
+                  <RetryNotice onRetry={() => mutate()}>
+                    {t("Не удалось загрузить ваш профиль. Профили друзей ниже доступны.")}
+                  </RetryNotice>
+                ) : null}
 
-            {circleError ? (
-              <RetryNotice onRetry={() => mutateCircle()}>
-                {t("Не удалось загрузить профили друзей. Ваш профиль по-прежнему доступен.")}
-              </RetryNotice>
-            ) : null}
+                {circleError ? (
+                  <RetryNotice onRetry={() => mutateCircle()}>
+                    {t("Не удалось загрузить профили друзей. Ваш профиль по-прежнему доступен.")}
+                  </RetryNotice>
+                ) : null}
 
-            {showProfileSearch ? (
-              <PreferenceProfileSearch
-                search={profileSearch}
-                resultCount={circleUsers.length}
-                onSearchChange={setProfileSearch}
-              />
-            ) : null}
+                {showProfileSearch ? (
+                  <PreferenceProfileSearch
+                    search={profileSearch}
+                    resultCount={circleUsers.length}
+                    onSearchChange={setProfileSearch}
+                  />
+                ) : null}
 
-            {circleUsers.length > 0 ? (
-              /*
-               * Контейнер не анимируется. На одном перестроении здесь работали
-               * три вложенных `layout` сразу — сетка, обёртка карточки и сама
-               * `article`, — и каждый мерил и вёл его независимо. Собственная
-               * коробка сетки при этом не меняется вовсе.
-               */
-              /*
-               * Потолок колонки 32rem: `1fr` растягивал единственную карточку
-               * круга на всю рамку страницы — 1110px ширины при 260px высоты,
-               * и профиль читался не карточкой, а полосой. Раскрытая карточка
-               * меряет себя контейнером, поэтому потолок ей не мешает.
-               */
-              <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fill,minmax(22rem,1fr))]">
-                {circleUsers.map((user) => {
-                  const isCurrent = user.id === data?.id;
-                  const isExpanded = expandedUserId === user.id;
-                  const cardPreferences = user.giftPreferences;
+                {circleUsers.length > 0 ? (
+                  /*
+                   * Контейнер не анимируется. На одном перестроении здесь работали
+                   * три вложенных `layout` сразу — сетка, обёртка карточки и сама
+                   * `article`, — и каждый мерил и вёл его независимо. Собственная
+                   * коробка сетки при этом не меняется вовсе.
+                   */
+                  /*
+                   * Потолок колонки 32rem: `1fr` растягивал единственную карточку
+                   * круга на всю рамку страницы — 1110px ширины при 260px высоты,
+                   * и профиль читался не карточкой, а полосой. Раскрытая карточка
+                   * меряет себя контейнером, поэтому потолок ей не мешает.
+                   */
+                  <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fill,minmax(22rem,1fr))]">
+                    {circleUsers.map((user) => {
+                      const isCurrent = user.id === data?.id;
+                      const isExpanded = expandedUserId === user.id;
+                      const cardPreferences = user.giftPreferences;
 
-                  return (
-                    /* Раскрытие — переход к чтению, а не к сравнению: карточка
+                      return (
+                        /* Раскрытие — переход к чтению, а не к сравнению: карточка
                        занимает весь ряд. В колонке шириной 20rem профиль
                        читался столбиком, а рядом оставался пустой ряд. */
-                    /*
-                     * Раскрытие никого не переставляет.
-                     *
-                     * Раньше раскрытая карточка забирала весь ряд
-                     * (`md:col-span-full`), и соседняя выдавливалась на
-                     * следующую строку: она проезжала по диагонали 519px —
-                     * 195 вниз и 482 влево — ради того, что рядом выросло на
-                     * сорок. Движение сообщало о событии втрое крупнее
-                     * случившегося.
-                     *
-                     * Теперь карточка растёт в своей колонке. Панель внутри
-                     * считает свои пороги через `@container`, то есть уже
-                     * умеет читаться в колонке — ширина ряда ей не нужна.
-                     *
-                     * `layout` остаётся: он ведёт рост самой карточки и сдвиг
-                     * тех, кто под ней. Появление карточек не анимируется —
-                     * каскад со сдвигом и задержкой по индексу был
-                     * хореографией загрузки, которой в продукте больше нет
-                     * (DESIGN.md → The Nothing-Arrives Rule).
-                     */
-                    <motion.div
-                      layout={!reduceMotion}
-                      key={user.id}
-                      id={profileAnchorId(user.id)}
-                      // `min-w-0` обязателен: у элемента сетки минимальный размер
-                      // по умолчанию равен min-content, и длинное имя без
-                      // пробелов растягивало колонку за край экрана.
-                      className="min-w-0 scroll-mt-24"
-                      transition={{ duration: duration.slow, ease: easing.expo }}
-                    >
-                      <PreferenceProfileCard
-                        id={user.id}
-                        name={user.name}
-                        username={user.username}
-                        avatarUrl={user.avatarUrl}
-                        preferences={cardPreferences}
-                        wishCount={user.stats?.totalItems}
-                        isCurrent={isCurrent}
-                        expanded={isExpanded}
-                        onToggle={() => toggleProfile(user.id)}
-                        onEdit={isCurrent ? openEditor : undefined}
-                        editLabel={
-                          isCurrent && hasStoredDraft ? t("Продолжить заполнение") : undefined
-                        }
-                      >
-                        <GiftPreferencesSummary preferences={cardPreferences} embedded />
-                      </PreferenceProfileCard>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            ) : profileSearch.trim() ? (
-              /* Пустая выдача поиска — единственный случай, когда список
+                        /*
+                         * Раскрытие никого не переставляет.
+                         *
+                         * Раньше раскрытая карточка забирала весь ряд
+                         * (`md:col-span-full`), и соседняя выдавливалась на
+                         * следующую строку: она проезжала по диагонали 519px —
+                         * 195 вниз и 482 влево — ради того, что рядом выросло на
+                         * сорок. Движение сообщало о событии втрое крупнее
+                         * случившегося.
+                         *
+                         * Теперь карточка растёт в своей колонке. Панель внутри
+                         * считает свои пороги через `@container`, то есть уже
+                         * умеет читаться в колонке — ширина ряда ей не нужна.
+                         *
+                         * `layout` остаётся: он ведёт рост самой карточки и сдвиг
+                         * тех, кто под ней. Появление карточек не анимируется —
+                         * каскад со сдвигом и задержкой по индексу был
+                         * хореографией загрузки, которой в продукте больше нет
+                         * (DESIGN.md → The Nothing-Arrives Rule).
+                         */
+                        <motion.div
+                          layout={!reduceMotion}
+                          key={user.id}
+                          id={profileAnchorId(user.id)}
+                          // `min-w-0` обязателен: у элемента сетки минимальный размер
+                          // по умолчанию равен min-content, и длинное имя без
+                          // пробелов растягивало колонку за край экрана.
+                          className="min-w-0 scroll-mt-24"
+                          transition={{ duration: duration.slow, ease: easing.expo }}
+                        >
+                          <PreferenceProfileCard
+                            id={user.id}
+                            name={user.name}
+                            username={user.username}
+                            avatarUrl={user.avatarUrl}
+                            preferences={cardPreferences}
+                            wishCount={user.stats?.totalItems}
+                            isCurrent={isCurrent}
+                            expanded={isExpanded}
+                            onToggle={() => toggleProfile(user.id)}
+                            onEdit={isCurrent ? openEditor : undefined}
+                            editLabel={
+                              isCurrent && hasStoredDraft ? t("Продолжить заполнение") : undefined
+                            }
+                          >
+                            <GiftPreferencesSummary preferences={cardPreferences} embedded />
+                          </PreferenceProfileCard>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                ) : profileSearch.trim() ? (
+                  /* Пустая выдача поиска — единственный случай, когда список
                  действительно пуст: своя карточка всегда стоит в круге, и
                  отфильтровать её может только запрос. */
-              <div className={uiSurface.emptyState}>
-                <Search className="mx-auto h-5 w-5 text-muted-foreground" aria-hidden />
-                <p className="mt-3 text-sm font-semibold">{t("Никого не нашли")}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {t("Проверьте имя или логин.")}
-                </p>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => setProfileSearch("")}
-                >
-                  {t("Очистить поиск")}
-                </Button>
-              </div>
-            ) : null}
+                  <div className={uiSurface.emptyState}>
+                    <Search className="mx-auto h-5 w-5 text-muted-foreground" aria-hidden />
+                    <p className="mt-3 text-sm font-semibold">{t("Никого не нашли")}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t("Проверьте имя или логин.")}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-4"
+                      onClick={() => setProfileSearch("")}
+                    >
+                      {t("Очистить поиск")}
+                    </Button>
+                  </div>
+                ) : null}
 
-            {/* Круг из одного человека — не пустой список, а состояние «вас тут
+                {/* Круг из одного человека — не пустой список, а состояние «вас тут
                 пока никто не видит»: своя карточка на месте, и под ней сказано,
                 откуда берутся остальные. */}
-            {!profileSearch.trim() && allCircleUsers.length <= 1 ? <CircleHint /> : null}
-          </section>
+                {!profileSearch.trim() && allCircleUsers.length <= 1 ? <CircleHint /> : null}
+              </section>
+            </TabsContent>
+          </Tabs>
         </div>
       </PageMain>
     </PageShell>

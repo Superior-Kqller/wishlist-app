@@ -4,19 +4,11 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LogOut, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
-import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { useI18n } from "@/components/i18n/language-provider";
 import { cn } from "@/lib/utils";
-import { signOut } from "next-auth/react";
 import { getAppNavItems } from "@/lib/app-navigation";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const mobileNavButtonClass = (active: boolean) =>
   cn(
@@ -56,8 +48,10 @@ export function Header() {
 
   const navItems = getAppNavItems(t, { isAdmin });
   const primaryNavItems = navItems.filter((item) => item.group === "primary");
-  const secondaryNavItems = navItems.filter((item) => item.group === "secondary");
-  const secondaryNavActive = secondaryNavItems.some((item) => pathname === item.href);
+  // Хаб и всё, что из него открывается, подсвечивают «Ещё».
+  const moreActive =
+    pathname === "/more" ||
+    navItems.some((item) => item.group === "secondary" && pathname === item.href);
 
   return (
     <>
@@ -72,18 +66,6 @@ export function Header() {
             >
               <BrandLockup compact />
             </button>
-            <LanguageSwitcher className="h-11 px-2" />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-11 w-11 shrink-0 text-muted-foreground hover:text-foreground"
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              title={t("Выйти")}
-              aria-label={t("Выйти")}
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       </header>
@@ -96,7 +78,7 @@ export function Header() {
        * поднимаются над ней на ту же высоту.
        */}
       <nav
-        className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-40 mx-auto grid max-w-lg grid-cols-5 gap-1 rounded-2xl border border-border/55 bg-[hsl(var(--glass-bg))] p-1.5 elevation-floating backdrop-blur-xl lg:hidden"
+        className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-40 mx-auto grid max-w-lg grid-cols-4 gap-1 rounded-2xl border border-border/55 bg-[hsl(var(--glass-bg))] p-1.5 elevation-floating backdrop-blur-xl lg:hidden"
         aria-label={t("Разделы")}
       >
         {primaryNavItems.map((item) => {
@@ -119,39 +101,19 @@ export function Header() {
             </Button>
           );
         })}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className={mobileNavButtonClass(secondaryNavActive)}
-              aria-label={t("Ещё")}
-              aria-current={secondaryNavActive ? "page" : undefined}
-            >
-              {secondaryNavActive ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
-              <MoreHorizontal className="h-5 w-5 shrink-0" />
-              <span className={mobileNavLabelClass}>{t("Ещё")}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="top" align="end" className="w-48">
-            {secondaryNavItems.map((item) => {
-              const Icon = item.icon;
-              const active = pathname === item.href;
-              return (
-                <DropdownMenuItem
-                  key={item.href}
-                  onClick={() => router.push(item.href)}
-                  className={cn(active && "bg-accent text-accent-foreground")}
-                  aria-current={active ? "page" : undefined}
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </DropdownMenuItem>
-              );
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* «Ещё» — экран-хаб, а не выпадающее меню: там же язык и выход. */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className={mobileNavButtonClass(moreActive)}
+          aria-current={moreActive ? "page" : undefined}
+          onClick={() => router.push("/more")}
+        >
+          {moreActive ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
+          <MoreHorizontal className="h-5 w-5 shrink-0" />
+          <span className={mobileNavLabelClass}>{t("Ещё")}</span>
+        </Button>
       </nav>
     </>
   );

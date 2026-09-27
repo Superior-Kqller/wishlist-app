@@ -1,4 +1,4 @@
-import { BarChart3, CalendarDays, Gift, Home, Settings, Shield } from "lucide-react";
+import { CalendarDays, Gift, Home, Settings, Shield } from "lucide-react";
 import type { ComponentType } from "react";
 
 /*
@@ -29,7 +29,6 @@ export function getAppNavItems(t: Translate, { isAdmin }: { isAdmin: boolean }):
   const items: AppNavItem[] = [
     { label: t("Главная"), href: "/", icon: Home, group: "primary" },
     { label: t("Календарь"), href: "/calendar", icon: CalendarDays, group: "primary" },
-    { label: t("Статистика"), href: "/stats", icon: BarChart3, group: "primary" },
     {
       label: t("Подарочные профили"),
       shortLabel: t("Профили"),
