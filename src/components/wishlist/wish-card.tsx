@@ -2,30 +2,17 @@
 
 import { memo, useState } from "react";
 import Image from "next/image";
-import {
-  Check,
-  CheckCircle2,
-  ExternalLink,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  Undo2,
-} from "lucide-react";
+import { CheckCircle2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { WishlistItem } from "@/types";
 import { cn, formatPrice } from "@/lib/utils";
 import { getAvatarColor } from "@/lib/avatar-utils";
-import { PriorityBadgeInline, PriorityBadgeOverlay } from "./priority-badge";
+import { PriorityBadgeInline } from "./priority-badge";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getProductCategoryLabel } from "@/lib/categories";
-import { getPurchaseToggleTarget, isItemPurchased, type ItemStatus } from "@/lib/item-status";
+import { isItemPurchased, type ItemStatus } from "@/lib/item-status";
+import { ItemActionsMenu } from "./item-actions-menu";
 import { ProductCategoryIcon } from "@/lib/category-icons";
 
 interface WishCardProps {
@@ -60,6 +47,9 @@ export const WishCard = memo(function WishCard({
 }: WishCardProps) {
   const { language, t } = useI18n();
   const [imageError, setImageError] = useState(false);
+  // Подложка светлеет только под загруженным снимком: пока он грузится или
+  // если ссылка мертва, кадр остаётся тёмным, а не пустым светлым окном.
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [ownerImageError, setOwnerImageError] = useState(false);
 
   const imageUrl = item.images?.[0] ?? null;
@@ -82,10 +72,6 @@ export const WishCard = memo(function WishCard({
     onOpenDetail?.(item);
   };
 
-  const handleMarkPurchased = () => {
-    onSetStatus(item.id, getPurchaseToggleTarget(item));
-  };
-
   const showImage = Boolean(imageUrl && !imageError);
   const categoryLabel = getProductCategoryLabel(item.category, language);
 
@@ -93,7 +79,7 @@ export const WishCard = memo(function WishCard({
     <Card
       data-testid="wishlist-card-v2"
       className={cn(
-        "group/card relative flex h-full flex-col overflow-hidden rounded-2xl border-border/45 bg-[hsl(var(--surface-2))] shadow-none",
+        "group/card relative flex h-full flex-col overflow-hidden rounded-2xl border-border/45 bg-[hsl(var(--surface-2))] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]",
         isBought && "opacity-[0.88] saturate-[0.85]",
         isCardInteractive &&
           "transition-[border-color,transform,box-shadow] duration-[var(--dur-base)] ease-[var(--ease-soft)] hover:-translate-y-1 hover:border-primary/45 hover:shadow-[var(--shadow-interactive-card-hover)]",
@@ -128,49 +114,30 @@ export const WishCard = memo(function WishCard({
               <div
                 data-testid="wishlist-card-v2-media"
                 className={cn(
-                  "relative w-full shrink-0 overflow-hidden bg-[hsl(var(--surface-1))]",
+                  /*
+                   * Снимок лежит в «лотке» на светлой подложке, отбитом от краёв
+                   * карточки. Раньше кадр шёл в край, а белый фон снимка
+                   * заливал его светом; размытая копия снимка вокруг и
+                   * растушёвка снизу лишь маскировали это.
+                   */
+                  "relative mx-2 mt-2 shrink-0 overflow-hidden rounded-xl",
+                  imageLoaded ? "media-tile" : "bg-[hsl(var(--surface-1))]",
                   // На узком экране карточки идут в один столбец, поэтому кадр
                   // здесь шире: иначе один товар занимает пол-экрана по высоте.
                   "aspect-[16/10] sm:aspect-[4/3]",
                 )}
               >
-                {/*
-                 * Фотографии товаров приходят с чужих сайтов: разные пропорции и
-                 * разные фоны. Размытая копия снимка заполняет кадр целиком, а
-                 * резкая версия остаётся целой поверх — так карточки выстраиваются
-                 * в ровную сетку, и ни один товар не обрезается.
-                 */}
-                <>
-                  {/*
-                   * Подложка — CSS-фон, а не второй <Image>: адрес тот же, браузер
-                   * берёт уже раскодированный снимок из кэша. Сетка из двух
-                   * десятков карточек иначе платила за вдвое больше декодирований
-                   * ради изображения, которое всё равно размыто.
-                   */}
-                  <div
-                    aria-hidden
-                    style={{ backgroundImage: `url(${JSON.stringify(imageUrl!)})` }}
-                    className="absolute inset-0 scale-125 bg-cover bg-center opacity-40 blur-2xl"
-                  />
-                  <Image
-                    src={imageUrl!}
-                    alt=""
-                    fill
-                    className="wish-card-image relative object-contain p-4 sm:p-5"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
-                    unoptimized
-                    onError={() => setImageError(true)}
-                  />
-                </>
-
-                {/* Растушёвка нижней кромки принадлежит снимку: она гасит его край
-                  перед текстом. */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[hsl(var(--surface-2))] via-[hsl(var(--surface-2)/0.55)] to-transparent"
+                {/* Снимки приходят в разных пропорциях: `contain` не обрезает ни один товар. */}
+                <Image
+                  src={imageUrl!}
+                  alt=""
+                  fill
+                  className="wish-card-image object-contain p-4 sm:p-5"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                  unoptimized
+                  onLoad={() => setImageLoaded(true)}
+                  onError={() => setImageError(true)}
                 />
-
-                <PriorityBadgeOverlay priority={item.priority} />
               </div>
             ) : null}
 
@@ -202,9 +169,9 @@ export const WishCard = memo(function WishCard({
                 data-testid="wishlist-card-v2-meta"
                 className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground"
               >
-                {/* Важность стоит первой: на карточке со снимком она лежит
-                      поверх кадра, здесь — среди прочих фактов о желании. */}
-                {!showImage ? <PriorityBadgeInline priority={item.priority} /> : null}
+                {/* Важность стоит первой среди фактов — и на карточке со снимком
+                      тоже: плашка поверх фото закрывала сам товар. */}
+                <PriorityBadgeInline priority={item.priority} />
 
                 {/*
                  * Разделительных точек в строке нет. Каждый факт начинается со
@@ -279,7 +246,7 @@ export const WishCard = memo(function WishCard({
       {showFooter ? (
         <div
           data-testid="wishlist-card-v2-footer"
-          className="mt-auto flex min-h-[3.25rem] items-center justify-between gap-2 border-t border-border/32 px-3.5 py-2.5 sm:px-4"
+          className="mt-auto flex min-h-[3.25rem] items-center justify-between gap-2 px-3.5 pb-3 pt-1 sm:px-4"
         >
           {selectionMode ? (
             <p className="text-xs text-muted-foreground">
@@ -292,7 +259,7 @@ export const WishCard = memo(function WishCard({
               {item.price != null ? (
                 <p
                   data-testid="wishlist-card-v2-price"
-                  className="min-w-0 flex-1 truncate text-[17px] font-semibold leading-none tabular-nums tracking-[-0.01em] text-foreground"
+                  className="min-w-0 flex-1 truncate text-xl font-bold leading-none tabular-nums tracking-[-0.02em] text-foreground"
                 >
                   {formatPrice(item.price, item.currency, language)}
                 </p>
@@ -315,7 +282,7 @@ export const WishCard = memo(function WishCard({
                       asChild
                       title={t("Открыть в новой вкладке")}
                       aria-label={t("Открыть ссылку на товар в новой вкладке")}
-                      className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-transparent text-muted-foreground hover:border-primary/32 hover:bg-primary/10 hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
+                      className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-[hsl(var(--surface-3))] text-muted-foreground hover:bg-[hsl(var(--surface-4))] hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
                     >
                       <a
                         href={item.url}
@@ -329,53 +296,16 @@ export const WishCard = memo(function WishCard({
                   ) : null}
 
                   {canManage ? (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          data-testid="wishlist-card-actions"
-                          aria-label={t("Действия с карточкой")}
-                          className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-transparent text-muted-foreground hover:border-primary/32 hover:bg-primary/10 hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MoreHorizontal aria-hidden />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleMarkPurchased();
-                          }}
-                          disabled={statusPending}
-                        >
-                          {isBought ? <Undo2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                          {isBought ? t("Вернуть в доступные") : t("Отметить купленным")}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit(item);
-                          }}
-                          disabled={statusPending}
-                        >
-                          <Pencil className="h-4 w-4" />
-                          {t("Редактировать")}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(item.id);
-                          }}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          {t("Удалить")}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <ItemActionsMenu
+                      item={item}
+                      statusPending={statusPending}
+                      onEdit={onEdit}
+                      onDelete={onDelete}
+                      onSetStatus={onSetStatus}
+                      label={t("Действия с карточкой")}
+                      testId="wishlist-card-actions"
+                      triggerClassName="size-11 min-h-[44px] min-w-[44px] border-transparent bg-[hsl(var(--surface-3))] text-muted-foreground hover:bg-[hsl(var(--surface-4))] hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
+                    />
                   ) : null}
                 </div>
               ) : null}

@@ -68,10 +68,6 @@ export function PageIntro({ title, description, actions, meta, className }: Page
      * читать его нельзя ещё полсекунды.
      */
     <div className={cn("relative mb-5 border-b border-border/45 pb-4 sm:mb-8 sm:pb-7", className)}>
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-4 -top-6 h-40 w-[28rem] max-w-full bg-[radial-gradient(ellipse_at_left,hsl(var(--theme-cool)/0.16),transparent_70%)] blur-2xl sm:-left-6"
-      />
       <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
         <div className="min-w-0">
           <h1 className="page-title text-foreground">{title}</h1>

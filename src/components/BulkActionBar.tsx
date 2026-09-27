@@ -39,7 +39,7 @@ export function BulkActionBar({
           // и само появление панели проходило для скринридера беззвучно.
           role="region"
           aria-label={t("Действия над выбранными желаниями")}
-          className="fixed inset-x-3 bottom-[calc(4.9rem+env(safe-area-inset-bottom,0px))] z-50 sm:bottom-4 sm:left-1/2 sm:right-auto sm:w-auto sm:-translate-x-1/2"
+          className="fixed inset-x-3 bottom-[calc(var(--bottom-nav-clearance)+0.25rem)] z-50 sm:left-1/2 sm:right-auto sm:w-auto sm:-translate-x-1/2 lg:bottom-4"
         >
           <div
             className={`${uiSurface.floatingBar} mx-auto w-full max-w-md justify-between sm:w-auto sm:max-w-none`}

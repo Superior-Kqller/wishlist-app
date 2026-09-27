@@ -614,7 +614,7 @@ export function WishlistWorkspace({
           type="button"
           onClick={onAddItem}
           aria-label={t("Добавить желание")}
-          className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-4 z-40 h-14 w-14 rounded-full p-0 shadow-[var(--shadow-floating)] sm:hidden"
+          className="fixed bottom-[calc(var(--bottom-nav-clearance)+0.25rem)] right-4 z-40 h-14 w-14 rounded-2xl p-0 shadow-[var(--shadow-floating)] sm:hidden"
         >
           <Plus className="h-6 w-6" aria-hidden />
         </Button>

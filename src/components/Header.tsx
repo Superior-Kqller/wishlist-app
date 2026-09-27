@@ -20,8 +20,10 @@ import {
 
 const mobileNavButtonClass = (active: boolean) =>
   cn(
-    "relative h-11 min-w-0 flex-col gap-0.5 rounded-lg border border-transparent px-0.5 py-1.5 text-[10px] font-semibold leading-none tracking-[-0.01em] transition-[color] active:bg-accent/45 sm:flex-row sm:gap-1.5 sm:px-3 sm:text-xs sm:tracking-normal",
-    active ? "text-foreground" : "text-muted-foreground hover:bg-accent/45 hover:text-foreground",
+    "relative h-12 min-w-0 flex-col gap-1 rounded-xl border border-transparent px-0.5 py-1.5 text-[10px] font-semibold leading-none tracking-[-0.01em] transition-[color] active:bg-accent/45",
+    active
+      ? "text-foreground [&_svg]:text-primary-accent"
+      : "text-muted-foreground hover:bg-accent/45 hover:text-foreground",
   );
 
 /**
@@ -30,7 +32,7 @@ const mobileNavButtonClass = (active: boolean) =>
  * («Предпочтения») выезжала за подложку вкладки в соседние. Ширина по ячейке
  * возвращает обрезку и делает её страховкой для любого языка.
  */
-const mobileNavLabelClass = "w-full truncate text-center sm:w-auto";
+const mobileNavLabelClass = "w-full truncate text-center";
 
 /** Та же подложка активного раздела, что и в боковом меню, только для узких экранов. */
 function MobileNavIndicator({ reduceMotion }: { reduceMotion: boolean | null }) {
@@ -39,7 +41,7 @@ function MobileNavIndicator({ reduceMotion }: { reduceMotion: boolean | null }) 
       layoutId="mobile-nav-active"
       aria-hidden
       transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 36 }}
-      className="absolute inset-0 -z-10 rounded-lg border border-border/55 bg-[hsl(var(--surface-3))]"
+      className="absolute inset-0 -z-10 rounded-xl bg-[hsl(var(--surface-4))]"
     />
   );
 }
@@ -58,10 +60,10 @@ export function Header() {
   const secondaryNavActive = secondaryNavItems.some((item) => pathname === item.href);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/85 bg-[hsl(var(--surface-2)/0.95)] elevation-header backdrop-blur-xl lg:hidden">
-      <div className="pt-[env(safe-area-inset-top,0px)]">
-        <div className="container mx-auto flex flex-col px-3 sm:px-4">
-          <div className="flex min-h-[48px] items-center gap-1">
+    <>
+      <header className="sticky top-0 z-40 border-b border-border/55 bg-[hsl(var(--surface-2)/0.85)] elevation-header backdrop-blur-xl lg:hidden">
+        <div className="pt-[env(safe-area-inset-top,0px)]">
+          <div className="container mx-auto flex min-h-[48px] items-center gap-1 px-3 sm:px-4">
             <button
               onClick={() => router.push("/")}
               className="flex min-h-11 min-w-0 flex-1 items-center rounded-lg py-1 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -83,67 +85,74 @@ export function Header() {
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
+        </div>
+      </header>
 
-          <nav
-            className="-mx-3 grid grid-cols-5 gap-1 border-t border-border/32 px-3 pb-1.5 pt-1.5 sm:-mx-4 sm:px-4"
-            aria-label={t("Разделы")}
-          >
-            {primaryNavItems.map((item) => {
+      {/*
+       * Разделы живут внизу, под большим пальцем, а не второй строкой шапки:
+       * там до них было дальше всего, и шапка съедала почти сто пикселей
+       * высоты на каждом экране. Панель плавает над контентом — отступ под
+       * неё держит оболочка (`AppShell`), а плавающие кнопки и тосты
+       * поднимаются над ней на ту же высоту.
+       */}
+      <nav
+        className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-40 mx-auto grid max-w-lg grid-cols-5 gap-1 rounded-2xl border border-border/55 bg-[hsl(var(--glass-bg))] p-1.5 elevation-floating backdrop-blur-xl lg:hidden"
+        aria-label={t("Разделы")}
+      >
+        {primaryNavItems.map((item) => {
+          const Icon = item.icon;
+          const active = pathname === item.href;
+
+          return (
+            <Button
+              key={item.href}
+              variant="ghost"
+              size="sm"
+              className={mobileNavButtonClass(active)}
+              aria-current={active ? "page" : undefined}
+              aria-label={item.shortLabel ? item.label : undefined}
+              onClick={() => router.push(item.href)}
+            >
+              {active ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
+              <Icon className="h-5 w-5 shrink-0" />
+              <span className={mobileNavLabelClass}>{item.shortLabel ?? item.label}</span>
+            </Button>
+          );
+        })}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className={mobileNavButtonClass(secondaryNavActive)}
+              aria-label={t("Ещё")}
+              aria-current={secondaryNavActive ? "page" : undefined}
+            >
+              {secondaryNavActive ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
+              <MoreHorizontal className="h-5 w-5 shrink-0" />
+              <span className={mobileNavLabelClass}>{t("Ещё")}</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="top" align="end" className="w-48">
+            {secondaryNavItems.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
-
               return (
-                <Button
+                <DropdownMenuItem
                   key={item.href}
-                  variant="ghost"
-                  size="sm"
-                  className={mobileNavButtonClass(active)}
-                  aria-current={active ? "page" : undefined}
-                  aria-label={item.shortLabel ? item.label : undefined}
                   onClick={() => router.push(item.href)}
+                  className={cn(active && "bg-accent text-accent-foreground")}
+                  aria-current={active ? "page" : undefined}
                 >
-                  {active ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
-                  <Icon className="h-4 w-4 shrink-0" />
-                  <span className={mobileNavLabelClass}>{item.shortLabel ?? item.label}</span>
-                </Button>
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </DropdownMenuItem>
               );
             })}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className={mobileNavButtonClass(secondaryNavActive)}
-                  aria-label={t("Ещё")}
-                  aria-current={secondaryNavActive ? "page" : undefined}
-                >
-                  {secondaryNavActive ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
-                  <MoreHorizontal className="h-4 w-4 shrink-0" />
-                  <span className={mobileNavLabelClass}>{t("Ещё")}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {secondaryNavItems.map((item) => {
-                  const Icon = item.icon;
-                  const active = pathname === item.href;
-                  return (
-                    <DropdownMenuItem
-                      key={item.href}
-                      onClick={() => router.push(item.href)}
-                      className={cn(active && "bg-accent text-accent-foreground")}
-                      aria-current={active ? "page" : undefined}
-                    >
-                      <Icon className="h-4 w-4" />
-                      {item.label}
-                    </DropdownMenuItem>
-                  );
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </nav>
-        </div>
-      </div>
-    </header>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </nav>
+    </>
   );
 }

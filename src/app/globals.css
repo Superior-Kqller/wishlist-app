@@ -95,26 +95,50 @@
   /* Типографическая шкала страницы: один шаг заголовка на все разделы. */
   --text-display: clamp(1.875rem, 1.24rem + 2.1vw, 2.5rem);
   --text-page-lede: clamp(0.9375rem, 0.89rem + 0.22vw, 1.0625rem);
+
+  /*
+   * Высота, которую занимает нижняя панель разделов на узких экранах.
+   * Одно число держит отступ оболочки, плавающую кнопку, панель массовых
+   * действий и тосты над панелью; от `lg` панели нет, и запас обнуляется.
+   */
+  --bottom-nav-clearance: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --bottom-nav-clearance: 0px;
+  }
 }
 
 @layer base {
   :root,
   .dark {
     color-scheme: dark;
-    --background: 226 17% 6%;
-    --foreground: 222 22% 94%;
+    /*
+     * Графит тёплый и почти нейтральный (250°, насыщенность 5–8%). Прежний
+     * сине-серый (222–226°, 12–17%) вместе с фиолетовой краской давал
+     * холодную дымку поверх всего интерфейса; цвет теперь приходит только
+     * с действием, выбором и статусом.
+     */
+    --background: 250 8% 4%;
+    --foreground: 250 12% 94%;
 
-    --surface-1: 226 17% 6%;
-    --surface-2: 224 14% 9%;
-    --surface-3: 222 12% 13%;
-    --surface-4: 220 10% 18%;
-    --surface-5: 218 9% 24%;
-    --surface-6: 216 8% 30%;
+    --surface-1: 250 8% 4%;
+    --surface-2: 250 6% 8%;
+    --surface-3: 250 5% 11.5%;
+    --surface-4: 250 5% 16%;
+    --surface-5: 250 5% 22%;
+    --surface-6: 250 4% 28%;
 
     --card: var(--surface-3);
-    --card-foreground: 220 24% 94%;
+    --card-foreground: 250 14% 94%;
 
-    --primary: 262 58% 60%;
+    /*
+     * Заливка приглушена: насыщенный фиолетовый (262° 58% 60%) на почти
+     * чёрном фоне был самым ярким пятном экрана и спорил с фотографиями
+     * товаров. Тише — но белая буква на ней по-прежнему берёт ~6.9:1.
+     */
+    --primary: 258 30% 44%;
     --primary-foreground: 0 0% 100%;
     /*
      * Заливке и тексту нужен разный фирменный цвет. `--primary` подобран под
@@ -122,17 +146,17 @@
      * рамки или фокус-кольца на тёмном фоне не дотягивает до 3:1, поэтому
      * голос краски — отдельный, светлее заливки на две ступени.
      */
-    --primary-accent: 262 62% 70%;
+    --primary-accent: 258 58% 78%;
 
     --secondary: var(--surface-2);
-    --secondary-foreground: 220 24% 94%;
+    --secondary-foreground: 250 14% 94%;
 
     --muted: var(--surface-4);
-    --muted-foreground: 218 13% 68%;
-    --muted-foreground-subtle: 218 13% 60%;
+    --muted-foreground: 250 6% 66%;
+    --muted-foreground-subtle: 250 6% 60%;
 
     --accent: var(--surface-4);
-    --accent-foreground: 220 24% 94%;
+    --accent-foreground: 250 14% 94%;
 
     --destructive: 358 76% 62%;
     /*
@@ -144,12 +168,12 @@
      */
     --destructive-foreground: 358 44% 11%;
 
-    --border: 222 13% 25%;
-    --input: 222 13% 25%;
+    --border: 250 6% 20%;
+    --input: 250 6% 20%;
     --ring: var(--primary-accent);
 
     --popover: var(--surface-2);
-    --popover-foreground: 220 24% 94%;
+    --popover-foreground: 250 14% 94%;
 
     --success: 158 64% 43%;
     --success-foreground: 0 0% 100%;
@@ -175,15 +199,15 @@
      * шесть из десяти давали 3.0–4.0.
      */
     --avatar-foreground: 0 0% 100%;
-    --avatar-1: 263 52% 50%;
-    --avatar-2: 203 58% 43%;
-    --avatar-3: 158 52% 34%;
-    --avatar-4: 38 72% 35%;
-    --avatar-5: 348 58% 48%;
-    --avatar-6: 224 48% 52%;
-    --avatar-7: 188 52% 36%;
-    --avatar-8: 24 62% 43%;
-    --avatar-9: 286 45% 48%;
+    --avatar-1: 263 36% 50%;
+    --avatar-2: 203 40% 43%;
+    --avatar-3: 158 36% 34%;
+    --avatar-4: 38 50% 35%;
+    --avatar-5: 348 40% 48%;
+    --avatar-6: 224 34% 52%;
+    --avatar-7: 188 36% 36%;
+    --avatar-8: 24 44% 43%;
+    --avatar-9: 286 32% 48%;
     --avatar-10: 220 12% 48%;
 
     --radius: 0.625rem;
@@ -194,8 +218,8 @@
      * - glass tokens are reserved for overlays, shell chrome, and floating bars.
      * - primary glow is an interaction/focus affordance, not page decoration.
      */
-    --glass-bg: 224 14% 10% / 0.78;
-    --glass-border: 224 11% 32% / 0.34;
+    --glass-bg: 250 6% 8% / 0.84;
+    --glass-border: 250 5% 30% / 0.3;
     --glass-blur: 20px;
     /*
      * Две лампы, а не одна.
@@ -211,27 +235,33 @@
      * цвет — краска действия по-прежнему одна; это тёплый угол комнаты,
      * который на альфе 0.06–0.11 читается не цветом, а температурой.
      */
-    --theme-cool: 262 58% 62%;
+    --theme-cool: 258 40% 58%;
     --theme-warm: 28 52% 44%;
-    --canvas-cool-alpha: 0.14;
-    --canvas-warm-alpha: 0.11;
-    --canvas-primary-alpha: 0.09;
+    --canvas-cool-alpha: 0.07;
+    --canvas-warm-alpha: 0.035;
+    --canvas-primary-alpha: 0;
     --canvas-neutral: var(--foreground);
-    --canvas-neutral-alpha: 0.1;
-    --panel-cool-alpha: 0.075;
-    --panel-warm-alpha: 0.06;
+    --canvas-neutral-alpha: 0.05;
+    --panel-cool-alpha: 0.03;
+    --panel-warm-alpha: 0.02;
     --panel-highlight: var(--foreground);
     --panel-highlight-alpha: 0.045;
     --panel-depth-alpha: 0.3;
-    --overlay-backdrop: 224 28% 4% / 0.68;
-    --overlay-image-scrim: 224 28% 4% / 0.58;
+    /*
+     * Подложка снимка товара. Фото из магазинов почти всегда сняты на белом:
+     * на тёмной карточке они становились резкими белыми прямоугольниками, а
+     * размытая копия снимка вокруг лишь разносила этот свет по кадру. Светлая
+     * приглушённая «бумага» принимает белый фон снимка на себя (`multiply`),
+     * и товар лежит на ней, а не в светящемся окне.
+     */
+    --media-tile: 40 5% 86%;
+    --overlay-backdrop: 250 20% 3% / 0.7;
+    --overlay-image-scrim: 250 20% 3% / 0.58;
 
     --shadow-sidebar: 12px 0 34px rgb(0 0 0 / 0.2);
     --shadow-header: 0 1px 10px rgb(0 0 0 / 0.34);
     --shadow-panel: 0 18px 42px rgb(1 5 14 / 0.34), inset 0 1px 0 hsl(var(--foreground) / 0.04);
-    --shadow-hero-panel:
-      0 26px 72px rgb(1 5 14 / 0.44), 0 0 0 1px hsl(var(--primary) / 0.08),
-      inset 0 1px 0 hsl(var(--foreground) / 0.06);
+    --shadow-hero-panel: 0 20px 56px rgb(0 0 0 / 0.4), inset 0 1px 0 hsl(var(--foreground) / 0.05);
     --shadow-page-header:
       0 18px 48px rgb(1 5 14 / 0.34), inset 0 1px 0 hsl(var(--foreground) / 0.04);
     --shadow-interactive-card:
@@ -241,7 +271,7 @@
     --shadow-selected-card: 0 18px 40px rgb(1 5 14 / 0.38);
     --shadow-floating: 0 12px 28px rgb(1 5 14 / 0.38);
     --shadow-dialog: 0 28px 72px rgb(1 5 14 / 0.48), 0 0 0 1px hsl(var(--foreground) / 0.035);
-    --shadow-brand-action: 0 10px 24px rgb(1 5 14 / 0.32), 0 0 18px hsl(var(--primary) / 0.2);
+    --shadow-brand-action: 0 6px 16px rgb(0 0 0 / 0.3), inset 0 1px 0 hsl(0 0% 100% / 0.12);
   }
 
   * {
@@ -485,6 +515,15 @@
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s linear infinite;
+}
+
+/* Белый фон снимка растворяется в подложке, сам товар остаётся как есть. */
+.media-tile {
+  background-color: hsl(var(--media-tile));
+}
+
+.media-tile img {
+  mix-blend-mode: multiply;
 }
 
 .wish-card-image {

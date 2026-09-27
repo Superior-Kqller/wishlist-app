@@ -2,22 +2,16 @@
 
 import { memo, useState } from "react";
 import Image from "next/image";
-import { Check, ExternalLink, MoreHorizontal, Pencil, Trash2, Undo2 } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { cn, formatPrice } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getProductCategoryLabel } from "@/lib/categories";
-import { getPurchaseToggleTarget, isItemPurchased, type ItemStatus } from "@/lib/item-status";
+import { isItemPurchased, type ItemStatus } from "@/lib/item-status";
+import { ItemActionsMenu } from "./item-actions-menu";
 import { ProductCategoryIcon } from "@/lib/category-icons";
 
 interface ProductRowProps {
@@ -73,10 +67,6 @@ export const ProductRow = memo(function ProductRow({
     onOpenDetail?.(item);
   };
 
-  const handleMarkPurchased = () => {
-    onSetStatus(item.id, getPurchaseToggleTarget(item));
-  };
-
   return (
     <TableRow
       data-testid="wishlist-product-row"
@@ -96,13 +86,18 @@ export const ProductRow = memo(function ProductRow({
            * квадратов 56×56 — столбец шума, отодвигающий название товара.
            */}
           {showPreviewColumn ? (
-            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-border bg-[hsl(var(--surface-1))]">
+            <div
+              className={cn(
+                "relative h-14 w-14 shrink-0 overflow-hidden rounded-lg",
+                showImage ? "media-tile" : "border border-border bg-[hsl(var(--surface-1))]",
+              )}
+            >
               {showImage ? (
                 <Image
                   src={imageUrl!}
                   alt=""
                   fill
-                  className="object-cover"
+                  className="object-contain p-1"
                   sizes="56px"
                   unoptimized
                   onError={() => setImageError(true)}
@@ -197,51 +192,16 @@ export const ProductRow = memo(function ProductRow({
 
       <TableCell className="w-[3rem] text-right">
         {canManage ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="iconToolbar"
-                aria-label={t("Действия с желанием")}
-                onClick={(event) => event.stopPropagation()}
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={(event) => {
-                  event.stopPropagation();
-                  handleMarkPurchased();
-                }}
-                disabled={statusPending}
-              >
-                {isBought ? <Undo2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                {isBought ? t("Вернуть в доступные") : t("Отметить купленным")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onEdit(item);
-                }}
-                disabled={statusPending}
-              >
-                <Pencil className="h-4 w-4" />
-                {t("Редактировать")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onDelete(item.id);
-                }}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="h-4 w-4" />
-                {t("Удалить")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ItemActionsMenu
+            item={item}
+            statusPending={statusPending}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onSetStatus={onSetStatus}
+            label={t("Действия с желанием")}
+            size="iconToolbar"
+            iconClassName="h-4 w-4"
+          />
         ) : selectionMode ? (
           // Раньше здесь стоял неинтерактивный <span>: он выглядел как контрол,
           // не получал фокус и не сообщал состояние выбора скринридеру.
