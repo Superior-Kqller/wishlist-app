@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, MessageCircle, Trash2 } from "lucide-react";
+import { Loader2, MessageCircle, SendHorizontal, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -35,35 +35,25 @@ export function ItemActivitySection({
 
   return (
     <section className={cn("space-y-3", className)} aria-label={t("Комментарии")}>
-      <h3 className="flex items-center justify-between gap-2 text-sm font-semibold text-foreground">
-        <span className="flex min-w-0 items-center gap-2">
-          <MessageCircle className="h-4 w-4 text-muted-foreground/85" />
-          {t("Комментарии")}
-        </span>
-        {comments.length > 0 ? (
-          <span className="text-xs font-medium tabular-nums text-muted-foreground">
-            {comments.length}
-          </span>
-        ) : null}
+      <h3 className="text-[13px] font-semibold text-muted-foreground">
+        {t("Комментарии")}
+        {comments.length > 0 ? <span className="tabular-nums"> · {comments.length}</span> : null}
       </h3>
 
       <div className="sm:max-h-56 sm:overflow-y-auto sm:pr-1">
         {comments.length === 0 ? (
-          <div className="flex min-h-16 items-center gap-2 border-y border-border/32 py-3 text-sm text-muted-foreground">
-            <MessageCircle className="h-4 w-4 shrink-0 text-muted-foreground/55" />
-            <p>{t("Комментариев пока нет")}</p>
-          </div>
+          <p className="flex items-center gap-2 py-1 text-sm text-muted-foreground">
+            <MessageCircle className="h-4 w-4 shrink-0" aria-hidden />
+            {t("Комментариев пока нет")}
+          </p>
         ) : (
           comments.map((comment) => (
-            <div
-              key={comment.id}
-              className="flex gap-2 border-t border-border/32 py-3 text-sm first:border-t-0 first:pt-0"
-            >
+            <div key={comment.id} className="flex gap-3 py-2.5 text-sm first:pt-0">
               <UserAvatar
                 avatarUrl={comment.user.avatarUrl || undefined}
                 name={comment.user.name}
                 userId={comment.user.id}
-                size="sm"
+                size="md"
               />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
@@ -78,7 +68,9 @@ export function ItemActivitySection({
                     })}
                   </span>
                 </div>
-                <p className="mt-0.5 break-words whitespace-pre-wrap">{comment.text}</p>
+                <p className="mt-0.5 break-words whitespace-pre-wrap leading-relaxed text-foreground/85">
+                  {comment.text}
+                </p>
               </div>
               {currentUserId === comment.userId ? (
                 <Button
@@ -103,25 +95,35 @@ export function ItemActivitySection({
         )}
       </div>
 
-      <form
-        onSubmit={onSubmitComment}
-        className="grid gap-2 border-t border-border/32 pt-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
-      >
+      {/*
+       * Поле в одну строку с кнопкой-значком. Раньше textarea в три строки и
+       * «Отправить» на всю ширину под ней занимали четверть экрана окна — больше,
+       * чем сами комментарии. Поле растёт, если текст длинный.
+       */}
+      <form onSubmit={onSubmitComment} className="flex items-end gap-2 pt-1">
         <Textarea
           value={commentText}
           onChange={(event) => onCommentTextChange(event.target.value)}
           placeholder={t("Добавить комментарий…")}
-          className="min-h-20 resize-y border-border/55 sm:min-h-24"
+          aria-label={t("Комментарий")}
+          rows={1}
+          className="min-h-11 flex-1 resize-none border-border/55 py-2.5 [field-sizing:content] max-h-40"
           maxLength={2000}
           disabled={submittingComment}
         />
         <Button
           type="submit"
-          size="sm"
-          className="h-11 w-full shrink-0 whitespace-nowrap sm:w-auto"
+          variant="secondary"
+          size="icon"
+          className="h-11 w-11 shrink-0 text-primary-accent"
+          aria-label={t("Отправить")}
           disabled={!commentText.trim() || submittingComment}
         >
-          {submittingComment ? <Loader2 className="h-4 w-4 animate-spin" /> : t("Отправить")}
+          {submittingComment ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          ) : (
+            <SendHorizontal className="h-4 w-4" aria-hidden />
+          )}
         </Button>
       </form>
     </section>

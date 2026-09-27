@@ -20,7 +20,7 @@ export function ItemMediaSection({ item, className }: { item: WishlistItem; clas
   return (
     <div
       className={cn(
-        "h-[min(31vh,240px)] w-full shrink-0 bg-[hsl(var(--surface-1))] p-2 sm:h-full sm:min-h-[430px] sm:p-5",
+        "h-[min(34vh,264px)] w-full shrink-0 bg-[hsl(var(--surface-1))] px-2 pb-2 pt-6 sm:h-full sm:min-h-[430px] sm:p-5",
         className,
       )}
     >

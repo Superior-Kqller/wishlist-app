@@ -177,7 +177,7 @@ export function ItemDetailDialog({
                 onTogglePurchased={handleTogglePurchased}
               />
             </ItemDetailBody>
-            <div className="mt-auto border-t border-border/32 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] sm:px-5 sm:py-5">
+            <div className="mt-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-2 sm:px-5 sm:pb-5">
               <ItemActivitySection
                 comments={comments}
                 currentUserId={currentUserId}
