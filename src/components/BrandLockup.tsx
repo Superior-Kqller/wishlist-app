@@ -44,7 +44,7 @@ export function BrandLockup({ className, compact = false }: BrandLockupProps) {
             compact && "max-sm:hidden sm:text-[10px]",
           )}
         >
-          {t("Каталог желаний")}
+          {t("Подарки для своих")}
         </span>
       </div>
     </div>

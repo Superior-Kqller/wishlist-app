@@ -2,7 +2,8 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { useSession } from "next-auth/react";
-import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
@@ -41,7 +42,6 @@ function MobileNavIndicator({ reduceMotion }: { reduceMotion: boolean | null }) 
 export function Header() {
   const { t } = useI18n();
   const { data: session } = useSession();
-  const router = useRouter();
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
   const isAdmin = session?.user?.role === "ADMIN";
@@ -58,14 +58,14 @@ export function Header() {
       <header className="sticky top-0 z-40 border-b border-border/55 bg-[hsl(var(--surface-2)/0.85)] elevation-header backdrop-blur-xl lg:hidden">
         <div className="pt-[env(safe-area-inset-top,0px)]">
           <div className="container mx-auto flex min-h-[48px] items-center gap-1 px-3 sm:px-4">
-            <button
-              onClick={() => router.push("/")}
+            <Link
+              href="/"
               className="flex min-h-11 min-w-0 flex-1 items-center rounded-lg py-1 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               title={t("На главную")}
               aria-label={t("Вишлист — на главную")}
             >
               <BrandLockup compact />
-            </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -88,31 +88,30 @@ export function Header() {
           return (
             <Button
               key={item.href}
+              asChild
               variant="ghost"
               size="sm"
               className={mobileNavButtonClass(active)}
-              aria-current={active ? "page" : undefined}
-              aria-label={item.shortLabel ? item.label : undefined}
-              onClick={() => router.push(item.href)}
             >
-              {active ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
-              <Icon className="h-5 w-5 shrink-0" />
-              <span className={mobileNavLabelClass}>{item.shortLabel ?? item.label}</span>
+              <Link
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                aria-label={item.shortLabel ? item.label : undefined}
+              >
+                {active ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
+                <Icon className="h-5 w-5 shrink-0" aria-hidden />
+                <span className={mobileNavLabelClass}>{item.shortLabel ?? item.label}</span>
+              </Link>
             </Button>
           );
         })}
         {/* «Ещё» — экран-хаб, а не выпадающее меню: там же язык и выход. */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className={mobileNavButtonClass(moreActive)}
-          aria-current={moreActive ? "page" : undefined}
-          onClick={() => router.push("/more")}
-        >
-          {moreActive ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
-          <MoreHorizontal className="h-5 w-5 shrink-0" />
-          <span className={mobileNavLabelClass}>{t("Ещё")}</span>
+        <Button asChild variant="ghost" size="sm" className={mobileNavButtonClass(moreActive)}>
+          <Link href="/more" aria-current={moreActive ? "page" : undefined}>
+            {moreActive ? <MobileNavIndicator reduceMotion={reduceMotion} /> : null}
+            <MoreHorizontal className="h-5 w-5 shrink-0" aria-hidden />
+            <span className={mobileNavLabelClass}>{t("Ещё")}</span>
+          </Link>
         </Button>
       </nav>
     </>

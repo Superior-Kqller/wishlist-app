@@ -66,12 +66,6 @@ export default function AdminPage() {
           <PageIntro
             title={t("Администрирование")}
             description={t("Участники, напоминания календаря и каталог общих праздников")}
-            actions={
-              <Button onClick={() => setCreateDialogOpen(true)} className="w-full sm:w-auto">
-                <Plus className="w-4 h-4 mr-2" />
-                {t("Создать пользователя")}
-              </Button>
-            }
           />
 
           {error ? (
@@ -84,7 +78,20 @@ export default function AdminPage() {
               </Button>
             </div>
           ) : (
-            <UserTable users={users} currentUserId={currentUserId} onRefresh={() => mutate()} />
+            <section className="space-y-3.5" aria-labelledby="admin-users-title">
+              {/* Действие стоит у своей секции, как «Добавить праздник» у каталога:
+                  в шапке страницы оно читалось действием всей админки. */}
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <h2 id="admin-users-title" className="section-title">
+                  {t("Участники")}
+                </h2>
+                <Button variant="outline" onClick={() => setCreateDialogOpen(true)}>
+                  <Plus className="h-4 w-4" aria-hidden />
+                  {t("Создать пользователя")}
+                </Button>
+              </div>
+              <UserTable users={users} currentUserId={currentUserId} onRefresh={() => mutate()} />
+            </section>
           )}
           <CalendarSettings />
           <HolidayCatalog />

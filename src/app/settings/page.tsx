@@ -69,15 +69,15 @@ export default function SettingsPage() {
             description={t("Профиль и безопасность аккаунта")}
             actions={
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:justify-end">
-                <Badge variant={user.role === "ADMIN" ? "default" : "outline"}>
+                <Badge variant="outline">
                   {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
                 </Badge>
                 <span className={uiSurface.metaPill}>
                   <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden />
                   {t("С нами с")}{" "}
                   {new Date(user.createdAt).toLocaleDateString(locale, {
-                    day: "2-digit",
-                    month: "2-digit",
+                    day: "numeric",
+                    month: "long",
                     year: "numeric",
                   })}
                 </span>
@@ -85,8 +85,11 @@ export default function SettingsPage() {
             }
           />
 
-          <Tabs defaultValue="profile" className="grid gap-5">
-            <TabsList aria-label={t("Разделы настроек")}>
+          {/* Форма — колонка чтения, а не рамка страницы: во всю ширину
+              переключатель стоял в 900px от своей подписи, а поле «Пол
+              профиля» тянулось на 1100px ради двух слов. */}
+          <Tabs defaultValue="profile" className="grid max-w-3xl gap-5">
+            <TabsList aria-label={t("Разделы настроек")} className="sm:max-w-sm">
               <TabsTrigger value="profile">
                 <UserRound className="h-4 w-4 shrink-0" aria-hidden />
                 <span className="truncate">{t("Профиль")}</span>

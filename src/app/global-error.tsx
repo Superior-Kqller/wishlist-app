@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Отдельный корень при фатальной ошибке: без Providers/next-themes,
+ * Отдельный корень при фатальной ошибке: без Providers,
  * иначе пререндер /_global-error может падать (React context недоступен).
  */
 export default function GlobalError({
@@ -18,7 +18,7 @@ export default function GlobalError({
           fontFamily: "system-ui",
           padding: "2rem",
           maxWidth: "32rem",
-          background: "#0E1119",
+          background: "#0A090B",
           color: "#e4e8f1",
         }}
       >

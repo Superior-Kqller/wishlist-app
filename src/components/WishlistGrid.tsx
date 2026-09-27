@@ -7,14 +7,13 @@ import { WishListRow } from "@/components/wishlist/wish-list-row";
 import { useIsPhone } from "@/hooks/use-is-phone";
 import type { WishlistViewMode } from "@/components/wishlist/wishlist-view-toggle";
 import { WishlistCardSkeleton } from "./WishlistCardSkeleton";
-import { AddItemCard } from "./AddItemCard";
 import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RotateCcw } from "lucide-react";
 import { useI18n } from "@/components/i18n/language-provider";
-import { getItemWord } from "@/lib/i18n";
+import { getWishWord } from "@/lib/i18n";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { duration, easing } from "@/lib/motion";
 import type { ItemStatus } from "@/lib/item-status";
@@ -31,9 +30,8 @@ interface WishlistGridProps {
   pendingStatusByItemId?: Record<string, boolean>;
   /** Товар, только что отмеченный купленным: получает подтверждающую анимацию. */
   justPurchasedId?: string | null;
-  onEmptyAdd?: () => void;
-  emptyAddDisabled?: boolean;
-  emptyAddDisabledHint?: string;
+  /** Выбран один человек: его имя на каждой карточке ничего не добавляет. */
+  hideOwner?: boolean;
   onOpenDetail?: (item: WishlistItem) => void;
   selectionMode?: boolean;
   selectedIds?: Set<string>;
@@ -70,9 +68,7 @@ export function WishlistGrid({
   onSetStatus,
   pendingStatusByItemId,
   justPurchasedId,
-  onEmptyAdd,
-  emptyAddDisabled,
-  emptyAddDisabledHint,
+  hideOwner,
   onOpenDetail,
   selectionMode,
   selectedIds,
@@ -136,7 +132,7 @@ export function WishlistGrid({
         className="overflow-hidden rounded-2xl border border-border/45 bg-[hsl(var(--surface-2))] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]"
       >
         <p aria-live="polite" className="sr-only">
-          {items.length} {getItemWord(language, items.length)}
+          {items.length} {getWishWord(language, items.length)}
         </p>
         <ul className="divide-y divide-border/32">
           {items.map((item) => (
@@ -168,12 +164,12 @@ export function WishlistGrid({
         className={cn(uiSurface.contentPanel, "overflow-hidden")}
       >
         <p aria-live="polite" className="sr-only">
-          {items.length} {getItemWord(language, items.length)}
+          {items.length} {getWishWord(language, items.length)}
         </p>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t("Товар")}</TableHead>
+              <TableHead>{t("Желание")}</TableHead>
               <TableHead>{t("Владелец")}</TableHead>
               <TableHead className="text-right">{t("Ориентировочная стоимость")}</TableHead>
               {showCategoryColumn ? <TableHead>{t("Категория")}</TableHead> : null}
@@ -217,7 +213,7 @@ export function WishlistGrid({
       className={cn(catalogGridClassName, "items-start")}
     >
       <p aria-live="polite" className="sr-only">
-        {items.length} {getItemWord(language, items.length)}
+        {items.length} {getWishWord(language, items.length)}
       </p>
       <AnimatePresence initial={false} mode="popLayout">
         {items.map((item) => (
@@ -234,7 +230,7 @@ export function WishlistGrid({
               duration: duration.base,
               ease: easing.expo,
             }}
-            className="h-full"
+            className="min-w-0"
           >
             <WishCard
               item={item}
@@ -249,18 +245,11 @@ export function WishlistGrid({
               onToggleSelect={onToggleSelect}
               currentUserId={currentUserId}
               currentUserRole={currentUserRole}
+              hideOwner={hideOwner}
             />
           </motion.div>
         ))}
       </AnimatePresence>
-      {onEmptyAdd && (
-        <AddItemCard
-          key="add-item-card"
-          onAdd={onEmptyAdd}
-          disabled={emptyAddDisabled}
-          disabledHint={emptyAddDisabledHint}
-        />
-      )}
     </div>
   );
 }

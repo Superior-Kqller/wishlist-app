@@ -1,7 +1,7 @@
 "use client";
 
-import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,12 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { status } = useSession();
+
+  // Уже вошедшему форма входа не нужна: закладка на /login вела в тупик.
+  useEffect(() => {
+    if (status === "authenticated") router.replace("/");
+  }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,17 +66,16 @@ export default function LoginPage() {
         >
           <BrandLockup className="justify-center" />
 
-          <h1 id="login-heading" className="section-title mt-8 text-balance sm:mt-10">
-            {t("Войдите в свой аккаунт")}
-          </h1>
+          {/* Обещание, а не «Войдите в свой аккаунт»: первый экран говорит,
+              зачем сюда приходят. Это одно из мест, где звучит антиква. */}
+          <h1 className="page-title mt-8 sm:mt-10">{t("Что подарить своим — в одном месте")}</h1>
+          <p className="mx-auto mt-3 max-w-[34ch] text-sm text-muted-foreground text-pretty">
+            {t("Списки желаний, дни рождения и подсказки всего круга.")}
+          </p>
         </div>
 
         <div className="w-full max-w-[25rem]" data-reveal>
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-4 text-left"
-            aria-labelledby="login-heading"
-          >
+          <form onSubmit={handleSubmit} className="space-y-4 text-left" aria-label={t("Вход")}>
             <div className="space-y-2">
               <Label htmlFor="username">{t("Логин")}</Label>
               <Input

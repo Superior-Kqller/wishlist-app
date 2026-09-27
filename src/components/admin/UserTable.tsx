@@ -30,6 +30,12 @@ interface UserTableProps {
 }
 
 export function UserTable({ users, currentUserId, onRefresh }: UserTableProps) {
+  const deleteBlockedReason = (user: User) =>
+    user.id === currentUserId
+      ? t("Нельзя удалить свою учётную запись")
+      : isLastAdmin(user)
+        ? t("Нельзя удалить последнего администратора")
+        : null;
   const { t, locale } = useI18n();
   const [search, setSearch] = useState("");
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -95,16 +101,12 @@ export function UserTable({ users, currentUserId, onRefresh }: UserTableProps) {
         size="icon"
         className={cn(
           mobile && "min-h-11 min-w-11 text-muted-foreground",
-          !isLastAdmin(user) && "hover:text-destructive",
+          !deleteBlockedReason(user) && "hover:text-destructive",
         )}
         onClick={() => setDeletingUser(user)}
-        disabled={isLastAdmin(user)}
-        title={isLastAdmin(user) ? t("Нельзя удалить последнего администратора") : t("Удалить")}
-        aria-label={
-          isLastAdmin(user)
-            ? t("Нельзя удалить последнего администратора")
-            : `${t("Удалить")}: ${user.username}`
-        }
+        disabled={Boolean(deleteBlockedReason(user))}
+        title={deleteBlockedReason(user) ?? t("Удалить")}
+        aria-label={deleteBlockedReason(user) ?? `${t("Удалить")}: ${user.username}`}
       >
         <Trash2 className="h-4 w-4" aria-hidden />
       </Button>
@@ -162,10 +164,7 @@ export function UserTable({ users, currentUserId, onRefresh }: UserTableProps) {
                     </div>
                     <p className="truncate text-sm text-muted-foreground">@{user.username}</p>
                   </div>
-                  <Badge
-                    variant={user.role === "ADMIN" ? "default" : "outline"}
-                    className="shrink-0"
-                  >
+                  <Badge variant="outline" className="shrink-0">
                     {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
                   </Badge>
                 </div>
@@ -217,7 +216,7 @@ export function UserTable({ users, currentUserId, onRefresh }: UserTableProps) {
                     </TableCell>
                     <TableCell>{user.name}</TableCell>
                     <TableCell>
-                      <Badge variant={user.role === "ADMIN" ? "default" : "outline"}>
+                      <Badge variant="outline">
                         {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
                       </Badge>
                     </TableCell>

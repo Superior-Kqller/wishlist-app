@@ -29,6 +29,7 @@ interface WishCardProps {
   onToggleSelect?: (id: string) => void;
   currentUserId?: string;
   currentUserRole?: "ADMIN" | "USER" | null;
+  hideOwner?: boolean;
 }
 
 export const WishCard = memo(function WishCard({
@@ -44,6 +45,7 @@ export const WishCard = memo(function WishCard({
   onToggleSelect,
   currentUserId,
   currentUserRole,
+  hideOwner = false,
 }: WishCardProps) {
   const { language, t } = useI18n();
   const [imageError, setImageError] = useState(false);
@@ -58,7 +60,7 @@ export const WishCard = memo(function WishCard({
   const canManage = currentUserId === item.userId || currentUserRole === "ADMIN";
   const showFooter = selectionMode || Boolean(item.price != null || item.url || canManage);
 
-  const ownerName = item.user?.name;
+  const ownerName = hideOwner ? undefined : item.user?.name;
   const ownerId = item.user?.id ?? item.userId;
   const ownerImage = item.user?.avatarUrl ?? null;
 
@@ -73,6 +75,19 @@ export const WishCard = memo(function WishCard({
   };
 
   const showImage = Boolean(imageUrl && !imageError);
+  /*
+   * Карточке без снимка есть что показать вместо кадра — заметку и магазин.
+   * Пустое место на её месте читалось «не догрузилось», а заметка — это как
+   * раз то, ради чего такое желание записывали руками.
+   */
+  const shopHost = (() => {
+    if (!item.url) return null;
+    try {
+      return new URL(item.url).hostname.replace(/^www\./, "");
+    } catch {
+      return null;
+    }
+  })();
   const categoryLabel = getProductCategoryLabel(item.category, language);
 
   return (
@@ -167,7 +182,7 @@ export const WishCard = memo(function WishCard({
 
               <div
                 data-testid="wishlist-card-v2-meta"
-                className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground"
+                className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground sm:text-xs"
               >
                 {/* Важность стоит первой среди фактов — и на карточке со снимком
                       тоже: плашка поверх фото закрывала сам товар. */}
@@ -223,6 +238,19 @@ export const WishCard = memo(function WishCard({
                   </span>
                 ) : null}
               </div>
+
+              {!showImage && (item.notes || shopHost) ? (
+                <div className="flex min-w-0 flex-col gap-1.5 border-t border-border/32 pt-2.5">
+                  {item.notes ? (
+                    <p className="line-clamp-3 text-sm leading-snug text-muted-foreground">
+                      {item.notes}
+                    </p>
+                  ) : null}
+                  {shopHost ? (
+                    <p className="truncate text-xs text-muted-foreground-subtle">{shopHost}</p>
+                  ) : null}
+                </div>
+              ) : null}
 
               {isBought ? (
                 <div

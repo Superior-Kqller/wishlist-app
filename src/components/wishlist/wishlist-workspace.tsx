@@ -1,6 +1,6 @@
 "use client";
 
-import type { RefObject } from "react";
+import { useEffect, type RefObject } from "react";
 import {
   CheckSquare,
   Download,
@@ -235,12 +235,42 @@ export function WishlistWorkspace({
   const { onAddItem, onExport, onImport, isImporting } = catalogActions;
 
   const hasSelectedCards = selectedIds.size > 0;
+
+  /*
+   * Две клавиши для тех, кто живёт за клавиатурой: «/» — в поиск, «n» —
+   * новое желание. Молчат, пока фокус в поле ввода или открыт диалог,
+   * и не трогают сочетания с модификаторами.
+   */
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable=true], [role=dialog]")) return;
+      if (document.querySelector("[role=dialog]")) return;
+      if (event.key === "/") {
+        const input = [...document.querySelectorAll<HTMLInputElement>("[data-hotkey=search]")].find(
+          (element) => element.offsetParent !== null,
+        );
+        if (!input) return;
+        event.preventDefault();
+        input.focus();
+      } else if (event.key === "n" || event.key === "т") {
+        event.preventDefault();
+        onAddItem();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onAddItem]);
+
   return (
     // Вертикальный ритм принадлежит рабочей области, а не странице: у неё
     // несколько соседних блоков подряд (панель инструментов, подсказки
     // профиля, режим выбора, сетка), и расстояние между ними не должно
     // зависеть от того, кто её отрисовал.
-    <div className="flex min-w-0 flex-col gap-3 sm:gap-5">
+    // Снизу на телефоне — запас под плавающую кнопку «+»: без него она
+    // ложилась на цену и «…» последней строки списка.
+    <div className="flex min-w-0 flex-col gap-3 pb-16 sm:gap-5 sm:pb-0">
       {scopeError ? (
         <RetryNotice onRetry={onRetryScope}>
           {t("Не удалось загрузить людей и подборки. Показан весь доступный каталог.")}
@@ -256,15 +286,22 @@ export function WishlistWorkspace({
       <div
         className={`@container ${uiSurface.homeToolbar} overflow-hidden @max-[52rem]:rounded-xl @max-[52rem]:px-2 @max-[52rem]:py-2`}
       >
+        {/*
+         * Люди — первым рядом на любой ширине. Главный вопрос на главной —
+         * «чей список», и отвечает на него лицо, а не пункт выпадающего меню:
+         * на десктопе люди прятались в обрезанный триггер «Все пользоват…»,
+         * и широкий экран показывал меньше, чем телефон.
+         */}
+        {currentUserId && usersWithStats.length > 0 ? (
+          <PeopleChips
+            currentUserId={currentUserId}
+            users={usersWithStats}
+            selectedUserId={normalizedSelectedUserId}
+            onUserChange={onUserChange}
+            className="mb-2 @min-[52rem]:mb-3 @min-[52rem]:border-b @min-[52rem]:border-border/32 @min-[52rem]:pb-3"
+          />
+        ) : null}
         <div className="flex min-w-0 flex-col gap-2 @min-[52rem]:hidden">
-          {currentUserId && usersWithStats.length > 0 ? (
-            <PeopleChips
-              currentUserId={currentUserId}
-              users={usersWithStats}
-              selectedUserId={normalizedSelectedUserId}
-              onUserChange={onUserChange}
-            />
-          ) : null}
           <div className="flex min-w-0 items-center gap-2">
             <WishlistSearchInput
               search={search}
@@ -398,6 +435,7 @@ export function WishlistWorkspace({
                 onListChange={onListChange}
                 onCreateList={onCreateList}
                 onEditList={onEditSelectedList}
+                showPeople={false}
                 className="shrink-0"
               />
             ) : null}
@@ -408,7 +446,7 @@ export function WishlistWorkspace({
               // Поиск больше не растягивается во всю ширину: в списке из
               // десятков элементов он вторичен, а 22rem хватает на запрос
               // из четырёх-пяти слов.
-              className="min-w-[11rem] max-w-[22rem] flex-1"
+              className="min-w-[11rem] max-w-[26rem] flex-1"
             />
 
             <div className="ml-auto flex shrink-0 items-center gap-2">
@@ -482,7 +520,13 @@ export function WishlistWorkspace({
               </DropdownMenu>
 
               {/* Единственное залитое действие в панели — то, ради которого сюда приходят добавлять. */}
-              <Button type="button" className="h-10 min-w-[11.5rem] gap-2 px-4" onClick={onAddItem}>
+              <Button
+                type="button"
+                className="h-10 min-w-[11.5rem] gap-2 px-4"
+                onClick={onAddItem}
+                aria-keyshortcuts="n"
+                title={`${t("Добавить желание")} (n)`}
+              >
                 <Plus className="h-4 w-4" aria-hidden />
                 {t("Добавить желание")}
               </Button>
@@ -506,7 +550,6 @@ export function WishlistWorkspace({
           currentUserId={currentUserId}
           usersWithStats={usersWithStats}
           selectedUserId={normalizedSelectedUserId}
-          onUserChange={onUserChange}
           lists={lists}
           selectedListId={selectedListId}
           onListChange={onListChange}
@@ -559,7 +602,7 @@ export function WishlistWorkspace({
           pendingStatusByItemId={pendingStatusByItemId}
           justPurchasedId={justPurchasedId}
           viewMode={viewMode}
-          onEmptyAdd={onEmptyAdd}
+          hideOwner={Boolean(normalizedSelectedUserId)}
           onOpenDetail={onOpenDetail}
           selectionMode={selectionMode}
           selectedIds={selectedIds}

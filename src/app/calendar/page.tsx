@@ -317,7 +317,9 @@ function MonthGrid({
                 }
                 const day = Number(date.slice(-2));
                 const entries = byDate.get(date) ?? [];
-                const isToday = date === getClientLocalDate();
+                const todayDate = getClientLocalDate();
+                const isToday = date === todayDate;
+                const isPast = date < todayDate;
                 return (
                   <div
                     key={key}
@@ -338,6 +340,8 @@ function MonthGrid({
                       // сиреневого тона, ничего при этом не различая.
                       entries.length > 0 && "md:bg-[hsl(var(--surface-3)/0.55)]",
                       isToday && "md:bg-[hsl(var(--surface-4)/0.55)]",
+                      // Прошедшие дни тише: месяц читается от «сегодня» вперёд.
+                      isPast && "opacity-55",
                     )}
                     role="cell"
                     aria-label={[
@@ -531,10 +535,10 @@ export default function CalendarPage() {
   const nextBeyondMonth = upcoming
     .filter((occurrence) => !occurrence.date.startsWith(monthPrefix))
     .slice(0, 3);
-  const monthLabel = new Date(year, month, 1).toLocaleDateString(locale, {
-    month: "long",
-    year: "numeric",
-  });
+  // Месяц и год частями: целиком `toLocaleDateString` давал «сентябрь 2026 г.»
+  // с канцелярским «г.», а в заголовке год и так читается годом.
+  const isCurrentMonth = year === currentYear && month === currentMonth;
+  const monthLabel = `${new Intl.DateTimeFormat(locale, { month: "long" }).formatToParts(new Date(year, month, 1)).find((part) => part.type === "month")!.value}${year === currentYear ? "" : ` ${year}`}`;
 
   // Раньше это был обычный useEffect: на мобильном успевала отрисоваться
   // месячная сетка, и только потом вид дёргался в список. Layout-эффект
@@ -702,14 +706,29 @@ export default function CalendarPage() {
                   onClick={() => changeMonth(-1)}
                   aria-label={t("Предыдущий месяц")}
                 >
-                  <ArrowLeft className="h-4 w-4" />
+                  <ArrowLeft className="h-4 w-4" aria-hidden />
                 </Button>
                 {/* Смена месяца раньше проходила беззвучно: фокус оставался
                     на стрелке, а заголовок и содержимое сетки менялись без
                     единого объявления. */}
-                <h2 className="section-title" aria-live="polite">
-                  {capitalizeFirst(monthLabel, locale)}
-                </h2>
+                <div className="flex min-w-0 items-center gap-3">
+                  <h2 className="section-title" aria-live="polite">
+                    {capitalizeFirst(monthLabel, locale)}
+                  </h2>
+                  {!isCurrentMonth ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setYear(currentYear);
+                        setMonth(currentMonth);
+                      }}
+                    >
+                      {t("Сегодня")}
+                    </Button>
+                  ) : null}
+                </div>
                 <Button
                   type="button"
                   size="icon"
@@ -717,7 +736,7 @@ export default function CalendarPage() {
                   onClick={() => changeMonth(1)}
                   aria-label={t("Следующий месяц")}
                 >
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4" aria-hidden />
                 </Button>
               </div>
               <MonthGrid
@@ -740,8 +759,8 @@ export default function CalendarPage() {
                 <div className="border-t border-border/45 pt-4">
                   <h3 className="mb-2 text-xs font-semibold text-muted-foreground sm:text-sm">
                     {monthOccurrences.length === 0
-                      ? t("В этом месяце событий нет. Дальше:")
-                      : t("Дальше:")}
+                      ? t("В этом месяце событий нет. Ближайшие")
+                      : t("Ближайшие после этого месяца")}
                   </h3>
                   <ul className="space-y-1.5">
                     {nextBeyondMonth.map((occurrence) => (

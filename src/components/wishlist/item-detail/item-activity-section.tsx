@@ -35,7 +35,7 @@ export function ItemActivitySection({
 
   return (
     <section className={cn("space-y-3", className)} aria-label={t("Комментарии")}>
-      <h3 className="text-[13px] font-semibold text-muted-foreground">
+      <h3 className="text-xs font-semibold text-muted-foreground">
         {t("Комментарии")}
         {comments.length > 0 ? <span className="tabular-nums"> · {comments.length}</span> : null}
       </h3>

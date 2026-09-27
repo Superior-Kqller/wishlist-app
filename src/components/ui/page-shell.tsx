@@ -24,13 +24,18 @@ interface PageMainProps {
  * которым нужна узкая колонка чтения, следует сузить собственный контент,
  * а не рамку.
  *
+ * От `lg` рамка прижата к сайдбару, а не стоит по центру остатка: на 2560px
+ * центровка оставляла между меню и заголовком ~410px пустоты, и контент
+ * читался мобильной колонкой посреди экрана. Взгляд идёт от меню к
+ * содержимому — свободное место уходит вправо, за край чтения.
+ *
  * Элемент намеренно `div`: `<main>` уже объявлен в оболочке приложения.
  */
 export function PageMain({ children, className }: PageMainProps) {
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-[92rem] px-4 pb-10 pt-4 sm:px-6 sm:pb-14 sm:pt-7 xl:px-8",
+        "mx-auto w-full max-w-[92rem] px-4 pb-10 pt-4 sm:px-6 sm:pb-14 sm:pt-7 lg:mx-0 xl:px-8 2xl:px-10",
         className,
       )}
     >
@@ -43,8 +48,6 @@ interface PageIntroProps {
   title: string;
   description?: string;
   actions?: ReactNode;
-  /** Дополнительная строка под заголовком: счётчики, статус, метаданные. */
-  meta?: ReactNode;
   className?: string;
 }
 
@@ -58,7 +61,7 @@ interface PageIntroProps {
  * почти на треть экрана. Ниже `sm` он остаётся в разметке для скринридеров
  * (`sr-only`), но не занимает места, а вертикальные отступы сокращаются.
  */
-export function PageIntro({ title, description, actions, meta, className }: PageIntroProps) {
+export function PageIntro({ title, description, actions, className }: PageIntroProps) {
   return (
     /*
      * Шапка не анимируется при появлении. Раньше она проигрывала `rise-in` —
@@ -72,7 +75,6 @@ export function PageIntro({ title, description, actions, meta, className }: Page
         <div className="min-w-0">
           <h1 className="page-title text-foreground">{title}</h1>
           {description ? <p className="page-lede max-sm:sr-only sm:mt-3">{description}</p> : null}
-          {meta ? <div className="mt-3 sm:mt-4">{meta}</div> : null}
         </div>
         {actions ? <div className="shrink-0 sm:pb-1">{actions}</div> : null}
       </div>

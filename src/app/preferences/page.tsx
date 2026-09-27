@@ -97,7 +97,7 @@ function PreferencesPageSkeleton() {
             и страница дёргалась на загрузке. */}
         <div className="animate-pulse space-y-5">
           <div className="h-24 rounded-2xl bg-muted/55" />
-          <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fill,minmax(22rem,1fr))]">
+          <div className="grid items-start gap-3 lg:grid-cols-2">
             <div className="h-44 rounded-2xl bg-muted/45" />
             <div className="h-44 rounded-2xl bg-muted/32" />
             <div className="h-44 rounded-2xl bg-muted/32" />
@@ -290,12 +290,6 @@ function PreferencesPageContent() {
                    * коробка сетки при этом не меняется вовсе.
                    */
                   /*
-                   * Потолок колонки 32rem: `1fr` растягивал единственную карточку
-                   * круга на всю рамку страницы — 1110px ширины при 260px высоты,
-                   * и профиль читался не карточкой, а полосой. Раскрытая карточка
-                   * меряет себя контейнером, поэтому потолок ей не мешает.
-                   */
-                  /*
                    * Свой профиль и круг — две группы с заголовками. В общем
                    * списке своя карточка отличалась только бейджем «Это вы» и
                    * фирменной рамкой, а заполняют её и читают чужие — разные
@@ -318,7 +312,16 @@ function PreferencesPageContent() {
                       .map((group) => (
                         <div key={group.key} className="space-y-3.5">
                           <h2 className="section-title">{group.title}</h2>
-                          <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fill,minmax(22rem,1fr))]">
+                          {/* Свой профиль — во всю ширину: в колонке 22rem раскрытая сводка
+                              складывалась в телефонный столбик, а кнопка «Настроить» обрезала
+                              имя до двух букв. Круг — две колонки от lg: сводка внутри карточки
+                              меряет себя контейнером и в 34rem уже встаёт в две колонки. */}
+                          <div
+                            className={cn(
+                              "grid items-start gap-3",
+                              group.key === "circle" && "lg:grid-cols-2",
+                            )}
+                          >
                             {group.users.map((user) => {
                               const isCurrent = user.id === data?.id;
                               const isExpanded = expandedUserId === user.id;
@@ -378,6 +381,7 @@ function PreferencesPageContent() {
                                     <GiftPreferencesSummary
                                       preferences={cardPreferences}
                                       embedded
+                                      isOwn={isCurrent}
                                     />
                                   </PreferenceProfileCard>
                                 </motion.div>

@@ -52,7 +52,9 @@ export function CalendarSettings() {
         </p>
       </div>
       <div className="flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-end">
-        <label className="min-w-0 flex-1 space-y-2 text-sm font-medium">
+        {/* Имя зоны — два десятка знаков: поле во всю рамку страницы
+            читалось как место для абзаца. */}
+        <label className="min-w-0 flex-1 space-y-2 text-sm font-medium sm:max-w-sm">
           {t("Временная зона установки")}
           <Input
             list="calendar-time-zones"

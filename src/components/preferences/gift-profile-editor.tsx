@@ -479,7 +479,10 @@ export function GiftProfileEditor({
                 initial={reduceMotion ? false : { opacity: 0, x: 12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: duration.base, ease: easing.expo }}
-                className="min-w-0 space-y-4"
+                /* От xl — две колонки: во всю ширину у каждого набора чипов
+                   оставалась пустая правая половина, а поле ввода тянулось на
+                   тысячу пикселей ради одного слова. */
+                className="grid min-w-0 items-start gap-4 xl:grid-cols-2"
               >
                 {section.id === "likes" ? (
                   <>
@@ -611,7 +614,7 @@ export function GiftProfileEditor({
                       max={16}
                       onChange={(value) => updateList("occasions", value)}
                     />
-                    <section className={cn("space-y-3", uiSurface.formSection)}>
+                    <section className={cn("space-y-3 xl:col-span-2", uiSurface.formSection)}>
                       <div>
                         <Label htmlFor="notes" className="text-base font-semibold">
                           {t(giftPreferenceLabels.notes)}

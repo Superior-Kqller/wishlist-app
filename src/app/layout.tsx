@@ -52,7 +52,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:4030"),
-    title: copy.title,
+    title: { default: copy.title, template: `%s · ${copy.title}` },
     description: copy.description,
     appleWebApp: {
       capable: true,
@@ -88,7 +88,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   /** Мобильный Chrome/Safari: контент подстраивается под панели браузера */
   interactiveWidget: "resizes-content",
-  themeColor: "#0E1119",
+  themeColor: "#0A090B",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

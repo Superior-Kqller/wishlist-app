@@ -1,29 +1,30 @@
 import { expect, test } from "@playwright/test";
 
-/* Выбор «чей список» и подборки — одно меню, а не вкладки «Все / Мои». */
+/*
+ * «Чей список» — ряд лиц на любой ширине; меню над списком выбирает только
+ * подборку. На десктопе люди раньше прятались в обрезанный триггер меню.
+ */
 
-test("на десктопе нет вкладок «Все / Мои», есть общее меню", async ({ page }) => {
+test("на десктопе люди — чипы, а меню выбирает подборку", async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 900 });
   await page.goto("/");
 
-  await expect(page.getByRole("tab", { name: "Все" })).toHaveCount(0);
-  await expect(page.getByRole("tab", { name: "Мои" })).toHaveCount(0);
+  await expect(page.getByTestId("people-chip-all")).toBeVisible();
+  await expect(page.getByTestId("people-chip-me")).toBeVisible();
 
   const trigger = page.getByTestId("wishlist-scope-trigger");
   await expect(trigger).toBeVisible();
-  await expect(trigger).toContainText("Все пользователи");
+  await expect(trigger).toContainText("Все подборки");
 
   await trigger.click();
-  await expect(page.getByTestId("combined-user-option-all")).toBeVisible();
-  await expect(page.getByTestId("combined-user-option-me")).toBeVisible();
+  await expect(page.getByTestId("combined-user-option-me")).toHaveCount(0);
 });
 
 test("смена пользователя сбрасывает подборку", async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 900 });
   await page.goto("/");
 
-  await page.getByTestId("wishlist-scope-trigger").click();
-  await page.getByTestId("combined-user-option-me").click();
+  await page.getByTestId("people-chip-me").click();
 
   await expect(page).toHaveURL(/(?:\?|&)userId=me(?:&|$)/);
   await expect(page).not.toHaveURL(/(?:\?|&)listId=/);

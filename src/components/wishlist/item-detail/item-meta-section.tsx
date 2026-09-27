@@ -18,6 +18,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { getProductCategoryLabel } from "@/lib/categories";
 import { ProductCategoryIcon } from "@/lib/category-icons";
 import { isItemPurchased } from "@/lib/item-status";
+import { Badge } from "@/components/ui/badge";
 
 type ItemMetaSectionProps = {
   item: WishlistItem;
@@ -74,7 +75,6 @@ export function ItemMetaSection({
                 name={item.user.name}
                 userId={item.user.id}
                 size="sm"
-                className="size-[18px] text-[9px]"
               />
               <span className="truncate">{item.user.name}</span>
             </span>
@@ -83,23 +83,31 @@ export function ItemMetaSection({
         <div className="min-w-0">
           <DialogTitle
             className={cn(
-              "min-w-0 break-words [overflow-wrap:anywhere] text-left text-2xl font-semibold leading-[1.12] sm:text-[1.75rem]",
+              "display-face min-w-0 break-words [overflow-wrap:anywhere] text-left text-[1.375rem] leading-[1.2] sm:text-2xl",
               isBought && "line-through",
             )}
           >
             {item.title}
           </DialogTitle>
-          {item.price != null && item.price > 0 ? (
-            <p className="mt-3 text-[1.75rem] font-bold leading-none tabular-nums tracking-[-0.02em] text-foreground sm:text-[1.85rem]">
-              {formatPrice(item.price, item.currency, language)}
-            </p>
-          ) : null}
+          {/* Статус стоит рядом с ценой: в окне желания он раньше не читался
+              нигде, кроме зачёркнутого названия. Точка дублирует цвет. */}
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+            {item.price != null && item.price > 0 ? (
+              <p className="text-xl font-bold leading-none tabular-nums tracking-[-0.02em] text-foreground">
+                {formatPrice(item.price, item.currency, language)}
+              </p>
+            ) : null}
+            <Badge variant={isBought ? "success" : "info"} className="gap-1.5">
+              <span className="size-1.5 rounded-full bg-current" aria-hidden />
+              {isBought ? t("Уже куплено") : t("Ещё не куплено")}
+            </Badge>
+          </div>
         </div>
       </DialogHeader>
 
       {noteParagraphs?.length ? (
         <section className="max-w-[38rem] space-y-2 pt-1">
-          <h3 className="text-[13px] font-semibold text-muted-foreground">{t("Описание")}</h3>
+          <h3 className="text-xs font-semibold text-muted-foreground">{t("Описание")}</h3>
           <div
             className={cn(
               "space-y-2 text-sm leading-6 text-foreground/85 [text-wrap:pretty]",

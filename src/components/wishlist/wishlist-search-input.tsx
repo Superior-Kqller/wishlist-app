@@ -44,6 +44,7 @@ export function WishlistSearchInput({
       wrapperClassName={cn("group", className)}
       iconClassName="left-3.5 text-muted-foreground/55 transition-colors duration-200 group-focus-within:text-primary-accent/85"
       inputClassName={INPUT_CLASS_BY_VARIANT[variant]}
+      data-hotkey="search"
     />
   );
 }

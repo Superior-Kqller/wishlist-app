@@ -24,11 +24,14 @@ type GiftPreferencesSummaryProps = {
   userName?: string;
   preferences?: GiftPreferences | null;
   embedded?: boolean;
+  /** Свой профиль: пустое состояние обращается к человеку, а не о нём. */
+  isOwn?: boolean;
 };
 
 export function GiftPreferencesSummary({
   userName,
   preferences: rawPreferences,
+  isOwn = false,
   embedded = false,
 }: GiftPreferencesSummaryProps) {
   const { t } = useI18n();
@@ -198,7 +201,11 @@ export function GiftPreferencesSummary({
             !embedded && "border-t border-border/32",
           )}
         >
-          {t("Пользователь пока не добавил подсказки для подарков.")}
+          {isOwn
+            ? t(
+                "Вы пока ничего не рассказали о себе. Нажмите «Настроить» — круг увидит, что вам подойдёт.",
+              )
+            : t("Подсказок пока нет. Загляните в список желаний или спросите напрямую.")}
         </div>
       ) : (
         <AnimatePresence initial={false}>
@@ -218,7 +225,7 @@ export function GiftPreferencesSummary({
               <div
                 className={cn(
                   "grid gap-x-6 gap-y-5",
-                  embedded ? "@[32rem]:grid-cols-2" : "xl:grid-cols-3",
+                  embedded ? "@[32rem]:grid-cols-2 @[60rem]:grid-cols-3" : "xl:grid-cols-3",
                 )}
               >
                 {/* Три группы — разделы, а не абзацы. Раньше их подписи были
@@ -274,7 +281,10 @@ export function GiftPreferencesSummary({
                   aria-labelledby={`${detailsId}-details`}
                   className={cn(
                     "min-w-0",
-                    embedded && "border-t border-border/32 pt-5 @[32rem]:col-span-2",
+                    // От 60rem три группы встают в ряд: во всю ширину карточки
+                    // «Детали» под двумя колонками оставляли справа пустой угол.
+                    embedded &&
+                      "border-t border-border/32 pt-5 @[32rem]:col-span-2 @[60rem]:col-span-1 @[60rem]:border-l @[60rem]:border-t-0 @[60rem]:pl-6 @[60rem]:pt-0",
                   )}
                 >
                   <h3
@@ -285,7 +295,11 @@ export function GiftPreferencesSummary({
                     {t("Детали")}
                   </h3>
                   {visibleDetailRows.length > 0 ? (
-                    <div className={cn(embedded && "grid gap-x-6 @[40rem]:grid-cols-3")}>
+                    <div
+                      className={cn(
+                        embedded && "grid gap-x-6 @[40rem]:grid-cols-3 @[60rem]:grid-cols-1",
+                      )}
+                    >
                       {visibleDetailRows.map((row) => (
                         <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
                       ))}

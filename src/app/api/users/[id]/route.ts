@@ -210,13 +210,20 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.default);
   if (rateLimitResponse) return rateLimitResponse;
 
+  let admin: Awaited<ReturnType<typeof requireAdmin>>;
   try {
-    await requireAdmin();
+    admin = await requireAdmin();
   } catch (err: unknown) {
     return accessErrorResponse(err);
   }
 
   const { id } = await params;
+
+  // Удалив себя, администратор теряет сессию посреди работы и не может
+  // отменить сделанное: учётную запись удаляет другой администратор.
+  if (id === admin.id) {
+    return NextResponse.json({ error: "Нельзя удалить свою учётную запись" }, { status: 400 });
+  }
 
   const precheck = await assertLastAdminSafe(id, "delete");
   if (!precheck.ok) {

@@ -25,7 +25,6 @@ interface FiltersDrawerProps {
   currentUserId: string | undefined;
   usersWithStats: UserWithStats[];
   selectedUserId: string | null;
-  onUserChange: (userId: string | null) => void;
   lists: ListWithMeta[];
   selectedListId: string | null;
   onListChange: (listId: string | null) => void;
@@ -47,10 +46,10 @@ interface FiltersDrawerProps {
 const sortOptions = [
   { value: "newest", label: "Новые сначала" },
   { value: "oldest", label: "Старые сначала" },
-  { value: "priority-high", label: "Приоритет ↓" },
-  { value: "priority-low", label: "Приоритет ↑" },
-  { value: "price-high", label: "Ориент. цена ↓" },
-  { value: "price-low", label: "Ориент. цена ↑" },
+  { value: "priority-high", label: "Сначала важные" },
+  { value: "priority-low", label: "Сначала неважные" },
+  { value: "price-high", label: "Сначала дороже" },
+  { value: "price-low", label: "Сначала дешевле" },
 ] as const;
 
 export function FiltersDrawer({
@@ -59,7 +58,6 @@ export function FiltersDrawer({
   currentUserId,
   usersWithStats,
   selectedUserId,
-  onUserChange,
   lists,
   selectedListId,
   onListChange,
@@ -82,8 +80,6 @@ export function FiltersDrawer({
     if (!currentUserId) return lists;
     return filterListsBySelectedUser(lists, usersWithStats, currentUserId, selectedUserId);
   }, [lists, usersWithStats, currentUserId, selectedUserId]);
-  const otherUsers = usersWithStats.filter((user) => user.id !== currentUserId);
-  const isMyItemsSelected = selectedUserId === "me" || selectedUserId === currentUserId;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -108,40 +104,8 @@ export function FiltersDrawer({
         </div>
 
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto border-t border-border/55 px-4 py-4 overscroll-contain sm:px-5">
-          {currentUserId && usersWithStats.length > 0 ? (
-            <section className="space-y-2.5" aria-labelledby="mobile-filter-user">
-              <Label
-                id="mobile-filter-user"
-                className="text-xs font-semibold text-muted-foreground"
-              >
-                {t("Пользователь")}
-              </Label>
-              <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <FilterChoice
-                  selected={selectedUserId === null}
-                  onClick={() => onUserChange(null)}
-                  label={t("Все пользователи")}
-                  testId="mobile-user-option-all"
-                />
-                <FilterChoice
-                  selected={isMyItemsSelected}
-                  onClick={() => onUserChange("me")}
-                  label={t("Мои")}
-                  testId="mobile-user-option-me"
-                />
-                {otherUsers.map((user) => (
-                  <FilterChoice
-                    key={user.id}
-                    selected={selectedUserId === user.id}
-                    onClick={() => onUserChange(user.id)}
-                    label={user.name}
-                    testId={`mobile-user-option-${user.id}`}
-                  />
-                ))}
-              </div>
-            </section>
-          ) : null}
-
+          {/* Людей здесь нет: они стоят рядом лиц над списком на любой ширине,
+              и второй выбор того же в панели фильтров только расходился с первым. */}
           {currentUserId ? (
             <section className="space-y-2.5" aria-labelledby="mobile-filter-list">
               <Label

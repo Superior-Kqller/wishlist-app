@@ -58,12 +58,13 @@ import { useSearchDraftUrlSync, useWishlistUrlSync } from "@/hooks/use-wishlist-
 import { parseWishlistFilters } from "@/lib/home/wishlist-filters-url";
 import { useWishlistAddUrlDeepLink } from "@/hooks/use-wishlist-add-url-deeplink";
 import { useI18n } from "@/components/i18n/language-provider";
+import { getWishWord } from "@/lib/i18n";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
 import { UpcomingCalendarCard } from "@/components/calendar/UpcomingCalendarCard";
 import { responseError } from "@/lib/response-error";
 
 function HomePageContent() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -257,7 +258,7 @@ function HomePageContent() {
   const pageTitle = t("Список желаний");
 
   const pageDescription = selectedWishlistUser
-    ? t("Что подойдёт этому человеку и что уже кто-то взял на себя.")
+    ? t("Что подойдёт этому человеку и что у него уже есть.")
     : t("Всё, что вы хотите, и всё, что вы можете подарить другим.");
 
   const allowedListIdsForFilters = useMemo(() => {
@@ -349,12 +350,12 @@ function HomePageContent() {
         sortBy === "oldest"
           ? t("Старые сначала")
           : sortBy === "priority-high"
-            ? t("Приоритет ↓")
+            ? t("Сначала важные")
             : sortBy === "priority-low"
-              ? t("Приоритет ↑")
+              ? t("Сначала неважные")
               : sortBy === "price-high"
-                ? t("Ориент. цена ↓")
-                : t("Ориент. цена ↑");
+                ? t("Сначала дороже")
+                : t("Сначала дешевле");
       chips.push({
         key: "sort",
         label: `${t("Сортировка")}: ${sortLabel}`,
@@ -716,7 +717,7 @@ function HomePageContent() {
         <PageIntro
           title={pageTitle}
           description={pageDescription}
-          meta={<UpcomingCalendarCard />}
+          actions={<UpcomingCalendarCard currentUserId={currentUserId} />}
         />
         <WishlistWorkspace
           scope={scope}
@@ -794,7 +795,7 @@ function HomePageContent() {
       <ConfirmDialog
         open={bulkDeleteOpen}
         onOpenChange={setBulkDeleteOpen}
-        title={`${t("Удалить желаний")}: ${selectedIds.size}?`}
+        title={`${t("Удалить")} ${selectedIds.size} ${getWishWord(language, selectedIds.size)}?`}
         description={bulkDeleteDescription}
         confirmLabel={t("Удалить")}
         variant="destructive"

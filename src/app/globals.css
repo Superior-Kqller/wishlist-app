@@ -286,6 +286,19 @@
 
   html {
     scroll-behavior: smooth;
+    /* Поверхности, которые рисует браузер, тоже говорят палитрой продукта. */
+    scrollbar-color: hsl(var(--surface-5)) transparent;
+    accent-color: hsl(var(--primary-accent));
+  }
+
+  ::selection {
+    background-color: hsl(var(--primary) / 0.55);
+    color: hsl(var(--foreground));
+  }
+
+  input,
+  textarea {
+    caret-color: hsl(var(--primary-accent));
   }
 
   body {
@@ -586,12 +599,21 @@
   text-wrap: pretty;
 }
 
-/* Раздел внутри страницы: на шаг тише заголовка, но всё ещё структурный. */
+/*
+ * Раздел внутри страницы — средний ярус шкалы и второй голос антиквы.
+ *
+ * Гротеском в 17px он стоял вплотную к тексту карточек (15–16px) и в 23px от
+ * заголовка страницы: между «огромным серифом» и «мелочью» не было ступени,
+ * и страницы читались растянутым телефоном. Антиква здесь же возвращает
+ * «вечернюю гостиную» туда, где человек читает, а не только в шапку.
+ */
 .section-title {
-  font-size: 1.0625rem;
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.008em;
+  font-family: var(--font-display), serif;
+  font-size: 1.375rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
 }
 
 /*

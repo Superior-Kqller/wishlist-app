@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -14,7 +15,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="app-canvas flex min-h-svh flex-col text-foreground">
       {showAuthenticatedShell ? <Header /> : null}
       <div className="flex min-h-0 flex-1">
-        {showAuthenticatedShell ? <AppSidebar /> : null}
+        {/* Сайдбар читает адрес (активная подборка) — без границы Suspense
+            пререндер отказался бы от статической оболочки целиком. */}
+        {showAuthenticatedShell ? (
+          <Suspense fallback={null}>
+            <AppSidebar />
+          </Suspense>
+        ) : null}
         {/* Запас под нижнюю панель разделов: она плавает поверх контента до `lg`. */}
         <div
           className={cn(

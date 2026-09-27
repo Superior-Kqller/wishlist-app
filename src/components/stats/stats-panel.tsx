@@ -216,16 +216,11 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
       </div>
 
       {/*
-       * `auto-fit` вместо фиксированных колонок: при одном участнике пустые
-       * дорожки схлопываются, и карточка занимает ширину секции, а не треть
-       * её с большой пустотой справа.
+       * Колонки фиксированы. `auto-fit` растягивал единственного участника
+       * на всю секцию: четыре цифры разъезжались на тысячу пикселей, а две
+       * ссылки подвала становились полосами по полэкрана.
        */}
-      {/*
-       * Минимум 16rem, а не 17: на 1280px левая колонка страницы становится
-       * 552px, а двум дорожкам по 17rem нужно 556 — сетка схлопывалась
-       * с трёх колонок в одну ровно на переходе через брейкпоинт.
-       */}
-      <div className="hidden gap-3 md:grid md:grid-cols-[repeat(auto-fit,minmax(16rem,1fr))]">
+      <div className="hidden gap-3 md:grid md:grid-cols-2 xl:grid-cols-3">
         {users.map((user) => (
           /* `interactiveCard` убран: он давал hover рамки на узле, который
              никуда не ведёт — карточка выглядела нажимаемой и ею не была.
@@ -383,7 +378,7 @@ function StatsOverview({
               {totalValues.map((value) => (
                 <p
                   key={value}
-                  className="text-[clamp(1.75rem,1.2rem+1.8vw,2.5rem)] font-semibold leading-[1.05] tracking-[-0.02em] tabular-nums"
+                  className="text-2xl font-semibold leading-[1.1] tracking-[-0.02em] tabular-nums"
                 >
                   {value}
                 </p>
@@ -464,7 +459,7 @@ function StatsOverview({
                * разной длины расставляли счётчики по случайным позициям, и
                * колонка чисел не читалась колонкой.
                */}
-              <ul className="mt-3.5 grid grid-cols-2 gap-x-5 gap-y-2 sm:grid-cols-3 lg:grid-cols-5">
+              <ul className="mt-3.5 grid grid-cols-2 gap-x-5 gap-y-2 sm:grid-cols-3 2xl:grid-cols-5">
                 {shares.map((entry) => (
                   <li key={entry.priority} className="flex min-w-0 items-center gap-2 text-xs">
                     <span

@@ -28,6 +28,11 @@ type WishlistScopePickerProps = {
   onListChange: (listId: string | null) => void;
   onCreateList: () => void;
   onEditList?: () => void;
+  /**
+   * Показывать ли людей в триггере и меню. На широкой панели люди стоят
+   * рядом аватаров над ней, и дубль «чей список» здесь только обрезал текст.
+   */
+  showPeople?: boolean;
   className?: string;
 };
 
@@ -49,6 +54,7 @@ export function WishlistScopePicker({
   onListChange,
   onCreateList,
   onEditList,
+  showPeople = true,
   className,
 }: WishlistScopePickerProps) {
   const { t } = useI18n();
@@ -81,14 +87,20 @@ export function WishlistScopePicker({
           type="button"
           variant="outline"
           className={cn(
-            "min-w-0 max-w-[18rem] gap-2 px-2.5 text-foreground",
+            "min-w-0 max-w-[18rem] gap-2 px-2.5 text-foreground lg:max-w-[22rem]",
             uiLayout.filterBarTrigger,
             className,
           )}
-          aria-label={`${t("Чей список")}: ${ownerLabel}, ${listLabel}`}
+          aria-label={
+            showPeople
+              ? `${t("Чей список")}: ${ownerLabel}, ${listLabel}`
+              : `${t("Подборка")}: ${listLabel}`
+          }
           data-testid="wishlist-scope-trigger"
         >
-          {avatarUser ? (
+          {!showPeople ? (
+            <FolderOpen className="h-4 w-4 shrink-0 opacity-60" aria-hidden />
+          ) : avatarUser ? (
             <span className="pointer-events-none shrink-0">
               <UserAvatar
                 avatarUrl={avatarUser.avatarUrl}
@@ -100,59 +112,80 @@ export function WishlistScopePicker({
           ) : (
             <User className="h-4 w-4 shrink-0 opacity-60" aria-hidden />
           )}
-          <span className="min-w-0 truncate text-sm font-medium">{ownerLabel}</span>
-          <span className="shrink-0 text-muted-foreground" aria-hidden>
-            ·
+          {showPeople ? (
+            <>
+              <span className="min-w-0 truncate text-sm font-medium">{ownerLabel}</span>
+              <span className="shrink-0 text-muted-foreground" aria-hidden>
+                ·
+              </span>
+            </>
+          ) : null}
+          <span
+            className={cn(
+              "min-w-0 truncate text-sm",
+              showPeople ? "text-muted-foreground" : "font-medium",
+            )}
+          >
+            {listLabel}
           </span>
-          <span className="min-w-0 truncate text-sm text-muted-foreground">{listLabel}</span>
           <ChevronDown className="h-4 w-4 shrink-0 opacity-60" aria-hidden />
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start" className="w-64 p-1.5">
-        <DropdownMenuLabel className="px-2 py-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
-          {t("Чей список")}
-        </DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => onUserChange(null)}
-          className={cn(
-            "cursor-pointer rounded-md px-2.5 py-2 text-sm",
-            scopeItemTone(!selectedUserId),
-          )}
-          data-testid="combined-user-option-all"
-        >
-          {t("Все пользователи")}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => onUserChange("me")}
-          className={cn("cursor-pointer rounded-md px-2.5 py-2 text-sm", scopeItemTone(isMyMode))}
-          data-testid="combined-user-option-me"
-        >
-          {t("Мои")}
-        </DropdownMenuItem>
-        {otherUsers.map((user) => (
-          <DropdownMenuItem
-            key={user.id}
-            onClick={() => onUserChange(user.id)}
-            className={cn(
-              "flex cursor-pointer items-center gap-2.5 rounded-md p-2",
-              scopeItemTone(selectedUserId === user.id),
-            )}
-            data-testid={`combined-user-option-${user.id}`}
-          >
-            <span className="pointer-events-none shrink-0">
-              <UserAvatar avatarUrl={user.avatarUrl} name={user.name} userId={user.id} size="sm" />
-            </span>
-            <span className="min-w-0 flex-1 truncate">{user.name}</span>
-            <span className="shrink-0 font-mono text-[11px] text-muted-foreground">
-              {user.stats.unpurchasedItems}
-            </span>
-          </DropdownMenuItem>
-        ))}
-
-        <DropdownMenuSeparator className="my-1.5 bg-border/85" />
-
-        <DropdownMenuLabel className="px-2 py-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
+        {showPeople ? (
+          <>
+            <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+              {t("Чей список")}
+            </DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => onUserChange(null)}
+              className={cn(
+                "cursor-pointer rounded-md px-2.5 py-2 text-sm",
+                scopeItemTone(!selectedUserId),
+              )}
+              data-testid="combined-user-option-all"
+            >
+              {t("Все пользователи")}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onUserChange("me")}
+              className={cn(
+                "cursor-pointer rounded-md px-2.5 py-2 text-sm",
+                scopeItemTone(isMyMode),
+              )}
+              data-testid="combined-user-option-me"
+            >
+              {t("Мои")}
+            </DropdownMenuItem>
+            {otherUsers.map((user) => (
+              <DropdownMenuItem
+                key={user.id}
+                onClick={() => onUserChange(user.id)}
+                className={cn(
+                  "flex cursor-pointer items-center gap-2.5 rounded-md p-2",
+                  scopeItemTone(selectedUserId === user.id),
+                )}
+                data-testid={`combined-user-option-${user.id}`}
+              >
+                <span className="pointer-events-none shrink-0">
+                  <UserAvatar
+                    avatarUrl={user.avatarUrl}
+                    name={user.name}
+                    userId={user.id}
+                    size="sm"
+                  />
+                </span>
+                <span className="min-w-0 flex-1 truncate">{user.name}</span>
+                <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                  {user.stats.unpurchasedItems}
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </>
+        ) : null}
+        {showPeople ? <DropdownMenuSeparator className="my-1.5 bg-border/85" /> : null}
+        <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
           {t("Подборка")}
         </DropdownMenuLabel>
         <DropdownMenuItem
@@ -175,7 +208,7 @@ export function WishlistScopePicker({
           >
             <FolderOpen className="h-4 w-4 shrink-0 opacity-60" aria-hidden />
             <span className="min-w-0 flex-1 truncate">{list.name}</span>
-            <span className="shrink-0 font-mono text-[11px] text-muted-foreground">
+            <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
               {list._count.items}
             </span>
           </DropdownMenuItem>

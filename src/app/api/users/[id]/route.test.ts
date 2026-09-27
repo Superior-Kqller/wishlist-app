@@ -6,7 +6,7 @@ const mockFindUnique = vi.fn();
 
 vi.mock("@/lib/rate-limit", () => ({
   rateLimit: mockRateLimit,
-  rateLimitPresets: { read: {} },
+  rateLimitPresets: { read: {}, default: {} },
 }));
 vi.mock("@/lib/auth-utils", () => ({ requireAdmin: mockRequireAdmin }));
 vi.mock("@/lib/prisma", () => ({
@@ -41,5 +41,23 @@ describe("GET /api/users/[id]", () => {
     expect(query.select).not.toHaveProperty("gender");
     expect(query.select).not.toHaveProperty("thematicHolidayConsent");
     expect(JSON.stringify(await response.json())).not.toContain("gender");
+  });
+});
+
+describe("DELETE /api/users/[id]", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockRateLimit.mockResolvedValue(null);
+    mockRequireAdmin.mockResolvedValue({ id: "admin-1", role: "ADMIN" });
+  });
+
+  it("не даёт администратору удалить самого себя", async () => {
+    const { DELETE } = await import("./route");
+    const response = await DELETE(new Request("http://localhost/api/users/admin-1") as never, {
+      params: Promise.resolve({ id: "admin-1" }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(mockFindUnique).not.toHaveBeenCalled();
   });
 });

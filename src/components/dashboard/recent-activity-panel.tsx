@@ -114,7 +114,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
                 <div className="min-w-0">
                   <div className="flex min-w-0 items-start justify-between gap-2">
                     <div className="min-w-0 pt-0.5">
-                      <p className="line-clamp-1 text-[13px] font-semibold leading-tight text-foreground/95">
+                      <p className="line-clamp-1 text-sm font-semibold leading-tight text-foreground/95">
                         {item.title}
                       </p>
                     </div>

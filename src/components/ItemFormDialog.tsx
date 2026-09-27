@@ -203,7 +203,7 @@ export function ItemFormDialog({
       setLinkStage("review");
       toast.success(t("Поля заполнены по ссылке"));
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : t("Ошибка парсинга");
+      const msg = e instanceof Error ? e.message : t("Не удалось прочитать страницу по ссылке");
       setParseError(msg);
       toast.error(msg);
     } finally {
@@ -261,7 +261,7 @@ export function ItemFormDialog({
     if (listPickerRequired && !effectiveListId) {
       toast.error(
         existingLists.length === 0
-          ? t("Сначала создайте подборку в фильтрах на главной")
+          ? t("Сначала создайте подборку: «Подборки» в меню слева")
           : t("Выберите подборку"),
       );
       return;
@@ -507,7 +507,9 @@ export function ItemFormDialog({
                       ) : (
                         <div className="flex h-full flex-col items-center justify-center px-4 text-center text-muted-foreground/70">
                           <span className="text-sm font-medium">{t("Предпросмотр")}</span>
-                          <span className="mt-1 text-xs">{t("Добавьте URL изображения ниже")}</span>
+                          <span className="mt-1 text-xs">
+                            {t("Добавьте ссылку на картинку ниже")}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -515,7 +517,7 @@ export function ItemFormDialog({
                       id="item-image-url"
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
-                      placeholder={t("URL изображения (необязательно)")}
+                      placeholder={t("Ссылка на картинку (необязательно)")}
                     />
                   </div>
 

@@ -2,6 +2,7 @@
 
 import { Users } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
+import { daysBetween, useUpcomingOccurrences } from "@/components/calendar/UpcomingCalendarCard";
 import { useI18n } from "@/components/i18n/language-provider";
 import { uiState } from "@/lib/ui-contract";
 import { cn } from "@/lib/utils";
@@ -16,7 +17,7 @@ type PeopleChipsProps = {
 };
 
 /**
- * «Чей список» на телефоне — рядом лиц, а не пунктом в панели фильтров.
+ * «Чей список» — рядом лиц, а не пунктом в панели фильтров.
  *
  * Переключаться между людьми — главное, что делают на главной перед
  * праздником, а на телефоне это пряталось за кнопкой фильтров, двумя
@@ -30,7 +31,29 @@ export function PeopleChips({
   onUserChange,
   className,
 }: PeopleChipsProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const { data: calendar, today } = useUpcomingOccurrences();
+  /*
+   * Ближайший день рождения — прямо на чипе человека. Перед праздником
+   * вопрос «кому скоро» важнее «кто вообще есть», и ответ должен стоять
+   * рядом с лицом, а не в отдельном разделе. Горизонт — месяц: дальше
+   * дата уже не повод открыть список сегодня.
+   */
+  const birthdaySoon = new Map<string, string>();
+  for (const occurrence of calendar?.occurrences ?? []) {
+    if (occurrence.type !== "BIRTHDAY" || birthdaySoon.has(occurrence.person.id)) continue;
+    const days = daysBetween(today, occurrence.date);
+    if (days < 0 || days > 30) continue;
+    birthdaySoon.set(
+      occurrence.person.id,
+      days === 0
+        ? t("сегодня")
+        : new Date(`${occurrence.date}T12:00:00`).toLocaleDateString(locale, {
+            day: "numeric",
+            month: "short",
+          }),
+    );
+  }
   const isMine = selectedUserId === "me" || selectedUserId === currentUserId;
   const me = users.find((user) => user.id === currentUserId);
 
@@ -62,7 +85,7 @@ export function PeopleChips({
           onClick={() => onUserChange(chip.value)}
           data-testid={`people-chip-${chip.key}`}
           className={cn(
-            "flex min-h-11 max-w-[12rem] shrink-0 items-center gap-2 rounded-full border py-1 pl-1.5 pr-3.5 text-sm font-semibold transition-colors",
+            "flex min-h-11 max-w-[15rem] shrink-0 items-center gap-2 rounded-full border py-1 pl-1.5 pr-3.5 text-sm font-semibold transition-colors",
             uiState.focusRing,
             chip.selected ? uiState.chipSelected : uiState.chipIdle,
           )}
@@ -82,6 +105,12 @@ export function PeopleChips({
             </span>
           )}
           <span className="truncate">{chip.label}</span>
+          {chip.user && chip.key !== "me" && birthdaySoon.has(chip.user.id) ? (
+            <span className="shrink-0 text-xs font-medium text-primary-accent">
+              <span className="sr-only">{t("День рождения")}: </span>
+              {birthdaySoon.get(chip.user.id)}
+            </span>
+          ) : null}
         </button>
       ))}
     </div>

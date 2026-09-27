@@ -21,6 +21,7 @@ import { AvatarUploadDialog } from "./AvatarUploadDialog";
 import { cn, fetcher } from "@/lib/utils";
 import { uiSurface } from "@/lib/ui-contract";
 import { useI18n } from "@/components/i18n/language-provider";
+import { getLanguageLocale } from "@/lib/i18n";
 import type { BirthdayAudience, BirthdayProfile } from "@/types";
 import type { ProfileGender } from "@/lib/calendar/calendar-events";
 import type { TelegramLinkStatus } from "@/lib/telegram/link-status";
@@ -70,7 +71,7 @@ export function ProfileForm({
   userId,
   onSuccess,
 }: ProfileFormProps) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [name, setName] = useState(initialName);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const [telegramId, setTelegramId] = useState(initialTelegramId ?? "");
@@ -360,14 +361,22 @@ export function ProfileForm({
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="birthdayMonth">{t("Месяц")}</Label>
-                    <Input
-                      id="birthdayMonth"
-                      type="number"
-                      min={1}
-                      max={12}
-                      value={birthdayMonth}
-                      onChange={(event) => setBirthdayMonth(event.target.value)}
-                    />
+                    {/* Месяц — названием: «3» рядом с днём «8» читалось как дата наоборот. */}
+                    <Select value={birthdayMonth || undefined} onValueChange={setBirthdayMonth}>
+                      <SelectTrigger id="birthdayMonth">
+                        <SelectValue placeholder="—" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, index) => (
+                          <SelectItem key={index + 1} value={String(index + 1)}>
+                            {new Intl.DateTimeFormat(getLanguageLocale(language), {
+                              month: "long",
+                              timeZone: "UTC",
+                            }).format(new Date(Date.UTC(2028, index, 1)))}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="birthdayYear">{t("Год")}</Label>

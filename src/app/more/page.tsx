@@ -107,7 +107,9 @@ export default function MorePage() {
   return (
     <PageShell>
       <PageMain>
-        <div className={uiLayout.pageStack}>
+        {/* Хаб телефонного меню: на десктопе те же пункты есть в сайдбаре, а
+            во всю рамку строки тянулись на 1170px. Колонка чтения. */}
+        <div className={cn(uiLayout.pageStack, "max-w-2xl")}>
           <PageIntro title={t("Ещё")} />
 
           <Link
