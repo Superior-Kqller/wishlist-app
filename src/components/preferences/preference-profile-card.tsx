@@ -97,9 +97,11 @@ export function PreferenceProfileCard({
        */
       transition={{ duration: duration.slow, ease: easing.expo }}
       className={cn(
-        "group overflow-hidden rounded-2xl border bg-[hsl(var(--surface-2))] shadow-none",
-        isCurrent ? "border-primary-accent/45" : "border-border/55",
-        expanded && "border-primary-accent/55",
+        // Рамка нейтральная у всех: своя карточка стоит под заголовком «Ваш
+        // профиль», и отличать её краской больше незачем. Голос краски в
+        // рамке остался только у раскрытой — это состояние.
+        "group overflow-hidden rounded-2xl border border-border/45 bg-[hsl(var(--surface-2))] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]",
+        expanded && "border-primary-accent/45",
       )}
     >
       <div className="overflow-hidden p-4 sm:p-5">

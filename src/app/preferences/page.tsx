@@ -295,66 +295,97 @@ function PreferencesPageContent() {
                    * и профиль читался не карточкой, а полосой. Раскрытая карточка
                    * меряет себя контейнером, поэтому потолок ей не мешает.
                    */
-                  <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fill,minmax(22rem,1fr))]">
-                    {circleUsers.map((user) => {
-                      const isCurrent = user.id === data?.id;
-                      const isExpanded = expandedUserId === user.id;
-                      const cardPreferences = user.giftPreferences;
+                  /*
+                   * Свой профиль и круг — две группы с заголовками. В общем
+                   * списке своя карточка отличалась только бейджем «Это вы» и
+                   * фирменной рамкой, а заполняют её и читают чужие — разные
+                   * задачи.
+                   */
+                  <div className="space-y-6">
+                    {[
+                      {
+                        key: "own",
+                        title: t("Ваш профиль"),
+                        users: circleUsers.filter((user) => user.id === data?.id),
+                      },
+                      {
+                        key: "circle",
+                        title: t("Ваш круг"),
+                        users: circleUsers.filter((user) => user.id !== data?.id),
+                      },
+                    ]
+                      .filter((group) => group.users.length > 0)
+                      .map((group) => (
+                        <div key={group.key} className="space-y-3.5">
+                          <h2 className="section-title">{group.title}</h2>
+                          <div className="grid items-start gap-3 md:grid-cols-[repeat(auto-fill,minmax(22rem,1fr))]">
+                            {group.users.map((user) => {
+                              const isCurrent = user.id === data?.id;
+                              const isExpanded = expandedUserId === user.id;
+                              const cardPreferences = user.giftPreferences;
 
-                      return (
-                        /* Раскрытие — переход к чтению, а не к сравнению: карточка
+                              return (
+                                /* Раскрытие — переход к чтению, а не к сравнению: карточка
                        занимает весь ряд. В колонке шириной 20rem профиль
                        читался столбиком, а рядом оставался пустой ряд. */
-                        /*
-                         * Раскрытие никого не переставляет.
-                         *
-                         * Раньше раскрытая карточка забирала весь ряд
-                         * (`md:col-span-full`), и соседняя выдавливалась на
-                         * следующую строку: она проезжала по диагонали 519px —
-                         * 195 вниз и 482 влево — ради того, что рядом выросло на
-                         * сорок. Движение сообщало о событии втрое крупнее
-                         * случившегося.
-                         *
-                         * Теперь карточка растёт в своей колонке. Панель внутри
-                         * считает свои пороги через `@container`, то есть уже
-                         * умеет читаться в колонке — ширина ряда ей не нужна.
-                         *
-                         * `layout` остаётся: он ведёт рост самой карточки и сдвиг
-                         * тех, кто под ней. Появление карточек не анимируется —
-                         * каскад со сдвигом и задержкой по индексу был
-                         * хореографией загрузки, которой в продукте больше нет
-                         * (DESIGN.md → The Nothing-Arrives Rule).
-                         */
-                        <motion.div
-                          layout={!reduceMotion}
-                          key={user.id}
-                          id={profileAnchorId(user.id)}
-                          // `min-w-0` обязателен: у элемента сетки минимальный размер
-                          // по умолчанию равен min-content, и длинное имя без
-                          // пробелов растягивало колонку за край экрана.
-                          className="min-w-0 scroll-mt-24"
-                          transition={{ duration: duration.slow, ease: easing.expo }}
-                        >
-                          <PreferenceProfileCard
-                            id={user.id}
-                            name={user.name}
-                            username={user.username}
-                            avatarUrl={user.avatarUrl}
-                            preferences={cardPreferences}
-                            wishCount={user.stats?.totalItems}
-                            isCurrent={isCurrent}
-                            expanded={isExpanded}
-                            onToggle={() => toggleProfile(user.id)}
-                            onEdit={isCurrent ? openEditor : undefined}
-                            editLabel={
-                              isCurrent && hasStoredDraft ? t("Продолжить заполнение") : undefined
-                            }
-                          >
-                            <GiftPreferencesSummary preferences={cardPreferences} embedded />
-                          </PreferenceProfileCard>
-                        </motion.div>
-                      );
-                    })}
+                                /*
+                                 * Раскрытие никого не переставляет.
+                                 *
+                                 * Раньше раскрытая карточка забирала весь ряд
+                                 * (`md:col-span-full`), и соседняя выдавливалась на
+                                 * следующую строку: она проезжала по диагонали 519px —
+                                 * 195 вниз и 482 влево — ради того, что рядом выросло на
+                                 * сорок. Движение сообщало о событии втрое крупнее
+                                 * случившегося.
+                                 *
+                                 * Теперь карточка растёт в своей колонке. Панель внутри
+                                 * считает свои пороги через `@container`, то есть уже
+                                 * умеет читаться в колонке — ширина ряда ей не нужна.
+                                 *
+                                 * `layout` остаётся: он ведёт рост самой карточки и сдвиг
+                                 * тех, кто под ней. Появление карточек не анимируется —
+                                 * каскад со сдвигом и задержкой по индексу был
+                                 * хореографией загрузки, которой в продукте больше нет
+                                 * (DESIGN.md → The Nothing-Arrives Rule).
+                                 */
+                                <motion.div
+                                  layout={!reduceMotion}
+                                  key={user.id}
+                                  id={profileAnchorId(user.id)}
+                                  // `min-w-0` обязателен: у элемента сетки минимальный размер
+                                  // по умолчанию равен min-content, и длинное имя без
+                                  // пробелов растягивало колонку за край экрана.
+                                  className="min-w-0 scroll-mt-24"
+                                  transition={{ duration: duration.slow, ease: easing.expo }}
+                                >
+                                  <PreferenceProfileCard
+                                    id={user.id}
+                                    name={user.name}
+                                    username={user.username}
+                                    avatarUrl={user.avatarUrl}
+                                    preferences={cardPreferences}
+                                    wishCount={user.stats?.totalItems}
+                                    isCurrent={isCurrent}
+                                    expanded={isExpanded}
+                                    onToggle={() => toggleProfile(user.id)}
+                                    onEdit={isCurrent ? openEditor : undefined}
+                                    editLabel={
+                                      isCurrent && hasStoredDraft
+                                        ? t("Продолжить заполнение")
+                                        : undefined
+                                    }
+                                  >
+                                    <GiftPreferencesSummary
+                                      preferences={cardPreferences}
+                                      embedded
+                                    />
+                                  </PreferenceProfileCard>
+                                </motion.div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
                   </div>
                 ) : profileSearch.trim() ? (
                   /* Пустая выдача поиска — единственный случай, когда список

@@ -480,6 +480,7 @@ const en: Dictionary = {
   "Что подойдёт каждому в вашем кругу. Откройте карточку, чтобы увидеть профиль целиком.":
     "What suits everyone in your circle. Open a card to see the whole profile.",
   "Ваш круг": "Your circle",
+  "Ваш профиль": "Your profile",
   "Не удалось загрузить профили друзей. Ваш профиль по-прежнему доступен.":
     "Could not load friends' profiles. Your profile is still available.",
   Все: "All",
