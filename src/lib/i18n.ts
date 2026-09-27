@@ -128,8 +128,6 @@ const en: Dictionary = {
   Английский: "English",
   "Выбранный язык": "Selected language",
   "К основному содержимому": "Skip to main content",
-  "Ваши желания в одном месте. Выбирайте и отмечайте покупки.":
-    "Your wishes in one place. Browse and mark gifts as purchased.",
   Всего: "Total",
   Доступно: "Available",
   Куплено: "Purchased",
