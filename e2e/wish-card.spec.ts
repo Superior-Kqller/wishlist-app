@@ -51,7 +51,8 @@ test("купленное желание помечено на узком экр�
 
   await page.goto(`/?search=${encodeURIComponent(uniqueTitle)}&purchased=show`);
 
-  const card = page.getByTestId("wishlist-card-v2").filter({ hasText: uniqueTitle }).first();
-  await expect(card).toBeVisible();
-  await expect(card.getByTestId("wishlist-card-v2-purchased-label")).toBeVisible();
+  // На телефоне по умолчанию — список: купленное помечено в строке.
+  const row = page.getByTestId("wishlist-list-row").filter({ hasText: uniqueTitle }).first();
+  await expect(row).toBeVisible();
+  await expect(row.getByTestId("wishlist-list-row-purchased-label")).toBeVisible();
 });

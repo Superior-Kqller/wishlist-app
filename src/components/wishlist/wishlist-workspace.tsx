@@ -4,6 +4,8 @@ import type { RefObject } from "react";
 import {
   CheckSquare,
   Download,
+  LayoutGrid,
+  List,
   Loader2,
   MoreHorizontal,
   Plus,
@@ -31,6 +33,7 @@ import {
   type ActiveFilterChip,
 } from "@/components/wishlist/active-filter-chips";
 import { WishlistScopePicker } from "@/components/wishlist/wishlist-scope-picker";
+import { PeopleChips } from "@/components/wishlist/people-chips";
 import { RetryNotice } from "@/components/ui/retry-notice";
 import { uiLayout, uiSurface } from "@/lib/ui-contract";
 import type { ListWithMeta, UserWithStats, WishlistItem } from "@/types";
@@ -232,16 +235,6 @@ export function WishlistWorkspace({
   const { onAddItem, onExport, onImport, isImporting } = catalogActions;
 
   const hasSelectedCards = selectedIds.size > 0;
-  const selectionButtonTitle = hasSelectedCards
-    ? t("Режим выбора")
-    : selectionMode
-      ? t("Отменить выбор")
-      : t("Выбрать");
-  const selectionButtonAriaLabel = hasSelectedCards
-    ? t("Режим выбора")
-    : selectionMode
-      ? t("Отменить выбор")
-      : t("Выбрать карточки");
   return (
     // Вертикальный ритм принадлежит рабочей области, а не странице: у неё
     // несколько соседних блоков подряд (панель инструментов, подсказки
@@ -263,105 +256,126 @@ export function WishlistWorkspace({
       <div
         className={`@container ${uiSurface.homeToolbar} overflow-hidden @max-[52rem]:rounded-xl @max-[52rem]:px-2 @max-[52rem]:py-2`}
       >
-        <div className="flex min-w-0 items-center gap-2 @min-[52rem]:hidden">
-          <WishlistSearchInput
-            search={search}
-            onSearchChange={onSearchChange}
-            variant="mobile"
-            className="min-w-0 flex-1"
-          />
-          <Button
-            type="button"
-            variant={hasActiveFilters ? "secondary" : "outline"}
-            className={cn(
-              "relative h-11 w-11 shrink-0 rounded-lg p-0",
-              hasActiveFilters
-                ? "border-primary/45 bg-primary/10 text-foreground"
-                : "border-border/55 bg-[hsl(var(--surface-3)/0.55)]",
-            )}
-            onClick={() => onFiltersOpenChange(true)}
-            title={t("Фильтры")}
-            aria-controls="wishlist-filters"
-            aria-expanded={filtersOpen}
-            aria-label={
-              activeFilterCount > 0 ? `${t("Фильтры")}: ${activeFilterCount}` : t("Фильтры")
-            }
-          >
-            <SlidersHorizontal className="h-4 w-4 shrink-0" />
-            {activeFilterCount > 0 ? (
-              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground">
-                {activeFilterCount}
-              </span>
-            ) : null}
-          </Button>
-          <Button
-            variant="ghost"
-            className={cn(
-              "h-11 w-11 shrink-0 rounded-lg p-0 text-muted-foreground disabled:pointer-events-none disabled:opacity-100",
-              selectionMode && "bg-primary/10 text-foreground",
-            )}
-            onClick={onToggleSelectionMode}
-            disabled={hasSelectedCards}
-            title={selectionButtonTitle}
-            aria-label={selectionButtonAriaLabel}
-          >
-            <CheckSquare className="h-4 w-4 shrink-0" />
-          </Button>
+        <div className="flex min-w-0 flex-col gap-2 @min-[52rem]:hidden">
+          {currentUserId && usersWithStats.length > 0 ? (
+            <PeopleChips
+              currentUserId={currentUserId}
+              users={usersWithStats}
+              selectedUserId={normalizedSelectedUserId}
+              onUserChange={onUserChange}
+            />
+          ) : null}
+          <div className="flex min-w-0 items-center gap-2">
+            <WishlistSearchInput
+              search={search}
+              onSearchChange={onSearchChange}
+              variant="mobile"
+              className="min-w-0 flex-1"
+            />
+            <Button
+              type="button"
+              variant={hasActiveFilters ? "secondary" : "outline"}
+              className={cn(
+                "relative h-11 w-11 shrink-0 rounded-lg p-0",
+                hasActiveFilters
+                  ? "border-primary/45 bg-primary/10 text-foreground"
+                  : "border-border/55 bg-[hsl(var(--surface-3)/0.55)]",
+              )}
+              onClick={() => onFiltersOpenChange(true)}
+              title={t("Фильтры")}
+              aria-controls="wishlist-filters"
+              aria-expanded={filtersOpen}
+              aria-label={
+                activeFilterCount > 0 ? `${t("Фильтры")}: ${activeFilterCount}` : t("Фильтры")
+              }
+            >
+              <SlidersHorizontal className="h-4 w-4 shrink-0" />
+              {activeFilterCount > 0 ? (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground">
+                  {activeFilterCount}
+                </span>
+              ) : null}
+            </Button>
+            {/*
+             * Одна кнопка, а не пара сегментов: две кнопки по 36px не проходят
+             * 44px на касание, а по 44px отнимают у поиска половину ширины.
+             * Значок показывает, куда переключит касание.
+             */}
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-11 w-11 shrink-0 rounded-lg p-0 text-muted-foreground"
+              onClick={() => onViewModeChange(viewMode === "table" ? "grid" : "table")}
+              aria-label={viewMode === "table" ? t("Показать карточками") : t("Показать списком")}
+              title={viewMode === "table" ? t("Показать карточками") : t("Показать списком")}
+            >
+              {viewMode === "table" ? (
+                <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden />
+              ) : (
+                <List className="h-4 w-4 shrink-0" aria-hidden />
+              )}
+            </Button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                className="h-11 w-11 shrink-0 rounded-lg p-0 text-muted-foreground"
-                aria-label={t("Ещё действия")}
-                title={t("Ещё действия")}
-              >
-                <MoreHorizontal className="h-4 w-4 shrink-0" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuItem onClick={onImport} disabled={isImporting}>
-                {isImporting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Upload className="h-4 w-4" />
-                )}
-                {t("Импорт JSON")}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onExport("csv")}>
-                <Download className="h-4 w-4" />
-                {t("Экспорт CSV")}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onExport("json")}>
-                <Download className="h-4 w-4" />
-                {t("Экспорт JSON")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-11 w-11 shrink-0 rounded-lg p-0 text-muted-foreground"
+                  aria-label={t("Ещё действия")}
+                  title={t("Ещё действия")}
+                >
+                  <MoreHorizontal className="h-4 w-4 shrink-0" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem onClick={onToggleSelectionMode} disabled={hasSelectedCards}>
+                  <CheckSquare className="h-4 w-4" aria-hidden />
+                  {selectionMode ? t("Отменить выбор") : t("Выбрать несколько")}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onImport} disabled={isImporting}>
+                  {isImporting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="h-4 w-4" />
+                  )}
+                  {t("Импорт JSON")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onExport("csv")}>
+                  <Download className="h-4 w-4" />
+                  {t("Экспорт CSV")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onExport("json")}>
+                  <Download className="h-4 w-4" />
+                  {t("Экспорт JSON")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          {/*
-           * Главное действие в полосе между плавающей кнопкой и десктопным
-           * ярусом. Кнопка внизу справа скрыта от `sm` (640px), а ярус со
-           * своей «Добавить желание» включается только когда контейнер
-           * дорастёт до 52rem — с сайдбаром это около 1152px вьюпорта. На
-           * ноутбуке 1024px не было ни того, ни другого: пока список пуст,
-           * выручает кнопка в заглушке, а с первым же желанием добавить
-           * второе становится нечем.
-           *
-           * Отсюда и смешанное условие: контейнер решает, какой ярус
-           * показать, а вьюпорт — не дублирует ли эта кнопка плавающую.
-           */}
-          <Button
-            type="button"
-            onClick={onAddItem}
-            className="hidden h-11 shrink-0 gap-2 rounded-lg px-3.5 sm:inline-flex"
-            title={t("Добавить желание")}
-            aria-label={t("Добавить желание")}
-          >
-            <Plus className="h-4 w-4 shrink-0" aria-hidden />
-            {t("Добавить")}
-          </Button>
+            {/*
+             * Главное действие в полосе между плавающей кнопкой и десктопным
+             * ярусом. Кнопка внизу справа скрыта от `sm` (640px), а ярус со
+             * своей «Добавить желание» включается только когда контейнер
+             * дорастёт до 52rem — с сайдбаром это около 1152px вьюпорта. На
+             * ноутбуке 1024px не было ни того, ни другого: пока список пуст,
+             * выручает кнопка в заглушке, а с первым же желанием добавить
+             * второе становится нечем.
+             *
+             * Отсюда и смешанное условие: контейнер решает, какой ярус
+             * показать, а вьюпорт — не дублирует ли эта кнопка плавающую.
+             */}
+            <Button
+              type="button"
+              onClick={onAddItem}
+              className="hidden h-11 shrink-0 gap-2 rounded-lg px-3.5 sm:inline-flex"
+              title={t("Добавить желание")}
+              aria-label={t("Добавить желание")}
+            >
+              <Plus className="h-4 w-4 shrink-0" aria-hidden />
+              {t("Добавить")}
+            </Button>
+          </div>
         </div>
 
         {/*

@@ -1,14 +1,29 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
+/*
+ * На телефоне по умолчанию — список: плитки «Добавить» в конце сетки там нет,
+ * добавляют плавающей кнопкой, а желание появляется строкой, а не карточкой.
+ */
 const scenarios = [
-  { name: "desktop", width: 1440, height: 900 },
-  { name: "phone", width: 390, height: 844 },
+  {
+    name: "desktop",
+    width: 1440,
+    height: 900,
+    entry: (page: Page) => page.getByTestId("add-item-card"),
+    itemTestId: "wishlist-card-v2",
+  },
+  {
+    name: "phone",
+    width: 390,
+    height: 844,
+    entry: (page: Page) => page.getByRole("button", { name: "Добавить желание" }),
+    itemTestId: "wishlist-list-row",
+  },
 ] as const;
 
-async function openCreateDialog(page: Page) {
-  const addItemCard = page.getByTestId("add-item-card");
-  await expect(addItemCard).toBeVisible();
-  await addItemCard.click();
+async function openCreateDialog(page: Page, entry: Locator) {
+  await expect(entry).toBeVisible();
+  await entry.click();
   return page.getByRole("dialog", { name: "Добавить желание" });
 }
 
@@ -44,8 +59,8 @@ for (const scenario of scenarios) {
 
     await page.goto("/");
 
-    const addItemCard = page.getByTestId("add-item-card");
-    const dialog = await openCreateDialog(page);
+    const entry = scenario.entry(page);
+    const dialog = await openCreateDialog(page, entry);
     await expect(dialog.getByTestId("item-create-link-stage")).toBeVisible();
     await expect(dialog.getByLabel("Название")).toHaveCount(0);
 
@@ -89,11 +104,11 @@ for (const scenario of scenarios) {
     expect((await createResponse).ok()).toBeTruthy();
     await expect(dialog).toBeHidden();
     await expect(
-      page.getByTestId("wishlist-card-v2").filter({ hasText: parsedTitle }).first(),
+      page.getByTestId(scenario.itemTestId).filter({ hasText: parsedTitle }).first(),
     ).toBeVisible();
 
     const manualTitle = `Manual ${scenario.name} ${Date.now()}`;
-    const manualDialog = await openCreateDialog(page);
+    const manualDialog = await openCreateDialog(page, entry);
     const manualModeButton = manualDialog.getByRole("button", {
       name: "Вручную",
       exact: true,
@@ -109,9 +124,9 @@ for (const scenario of scenarios) {
     expect((await manualCreateResponse).ok()).toBeTruthy();
     await expect(manualDialog).toBeHidden();
     await expect(
-      page.getByTestId("wishlist-card-v2").filter({ hasText: manualTitle }).first(),
+      page.getByTestId(scenario.itemTestId).filter({ hasText: manualTitle }).first(),
     ).toBeVisible();
-    await expect(addItemCard).toBeFocused();
+    await expect(entry).toBeFocused();
   });
 }
 

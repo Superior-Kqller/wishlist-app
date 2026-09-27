@@ -363,6 +363,7 @@ const en: Dictionary = {
   "Режим отображения": "View mode",
   "Показать карточками": "Show as cards",
   "Показать таблицей": "Show as table",
+  "Показать списком": "Show as list",
   "Ссылка на товар": "Product link",
   "Способ заполнения": "How to fill",
   "По ссылке": "From a link",

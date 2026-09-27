@@ -16,7 +16,12 @@ export type WishlistFiltersState = {
   listId: string | null;
   search: string;
   sort: string;
-  view: WishlistViewMode;
+  /**
+   * `null` — вид не выбран: телефон тогда показывает список, остальные —
+   * карточки. Выбранный вид пишется в адрес явно, в том числе «карточки»:
+   * иначе на телефоне его нельзя было бы закрепить.
+   */
+  view: WishlistViewMode | null;
   showPurchased: boolean;
   categories: string[];
 };
@@ -32,10 +37,14 @@ export function parseWishlistFilters(params: ReadableParams): WishlistFiltersSta
     listId: listId && listId !== "all" ? listId : null,
     search: params.get("search") || "",
     sort: parseWishlistSort(params.get("sort")),
-    view: params.get("view") === "table" ? "table" : "grid",
+    view: parseView(params.get("view")),
     showPurchased: params.get("purchased") === "show",
     categories: categories ? categories.split(",").filter(Boolean) : [],
   };
+}
+
+function parseView(value: string | null): WishlistViewMode | null {
+  return value === "table" || value === "grid" ? value : null;
 }
 
 /** Значения по умолчанию в адрес не пишутся — ссылка остаётся короткой. */
@@ -46,7 +55,7 @@ export function serializeWishlistFilters(state: WishlistFiltersState): string {
     listId: state.listId,
     search: state.search || null,
     sort: state.sort !== DEFAULT_WISHLIST_SORT ? state.sort : null,
-    view: state.view === "table" ? "table" : null,
+    view: state.view,
     purchased: state.showPurchased ? "show" : null,
     categories: state.categories.length > 0 ? state.categories.join(",") : null,
   };

@@ -52,6 +52,7 @@ import { useDebounce } from "@/lib/use-debounce";
 import { filterListsBySelectedUser, getFirstOwnedListId } from "@/lib/list-filter-client";
 import { normalizeSelectedUserId } from "@/lib/filter-state";
 import { useInfiniteWishlistItems } from "@/hooks/use-infinite-wishlist-items";
+import { useIsPhone } from "@/hooks/use-is-phone";
 import { BulkDeleteFailure, useWishlistItemEditor } from "@/hooks/use-wishlist-item-editor";
 import { useSearchDraftUrlSync, useWishlistUrlSync } from "@/hooks/use-wishlist-url-sync";
 import { parseWishlistFilters } from "@/lib/home/wishlist-filters-url";
@@ -93,11 +94,15 @@ function HomePageContent() {
     userId: selectedUserId,
     listId: selectedListId,
     sort: sortBy,
-    view: viewMode,
+    view: chosenView,
     showPurchased,
     categories: selectedCategories,
   } = urlFilters;
   const listIdParam = searchParams.get("listId");
+  // Не выбранный вид на телефоне — список: карточка со снимком занимает там
+  // пол-экрана, и за один взгляд видно два желания вместо шести.
+  const isPhone = useIsPhone();
+  const viewMode: WishlistViewMode = chosenView ?? (isPhone ? "table" : "grid");
 
   // Единственный черновик: печатать в адресную строку по букве нельзя.
   const [search, setSearch] = useState(urlFilters.search);

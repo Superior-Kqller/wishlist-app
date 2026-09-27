@@ -3,6 +3,8 @@
 import { WishlistItem } from "@/types";
 import { WishCard } from "@/components/wishlist/wish-card";
 import { ProductRow } from "@/components/wishlist/product-row";
+import { WishListRow } from "@/components/wishlist/wish-list-row";
+import { useIsPhone } from "@/hooks/use-is-phone";
 import type { WishlistViewMode } from "@/components/wishlist/wishlist-view-toggle";
 import { WishlistCardSkeleton } from "./WishlistCardSkeleton";
 import { AddItemCard } from "./AddItemCard";
@@ -87,6 +89,7 @@ export function WishlistGrid({
 }: WishlistGridProps) {
   const { language, t } = useI18n();
   const reduceMotion = useReducedMotion();
+  const isPhone = useIsPhone();
 
   if (isLoading) {
     return (
@@ -119,6 +122,43 @@ export function WishlistGrid({
    */
   const showPreviewColumn = items.some((item) => Boolean(item.images?.[0]));
   const showCategoryColumn = items.some((item) => Boolean(item.category));
+
+  /*
+   * На телефоне «список» — строки, а не таблица: пять столбцов на 390px
+   * уезжали в горизонтальную прокрутку. Строки лежат в одной поверхности,
+   * разделённые линией, а не стопкой отдельных карточек.
+   */
+  if (viewMode === "table" && isPhone) {
+    return (
+      <div
+        role="region"
+        aria-label={t("Список желаний")}
+        className="overflow-hidden rounded-2xl border border-border/45 bg-[hsl(var(--surface-2))] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]"
+      >
+        <p aria-live="polite" className="sr-only">
+          {items.length} {getItemWord(language, items.length)}
+        </p>
+        <ul className="divide-y divide-border/32">
+          {items.map((item) => (
+            <WishListRow
+              key={item.id}
+              item={item}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onSetStatus={onSetStatus}
+              statusPending={!!pendingStatusByItemId?.[item.id]}
+              onOpenDetail={onOpenDetail}
+              selectionMode={selectionMode}
+              isSelected={selectedIds?.has(item.id)}
+              onToggleSelect={onToggleSelect}
+              currentUserId={currentUserId}
+              currentUserRole={currentUserRole}
+            />
+          ))}
+        </ul>
+      </div>
+    );
+  }
 
   if (viewMode === "table") {
     return (

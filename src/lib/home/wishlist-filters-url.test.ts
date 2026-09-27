@@ -26,7 +26,7 @@ describe("parseWishlistFilters", () => {
       listId: null,
       search: "",
       sort: "newest",
-      view: "grid",
+      view: null,
       showPurchased: false,
       categories: [],
     });
@@ -34,6 +34,11 @@ describe("parseWishlistFilters", () => {
 
   it("устаревшее listId=all значит «все подборки»", () => {
     expect(parse("listId=all").listId).toBeNull();
+  });
+
+  it("явный выбор карточек сохраняется, неизвестный вид — нет", () => {
+    expect(parse("view=grid").view).toBe("grid");
+    expect(parse("view=cards").view).toBeNull();
   });
 
   it("неизвестная сортировка не проходит дальше ссылки", () => {
@@ -44,6 +49,10 @@ describe("parseWishlistFilters", () => {
 describe("serializeWishlistFilters", () => {
   it("не пишет в адрес значения по умолчанию", () => {
     expect(serializeWishlistFilters(parse(""))).toBe("");
+  });
+
+  it("пишет в адрес и явно выбранные карточки", () => {
+    expect(serializeWishlistFilters({ ...parse(""), view: "grid" })).toBe("view=grid");
   });
 
   it("возвращает ссылку к тем же фильтрам", () => {
