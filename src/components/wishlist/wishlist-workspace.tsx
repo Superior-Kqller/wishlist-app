@@ -247,7 +247,9 @@ export function WishlistWorkspace({
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
-      const target = event.target as HTMLElement | null;
+      // Цель — не всегда элемент: событие, отправленное в `document` или `window`,
+      // не имеет `closest`.
+      const target = event.target instanceof Element ? event.target : null;
       if (target?.closest("input, textarea, select, [contenteditable=true], [role=dialog]")) return;
       if (document.querySelector("[role=dialog]")) return;
       if (event.key === "/") {
