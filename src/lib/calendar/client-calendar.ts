@@ -12,7 +12,6 @@ export type { CalendarOccurrence };
 export { thematicWishlistHref } from "./calendar-events";
 
 export type CalendarFilter = "ALL" | CalendarOccurrence["type"];
-export type CalendarView = "list" | "month";
 
 export function getClientLocalDate(date = new Date()): string {
   const offset = date.getTimezoneOffset() * 60_000;
@@ -25,15 +24,18 @@ export function getOccurrenceTitle(occurrence: CalendarOccurrence): string {
   return occurrence.name;
 }
 
+/** Группы по дню (`YYYY-MM-DD`) или по месяцу (`YYYY-MM`) в порядке входа. */
 export function groupCalendarOccurrences(
   occurrences: CalendarOccurrence[],
+  by: "date" | "month" = "date",
 ): Array<[string, CalendarOccurrence[]]> {
   // Не Map.groupBy: код клиентский, Safari до 17.4 его не знает.
   const groups = new Map<string, CalendarOccurrence[]>();
   for (const occurrence of occurrences) {
-    const entries = groups.get(occurrence.date);
+    const key = by === "month" ? occurrence.date.slice(0, 7) : occurrence.date;
+    const entries = groups.get(key);
     if (entries) entries.push(occurrence);
-    else groups.set(occurrence.date, [occurrence]);
+    else groups.set(key, [occurrence]);
   }
   return [...groups.entries()];
 }
@@ -80,8 +82,4 @@ export function getUpcomingOccurrences(
       (left, right) => left.date.localeCompare(right.date) || left.id.localeCompare(right.id),
     )
     .slice(0, limit);
-}
-
-export function getInitialCalendarView(isMobile: boolean): CalendarView {
-  return isMobile ? "list" : "month";
 }

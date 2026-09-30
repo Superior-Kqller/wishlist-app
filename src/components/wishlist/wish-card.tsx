@@ -2,9 +2,8 @@
 
 import { memo, useState } from "react";
 import Image from "next/image";
-import { CheckCircle2, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { WishlistItem } from "@/types";
 import { cn, formatPrice } from "@/lib/utils";
 import { getAvatarColor } from "@/lib/avatar-utils";
@@ -13,7 +12,6 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { getProductCategoryLabel } from "@/lib/categories";
 import { isItemPurchased, type ItemStatus } from "@/lib/item-status";
 import { ItemActionsMenu } from "./item-actions-menu";
-import { ProductCategoryIcon } from "@/lib/category-icons";
 
 interface WishCardProps {
   item: WishlistItem;
@@ -58,7 +56,6 @@ export const WishCard = memo(function WishCard({
   const isBought = isItemPurchased(item);
 
   const canManage = currentUserId === item.userId || currentUserRole === "ADMIN";
-  const showFooter = selectionMode || Boolean(item.price != null || item.url || canManage);
 
   const ownerName = hideOwner ? undefined : item.user?.name;
   const ownerId = item.user?.id ?? item.userId;
@@ -75,11 +72,7 @@ export const WishCard = memo(function WishCard({
   };
 
   const showImage = Boolean(imageUrl && !imageError);
-  /*
-   * Карточке без снимка есть что показать вместо кадра — заметку и магазин.
-   * Пустое место на её месте читалось «не догрузилось», а заметка — это как
-   * раз то, ради чего такое желание записывали руками.
-   */
+  // Без снимка плитка показывает заметку и магазин — ради них такое желание и записывали.
   const shopHost = (() => {
     if (!item.url) return null;
     try {
@@ -89,258 +82,205 @@ export const WishCard = memo(function WishCard({
     }
   })();
   const categoryLabel = getProductCategoryLabel(item.category, language);
+  const Wrapper = isCardInteractive ? "button" : "div";
+  const overlayButtonClass =
+    "size-9 min-h-9 min-w-9 rounded-full border-transparent bg-background/95 text-foreground shadow-[var(--shadow-float)] hover:bg-background";
 
+  /*
+   * DESIGN.md → «Карточка желания»: фото 1:1 без рамки у самой карточки,
+   * плашка статуса слева сверху, действия — круглыми кнопками справа сверху;
+   * ниже название, владелец и категория, цена.
+   */
   return (
-    <Card
+    <div
       data-testid="wishlist-card-v2"
-      className={cn(
-        "group/card relative flex h-full flex-col overflow-hidden rounded-2xl border-border/45 bg-[hsl(var(--surface-2))] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]",
-        isBought && "opacity-[0.88] saturate-[0.85]",
-        isCardInteractive &&
-          "transition-[border-color,transform,box-shadow] duration-[var(--dur-base)] ease-[var(--ease-soft)] hover:-translate-y-1 hover:border-primary/45 hover:shadow-[var(--shadow-interactive-card-hover)]",
-        selectionMode && "ring-1 ring-border/85",
-        isSelected && "border-primary/70 ring-2 ring-primary/45 elevation-selected-card",
-      )}
+      className={cn("group/card relative flex h-full min-w-0 flex-col", isBought && "opacity-80")}
     >
-      {(() => {
-        const Wrapper = isCardInteractive ? "button" : "div";
-        return (
-          <Wrapper
-            type={isCardInteractive ? "button" : undefined}
-            className={cn(
-              "flex min-w-0 flex-1 flex-col text-left",
-              isCardInteractive &&
-                "cursor-pointer appearance-none bg-transparent transition-colors duration-[var(--dur-base)] hover:bg-[hsl(var(--surface-3)/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-            )}
-            onClick={isCardInteractive ? handleCardClick : undefined}
-            aria-pressed={selectionMode ? isSelected : undefined}
-          >
-            {/*
-             * Кадра нет, если нет снимка.
-             *
-             * Раньше карточка без изображения держала полосу 60px — ровно чтобы
-             * принять метку важности, которая жила поверх кадра. На сетке из
-             * желаний, набранных руками, это давало ряд пустых рамок: четверть
-             * высоты каждой карточки уходила на подложку под одну метку, а сама
-             * сетка читалась как «не загрузилось». Важность переехала в строку
-             * фактов, и полоса стала не нужна.
-             */}
-            {showImage ? (
-              <div
-                data-testid="wishlist-card-v2-media"
-                className={cn(
-                  /*
-                   * Снимок лежит в «лотке» на светлой подложке, отбитом от краёв
-                   * карточки. Раньше кадр шёл в край, а белый фон снимка
-                   * заливал его светом; размытая копия снимка вокруг и
-                   * растушёвка снизу лишь маскировали это.
-                   */
-                  "relative mx-2 mt-2 shrink-0 overflow-hidden rounded-xl",
-                  imageLoaded ? "media-tile" : "bg-[hsl(var(--surface-1))]",
-                  // На узком экране карточки идут в один столбец, поэтому кадр
-                  // здесь шире: иначе один товар занимает пол-экрана по высоте.
-                  "aspect-[16/10] sm:aspect-[4/3]",
-                )}
-              >
-                {/* Снимки приходят в разных пропорциях: `contain` не обрезает ни один товар. */}
-                <Image
-                  src={imageUrl!}
-                  alt=""
-                  fill
-                  className="wish-card-image object-contain p-4 sm:p-5"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
-                  unoptimized
-                  onLoad={() => setImageLoaded(true)}
-                  onError={() => setImageError(true)}
-                />
-              </div>
-            ) : null}
-
-            {selectionMode ? (
-              <div
-                className={cn(
-                  "absolute right-2.5 top-2.5 z-20 rounded-full border px-2.5 py-1 text-[11px] font-semibold",
-                  isSelected
-                    ? "border-primary-accent/70 bg-[hsl(var(--surface-4))] text-foreground"
-                    : "border-border/70 bg-[hsl(var(--surface-3))] text-muted-foreground",
-                )}
-              >
-                {isSelected ? t("Выбрано") : t("Выбрать")}
-              </div>
-            ) : null}
-
-            <div className="flex min-w-0 flex-1 flex-col gap-2 px-3.5 pb-3 pt-3 sm:px-4">
-              <h3
-                data-testid="wishlist-card-v2-title"
-                className={cn(
-                  "line-clamp-2 min-h-[2.5rem] text-[15px] font-semibold leading-[1.25] tracking-[-0.008em] text-balance text-foreground sm:text-base",
-                  isBought && "line-through decoration-muted-foreground/55",
-                )}
-              >
-                {item.title}
-              </h3>
-
-              <div
-                data-testid="wishlist-card-v2-meta"
-                className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground sm:text-xs"
-              >
-                {/* Важность стоит первой среди фактов — и на карточке со снимком
-                      тоже: плашка поверх фото закрывала сам товар. */}
-                <PriorityBadgeInline priority={item.priority} />
-
-                {/*
-                 * Разделительных точек в строке нет. Каждый факт начинается со
-                 * своего значка — важность, категория, аватар владельца, — и
-                 * точка между ними ничего не разделяла, зато при переносе
-                 * оставалась висеть в конце строки: «Винтажные пластинки ·» и
-                 * пустота до края карточки. Разделяет теперь зазор.
-                 */}
-                {item.category ? (
-                  <span
-                    data-testid="wishlist-card-v2-category"
-                    className="inline-flex min-w-0 items-center gap-1.5"
-                  >
-                    <ProductCategoryIcon
-                      category={item.category}
-                      className="size-3.5 shrink-0 text-muted-foreground/70"
-                    />
-                    <span className="truncate">{categoryLabel}</span>
-                  </span>
-                ) : null}
-
-                {ownerName ? (
-                  <span
-                    data-testid="wishlist-card-v2-owner"
-                    className="inline-flex min-w-0 items-center gap-1.5"
-                  >
-                    <span className="relative size-[18px] shrink-0 overflow-hidden rounded-full border border-primary/32">
-                      {ownerImage && !ownerImageError ? (
-                        <Image
-                          src={ownerImage}
-                          alt={ownerName}
-                          fill
-                          className="object-cover"
-                          sizes="20px"
-                          unoptimized={ownerImage.startsWith("/uploads/")}
-                          onError={() => setOwnerImageError(true)}
-                        />
-                      ) : (
-                        <span
-                          aria-hidden
-                          className={cn(
-                            "flex size-full items-center justify-center rounded-full",
-                            getAvatarColor(ownerId),
-                          )}
-                        />
-                      )}
-                    </span>
-                    <span className="min-w-0 truncate">{ownerName}</span>
-                  </span>
-                ) : null}
-              </div>
-
-              {!showImage && (item.notes || shopHost) ? (
-                <div className="flex min-w-0 flex-col gap-1.5 border-t border-border/32 pt-2.5">
-                  {item.notes ? (
-                    <p className="line-clamp-3 text-sm leading-snug text-muted-foreground">
-                      {item.notes}
-                    </p>
-                  ) : null}
-                  {shopHost ? (
-                    <p className="truncate text-xs text-muted-foreground-subtle">{shopHost}</p>
-                  ) : null}
-                </div>
-              ) : null}
-
-              {isBought ? (
-                <div
-                  data-testid="wishlist-card-v2-purchased-label"
-                  className={cn(
-                    "relative inline-flex w-fit items-center gap-1.5 rounded-full border border-success/45 bg-success/10 px-2.5 py-1 text-[11px] font-semibold text-success",
-                    // Печать проигрывается только по действию пользователя, а не
-                    // при каждом появлении уже купленной карточки в списке.
-                    justPurchased && "seal-in seal-ring",
-                  )}
-                >
-                  <CheckCircle2 className="size-3.5" aria-hidden />
-                  {t("Уже куплено")}
-                </div>
-              ) : null}
-            </div>
-          </Wrapper>
-        );
-      })()}
-
-      {showFooter ? (
+      <Wrapper
+        type={isCardInteractive ? "button" : undefined}
+        className={cn(
+          "flex min-w-0 flex-1 flex-col rounded-xl text-left",
+          isCardInteractive &&
+            "cursor-pointer appearance-none bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        )}
+        onClick={isCardInteractive ? handleCardClick : undefined}
+        aria-pressed={selectionMode ? isSelected : undefined}
+      >
         <div
-          data-testid="wishlist-card-v2-footer"
-          className="mt-auto flex min-h-[3.25rem] items-center justify-between gap-2 px-3.5 pb-3 pt-1 sm:px-4"
+          data-testid={showImage ? "wishlist-card-v2-media" : undefined}
+          className={cn(
+            "relative aspect-square w-full shrink-0 overflow-hidden rounded-xl",
+            showImage && imageLoaded ? "media-tile" : "bg-[hsl(var(--surface-3))]",
+            isSelected && "ring-2 ring-foreground ring-offset-2 ring-offset-background",
+          )}
         >
-          {selectionMode ? (
-            <p className="text-xs text-muted-foreground">
-              {isSelected
-                ? t("Нажмите на карточку, чтобы снять выбор.")
-                : t("Нажмите на карточку, чтобы выбрать её.")}
-            </p>
+          {showImage ? (
+            /* Снимки приходят в разных пропорциях: `contain` не обрезает ни один товар. */
+            <Image
+              src={imageUrl!}
+              alt=""
+              fill
+              className="wish-card-image object-contain p-6"
+              sizes="(max-width: 744px) 50vw, (max-width: 1128px) 33vw, 25vw"
+              unoptimized
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
+            />
           ) : (
-            <>
-              {item.price != null ? (
-                <p
-                  data-testid="wishlist-card-v2-price"
-                  className="min-w-0 flex-1 truncate text-xl font-bold leading-none tabular-nums tracking-[-0.02em] text-foreground"
-                >
-                  {formatPrice(item.price, item.currency, language)}
-                </p>
-              ) : (
-                <span className="min-w-0 flex-1" aria-hidden />
+            // Угол плитки занят плашкой важности; категория подписана под названием.
+            <div className="flex size-full flex-col justify-end p-4">
+              <div className="min-w-0 space-y-1.5">
+                {item.notes ? (
+                  <p className="line-clamp-4 text-sm leading-snug text-[hsl(var(--foreground)/0.8)]">
+                    {item.notes}
+                  </p>
+                ) : null}
+                {shopHost ? (
+                  <p className="truncate text-xs text-muted-foreground">{shopHost}</p>
+                ) : null}
+              </div>
+            </div>
+          )}
+
+          {selectionMode ? (
+            <span
+              className={cn(
+                "absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-semibold shadow-[var(--shadow-float)]",
+                isSelected ? "bg-foreground text-background" : "bg-background text-foreground",
               )}
-
-              {item.url || canManage ? (
-                <div className="flex shrink-0 items-center gap-1">
-                  {/*
-                   * Действия — иконки, а не подписанные кнопки: повторённое
-                   * восемь раз в сетке слово «Открыть» весит больше, чем
-                   * названия самих товаров. Подписи остаются во всплывающей
-                   * подсказке и в `aria-label`.
-                   */}
-                  {item.url ? (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      asChild
-                      title={t("Открыть в новой вкладке")}
-                      aria-label={t("Открыть ссылку на товар в новой вкладке")}
-                      className="size-11 min-h-[44px] min-w-[44px] border-transparent bg-[hsl(var(--surface-3))] text-muted-foreground hover:bg-[hsl(var(--surface-4))] hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
-                    >
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ExternalLink aria-hidden />
-                      </a>
-                    </Button>
-                  ) : null}
-
-                  {canManage ? (
-                    <ItemActionsMenu
-                      item={item}
-                      statusPending={statusPending}
-                      onEdit={onEdit}
-                      onDelete={onDelete}
-                      onSetStatus={onSetStatus}
-                      label={t("Действия с карточкой")}
-                      testId="wishlist-card-actions"
-                      triggerClassName="size-11 min-h-[44px] min-w-[44px] border-transparent bg-[hsl(var(--surface-3))] text-muted-foreground hover:bg-[hsl(var(--surface-4))] hover:text-foreground sm:size-9 sm:min-h-9 sm:min-w-9"
-                    />
-                  ) : null}
-                </div>
-              ) : null}
-            </>
+            >
+              {isSelected ? t("Выбрано") : t("Выбрать")}
+            </span>
+          ) : isBought ? (
+            <span
+              data-testid="wishlist-card-v2-purchased-label"
+              className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-background px-2.5 py-1 text-xs font-semibold text-success shadow-[var(--shadow-float)]"
+            >
+              {/* Success Check (kinetics): кольцо, затем галочка — только в момент отметки. */}
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-3.5"
+                aria-hidden
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  className={justPurchased ? "draw-ring" : undefined}
+                  style={{ "--draw-length": 63 } as React.CSSProperties}
+                />
+                <path
+                  d="M7.5 12.5l3 3 6-6.5"
+                  className={justPurchased ? "draw-tick" : undefined}
+                  style={{ "--draw-length": 14 } as React.CSSProperties}
+                />
+              </svg>
+              {t("Уже куплено")}
+            </span>
+          ) : (
+            // DESIGN.md → «Карточка желания»: важность — белой плашкой поверх фото.
+            <PriorityBadgeInline
+              priority={item.priority}
+              className="absolute left-3 top-3 max-w-[calc(100%-6.5rem)] rounded-full bg-background px-2.5 py-1 text-xs font-semibold text-foreground shadow-[var(--shadow-float)]"
+            />
           )}
         </div>
+
+        <div data-testid="wishlist-card-v2-footer" className="flex min-w-0 flex-col gap-1 pt-3">
+          <h3
+            data-testid="wishlist-card-v2-title"
+            className={cn(
+              "line-clamp-2 text-base font-semibold leading-tight text-foreground",
+              isBought && "line-through decoration-muted-foreground/55",
+            )}
+          >
+            {item.title}
+          </h3>
+
+          <div
+            data-testid="wishlist-card-v2-meta"
+            className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground"
+          >
+            {ownerName ? (
+              <span
+                data-testid="wishlist-card-v2-owner"
+                className="inline-flex min-w-0 items-center gap-1.5"
+              >
+                <span className="relative size-5 shrink-0 overflow-hidden rounded-full">
+                  {ownerImage && !ownerImageError ? (
+                    <Image
+                      src={ownerImage}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="20px"
+                      unoptimized={ownerImage.startsWith("/uploads/")}
+                      onError={() => setOwnerImageError(true)}
+                    />
+                  ) : (
+                    <span
+                      aria-hidden
+                      className={cn("block size-full rounded-full", getAvatarColor(ownerId))}
+                    />
+                  )}
+                </span>
+                <span className="min-w-0 truncate">{ownerName}</span>
+              </span>
+            ) : null}
+            {item.category ? (
+              <span data-testid="wishlist-card-v2-category" className="min-w-0 truncate">
+                {categoryLabel}
+              </span>
+            ) : null}
+          </div>
+
+          {item.price != null ? (
+            <p
+              data-testid="wishlist-card-v2-price"
+              className="min-w-0 truncate pt-0.5 text-base font-semibold tabular-nums text-foreground"
+            >
+              {formatPrice(item.price, item.currency, language)}
+            </p>
+          ) : null}
+        </div>
+      </Wrapper>
+
+      {/* Действия — вне кнопки карточки: вложенные интерактивные элементы недопустимы. */}
+      {!selectionMode && (item.url || canManage) ? (
+        <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5">
+          {item.url ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              title={t("Открыть в новой вкладке")}
+              aria-label={t("Открыть ссылку на товар в новой вкладке")}
+              className={overlayButtonClass}
+            >
+              <a href={item.url} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="size-4" aria-hidden />
+              </a>
+            </Button>
+          ) : null}
+          {canManage ? (
+            <ItemActionsMenu
+              item={item}
+              statusPending={statusPending}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onSetStatus={onSetStatus}
+              label={t("Действия с карточкой")}
+              testId="wishlist-card-actions"
+              triggerClassName={overlayButtonClass}
+            />
+          ) : null}
+        </div>
       ) : null}
-    </Card>
+    </div>
   );
 });

@@ -22,6 +22,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@base-ui/react": "^1.8.0",
     "@electric-sql/pglite-socket": "^0.2.7",
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",

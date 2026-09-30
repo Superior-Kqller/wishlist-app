@@ -150,7 +150,7 @@ function QuickTextField({
   return (
     <section className={cn("space-y-4", uiSurface.formSection)}>
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/55 bg-[hsl(var(--surface-3))] text-primary-accent">
+        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-border bg-[hsl(var(--surface-3))] text-foreground">
           <Icon className="h-4 w-4" aria-hidden />
         </div>
         <div>
@@ -168,7 +168,7 @@ function QuickTextField({
             aria-pressed={value === suggestion}
             onClick={() => onChange(value === suggestion ? "" : suggestion)}
             className={cn(
-              "min-h-11 rounded-full border px-3 text-xs font-semibold sm:min-h-9 transition-[color,background-color,border-color,transform] active:scale-[0.98]",
+              "min-h-11 rounded-full border px-3 text-xs font-semibold sm:min-h-9 transition-colors",
               uiState.focusRing,
               value === suggestion ? uiState.chipSelected : uiState.chipIdle,
             )}
@@ -183,7 +183,7 @@ function QuickTextField({
         onChange={(event) => onChange(event.target.value)}
         placeholder={t(placeholder)}
         maxLength={id === "budget" ? 200 : 500}
-        className="border-border/55 bg-[hsl(var(--surface-3)/0.55)]"
+        className="border-border bg-[hsl(var(--surface-3)/0.55)]"
       />
     </section>
   );
@@ -245,7 +245,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
   return (
     <section className={cn("space-y-4", uiSurface.formSection)}>
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/55 bg-[hsl(var(--surface-3))] text-primary-accent">
+        <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-border bg-[hsl(var(--surface-3))] text-foreground">
           <Ruler className="h-4 w-4" aria-hidden />
         </div>
         <div>
@@ -264,7 +264,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
           return (
             <div
               key={category.id}
-              className="min-w-0 rounded-xl border border-border/45 bg-[hsl(var(--surface-3)/0.45)] p-3"
+              className="min-w-0 rounded-xl border border-border bg-[hsl(var(--surface-3)/0.45)] p-3"
             >
               <div className="mb-2.5">
                 <Label htmlFor={`size-${category.id}`} className="text-sm font-semibold">
@@ -282,7 +282,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
                       aria-pressed={active}
                       onClick={() => togglePreset(category.id, preset)}
                       className={cn(
-                        "min-h-11 min-w-11 whitespace-nowrap rounded-full border px-2.5 text-xs font-semibold sm:min-w-0 transition-[color,background-color,border-color,transform] active:scale-[0.98] sm:min-h-9",
+                        "min-h-11 min-w-11 whitespace-nowrap rounded-full border px-2.5 text-xs font-semibold sm:min-w-0 transition-colors sm:min-h-9",
                         uiState.focusRing,
                         active ? uiState.chipSelected : uiState.chipIdle,
                       )}
@@ -298,7 +298,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
                 onChange={(event) => updateField(category.id, event.target.value)}
                 placeholder={t(category.placeholder)}
                 maxLength={80}
-                className="mt-2.5 border-border/55 bg-[hsl(var(--surface-2)/0.7)]"
+                className="mt-2.5 border-border bg-card"
               />
             </div>
           );
@@ -330,7 +330,7 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
           onChange={(event) => updateCustom(event.target.value)}
           placeholder={t("Например, длина рукава, обхват запястья или свободная заметка")}
           maxLength={180}
-          className="mt-2 border-border/55 bg-[hsl(var(--surface-3)/0.55)]"
+          className="mt-2 border-border bg-[hsl(var(--surface-3)/0.55)]"
         />
       </div>
     </section>
@@ -415,17 +415,17 @@ export function GiftProfileEditor({
               onKeyDown={handleTabKeyDown}
               onClick={() => onSectionChange(section.id)}
               className={cn(
-                "group flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-lg border px-2 text-center transition-[color,background-color,border-color,transform] duration-base active:scale-[0.98] sm:gap-3 sm:px-3",
+                "group flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-lg border px-2 text-center transition-colors duration-base sm:gap-3 sm:px-3",
                 uiState.focusRing,
                 active
-                  ? "border-border/70 bg-[hsl(var(--surface-4))] text-foreground shadow-[inset_0_-2px_0_hsl(var(--primary-accent))]"
+                  ? "border-border bg-[hsl(var(--surface-4))] text-foreground shadow-[inset_0_-2px_0_hsl(var(--foreground))]"
                   : "border-transparent text-muted-foreground hover:bg-accent/55 hover:text-foreground",
               )}
             >
               {/* На 320px вкладке остаётся около 40px на подпись, и иконка
                   отнимала их у слова. Со `sm` место есть — иконка возвращается. */}
               <Icon
-                className={cn("hidden h-4 w-4 shrink-0 sm:block", active && "text-primary-accent")}
+                className={cn("hidden h-4 w-4 shrink-0 sm:block", active && "text-foreground")}
                 aria-hidden
               />
               {/* Без `flex-1`: растянутый на всю ячейку спан центрировал
@@ -450,7 +450,7 @@ export function GiftProfileEditor({
                 <span
                   role="img"
                   aria-label={t("Раздел заполнен")}
-                  className="size-1.5 shrink-0 rounded-full bg-primary-accent"
+                  className="size-1.5 shrink-0 rounded-full bg-brand"
                 />
               ) : null}
             </button>
@@ -634,7 +634,7 @@ export function GiftProfileEditor({
                         placeholder={t(
                           "Например: люблю практичные подарки и не люблю сюрпризы с доставкой на работу",
                         )}
-                        className="min-h-32 resize-y border-border/55 bg-[hsl(var(--surface-3)/0.55)]"
+                        className="min-h-32 resize-y border-border bg-[hsl(var(--surface-3)/0.55)]"
                       />
                     </section>
                   </>

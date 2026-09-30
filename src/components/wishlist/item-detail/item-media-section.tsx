@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
 import { isItemPurchased } from "@/lib/item-status";
 
+/**
+ * Фото желания: плитка 4:3 со скруглением 14px, как у карточки в сетке.
+ * Снимок не загрузился — плитки нет совсем: пустой кадр читался «не догрузилось».
+ */
 export function ItemMediaSection({ item, className }: { item: WishlistItem; className?: string }) {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -17,39 +20,27 @@ export function ItemMediaSection({ item, className }: { item: WishlistItem; clas
     setImageLoaded(false);
   }, [item.id]);
 
+  if (!mainImage || imageError) return null;
+
   return (
     <div
       className={cn(
-        "h-[min(34vh,264px)] w-full shrink-0 bg-[hsl(var(--surface-1))] px-2 pb-2 pt-6 sm:h-full sm:min-h-[430px] sm:p-5",
+        "relative aspect-[4/3] w-full overflow-hidden rounded-xl",
+        // Плитка под `multiply` — только под загруженным снимком.
+        imageLoaded ? "media-tile" : "bg-[hsl(var(--surface-3))]",
         className,
       )}
     >
-      <div
-        className={cn(
-          "relative h-full min-h-0 overflow-hidden rounded-xl",
-          // Светлая подложка — только под загруженным снимком.
-          mainImage && !imageError && imageLoaded
-            ? "media-tile"
-            : "border border-border/45 bg-[hsl(var(--surface-2))]",
-        )}
-      >
-        {mainImage && !imageError ? (
-          <Image
-            src={mainImage}
-            alt={item.title}
-            fill
-            className={cn("object-contain p-3 sm:p-3", isItemPurchased(item) && "grayscale")}
-            sizes="(max-width: 640px) 100vw, 520px"
-            unoptimized
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <ImageIcon className="h-16 w-16 text-muted-foreground/32" />
-          </div>
-        )}
-      </div>
+      <Image
+        src={mainImage}
+        alt={item.title}
+        fill
+        className={cn("object-contain p-8", isItemPurchased(item) && "grayscale")}
+        sizes="(max-width: 768px) 100vw, 640px"
+        unoptimized
+        onLoad={() => setImageLoaded(true)}
+        onError={() => setImageError(true)}
+      />
     </div>
   );
 }

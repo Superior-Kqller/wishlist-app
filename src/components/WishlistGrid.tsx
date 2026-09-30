@@ -19,7 +19,7 @@ import { duration, easing } from "@/lib/motion";
 import type { ItemStatus } from "@/lib/item-status";
 
 const catalogGridClassName =
-  "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 min-[1600px]:grid-cols-5 min-[2200px]:grid-cols-6";
+  "grid grid-cols-2 gap-x-4 gap-y-8 min-[744px]:grid-cols-3 min-[1128px]:grid-cols-4";
 
 interface WishlistGridProps {
   items: WishlistItem[];
@@ -56,9 +56,9 @@ interface WishlistGridProps {
  * уходят, пришедшие появляются. Это не украшение — это единственный ответ на
  * вопрос «что сделал мой фильтр».
  *
- * `initial={false}` важен: карточки, уже лежащие на странице при первой
- * отрисовке, не анимируются. Хореографии загрузки в продукте нет — движение
- * возникает только в ответ на действие человека.
+ * Появление — Stagger Entrance (kinetics.colorion.co): карточки поднимаются
+ * на 14px по очереди с шагом 90ms, 0.45s по кривой `expo`. Шаг ограничен
+ * восемью карточками, чтобы дальние не ждали; уход — сразу, без задержки.
  */
 export function WishlistGrid({
   items,
@@ -129,12 +129,12 @@ export function WishlistGrid({
       <div
         role="region"
         aria-label={t("Список желаний")}
-        className="overflow-hidden rounded-2xl border border-border/45 bg-[hsl(var(--surface-2))] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]"
+        className="overflow-hidden rounded-xl border border-border bg-card"
       >
         <p aria-live="polite" className="sr-only">
           {items.length} {getWishWord(language, items.length)}
         </p>
-        <ul className="divide-y divide-border/32">
+        <ul className="divide-y divide-border">
           {items.map((item) => (
             <WishListRow
               key={item.id}
@@ -215,20 +215,21 @@ export function WishlistGrid({
       <p aria-live="polite" className="sr-only">
         {items.length} {getWishWord(language, items.length)}
       </p>
-      <AnimatePresence initial={false} mode="popLayout">
-        {items.map((item) => (
+      <AnimatePresence mode="popLayout">
+        {items.map((item, index) => (
           <motion.div
             key={item.id}
             layout={reduceMotion ? false : "position"}
-            initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
             // Уход быстрее прихода: список должен сомкнуться сразу, а не
             // ждать, пока отфильтрованное доиграет.
-            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
+            exit={{ opacity: 0, transition: { duration: duration.base, delay: 0 } }}
             transition={{
               layout: { duration: duration.slow, ease: easing.expo },
-              duration: duration.base,
+              duration: 0.45,
               ease: easing.expo,
+              delay: Math.min(index, 8) * 0.09,
             }}
             className="min-w-0"
           >

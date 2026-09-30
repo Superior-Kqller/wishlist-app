@@ -4,24 +4,27 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import { BarChart3, Search, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RetryNotice } from "@/components/ui/retry-notice";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatsPanel } from "@/components/stats/stats-panel";
-import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
+import { PageMain, PageShell } from "@/components/ui/page-shell";
 import { cn, fetcher } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
-import { GiftPreferencesSummary } from "@/components/preferences/gift-preferences-summary";
 import { PreferenceProfileSearch } from "@/components/preferences/preference-profile-search";
-import { PreferenceProfileCard } from "@/components/preferences/preference-profile-card";
+import {
+  ProfileSwatchCard,
+  type ProfileOccasion,
+} from "@/components/preferences/profile-swatch-card";
+import { ProfileStage } from "@/components/preferences/profile-stage";
+import { daysBetween, useUpcomingOccurrences } from "@/components/calendar/UpcomingCalendarCard";
 import {
   PROFILE_SEARCH_THRESHOLD,
   giftPreferencesDraftKey,
   searchPreferenceProfiles,
 } from "@/lib/preference-profiles";
-import { duration, easing } from "@/lib/motion";
 import { uiLayout, uiSurface } from "@/lib/ui-contract";
 import { type GiftPreferences, normalizeGiftPreferences } from "@/lib/preferences";
 
@@ -47,7 +50,7 @@ type CircleUsersResponse = {
   users: CircleUser[];
 };
 
-const profileAnchorId = (userId: string) => `preference-profile-${userId}`;
+const STAGE_ID = "profile-stage";
 
 /**
  * Круг наполняется не сам.
@@ -96,11 +99,13 @@ function PreferencesPageSkeleton() {
             геометрией он обещал одну раскладку, а данные приносили другую,
             и страница дёргалась на загрузке. */}
         <div className="animate-pulse space-y-5">
-          <div className="h-24 rounded-2xl bg-muted/55" />
-          <div className="grid items-start gap-3 lg:grid-cols-2">
-            <div className="h-44 rounded-2xl bg-muted/45" />
-            <div className="h-44 rounded-2xl bg-muted/32" />
-            <div className="h-44 rounded-2xl bg-muted/32" />
+          <div className="h-11 w-72 rounded-full bg-muted" />
+          <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-12">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="h-24 rounded-xl bg-muted" />
+              <div className="h-24 rounded-xl bg-muted" />
+            </div>
+            <div className="h-96 rounded-xl bg-muted max-lg:order-first" />
           </div>
         </div>
       </PageMain>
@@ -146,7 +151,6 @@ function PreferencesPageContent() {
     [data?.giftPreferences],
   );
   const [profileSearch, setProfileSearch] = useState("");
-  const [expandedUserId, setExpandedUserId] = useState<string | null>(requestedUserId);
   const [hasStoredDraft, setHasStoredDraft] = useState(false);
 
   useEffect(() => {
@@ -191,24 +195,67 @@ function PreferencesPageContent() {
   const showProfileSearch =
     allCircleUsers.length > PROFILE_SEARCH_THRESHOLD || profileSearch.trim().length > 0;
 
-  // Со страницы статистики сюда приходят с `?userId=`, и раскрытая карточка
-  // могла оказаться далеко за краем экрана: человек видел список сначала и
-  // не понимал, что ответ на его вопрос уже открыт ниже.
-  const scrolledToRequested = useRef(false);
+  /*
+   * Ближайший день рождения каждого — из того же запроса, что и повод на
+   * главной. Круг упорядочен по нему: перед праздником первым нужен тот,
+   * кому дарить раньше. Свой образец — последним: сюда приходят выбирать
+   * подарок другому.
+   */
+  const { data: calendar, today } = useUpcomingOccurrences();
+  const occasions = useMemo(() => {
+    const byPerson = new Map<string, ProfileOccasion>();
+    for (const occurrence of calendar?.occurrences ?? []) {
+      if (occurrence.type !== "BIRTHDAY" || byPerson.has(occurrence.person.id)) continue;
+      const days = daysBetween(today, occurrence.date);
+      if (days >= 0) byPerson.set(occurrence.person.id, { date: occurrence.date, days });
+    }
+    return byPerson;
+  }, [calendar?.occurrences, today]);
+
+  const orderedUsers = useMemo(() => {
+    const others = circleUsers
+      .filter((user) => user.id !== data?.id)
+      .sort(
+        (a, b) =>
+          (occasions.get(a.id)?.days ?? Infinity) - (occasions.get(b.id)?.days ?? Infinity) ||
+          a.name.localeCompare(b.name),
+      );
+    const self = circleUsers.filter((user) => user.id === data?.id);
+    return [...others, ...self];
+  }, [circleUsers, data?.id, occasions]);
+
+  // Выбор живёт в адресе: ссылки из статистики и календаря ведут сразу к
+  // человеку. Без выбора на сцене тот, кому дарить раньше всех.
+  const selectedUser =
+    orderedUsers.find((user) => user.id === requestedUserId) ?? orderedUsers[0] ?? null;
+
+  const stageRef = useRef<HTMLDivElement>(null);
+  const stripRef = useRef<HTMLDivElement>(null);
+
+  /*
+   * Ниже `lg` круг — горизонтальная лента с привязкой прокрутки. Пока круг
+   * грузится, в ленте стоит один свой образец, и браузер держит привязку к
+   * нему, когда остальные встают перед ним, — лента уезжала в конец. Лента
+   * сама держит в поле зрения выбранного человека.
+   */
+  const selectedId =
+    orderedUsers.find((user) => user.id === requestedUserId)?.id ?? orderedUsers[0]?.id;
   useEffect(() => {
-    if (!requestedUserId || scrolledToRequested.current) return;
-    const anchor = document.getElementById(profileAnchorId(requestedUserId));
-    if (!anchor) return;
-    scrolledToRequested.current = true;
-    anchor.scrollIntoView({ block: "start", behavior: reduceMotion ? "auto" : "smooth" });
-  }, [circleUsers, reduceMotion, requestedUserId]);
-
-  const toggleProfile = (userId: string) => {
-    setExpandedUserId((current) => (current === userId ? null : userId));
-  };
-
-  const openEditor = () => {
-    router.push("/preferences/me");
+    const strip = stripRef.current;
+    const card = strip?.querySelector<HTMLElement>(`[data-testid="profile-swatch-${selectedId}"]`);
+    if (!strip || !card || strip.scrollWidth <= strip.clientWidth) return;
+    const offset = card.getBoundingClientRect().left - strip.getBoundingClientRect().left - 16;
+    strip.scrollTo({ left: strip.scrollLeft + offset, behavior: "auto" });
+  }, [selectedId, orderedUsers.length]);
+  const selectUser = (userId: string) => {
+    router.replace(`/preferences?userId=${userId}`, { scroll: false });
+    // Ниже `lg` сцена стоит над сеткой — к ней нужно вернуться взглядом.
+    if (window.matchMedia("(max-width: 1023px)").matches) {
+      stageRef.current?.scrollIntoView({
+        block: "start",
+        behavior: reduceMotion ? "auto" : "smooth",
+      });
+    }
   };
 
   // Свой профиль не ждёт загрузки всего круга: падение /api/users/stats
@@ -219,19 +266,8 @@ function PreferencesPageContent() {
     <PageShell>
       <PageMain>
         <div className={uiLayout.pageStack}>
-          {/* Один заголовок и одно описание: раньше здесь стояли PageIntro и
-              второй заголовок секции, каждый со своей фразой, плюс плашка
-              «Профилей в круге: N» — счётчик того, что видно ниже глазами. */}
-          <PageIntro
-            title={t("Подарочные профили")}
-            description={
-              tab === "stats"
-                ? t("Желания в общих подборках и ориентировочная стоимость по участникам")
-                : t(
-                    "Что подойдёт каждому в вашем кругу. Откройте карточку, чтобы увидеть профиль целиком.",
-                  )
-            }
-          />
+          {/* Раздел называет верхняя панель; видимого заголовка нет, как на главной. */}
+          <h1 className="sr-only">{t("Подарочные профили")}</h1>
 
           <Tabs
             value={tab}
@@ -282,114 +318,49 @@ function PreferencesPageContent() {
                   />
                 ) : null}
 
-                {circleUsers.length > 0 ? (
-                  /*
-                   * Контейнер не анимируется. На одном перестроении здесь работали
-                   * три вложенных `layout` сразу — сетка, обёртка карточки и сама
-                   * `article`, — и каждый мерил и вёл его независимо. Собственная
-                   * коробка сетки при этом не меняется вовсе.
-                   */
-                  /*
-                   * Свой профиль и круг — две группы с заголовками. В общем
-                   * списке своя карточка отличалась только бейджем «Это вы» и
-                   * фирменной рамкой, а заполняют её и читают чужие — разные
-                   * задачи.
-                   */
-                  <div className="space-y-6">
-                    {[
-                      {
-                        key: "own",
-                        title: t("Ваш профиль"),
-                        users: circleUsers.filter((user) => user.id === data?.id),
-                      },
-                      {
-                        key: "circle",
-                        title: t("Ваш круг"),
-                        users: circleUsers.filter((user) => user.id !== data?.id),
-                      },
-                    ]
-                      .filter((group) => group.users.length > 0)
-                      .map((group) => (
-                        <div key={group.key} className="space-y-3.5">
-                          <h2 className="section-title">{group.title}</h2>
-                          {/* Свой профиль — во всю ширину: в колонке 22rem раскрытая сводка
-                              складывалась в телефонный столбик, а кнопка «Настроить» обрезала
-                              имя до двух букв. Круг — две колонки от lg: сводка внутри карточки
-                              меряет себя контейнером и в 34rem уже встаёт в две колонки. */}
-                          <div
-                            className={cn(
-                              "grid items-start gap-3",
-                              group.key === "circle" && "lg:grid-cols-2",
-                            )}
-                          >
-                            {group.users.map((user) => {
-                              const isCurrent = user.id === data?.id;
-                              const isExpanded = expandedUserId === user.id;
-                              const cardPreferences = user.giftPreferences;
-
-                              return (
-                                /* Раскрытие — переход к чтению, а не к сравнению: карточка
-                       занимает весь ряд. В колонке шириной 20rem профиль
-                       читался столбиком, а рядом оставался пустой ряд. */
-                                /*
-                                 * Раскрытие никого не переставляет.
-                                 *
-                                 * Раньше раскрытая карточка забирала весь ряд
-                                 * (`md:col-span-full`), и соседняя выдавливалась на
-                                 * следующую строку: она проезжала по диагонали 519px —
-                                 * 195 вниз и 482 влево — ради того, что рядом выросло на
-                                 * сорок. Движение сообщало о событии втрое крупнее
-                                 * случившегося.
-                                 *
-                                 * Теперь карточка растёт в своей колонке. Панель внутри
-                                 * считает свои пороги через `@container`, то есть уже
-                                 * умеет читаться в колонке — ширина ряда ей не нужна.
-                                 *
-                                 * `layout` остаётся: он ведёт рост самой карточки и сдвиг
-                                 * тех, кто под ней. Появление карточек не анимируется —
-                                 * каскад со сдвигом и задержкой по индексу был
-                                 * хореографией загрузки, которой в продукте больше нет
-                                 * (DESIGN.md → The Nothing-Arrives Rule).
-                                 */
-                                <motion.div
-                                  layout={!reduceMotion}
-                                  key={user.id}
-                                  id={profileAnchorId(user.id)}
-                                  // `min-w-0` обязателен: у элемента сетки минимальный размер
-                                  // по умолчанию равен min-content, и длинное имя без
-                                  // пробелов растягивало колонку за край экрана.
-                                  className="min-w-0 scroll-mt-24"
-                                  transition={{ duration: duration.slow, ease: easing.expo }}
-                                >
-                                  <PreferenceProfileCard
-                                    id={user.id}
-                                    name={user.name}
-                                    username={user.username}
-                                    avatarUrl={user.avatarUrl}
-                                    preferences={cardPreferences}
-                                    wishCount={user.stats?.totalItems}
-                                    isCurrent={isCurrent}
-                                    expanded={isExpanded}
-                                    onToggle={() => toggleProfile(user.id)}
-                                    onEdit={isCurrent ? openEditor : undefined}
-                                    editLabel={
-                                      isCurrent && hasStoredDraft
-                                        ? t("Продолжить заполнение")
-                                        : undefined
-                                    }
-                                  >
-                                    <GiftPreferencesSummary
-                                      preferences={cardPreferences}
-                                      embedded
-                                      isOwn={isCurrent}
-                                    />
-                                  </PreferenceProfileCard>
-                                </motion.div>
-                              );
-                            })}
-                          </div>
-                        </div>
+                {selectedUser ? (
+                  <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-12">
+                    {/* Ниже `lg` круг — лента образцов над сценой: палитры видны
+                        сразу, а не после полной сводки первого человека. */}
+                    <div
+                      ref={stripRef}
+                      role="group"
+                      aria-label={t("Круг")}
+                      className="scrollbar-none -mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 pt-1 sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:mx-0 lg:scroll-px-0 lg:grid lg:grid-cols-2 lg:gap-x-4 lg:gap-y-8 lg:overflow-visible lg:px-0 lg:pb-0 [&>*]:w-[15.5rem] [&>*]:shrink-0 [&>*]:snap-start lg:[&>*]:w-auto"
+                    >
+                      {orderedUsers.map((user) => (
+                        <ProfileSwatchCard
+                          key={user.id}
+                          id={user.id}
+                          name={user.name}
+                          avatarUrl={user.avatarUrl}
+                          preferences={user.giftPreferences}
+                          occasion={occasions.get(user.id)}
+                          isCurrent={user.id === data?.id}
+                          selected={user.id === selectedUser.id}
+                          onSelect={() => selectUser(user.id)}
+                        />
                       ))}
+                    </div>
+                    <div
+                      ref={stageRef}
+                      id={STAGE_ID}
+                      // Сцена выше экрана не прячет «Бюджет» и заметку до конца сетки:
+                      // на lg она ограничена высотой окна и прокручивается сама.
+                      className="min-w-0 scroll-mt-24 [scrollbar-width:thin] lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto lg:rounded-xl"
+                    >
+                      <ProfileStage
+                        id={selectedUser.id}
+                        name={selectedUser.name}
+                        username={selectedUser.username}
+                        avatarUrl={selectedUser.avatarUrl}
+                        preferences={selectedUser.giftPreferences}
+                        wishCount={selectedUser.stats?.totalItems}
+                        occasion={occasions.get(selectedUser.id)}
+                        isCurrent={selectedUser.id === data?.id}
+                        hasDraft={hasStoredDraft}
+                      />
+                    </div>
                   </div>
                 ) : profileSearch.trim() ? (
                   /* Пустая выдача поиска — единственный случай, когда список

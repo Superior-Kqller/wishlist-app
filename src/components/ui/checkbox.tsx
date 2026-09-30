@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type CheckboxProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type">;
@@ -20,14 +19,22 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
       <input
         ref={ref}
         type="checkbox"
-        className="peer size-full cursor-pointer appearance-none rounded-sm border border-input bg-[hsl(var(--surface-3))] outline-none transition-[background-color,border-color,box-shadow] duration-[var(--dur-fast)] checked:border-primary checked:bg-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+        className="peer size-full cursor-pointer appearance-none rounded-sm border border-input bg-[hsl(var(--surface-3))] outline-none transition-[background-color,border-color,box-shadow] duration-[var(--dur-fast)] checked:border-foreground checked:bg-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
         {...props}
       />
-      <Check
+      {/* Checkbox Draw (kinetics): галочка прорисовывается штрихом за 320ms. */}
+      <svg
         aria-hidden
-        className="pointer-events-none absolute inset-0 m-auto size-3.5 scale-75 text-primary-foreground opacity-0 transition-[opacity,transform] duration-[var(--dur-fast)] ease-[var(--ease-soft)] peer-checked:scale-100 peer-checked:opacity-100"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
         strokeWidth={3}
-      />
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="pointer-events-none absolute inset-0 m-auto size-3.5 text-background [stroke-dasharray:24] [stroke-dashoffset:24] transition-[stroke-dashoffset] delay-[50ms] duration-[320ms] ease-[cubic-bezier(0.16,1,0.3,1)] peer-checked:[stroke-dashoffset:0]"
+      >
+        <path d="M5 12.5l4.5 4.5L19 7.5" />
+      </svg>
     </span>
   ),
 );

@@ -94,7 +94,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
   const purchasedValue = formatStatsSummary(user.stats, "purchased", language);
 
   return (
-    <details className="group overflow-hidden rounded-xl border border-border/55 bg-[hsl(var(--surface-2))]">
+    <details className="group overflow-hidden rounded-xl border border-border bg-card">
       <summary className="flex min-h-[4.5rem] cursor-pointer list-none items-center gap-3 px-3 py-2.5 outline-none transition-colors hover:bg-[hsl(var(--surface-3)/0.45)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
         <UserAvatar
           avatarUrl={user.avatarUrl || undefined}
@@ -122,7 +122,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
         />
       </summary>
 
-      <div className="border-t border-border/55 px-3 pb-3 pt-2.5">
+      <div className="border-t border-border px-3 pb-3 pt-2.5">
         <div className="mb-2.5 flex items-baseline justify-between gap-3">
           <p className="text-xs text-muted-foreground">{t("Ориентировочная стоимость")}</p>
           <p className="max-w-[62%] text-right text-sm font-semibold leading-snug tabular-nums text-foreground">
@@ -130,7 +130,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
           </p>
         </div>
 
-        <div className="grid grid-cols-3 divide-x divide-border/55">
+        <div className="grid grid-cols-3 divide-x divide-border">
           <div className="pr-2.5">
             <p className="text-[10px] leading-tight text-muted-foreground">{t("Всего желаний")}</p>
             <p className="mt-1 text-base font-semibold tabular-nums">{user.stats.totalItems}</p>
@@ -148,7 +148,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
         </div>
 
         {purchasedValue ? (
-          <div className="mt-2.5 flex items-baseline justify-between gap-3 border-t border-border/55 pt-2.5">
+          <div className="mt-2.5 flex items-baseline justify-between gap-3 border-t border-border pt-2.5">
             <p className="text-xs text-muted-foreground">{t("Отмечено купленным")}</p>
             <p className="max-w-[62%] text-right text-sm font-semibold leading-snug tabular-nums text-foreground">
               {purchasedValue}
@@ -158,7 +158,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
 
         {/* Ссылки живут в раскрытой части, а не в summary: вложенная ссылка
             внутри summary ломает и раскрытие, и клавиатуру. */}
-        <ParticipantLinks userId={user.id} className="mt-3 border-t border-border/55 pt-3" />
+        <ParticipantLinks userId={user.id} className="mt-3 border-t border-border pt-3" />
       </div>
     </details>
   );
@@ -175,7 +175,7 @@ function MobileParticipantRow({ user }: { user: UserWithStats }) {
 function ParticipantLinks({ userId, className }: { userId: string; className?: string }) {
   const { t } = useI18n();
   const linkClassName =
-    "inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border/55 px-3 text-xs font-semibold transition-colors hover:border-primary/32 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+    "inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border border-border px-3 text-xs font-semibold transition-colors hover:border-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
   return (
     <div className={cn("flex flex-wrap gap-2", className)}>
@@ -195,7 +195,7 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
   const { t } = useI18n();
 
   return (
-    <section className="min-w-0 border-t border-border/55 pt-4 [grid-area:participants] sm:pt-5">
+    <section className="min-w-0 border-t border-border pt-4 [grid-area:participants] sm:pt-5">
       <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h2 className="section-title text-foreground">{t("Участники")}</h2>
@@ -225,10 +225,7 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
           /* `interactiveCard` убран: он давал hover рамки на узле, который
              никуда не ведёт — карточка выглядела нажимаемой и ею не была.
              Нажимаемы теперь имя и две ссылки в подвале. */
-          <Card
-            key={user.id}
-            className="flex h-full flex-col border-border/55 bg-[hsl(var(--surface-2))] shadow-none"
-          >
+          <Card key={user.id} className="flex h-full flex-col border-border bg-card shadow-none">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
                 <UserAvatar
@@ -241,7 +238,7 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
                   <CardTitle className="truncate text-lg">
                     <Link
                       href={`/?userId=${user.id}`}
-                      className="rounded transition-colors hover:text-primary-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="rounded transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {user.name}
                     </Link>
@@ -251,12 +248,12 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
               </div>
             </CardHeader>
             <CardContent className="flex flex-1 flex-col space-y-3">
-              <div className="grid grid-cols-2 border-y border-border/55 py-2.5 text-sm">
+              <div className="grid grid-cols-2 border-y border-border py-2.5 text-sm">
                 <div className="pr-3">
                   <p className="text-xs text-muted-foreground">{t("Всего желаний")}</p>
                   <p className="mt-1 text-lg font-semibold tabular-nums">{user.stats.totalItems}</p>
                 </div>
-                <div className="border-l border-border/55 pl-3">
+                <div className="border-l border-border pl-3">
                   <p className="text-xs text-muted-foreground">{t("Не куплено")}</p>
                   <p className="mt-1 text-lg font-semibold tabular-nums">
                     {user.stats.unpurchasedItems}
@@ -264,7 +261,7 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
                 </div>
               </div>
 
-              <div className="border-t border-border/70 pt-3">
+              <div className="border-t border-border pt-3">
                 <p className="mb-1 text-xs text-muted-foreground">
                   {t("Ориентировочная стоимость")}
                 </p>
@@ -272,16 +269,13 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
               </div>
 
               {formatStatsSummary(user.stats, "purchased") !== null ? (
-                <div className="border-t border-border/70 pt-2">
+                <div className="border-t border-border pt-2">
                   <p className="mb-1 text-xs text-muted-foreground">{t("Отмечено купленным")}</p>
                   <StatsPurchasedValueBlock stats={user.stats} />
                 </div>
               ) : null}
 
-              <ParticipantLinks
-                userId={user.id}
-                className="mt-auto border-t border-border/70 pt-3"
-              />
+              <ParticipantLinks userId={user.id} className="mt-auto border-t border-border pt-3" />
             </CardContent>
           </Card>
         ))}
@@ -402,7 +396,7 @@ function StatsOverview({
                 {summary.totalItems}
               </dd>
             </div>
-            <div className="flex min-w-0 flex-col-reverse gap-1 border-l border-border/55 pl-3 sm:pl-7">
+            <div className="flex min-w-0 flex-col-reverse gap-1 border-l border-border pl-3 sm:pl-7">
               <dt className="flex items-start gap-1.5 text-[11px] leading-tight text-muted-foreground sm:text-xs">
                 <Target className="mt-px size-3.5 shrink-0 text-warning" aria-hidden />
                 <span className="min-w-0">{t("Активных желаний")}</span>
@@ -411,9 +405,9 @@ function StatsOverview({
                 {summary.unpurchasedItems}
               </dd>
             </div>
-            <div className="flex min-w-0 flex-col-reverse gap-1 border-l border-border/55 pl-3 sm:pl-7">
+            <div className="flex min-w-0 flex-col-reverse gap-1 border-l border-border pl-3 sm:pl-7">
               <dt className="flex items-start gap-1.5 text-[11px] leading-tight text-muted-foreground sm:text-xs">
-                <Users className="mt-px size-3.5 shrink-0 text-primary-accent" aria-hidden />
+                <Users className="mt-px size-3.5 shrink-0 text-foreground" aria-hidden />
                 <span className="min-w-0">{t("Участников")}</span>
               </dt>
               <dd className="text-2xl font-semibold leading-none tabular-nums">
@@ -429,7 +423,7 @@ function StatsOverview({
          * Полоса занимает всю ширину, а подписи ложатся под ней и всегда
          * читаются целиком.
          */}
-        <div className="border-t border-border/55 pt-5">
+        <div className="border-t border-border pt-5">
           <p className="section-title">{t("Распределение по приоритетам")}</p>
           {shares.length > 0 ? (
             <>
@@ -480,10 +474,10 @@ function StatsOverview({
           )}
         </div>
 
-        <div className="border-t border-border/55 pt-5">
+        <div className="border-t border-border pt-5">
           <p className="section-title">{t("Самые дорогие желания")}</p>
           {summary.topItems.length > 0 ? (
-            <ul className="mt-3 divide-y divide-border/45">
+            <ul className="mt-3 divide-y divide-border">
               {summary.topItems.map((item) => (
                 <li
                   key={item.id}

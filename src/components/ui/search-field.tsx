@@ -29,7 +29,7 @@ const SearchField = React.forwardRef<HTMLInputElement, SearchFieldProps>(
     <div className={cn("relative min-w-0 w-full", wrapperClassName)}>
       <Search
         className={cn(
-          "pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 shrink-0 -translate-y-1/2 text-muted-foreground",
+          "pointer-events-none absolute left-4 top-1/2 h-4 w-4 shrink-0 -translate-y-1/2 text-foreground",
           iconClassName,
         )}
         aria-hidden
@@ -40,7 +40,7 @@ const SearchField = React.forwardRef<HTMLInputElement, SearchFieldProps>(
         value={value}
         onChange={(event) => onValueChange(event.target.value)}
         placeholder={placeholder}
-        className={cn("pl-8", inputClassName)}
+        className={cn("rounded-full pl-10", inputClassName)}
         {...props}
       />
     </div>

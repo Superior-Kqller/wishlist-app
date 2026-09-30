@@ -24,10 +24,8 @@ interface PageMainProps {
  * которым нужна узкая колонка чтения, следует сузить собственный контент,
  * а не рамку.
  *
- * От `lg` рамка прижата к сайдбару, а не стоит по центру остатка: на 2560px
- * центровка оставляла между меню и заголовком ~410px пустоты, и контент
- * читался мобильной колонкой посреди экрана. Взгляд идёт от меню к
- * содержимому — свободное место уходит вправо, за край чтения.
+ * Ширина совпадает с верхней панелью (DESIGN.md → «Раскладка»: до 1280px по
+ * центру), поэтому край заголовка стоит под знаком в шапке.
  *
  * Элемент намеренно `div`: `<main>` уже объявлен в оболочке приложения.
  */
@@ -35,7 +33,7 @@ export function PageMain({ children, className }: PageMainProps) {
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-[92rem] px-4 pb-10 pt-4 sm:px-6 sm:pb-14 sm:pt-7 lg:mx-0 xl:px-8 2xl:px-10",
+        "mx-auto w-full max-w-[80rem] px-4 pb-12 pt-5 sm:px-6 sm:pb-16 sm:pt-8 xl:px-8",
         className,
       )}
     >
@@ -70,11 +68,11 @@ export function PageIntro({ title, description, actions, className }: PageIntroP
      * рабочего интерфейса это плата без выгоды: содержимое уже готово, а
      * читать его нельзя ещё полсекунды.
      */
-    <div className={cn("relative mb-5 border-b border-border/45 pb-4 sm:mb-8 sm:pb-7", className)}>
+    <div className={cn("relative mb-6 sm:mb-8", className)}>
       <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
         <div className="min-w-0">
           <h1 className="page-title text-foreground">{title}</h1>
-          {description ? <p className="page-lede max-sm:sr-only sm:mt-3">{description}</p> : null}
+          {description ? <p className="page-lede max-sm:sr-only sm:mt-1">{description}</p> : null}
         </div>
         {actions ? <div className="shrink-0 sm:pb-1">{actions}</div> : null}
       </div>

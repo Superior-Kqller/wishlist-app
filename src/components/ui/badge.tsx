@@ -12,9 +12,9 @@ const badgeVariants = cva(
         // Заливка фирменной краской принадлежит одному элементу продукта —
         // главной кнопке. Бейдж называет роль или статус, поэтому берёт
         // голос: рамка и текст акцентом на ступени поверхности.
-        default: "border border-primary-accent/45 bg-[hsl(var(--surface-4))] text-primary-accent",
+        default: "border border-border bg-background text-foreground",
         secondary: "border border-border bg-secondary text-secondary-foreground",
-        brand: "border border-primary-accent/45 bg-[hsl(var(--surface-4))] text-primary-accent",
+        brand: "border border-border bg-background text-foreground",
         success: "border border-success/45 bg-success/16 text-success",
         warning: "border border-warning/45 bg-warning/16 text-foreground",
         info: "border border-info/45 bg-info/16 text-info",

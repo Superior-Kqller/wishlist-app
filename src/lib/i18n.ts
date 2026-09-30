@@ -116,6 +116,15 @@ const en: Dictionary = {
   сегодня: "today",
   Сегодня: "Today",
   Вход: "Sign in",
+  Круг: "Circle",
+  "Дата не указана": "No date set",
+  "Расскажите о себе — кругу будет проще.":
+    "Tell your circle about yourself — it helps them choose.",
+  "Настроить профиль": "Edit profile",
+  "Мой список": "My list",
+  "Открыть список желаний": "Open wishlist",
+  "Что подойдёт каждому в вашем кругу и чего лучше не дарить.":
+    "What suits each person in your circle, and what not to give.",
   "Ещё не куплено": "Not bought yet",
   "Что подарить своим — в одном месте": "What to give your people, in one place",
   "Списки желаний, дни рождения и подсказки всего круга.":
@@ -152,6 +161,12 @@ const en: Dictionary = {
     "Check the link or return to the wish catalog.",
   "На главную": "Go home",
   "Сменить язык": "Change language",
+  "Меню аккаунта": "Account menu",
+  Тема: "Theme",
+  Системная: "System",
+  Светлая: "Light",
+  Тёмная: "Dark",
+  "Сменить тему": "Change theme",
   Язык: "Language",
   Русский: "Russian",
   Английский: "English",

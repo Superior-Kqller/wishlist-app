@@ -3,6 +3,7 @@
 import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +17,8 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  // Счётчик неудачных попыток перезапускает покачивание полей на каждой ошибке.
+  const [failedAttempts, setFailedAttempts] = useState(0);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { status } = useSession();
@@ -38,6 +41,7 @@ export default function LoginPage() {
 
     if (result?.error) {
       setError(t("Неверный логин или пароль"));
+      setFailedAttempts((count) => count + 1);
       setLoading(false);
     } else {
       router.push("/");
@@ -67,7 +71,7 @@ export default function LoginPage() {
           <BrandLockup className="justify-center" />
 
           {/* Обещание, а не «Войдите в свой аккаунт»: первый экран говорит,
-              зачем сюда приходят. Это одно из мест, где звучит антиква. */}
+              зачем сюда приходят. */}
           <h1 className="page-title mt-8 sm:mt-10">{t("Что подарить своим — в одном месте")}</h1>
           <p className="mx-auto mt-3 max-w-[34ch] text-sm text-muted-foreground text-pretty">
             {t("Списки желаний, дни рождения и подсказки всего круга.")}
@@ -76,30 +80,37 @@ export default function LoginPage() {
 
         <div className="w-full max-w-[25rem]" data-reveal>
           <form onSubmit={handleSubmit} className="space-y-4 text-left" aria-label={t("Вход")}>
-            <div className="space-y-2">
-              <Label htmlFor="username">{t("Логин")}</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder={t("Введите логин")}
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                autoComplete="username"
-                required
-              />
-            </div>
+            {/* Error Shake (kinetics): поля покачиваются на каждой неудачной попытке. */}
+            <div key={failedAttempts} className={cn("space-y-4", failedAttempts > 0 && "shake-x")}>
+              <div className="space-y-2">
+                <Label htmlFor="username">{t("Логин")}</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder={t("Введите логин")}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
+                  required
+                  aria-invalid={Boolean(error)}
+                  className={error ? "border-destructive" : undefined}
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">{t("Пароль")}</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder={t("Введите пароль")}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                required
-              />
+              <div className="space-y-2">
+                <Label htmlFor="password">{t("Пароль")}</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder={t("Введите пароль")}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  required
+                  aria-invalid={Boolean(error)}
+                  className={error ? "border-destructive" : undefined}
+                />
+              </div>
             </div>
 
             {error ? (

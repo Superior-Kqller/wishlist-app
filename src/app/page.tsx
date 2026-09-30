@@ -38,7 +38,7 @@ const ItemDetailDialog = dynamic(
 );
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { BulkActionBar } from "@/components/BulkActionBar";
-import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
+import { PageMain, PageShell } from "@/components/ui/page-shell";
 import {
   WishlistItem,
   CreateItemPayload,
@@ -245,21 +245,11 @@ function HomePageContent() {
     return usersWithStats.find((user) => user.id === normalizedSelectedUserId) ?? null;
   }, [normalizedSelectedUserId, usersWithStats]);
 
-  /**
-   * Заголовок называет раздел, а не охват. Он нужен — без него страница
-   * начиналась сразу с панели инструментов и главная выпадала из ритма
-   * разделов, — но имя человека он больше не повторяет: строкой ниже стоит
-   * переключатель охвата, который и так называет, чей это список и какая
-   * подборка. Из двух мест, говоривших одно и то же, осталось управляемое.
-   *
-   * Заодно заголовок стал постоянным, как во всех остальных разделах:
-   * главная была единственной, где он менялся на ходу.
+  /*
+   * Видимого заголовка на главной нет: раздел называет верхняя панель, а
+   * первым экраном идут люди и желания. `h1` остаётся для скринридеров.
    */
   const pageTitle = t("Список желаний");
-
-  const pageDescription = selectedWishlistUser
-    ? t("Что подойдёт этому человеку и что у него уже есть.")
-    : t("Всё, что вы хотите, и всё, что вы можете подарить другим.");
 
   const allowedListIdsForFilters = useMemo(() => {
     if (!currentUserId) return new Set(lists.map((l) => l.id));
@@ -326,18 +316,8 @@ function HomePageContent() {
         onRemove: () => syncFiltersToUrl({ listId: null }),
       });
     }
-    if (normalizedSelectedUserId && normalizedSelectedUserId !== "all") {
-      const userName =
-        normalizedSelectedUserId === "me"
-          ? t("Мои")
-          : (usersWithStats.find((u) => u.id === normalizedSelectedUserId)?.name ??
-            t("Пользователь"));
-      chips.push({
-        key: "user",
-        label: `${t("Владелец")}: ${userName}`,
-        onRemove: () => syncFiltersToUrl({ userId: null, listId: null }),
-      });
-    }
+    // Владелец в чип не превращается: выбор виден в ряду лиц над списком, а в
+    // листе фильтров людей нет — счётчик «Фильтры» показывал бы то, чего там нет.
     if (showPurchased) {
       chips.push({
         key: "purchased",
@@ -375,8 +355,6 @@ function HomePageContent() {
     return chips;
   }, [
     selectedListName,
-    normalizedSelectedUserId,
-    usersWithStats,
     showPurchased,
     sortBy,
     effectiveSelectedCategories,
@@ -589,6 +567,7 @@ function HomePageContent() {
       onEditSelectedList: selectedListId ? handleEditSelectedList : undefined,
       scopeError,
       onRetryScope: retryScope,
+      upcoming: <UpcomingCalendarCard currentUserId={currentUserId} />,
     }),
     [
       currentUserId,
@@ -714,11 +693,7 @@ function HomePageContent() {
   return (
     <PageShell>
       <PageMain>
-        <PageIntro
-          title={pageTitle}
-          description={pageDescription}
-          actions={<UpcomingCalendarCard currentUserId={currentUserId} />}
-        />
+        <h1 className="sr-only">{pageTitle}</h1>
         <WishlistWorkspace
           scope={scope}
           filters={filters}

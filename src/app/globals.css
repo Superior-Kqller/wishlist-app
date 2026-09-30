@@ -1,26 +1,17 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
-@custom-variant dark (&:where(.dark, .dark *));
+/* Тёмная тема — по атрибуту `data-theme` на `<html>` (src/lib/theme.ts). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme inline {
-  /*
-   * Пять ступеней скругления — из одного корня. `xl` и `2xl` раньше приходили
-   * из умолчаний Tailwind: значения совпадали с DESIGN.md случайно, и правка
-   * `--radius` меняла три ступени из пяти. Теперь шкала действительно одна.
-   */
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 2px);
-  --radius-2xl: calc(var(--radius) + 6px);
+  /* Шкала DESIGN.md → rounded: sm 8 · md 14 · lg 20. `xl`/`2xl` — карточки и листы. */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --radius-xl: 14px;
+  --radius-2xl: 20px;
 
-  /*
-   * Четыре длительности The Motion Gate Rule доступны утилитами Tailwind:
-   * `duration-fast|base|slow|reveal`. Без этого в разметке заводились числа
-   * рядом с токенами — 200ms и 300ms там, где система знает только 140, 220,
-   * 420 и 620.
-   */
   --transition-duration-fast: var(--dur-fast);
   --transition-duration-base: var(--dur-base);
   --transition-duration-slow: var(--dur-slow);
@@ -33,6 +24,7 @@
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
   --color-primary-accent: hsl(var(--primary-accent));
+  --color-brand: hsl(var(--brand));
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-muted: hsl(var(--muted));
@@ -62,27 +54,11 @@
   --color-priority-4: hsl(var(--priority-4));
   --color-priority-5: hsl(var(--priority-5));
 
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
   --animate-fade-in: fade-in 0.3s ease-out;
 }
 
-/*
- * Alpha contract:
- * Прозрачности берутся из одной лестницы — 5 / 10 / 16 / 24 / 32 / 45 / 55 /
- * 70 / 85 / 95. До неё в utility-классах жило больше пятидесяти значений,
- * подобранных на глаз: попасть новым компонентом в тот же оттенок подложки
- * или рамки было невозможно. Ориентиры: 5-16 — подсветка поверхности,
- * 24-45 — рамка на цвете, 55 — обычная рамка, 70-95 — текст и плотные слои.
- * Нужен другой уровень — добавляйте ступень в лестницу, а не соседнее число.
- */
-
-/*
- * Motion contract:
- * - `expo` — прибытие контента: быстро стартует, мягко останавливается.
- * - `soft` — смена состояния у элементов, за которыми следит курсор.
- * Подтверждающие моменты используют тот же `expo`: их отличает не перелёт,
- * а расходящееся кольцо вокруг метки. Длительности растут вместе с
- * расстоянием, которое проходит элемент.
- */
 :root {
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -92,16 +68,8 @@
   --dur-slow: 420ms;
   --dur-reveal: 620ms;
 
-  /* Типографическая шкала страницы: один шаг заголовка на все разделы. */
-  --text-display: clamp(1.875rem, 1.24rem + 2.1vw, 2.5rem);
-  --text-page-lede: clamp(0.9375rem, 0.89rem + 0.22vw, 1.0625rem);
-
-  /*
-   * Высота, которую занимает нижняя панель разделов на узких экранах.
-   * Одно число держит отступ оболочки, плавающую кнопку, панель массовых
-   * действий и тосты над панелью; от `lg` панели нет, и запас обнуляется.
-   */
-  --bottom-nav-clearance: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  /* Нижняя панель разделов на узких экранах; от `lg` её нет. */
+  --bottom-nav-clearance: calc(4.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 @media (min-width: 1024px) {
@@ -111,93 +79,72 @@
 }
 
 @layer base {
-  :root,
-  .dark {
-    color-scheme: dark;
-    /*
-     * Графит тёплый и почти нейтральный (250°, насыщенность 5–8%). Прежний
-     * сине-серый (222–226°, 12–17%) вместе с фиолетовой краской давал
-     * холодную дымку поверх всего интерфейса; цвет теперь приходит только
-     * с действием, выбором и статусом.
-     */
-    --background: 250 8% 4%;
-    --foreground: 250 12% 94%;
+  /*
+   * Светлая тема — основная (DESIGN.md → colors.light). Значения в формате
+   * `H S% L%`, чтобы работало `hsl(var(--x) / alpha)`.
+   */
+  :root {
+    color-scheme: light;
 
-    --surface-1: 250 8% 4%;
-    --surface-2: 250 6% 8%;
-    --surface-3: 250 5% 11.5%;
-    --surface-4: 250 5% 16%;
-    --surface-5: 250 5% 22%;
-    --surface-6: 250 4% 28%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 13.3%;
 
-    --card: var(--surface-3);
-    --card-foreground: 250 14% 94%;
+    /* Ступени поверхности: холст → мягкая подложка → ховер → линии. */
+    --surface-1: 0 0% 100%;
+    --surface-2: 0 0% 100%;
+    --surface-3: 0 0% 96.9%;
+    --surface-4: 0 0% 94.9%;
+    --surface-5: 0 0% 92.2%;
+    --surface-6: 0 0% 86.7%;
 
-    /*
-     * Заливка приглушена: насыщенный фиолетовый (262° 58% 60%) на почти
-     * чёрном фоне был самым ярким пятном экрана и спорил с фотографиями
-     * товаров. Тише — но белая буква на ней по-прежнему берёт ~6.9:1.
-     */
-    --primary: 258 30% 44%;
+    --card: 0 0% 100%;
+    --card-foreground: var(--foreground);
+
+    /* Заливка с белой подписью (4.89:1). Яркий `--brand` — только без текста. */
+    --primary: 345 90.6% 46.1%;
+    --primary-hover: 345 90.4% 41%;
     --primary-foreground: 0 0% 100%;
-    /*
-     * Заливке и тексту нужен разный фирменный цвет. `--primary` подобран под
-     * кнопку, где на нём лежит белая буква; тот же фиолетовый в роли текста,
-     * рамки или фокус-кольца на тёмном фоне не дотягивает до 3:1, поэтому
-     * голос краски — отдельный, светлее заливки на две ступени.
-     */
-    --primary-accent: 258 58% 78%;
+    --primary-accent: 345 90.6% 46.1%;
+    --brand: 349 100% 61%;
 
-    --secondary: var(--surface-2);
-    --secondary-foreground: 250 14% 94%;
+    --secondary: var(--surface-3);
+    --secondary-foreground: var(--foreground);
 
-    --muted: var(--surface-4);
-    --muted-foreground: 250 6% 66%;
-    --muted-foreground-subtle: 250 6% 60%;
+    --muted: var(--surface-3);
+    --muted-foreground: 0 0% 41.6%;
+    --muted-foreground-subtle: 0 0% 45%;
 
-    --accent: var(--surface-4);
-    --accent-foreground: 250 14% 94%;
+    --accent: var(--surface-3);
+    --accent-foreground: var(--foreground);
 
-    --destructive: 358 76% 62%;
-    /*
-     * Тёмная буква на светлой краске, а не белая: белый на этом красном давал
-     * 3.59:1 — на кнопке «Удалить», где ошибка прочтения стоит дороже всего.
-     * Затемнить саму краску нельзя, она же служит голосом (`text-destructive`
-     * в меню, в чипах, в подсказках) и на тёмной поверхности должна оставаться
-     * светлой. Разводится поэтому не заливка, а текст на ней.
-     */
-    --destructive-foreground: 358 44% 11%;
+    --destructive: 11 80.4% 42%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 250 6% 20%;
-    --input: 250 6% 20%;
-    --ring: var(--primary-accent);
+    --border: 0 0% 86.7%;
+    --input: 0 0% 75.7%;
+    --border-strong: 0 0% 75.7%;
+    /* Выбор и фокус — чернилами, а не краской. */
+    --ring: var(--foreground);
 
-    --popover: var(--surface-2);
-    --popover-foreground: 250 14% 94%;
+    --popover: 0 0% 100%;
+    --popover-foreground: var(--foreground);
 
-    --success: 158 64% 43%;
+    --success: 158 70% 30%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 88% 56%;
-    --warning-foreground: 0 0% 9%;
-    --error: 358 76% 62%;
+    --warning: 32 90% 38%;
+    --warning-foreground: 0 0% 100%;
+    --error: 11 80.4% 42%;
     --error-foreground: 0 0% 100%;
-    --info: 203 83% 58%;
+    --info: 205 80% 40%;
     --info-foreground: 0 0% 100%;
 
-    --priority-1: 220 10% 64%;
-    --priority-2: 203 72% 58%;
-    --priority-3: 40 78% 55%;
-    --priority-4: 24 72% 57%;
-    --priority-5: 348 64% 62%;
+    --priority-1: 220 9% 46%;
+    --priority-2: 203 70% 38%;
+    --priority-3: 36 85% 36%;
+    --priority-4: 22 80% 42%;
+    --priority-5: 348 70% 45%;
 
-    /*
-     * Инициалы на аватаре — собственная роль, а не текст на фирменной краске.
-     * Пока они брали `--primary-foreground`, цвет буквы на аватаре зависел от
-     * темы, хотя сами подложки от темы не зависят вовсе.
-     *
-     * Светлота подложек подобрана так, чтобы белая буква брала 4.5:1 на каждой:
-     * шесть из десяти давали 3.0–4.0.
-     */
+    /* Белые инициалы берут 4.5:1 на каждой подложке. */
     --avatar-foreground: 0 0% 100%;
     --avatar-1: 263 36% 50%;
     --avatar-2: 203 40% 43%;
@@ -210,68 +157,80 @@
     --avatar-9: 286 32% 48%;
     --avatar-10: 220 12% 48%;
 
-    --radius: 0.625rem;
+    --radius: 0.5rem;
 
-    /*
-     * Glass + Depth contract:
-     * - surface tokens define static elevation levels.
-     * - glass tokens are reserved for overlays, shell chrome, and floating bars.
-     * - primary glow is an interaction/focus affordance, not page decoration.
-     */
-    --glass-bg: 250 6% 8% / 0.84;
-    --glass-border: 250 5% 30% / 0.3;
-    --glass-blur: 20px;
-    /*
-     * Две лампы, а не одна.
-     *
-     * `--theme-cool` и `--theme-warm` — источники неровного света комнаты:
-     * четыре пятна холста, градиент панелей, свет за иконкой пустого
-     * состояния. Когда четыре темы свернулись в одну, оба оказались
-     * фиолетовыми (262° и 286°, разница 24°) и совпали по тону с самой
-     * фирменной краской — комната осталась освещена одной лампой цвета
-     * кнопки, и весь интерфейс лёг под ровную сиреневую дымку.
-     *
-     * Тёплый уводится в янтарь: 126° от холодного. Это не второй фирменный
-     * цвет — краска действия по-прежнему одна; это тёплый угол комнаты,
-     * который на альфе 0.06–0.11 читается не цветом, а температурой.
-     */
-    --theme-cool: 258 40% 58%;
-    --theme-warm: 28 52% 44%;
-    --canvas-cool-alpha: 0.07;
-    --canvas-warm-alpha: 0.035;
-    --canvas-primary-alpha: 0;
-    --canvas-neutral: var(--foreground);
-    --canvas-neutral-alpha: 0.05;
-    --panel-cool-alpha: 0.03;
-    --panel-warm-alpha: 0.02;
-    --panel-highlight: var(--foreground);
-    --panel-highlight-alpha: 0.045;
-    --panel-depth-alpha: 0.3;
-    /*
-     * Подложка снимка товара. Фото из магазинов почти всегда сняты на белом:
-     * на тёмной карточке они становились резкими белыми прямоугольниками, а
-     * размытая копия снимка вокруг лишь разносила этот свет по кадру. Светлая
-     * приглушённая «бумага» принимает белый фон снимка на себя (`multiply`),
-     * и товар лежит на ней, а не в светящемся окне.
-     */
-    --media-tile: 40 5% 86%;
-    --overlay-backdrop: 250 20% 3% / 0.7;
-    --overlay-image-scrim: 250 20% 3% / 0.58;
+    /* Магазинные снимки сняты на белом — плитка принимает фон на себя (`multiply`). */
+    --media-tile: 0 0% 96.9%;
+    --overlay-backdrop: 0 0% 0% / 0.5;
+    --overlay-image-scrim: 0 0% 0% / 0.45;
+    --glass-bg: 0 0% 100% / 0.96;
 
-    --shadow-sidebar: 12px 0 34px rgb(0 0 0 / 0.2);
-    --shadow-header: 0 1px 10px rgb(0 0 0 / 0.34);
-    --shadow-panel: 0 18px 42px rgb(1 5 14 / 0.34), inset 0 1px 0 hsl(var(--foreground) / 0.04);
-    --shadow-hero-panel: 0 20px 56px rgb(0 0 0 / 0.4), inset 0 1px 0 hsl(var(--foreground) / 0.05);
-    --shadow-page-header:
-      0 18px 48px rgb(1 5 14 / 0.34), inset 0 1px 0 hsl(var(--foreground) / 0.04);
-    --shadow-interactive-card:
-      0 14px 34px rgb(1 5 14 / 0.3), inset 0 1px 0 hsl(var(--foreground) / 0.035);
-    --shadow-interactive-card-hover:
-      0 18px 40px rgb(1 5 14 / 0.38), inset 0 1px 0 hsl(var(--foreground) / 0.05);
-    --shadow-selected-card: 0 18px 40px rgb(1 5 14 / 0.38);
-    --shadow-floating: 0 12px 28px rgb(1 5 14 / 0.38);
-    --shadow-dialog: 0 28px 72px rgb(1 5 14 / 0.48), 0 0 0 1px hsl(var(--foreground) / 0.035);
-    --shadow-brand-action: 0 6px 16px rgb(0 0 0 / 0.3), inset 0 1px 0 hsl(0 0% 100% / 0.12);
+    /* Одна тень на всю систему (DESIGN.md → «Глубина»). */
+    --shadow-float:
+      0 0 0 1px rgb(0 0 0 / 0.02), 0 2px 6px rgb(0 0 0 / 0.04), 0 4px 8px rgb(0 0 0 / 0.1);
+
+    --shadow-panel: none;
+    --shadow-interactive-card: none;
+    --shadow-interactive-card-hover: var(--shadow-float);
+    --shadow-floating: var(--shadow-float);
+    --shadow-dialog: var(--shadow-float);
+    --shadow-brand-action: none;
+  }
+
+  /*
+   * Тёмная тема: выбранная в меню или системная — скрипт в `<head>` ставит
+   * `data-theme` до первой отрисовки (src/lib/theme.ts).
+   */
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --background: 0 0% 8.6%;
+    --foreground: 0 0% 94.9%;
+
+    --surface-1: 0 0% 8.6%;
+    --surface-2: 0 0% 11%;
+    --surface-3: 0 0% 11.8%;
+    --surface-4: 0 0% 14.9%;
+    --surface-5: 0 0% 20%;
+    --surface-6: 0 0% 29%;
+
+    --card: 0 0% 11%;
+
+    --primary-accent: 349 100% 61%;
+
+    --muted-foreground: 0 0% 63.9%;
+    --muted-foreground-subtle: 0 0% 58%;
+
+    --destructive: 6 100% 71%;
+    --destructive-foreground: 0 0% 9%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 32%;
+    --border-strong: 0 0% 29%;
+
+    --popover: 0 0% 11.8%;
+
+    --success: 158 64% 43%;
+    --success-foreground: 0 0% 9%;
+    --warning: 38 88% 56%;
+    --warning-foreground: 0 0% 9%;
+    --error: 6 100% 71%;
+    --error-foreground: 0 0% 9%;
+    --info: 203 83% 58%;
+    --info-foreground: 0 0% 9%;
+
+    --priority-1: 220 10% 64%;
+    --priority-2: 203 72% 58%;
+    --priority-3: 40 78% 55%;
+    --priority-4: 24 72% 57%;
+    --priority-5: 348 64% 62%;
+
+    /* Плитка остаётся светлой: товар не тонет в тёмном. */
+    --media-tile: 0 0% 91%;
+    --overlay-backdrop: 0 0% 0% / 0.65;
+    --glass-bg: 0 0% 11% / 0.96;
+
+    --shadow-float: 0 0 0 1px rgb(255 255 255 / 0.06), 0 4px 12px rgb(0 0 0 / 0.5);
   }
 
   * {
@@ -286,19 +245,13 @@
 
   html {
     scroll-behavior: smooth;
-    /* Поверхности, которые рисует браузер, тоже говорят палитрой продукта. */
-    scrollbar-color: hsl(var(--surface-5)) transparent;
-    accent-color: hsl(var(--primary-accent));
+    scrollbar-color: hsl(var(--surface-6)) transparent;
+    accent-color: hsl(var(--primary));
   }
 
   ::selection {
-    background-color: hsl(var(--primary) / 0.55);
+    background-color: hsl(var(--brand) / 0.24);
     color: hsl(var(--foreground));
-  }
-
-  input,
-  textarea {
-    caret-color: hsl(var(--primary-accent));
   }
 
   body {
@@ -308,7 +261,6 @@
     font-size: 1rem;
     line-height: 1.5;
     font-variant-numeric: tabular-nums;
-    font-feature-settings: "kern";
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -331,7 +283,6 @@
   h2,
   h3 {
     font-weight: 600;
-    letter-spacing: 0;
     text-wrap: balance;
   }
 
@@ -339,58 +290,18 @@
   kbd,
   pre,
   samp {
-    font-family: var(--font-mono), monospace;
+    font-family: ui-monospace, Consolas, monospace;
   }
 }
 
+/* Холст плоский: глубину дают фото, линии и скругления, а не фон. */
 .app-canvas,
 .page-bg {
-  position: relative;
-  isolation: isolate;
   background-color: hsl(var(--background));
-  background-image:
-    radial-gradient(
-      ellipse 54% 38% at 52% -12%,
-      hsl(var(--canvas-neutral) / var(--canvas-neutral-alpha)) 0%,
-      transparent 72%
-    ),
-    radial-gradient(
-      ellipse 76% 62% at 104% 94%,
-      hsl(var(--theme-warm) / var(--canvas-warm-alpha)) 0%,
-      transparent 68%
-    ),
-    radial-gradient(
-      ellipse 68% 56% at -4% -8%,
-      hsl(var(--theme-cool) / var(--canvas-cool-alpha)) 0%,
-      transparent 66%
-    ),
-    radial-gradient(
-      ellipse 52% 44% at 68% 28%,
-      hsl(var(--primary) / var(--canvas-primary-alpha)) 0%,
-      transparent 72%
-    );
-  background-attachment: fixed;
 }
 
 .app-canvas .page-bg {
   background: transparent;
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.3);
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.45);
 }
 
 .scrollbar-none {
@@ -407,106 +318,26 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* Имя осталось от прежней системы: теперь это просто непрозрачный оверлей. */
 .glass {
-  background: hsl(var(--glass-bg));
-  border: 1px solid hsl(var(--glass-border));
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  box-shadow: 0 14px 34px rgb(0 0 0 / 0.34);
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
 }
 
-.dialog-modal-surface {
-  box-shadow: var(--shadow-dialog);
+.dialog-modal-surface,
+.elevation-floating,
+.elevation-selected-card {
+  box-shadow: var(--shadow-float);
 }
 
-.item-detail-dialog-surface {
-  background: hsl(var(--surface-2));
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
+.item-detail-dialog-surface,
 .item-detail-dialog-frame {
-  background: hsl(var(--surface-1));
-}
-
-@media (max-width: 640px) {
-  .item-detail-dialog-frame {
-    background: hsl(var(--surface-2));
-  }
-}
-
-.elevation-sidebar {
-  box-shadow: var(--shadow-sidebar);
-}
-
-.elevation-header {
-  box-shadow: var(--shadow-header);
-}
-
-.elevation-panel {
-  box-shadow: var(--shadow-panel);
-  background-image:
-    linear-gradient(
-      180deg,
-      hsl(var(--panel-highlight) / var(--panel-highlight-alpha)) 0%,
-      transparent 22%
-    ),
-    radial-gradient(
-      circle at 0% 0%,
-      hsl(var(--theme-cool) / var(--panel-cool-alpha)) 0%,
-      transparent 48%
-    ),
-    radial-gradient(
-      circle at 100% 100%,
-      hsl(var(--theme-warm) / var(--panel-warm-alpha)) 0%,
-      transparent 52%
-    ),
-    linear-gradient(145deg, transparent 48%, hsl(var(--surface-3) / var(--panel-depth-alpha)) 100%);
-}
-
-.elevation-hero-panel {
-  box-shadow: var(--shadow-hero-panel);
-}
-
-.elevation-page-header {
-  box-shadow: var(--shadow-page-header);
-}
-
-.elevation-interactive-card {
-  box-shadow: var(--shadow-interactive-card);
+  background: hsl(var(--background));
 }
 
 .elevation-interactive-card:hover,
 .elevation-interactive-card:focus-visible {
-  box-shadow: var(--shadow-interactive-card-hover);
-}
-
-.elevation-floating {
-  box-shadow: var(--shadow-floating);
-}
-
-.elevation-selected-card {
-  box-shadow: var(--shadow-selected-card);
-}
-
-.home-summary-panel {
-  background:
-    linear-gradient(90deg, hsl(var(--theme-cool) / 0.08) 0%, hsl(var(--background) / 0) 34%),
-    linear-gradient(
-      135deg,
-      hsl(var(--surface-2) / 0.95) 0%,
-      hsl(var(--surface-3) / 0.85) 46%,
-      hsl(var(--primary) / 0.14) 78%,
-      hsl(var(--theme-warm) / 0.1) 100%
-    );
-}
-
-.home-toolbar-panel {
-  background: linear-gradient(
-    180deg,
-    hsl(var(--surface-2) / 0.95) 0%,
-    hsl(var(--surface-2) / 0.85) 100%
-  );
+  box-shadow: var(--shadow-float);
 }
 
 @keyframes shimmer {
@@ -522,15 +353,14 @@
 .skeleton-shimmer {
   background: linear-gradient(
     90deg,
-    hsl(var(--muted)) 0%,
-    hsl(var(--muted-foreground) / 0.1) 50%,
-    hsl(var(--muted)) 100%
+    hsl(var(--surface-4)) 0%,
+    hsl(var(--surface-5)) 50%,
+    hsl(var(--surface-4)) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s linear infinite;
 }
 
-/* Белый фон снимка растворяется в подложке, сам товар остаётся как есть. */
 .media-tile {
   background-color: hsl(var(--media-tile));
 }
@@ -540,12 +370,12 @@
 }
 
 .wish-card-image {
-  transition: transform 180ms ease-out;
+  transition: transform var(--dur-base) var(--ease-soft);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .group\/card:hover .wish-card-image {
-    transform: scale(1.025);
+    transform: scale(1.02);
   }
 }
 
@@ -561,121 +391,149 @@
   }
 }
 
-/*
- * Голос заголовка — единственная роль, где продукт говорит антиквой.
- *
- * Трекинг здесь заметно свободнее прежнего (-0.005em против -0.022em): минус
- * два процента были подобраны под геометрический гротеск, у которого на
- * крупном кегле расходятся апертуры. У Literata засечки смыкают строку сами,
- * и та же зажатость слепляет слова.
- *
- * Вес 500, а не 600: на тёмной поверхности засечка набирает оптическую
- * плотность, и полужирный читается как акцент там, где нужен просто заголовок.
- */
-.display-face,
-.page-title {
-  /* Запасной ряд уже вшит в саму переменную (`next/font` → `fallback`). */
-  font-family: var(--font-display), serif;
-  font-weight: 500;
-  letter-spacing: -0.005em;
+/* Типографика — DESIGN.md → typography. Одна гарнитура, скромные веса. */
+.display-face {
+  font-weight: 600;
+  letter-spacing: -0.01em;
   text-wrap: balance;
 }
 
-/*
- * Заголовок страницы: единственный крупный типографический шаг в продукте.
- * Он же делает разделы узнаваемо одинаковыми — поэтому размер и трекинг
- * заданы здесь, а не в разметке каждой страницы.
- */
+/* display-xl: заголовок страницы намеренно небольшой — под ним фото и лица. */
 .page-title {
-  font-size: var(--text-display);
-  line-height: 1.08;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 
 .page-lede {
-  font-size: var(--text-page-lede);
-  line-height: 1.55;
+  font-size: 1rem;
+  line-height: 1.5;
   max-width: 62ch;
   color: hsl(var(--muted-foreground));
   text-wrap: pretty;
 }
 
-/*
- * Раздел внутри страницы — средний ярус шкалы и второй голос антиквы.
- *
- * Гротеском в 17px он стоял вплотную к тексту карточек (15–16px) и в 23px от
- * заголовка страницы: между «огромным серифом» и «мелочью» не было ступени,
- * и страницы читались растянутым телефоном. Антиква здесь же возвращает
- * «вечернюю гостиную» туда, где человек читает, а не только в шапку.
- */
+/* display-sm: раздел внутри страницы. */
 .section-title {
-  font-family: var(--font-display), serif;
-  font-size: 1.375rem;
-  font-weight: 500;
+  font-size: 1.25rem;
+  font-weight: 600;
   line-height: 1.2;
-  letter-spacing: -0.005em;
+  letter-spacing: -0.01em;
   text-wrap: balance;
 }
 
-/*
- * Прибытие контента. Элемент начинает видимым в разметке (без JS он просто
- * остаётся на месте) и анимируется только тогда, когда получил `data-reveal`.
- */
+/* stat-display: единственный громкий шаг — цифры статистики и «через N дней». */
+.stat-display {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 12px, 0);
-    filter: blur(6px);
+    transform: translate3d(0, 8px, 0);
   }
 
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0);
-    filter: blur(0);
   }
 }
 
 [data-reveal] {
-  animation: rise-in var(--dur-reveal) var(--ease-expo) both;
+  animation: rise-in var(--dur-slow) var(--ease-expo) both;
   animation-delay: var(--reveal-delay, 0ms);
 }
 
-/* Подтверждение покупки: единственный «пружинный» момент в продукте. */
-@keyframes seal-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.82);
-  }
+/*
+ * Эффекты kinetics.colorion.co — с исходными параметрами каждого.
+ * Уменьшенное движение отключает их ниже (HeroUI → Animation → Accessibility).
+ */
 
-  100% {
-    opacity: 1;
+/* Underline Draw — draw(400ms): подчёркивание ссылки прорисовывается слева направо. */
+.underline-draw {
+  position: relative;
+  text-decoration: none;
+}
+
+.underline-draw::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.underline-draw:hover::after,
+.underline-draw:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* Error Shake — shake(cubic, 450ms): затухающее покачивание поля с ошибкой. */
+@keyframes shake-x {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-4px);
+  }
+  40%,
+  60% {
+    transform: translateX(4px);
+  }
+}
+
+.shake-x {
+  animation: shake-x 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Badge Counter — pop 1.4× (kinetics), возврат по `expo` без перелёта. */
+@keyframes count-pop {
+  from {
+    transform: scale(1.4);
+  }
+  to {
     transform: scale(1);
   }
 }
 
-@keyframes seal-ring {
-  0% {
-    opacity: 0.55;
-    transform: scale(0.75);
-  }
+.count-pop {
+  animation: count-pop 0.3s var(--ease-expo);
+}
 
-  100% {
-    opacity: 0;
-    transform: scale(1.9);
+/* Success Check — draw(check, 0.5s): кольцо, затем галочка — отметка покупки. */
+@keyframes draw-stroke {
+  to {
+    stroke-dashoffset: 0;
   }
 }
 
-.seal-in {
-  animation: seal-in var(--dur-slow) var(--ease-expo) both;
+.draw-ring {
+  stroke-dasharray: var(--draw-length);
+  stroke-dashoffset: var(--draw-length);
+  animation: draw-stroke 0.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
-.seal-ring::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 1px solid hsl(var(--success) / 0.7);
-  animation: seal-ring 720ms var(--ease-expo) both;
-  pointer-events: none;
+.draw-tick {
+  stroke-dasharray: var(--draw-length);
+  stroke-dashoffset: var(--draw-length);
+  animation: draw-stroke 0.3s ease-out 0.4s forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -683,13 +541,7 @@
     scroll-behavior: auto !important;
   }
 
-  /*
-   * Трансформа остаётся движением и внутри `transition-*`. Блок ниже покрывал
-   * анимации и framer-motion, но не обычные переходы: шеврон продолжал
-   * поворачиваться на 300ms, кнопки — проваливаться на пиксель, чипы —
-   * поджиматься. Отключаем именно движение: цвет, прозрачность и тень
-   * продолжают отвечать на действие, поэтому обратная связь не пропадает.
-   */
+  /* Отключаем движение, но цвет и прозрачность продолжают отвечать на действие. */
   *,
   *::before,
   *::after {
@@ -700,17 +552,18 @@
 
   .skeleton-shimmer,
   .animate-spin,
-  .animate-pulse {
-    animation: none !important;
-  }
-
+  .animate-pulse,
   [data-reveal],
-  .seal-in {
+  .shake-x,
+  .count-pop {
     animation: none !important;
   }
 
-  .seal-ring::after {
-    display: none;
+  /* Прорисовка сразу в конечном состоянии. */
+  .draw-ring,
+  .draw-tick {
+    animation: none !important;
+    stroke-dashoffset: 0;
   }
 
   .wish-card-image {

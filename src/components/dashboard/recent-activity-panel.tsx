@@ -70,7 +70,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
             type="button"
             variant="ghost"
             size="sm"
-            className="h-8 shrink-0 gap-1 rounded-lg px-2 text-[11px] text-primary-accent/85 hover:bg-primary/10 hover:text-primary-accent"
+            className="h-8 shrink-0 gap-1 rounded-lg px-2 text-[11px] text-foreground hover:bg-accent hover:underline"
             onClick={() => setExpanded((value) => !value)}
           >
             {expanded ? t("Свернуть") : t("Все изменения")}
@@ -109,7 +109,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
                     className="relative z-[1] mt-0.5 h-6 w-6 text-[10px] shadow-[0_0_0_3px_hsl(var(--surface-2))]"
                   />
                 ) : (
-                  <div className="relative z-[1] mt-0.5 h-6 w-6 rounded-full border border-border/55 bg-[hsl(var(--surface-3))] shadow-[0_0_0_3px_hsl(var(--surface-2))]" />
+                  <div className="relative z-[1] mt-0.5 h-6 w-6 rounded-full border border-border bg-[hsl(var(--surface-3))] shadow-[0_0_0_3px_hsl(var(--surface-2))]" />
                 )}
                 <div className="min-w-0">
                   <div className="flex min-w-0 items-start justify-between gap-2">
@@ -150,7 +150,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
         <div
           className={cn(
             uiSurface.emptyState,
-            "mt-3 min-h-0 flex-1 border-border/55 bg-[hsl(var(--surface-3)/0.32)] px-3 py-4 sm:mt-4 sm:py-6",
+            "mt-3 min-h-0 flex-1 border-border bg-[hsl(var(--surface-3)/0.32)] px-3 py-4 sm:mt-4 sm:py-6",
           )}
         >
           <p className="text-sm font-medium text-foreground">{t("Пока нет активности")}</p>

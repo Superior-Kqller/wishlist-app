@@ -16,15 +16,10 @@ interface WishlistSearchInputProps {
   className?: string;
 }
 
+// Пилюля поиска (DESIGN.md → «Поиск»): одна форма, высота по месту.
 const INPUT_CLASS_BY_VARIANT = {
-  // Поиск в ряду фильтров не несёт собственной тени: он вторичный контрол,
-  // а выглядел самым тяжёлым объектом экрана.
-  toolbar: cn(
-    uiLayout.filterBarTrigger,
-    "rounded-lg border-border/55 bg-[hsl(var(--surface-3)/0.7)] pl-10 pr-3 text-sm placeholder:text-muted-foreground-subtle hover:border-primary/32 hover:bg-[hsl(var(--surface-3)/0.85)]",
-  ),
-  mobile:
-    "h-11 min-h-[44px] rounded-lg border-border/55 bg-[linear-gradient(180deg,hsl(var(--surface-3)_/_0.82),hsl(var(--surface-2)_/_0.66))] pl-10 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.045)] placeholder:text-muted-foreground-subtle",
+  toolbar: cn(uiLayout.filterBarTrigger, "pl-10 pr-4 text-sm placeholder:text-muted-foreground"),
+  mobile: "h-11 min-h-[44px] pl-10 text-base placeholder:text-muted-foreground",
 } as const;
 
 export function WishlistSearchInput({
@@ -42,7 +37,7 @@ export function WishlistSearchInput({
       placeholder={t("Поиск…")}
       aria-label={t("Поиск")}
       wrapperClassName={cn("group", className)}
-      iconClassName="left-3.5 text-muted-foreground/55 transition-colors duration-200 group-focus-within:text-primary-accent/85"
+      iconClassName="left-4"
       inputClassName={INPUT_CLASS_BY_VARIANT[variant]}
       data-hotkey="search"
     />

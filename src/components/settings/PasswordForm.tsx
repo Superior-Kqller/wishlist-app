@@ -78,7 +78,7 @@ export function PasswordForm({ userId }: PasswordFormProps) {
   return (
     <div className={cn(uiSurface.contentPanel, "p-4 sm:p-6")}>
       <div className="mb-5 flex items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/55 bg-[hsl(var(--surface-3))] text-primary-accent">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border bg-[hsl(var(--surface-3))] text-foreground">
           <ShieldCheck className="h-5 w-5" aria-hidden />
         </span>
         <div className="min-w-0">
@@ -134,9 +134,9 @@ export function PasswordForm({ userId }: PasswordFormProps) {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.45)] p-3.5">
+        <div className="rounded-xl border border-border bg-card p-3.5">
           <div className="flex gap-3">
-            <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-primary-accent" aria-hidden />
+            <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-foreground" aria-hidden />
             <div className="min-w-0">
               <p className="text-sm font-medium">{t("Требования к паролю")}</p>
               {passwordErrors.length > 0 ? (

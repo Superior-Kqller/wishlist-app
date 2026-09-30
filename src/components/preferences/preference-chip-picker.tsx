@@ -113,7 +113,7 @@ export function PreferenceChipPicker({
               onClick={() => toggleValue(suggestion.label)}
               aria-pressed={active}
               className={cn(
-                "inline-flex min-h-11 items-center gap-2 rounded-full border px-3 sm:min-h-10 text-sm font-medium transition-[color,background-color,border-color,transform] duration-base active:scale-[0.98]",
+                "inline-flex min-h-11 items-center gap-2 rounded-full border px-3 sm:min-h-10 text-sm font-medium transition-colors duration-base",
                 uiState.focusRing,
                 active
                   ? warning
@@ -154,7 +154,7 @@ export function PreferenceChipPicker({
           placeholder={t(placeholder)}
           maxLength={100}
           disabled={limitReached}
-          className="min-w-0 border-border/55 bg-[hsl(var(--surface-3)/0.55)]"
+          className="min-w-0 border-border bg-[hsl(var(--surface-3)/0.55)]"
           aria-label={t("Добавить свой вариант")}
         />
         <Button
@@ -195,7 +195,7 @@ export function PreferenceChipPicker({
                     uiState.focusRing,
                     warning
                       ? "border-destructive/32 bg-destructive/10 text-destructive"
-                      : "border-primary/32 bg-primary/10 text-foreground/85",
+                      : "border-border bg-accent text-foreground/85",
                   )}
                   aria-label={`${t("Убрать")}: ${t(item)}`}
                 >

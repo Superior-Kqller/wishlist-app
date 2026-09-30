@@ -244,6 +244,6 @@ export function WishlistScopePicker({
 
 function scopeItemTone(selected: boolean) {
   return selected
-    ? "border border-primary/45 bg-primary/16 text-foreground"
+    ? "border border-foreground bg-accent text-foreground"
     : "text-muted-foreground focus:text-foreground";
 }

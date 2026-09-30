@@ -35,12 +35,14 @@ export function ItemActivitySection({
 
   return (
     <section className={cn("space-y-3", className)} aria-label={t("Комментарии")}>
-      <h3 className="text-xs font-semibold text-muted-foreground">
+      <h3 className="text-xl font-semibold tracking-[-0.01em]">
         {t("Комментарии")}
-        {comments.length > 0 ? <span className="tabular-nums"> · {comments.length}</span> : null}
+        {comments.length > 0 ? (
+          <span className="tabular-nums text-muted-foreground"> · {comments.length}</span>
+        ) : null}
       </h3>
 
-      <div className="sm:max-h-56 sm:overflow-y-auto sm:pr-1">
+      <div>
         {comments.length === 0 ? (
           <p className="flex items-center gap-2 py-1 text-sm text-muted-foreground">
             <MessageCircle className="h-4 w-4 shrink-0" aria-hidden />
@@ -58,7 +60,7 @@ export function ItemActivitySection({
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{comment.user.name}</span>
-                  <span className="text-xs text-muted-foreground-subtle">
+                  <span className="text-xs text-muted-foreground">
                     {new Date(comment.createdAt).toLocaleString(locale, {
                       day: "2-digit",
                       month: "2-digit",
@@ -107,7 +109,7 @@ export function ItemActivitySection({
           placeholder={t("Добавить комментарий…")}
           aria-label={t("Комментарий")}
           rows={1}
-          className="min-h-11 flex-1 resize-none border-border/55 py-2.5 [field-sizing:content] max-h-40"
+          className="min-h-11 flex-1 resize-none border-border py-2.5 [field-sizing:content] max-h-40"
           maxLength={2000}
           disabled={submittingComment}
         />
@@ -115,7 +117,7 @@ export function ItemActivitySection({
           type="submit"
           variant="secondary"
           size="icon"
-          className="h-11 w-11 shrink-0 text-primary-accent"
+          className="h-11 w-11 shrink-0 text-foreground"
           aria-label={t("Отправить")}
           disabled={!commentText.trim() || submittingComment}
         >

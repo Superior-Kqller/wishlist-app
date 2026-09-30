@@ -1,44 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
-import { JetBrains_Mono, Literata, Manrope } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AppShell } from "@/components/app/app-shell";
 import { LANGUAGE_COOKIE_NAME, appMetadataCopy, normalizeLanguage, translate } from "@/lib/i18n";
+import { THEME_BOOT_SCRIPT, THEME_COOKIE_NAME, normalizeTheme } from "@/lib/theme";
 
-const manrope = Manrope({
+// Одна гарнитура на всё — DESIGN.md → typography.
+const inter = Inter({
   subsets: ["latin", "cyrillic"],
-  variable: "--font-sans",
+  variable: "--font-inter",
   display: "swap",
   fallback: ["system-ui", "sans-serif"],
-});
-
-/*
- * Голос заголовка. До него в продукте был один Manrope на все восемь
- * типографических ролей: система звучала нейтрально ровно там, где DESIGN.md
- * обещает «вечернюю гостиную».
- *
- * Literata, а не высококонтрастная антиква вроде Playfair: на тёмной
- * поверхности тонкие штрихи дидоны истончаются до серого, а низкий контраст
- * Literata держит вес на фиолетовой основе. Кириллица у неё своя, не
- * подставленная из запасного шрифта.
- *
- * Шрифт расходуется скупо — только на крупный шаг: заголовок страницы,
- * заголовок пустого состояния и обещание на входе. Тело, мета и цифры
- * остаются на Manrope.
- */
-const literata = Literata({
-  subsets: ["latin", "cyrillic"],
-  variable: "--font-display",
-  display: "swap",
-  fallback: ["Georgia", "Times New Roman", "serif"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin", "cyrillic"],
-  variable: "--font-mono",
-  display: "swap",
-  fallback: ["Consolas", "monospace"],
 });
 
 async function getRequestLanguage() {
@@ -61,11 +35,11 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     icons: {
       icon: [
-        { url: "/assets/favicon/app-icon-1.8.0-64.png", sizes: "64x64", type: "image/png" },
-        { url: "/assets/favicon/app-icon-1.8.0-192.png", sizes: "192x192", type: "image/png" },
-        { url: "/assets/favicon/app-icon-1.8.0-512.png", sizes: "512x512", type: "image/png" },
+        { url: "/assets/favicon/app-icon-64.png", sizes: "64x64", type: "image/png" },
+        { url: "/assets/favicon/app-icon-192.png", sizes: "192x192", type: "image/png" },
+        { url: "/assets/favicon/app-icon-512.png", sizes: "512x512", type: "image/png" },
       ],
-      apple: "/assets/favicon/app-icon-1.8.0-192.png",
+      apple: "/assets/favicon/app-icon-192.png",
     },
     openGraph: {
       title: copy.title,
@@ -88,25 +62,34 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   /** Мобильный Chrome/Safari: контент подстраивается под панели браузера */
   interactiveWidget: "resizes-content",
-  themeColor: "#0A090B",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#161616" },
+  ],
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const language = await getRequestLanguage();
+  const theme = normalizeTheme((await cookies()).get(THEME_COOKIE_NAME)?.value);
   const skipLabel = translate(language, "К основному содержимому");
 
   return (
-    <html lang={language} className="dark" suppressHydrationWarning>
-      <body
-        className={`${manrope.variable} ${literata.variable} ${jetbrainsMono.variable} ${manrope.className}`}
-      >
+    <html
+      lang={language}
+      data-theme={theme === "system" ? undefined : theme}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+      </head>
+      <body className={`${inter.variable} font-sans`}>
         <a
           href="#content"
-          className="sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:not-sr-only focus:rounded-lg focus:border focus:border-primary/45 focus:bg-[hsl(var(--surface-2))] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-[var(--shadow-floating)] focus:outline-none"
+          className="sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:not-sr-only focus:rounded-lg focus:border focus:border-foreground focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-[var(--shadow-float)] focus:outline-none"
         >
           {skipLabel}
         </a>
-        <Providers language={language}>
+        <Providers language={language} theme={theme}>
           <AppShell>{children}</AppShell>
         </Providers>
       </body>

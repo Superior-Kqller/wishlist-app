@@ -47,51 +47,39 @@ for (const scenario of scenarios) {
     expect(updateResponse.ok()).toBeTruthy();
 
     try {
-      await page.goto("/preferences");
+      const me = (await (await page.request.get("/api/users/me")).json()) as { id: string };
+      await page.goto(`/preferences?userId=${me.id}`);
 
-      const ownProfile = page
-        .locator("article")
-        .filter({ has: page.getByText("Это вы", { exact: true }) });
-      await ownProfile.getByRole("button", { name: "Открыть профиль" }).click();
+      // Профиль читается в сцене выбранного человека, а не в раскрытой карточке.
+      const stage = page.locator(`section[aria-labelledby="profile-stage-${me.id}"]`);
+      await expect(stage).toBeVisible();
 
       for (const value of [longSize, longBudget, longOccasion]) {
-        await expect(ownProfile.getByText(value, { exact: true })).toBeVisible();
+        await expect(stage.getByText(value, { exact: true })).toBeVisible();
       }
-      await expect(ownProfile.getByText(longNotes, { exact: true })).toBeVisible();
-      await expect(ownProfile.getByText("Бренды", { exact: true })).toHaveCount(0);
+      await expect(stage.getByText(longNotes, { exact: true })).toBeVisible();
+      await expect(stage.getByText("Бренды", { exact: true })).toHaveCount(0);
 
-      const hasHorizontalOverflow = await ownProfile.evaluate(
+      const hasHorizontalOverflow = await stage.evaluate(
         (element) => element.scrollWidth > element.clientWidth + 1,
       );
       expect(hasHorizontalOverflow).toBe(false);
 
-      const viewportHasHorizontalOverflow = await page.evaluate(
-        () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
-      );
-      expect(viewportHasHorizontalOverflow).toBe(false);
-
-      // Длинное имя ломало раскладку иначе, чем длинные значения: у элемента
-      // grid минимальный размер по умолчанию равен min-content, и колонка
-      // растягивалась за край экрана вместе с именем, унося кнопку раскрытия.
+      // Длинное имя без пробелов не должно растягивать ни сцену, ни образец в сетке.
       const renamed = await page.request.patch("/api/users/me", { data: { name: longName } });
       expect(renamed.ok()).toBeTruthy();
       await page.reload();
-      await expect(ownProfile).toBeVisible();
+      await expect(stage).toBeVisible();
 
-      const nameLayout = await ownProfile.evaluate((element) => {
+      const nameLayout = await stage.evaluate((element) => {
         const heading = element.querySelector("h2") as HTMLElement;
         return {
-          cardWidth: element.getBoundingClientRect().width,
+          stageWidth: element.getBoundingClientRect().width,
           headingWidth: heading.getBoundingClientRect().width,
-          headingClipped: heading.scrollWidth > heading.clientWidth,
         };
       });
-      // На телефоне имя обязано обрезаться, на десктопе оно помещается целиком.
-      if (scenario.width < 768) {
-        expect(nameLayout.headingClipped).toBe(true);
-      }
-      expect(nameLayout.headingWidth).toBeLessThanOrEqual(nameLayout.cardWidth);
-      await expect(ownProfile.getByRole("button", { name: /Открыть профиль/ })).toBeVisible();
+      expect(nameLayout.headingWidth).toBeLessThanOrEqual(nameLayout.stageWidth);
+      await expect(page.getByTestId(`profile-swatch-${me.id}`)).toBeVisible();
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,

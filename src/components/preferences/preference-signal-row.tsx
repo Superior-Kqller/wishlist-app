@@ -49,7 +49,7 @@ export function PreferenceSignalRow({
       role="group"
       aria-label={t(label)}
       className={cn(
-        "grid min-w-0 border-t border-border/32 first:border-t-0",
+        "grid min-w-0 border-t border-border first:border-t-0",
         compact
           ? "grid-cols-1 gap-1.5 py-2"
           : "grid-cols-[minmax(5.5rem,0.42fr)_minmax(0,1fr)] gap-3 py-2.5",

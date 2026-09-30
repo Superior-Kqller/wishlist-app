@@ -8,11 +8,12 @@ import { formatPrice } from "@/lib/utils";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { ItemDetailBody } from "@/components/wishlist/item-detail/item-detail-layout";
 import { ItemMediaSection } from "@/components/wishlist/item-detail/item-media-section";
 import {
-  ItemDetailActions,
-  ItemMetaSection,
+  ItemActionCard,
+  ItemDetailDock,
+  ItemDetailHeader,
+  ItemDetailNotes,
 } from "@/components/wishlist/item-detail/item-meta-section";
 import { ItemActivitySection } from "@/components/wishlist/item-detail/item-activity-section";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -65,13 +66,7 @@ export function ItemDetailDialog({
   if (!item) return null;
 
   const canManage = currentUserId === item.userId;
-  /*
-   * Колонка со снимком существует, только когда снимок есть. Без него окно
-   * отдавало половину ширины серому прямоугольнику с иконкой картинки, а на
-   * телефоне — треть экрана (`min(31vh, 240px)`), причём над самим названием
-   * желания. Заглушка внутри колонки остаётся: она нужна, когда снимок
-   * заявлен, но не загрузился.
-   */
+  // Фото показывается, только когда снимок есть: пустая плитка читалась «не догрузилось».
   const hasImage = Boolean(item.images?.[0]);
 
   const handleAddComment = async (e: React.FormEvent) => {
@@ -128,14 +123,34 @@ export function ItemDetailDialog({
     onSetStatus(item.id, getPurchaseToggleTarget(item));
   };
 
+  const actionProps = {
+    item,
+    canManage,
+    statusPending,
+    onEdit: handleEdit,
+    onDelete: handleDelete,
+    onTogglePurchased: handleTogglePurchased,
+  };
+
+  /*
+   * Детальный вид по DESIGN.md: слева название, фото, описание и комментарии,
+   * справа липкая карточка действий; на телефоне она становится нижней
+   * панелью. Крестик — в правом верхнем углу (Atlassian → Modal dialog).
+   */
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         className={cn(
-          "item-detail-dialog-surface bottom-0 left-0 top-auto max-h-[min(96dvh,calc(100dvh-env(safe-area-inset-top,0px)))] w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl border-border/70 bg-[hsl(var(--surface-2))] shadow-[var(--shadow-dialog)]",
-          "sm:bottom-auto sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.5rem))] sm:w-[min(100%,calc(100vw-1rem))] sm:max-w-5xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl",
+          "item-detail-dialog-surface bottom-0 left-0 top-auto max-h-[min(96dvh,calc(100dvh-env(safe-area-inset-top,0px)))] w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl border-border",
+          "sm:bottom-auto sm:left-[50%] sm:top-[50%] sm:max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.5rem))] sm:w-[min(100%,calc(100vw-2rem))] sm:max-w-[67.5rem] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl",
         )}
-        bodyClassName="relative gap-0 overflow-hidden p-0 sm:overflow-y-auto"
+        bodyClassName="relative gap-0 overflow-hidden p-0"
+        // Фокус — на само окно, а не в поле комментария: на телефоне иначе сразу
+        // выезжает клавиатура (Atlassian → Modal dialog → Setting focus).
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          (event.currentTarget as HTMLElement | null)?.focus();
+        }}
       >
         <DialogDescription className="sr-only">
           {t("Детали желания")}: {item.title}
@@ -143,42 +158,28 @@ export function ItemDetailDialog({
             ? `, ${t("Ориентировочная стоимость").toLowerCase()} ${formatPrice(item.price, item.currency, language)}`
             : ""}
         </DialogDescription>
-        {/*
-         * Полоска-хват была декоративной (`pointer-events-none`): выглядела как
-         * управляемый элемент и ничего не делала. Теперь это настоящая кнопка
-         * закрытия с полноразмерной областью нажатия — ближе к большому пальцу,
-         * чем крестик в правом верхнем углу.
-         */}
+        {/* Хват на телефоне — настоящая кнопка закрытия, ближе к пальцу, чем крестик. */}
         <button
           type="button"
           onClick={onClose}
           aria-label={t("Закрыть")}
           className="absolute left-1/2 top-0 z-20 flex h-6 w-16 -translate-x-1/2 items-center justify-center rounded-b-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden"
         >
-          <span className="h-1 w-10 rounded-full bg-foreground/16" aria-hidden />
+          <span className="h-1 w-10 rounded-full bg-border" aria-hidden />
         </button>
-        <div
-          className={cn(
-            "item-detail-dialog-frame grid min-h-0 flex-1 overflow-y-auto overscroll-contain sm:flex-none sm:overflow-visible",
-            hasImage && "md:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)]",
-          )}
-        >
-          {hasImage ? (
-            <ItemMediaSection item={item} className="md:border-r md:border-border/32" />
-          ) : null}
-          <div className="flex min-h-0 min-w-0 flex-col bg-[hsl(var(--surface-2))]">
-            <ItemDetailBody>
-              <ItemMetaSection
-                item={item}
-                canManage={canManage}
-                statusPending={statusPending}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onTogglePurchased={handleTogglePurchased}
-              />
-            </ItemDetailBody>
-            <div className="mt-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-2 sm:px-5 sm:pb-5">
+
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          <div className="grid gap-8 px-4 pb-8 pt-8 sm:px-8 md:grid-cols-[minmax(0,1fr)_20rem] md:gap-12">
+            <div className="min-w-0 space-y-8">
+              <ItemDetailHeader item={item} />
+              {hasImage ? <ItemMediaSection item={item} /> : null}
+              {item.notes?.trim() ? (
+                <div className="border-t border-border pt-8">
+                  <ItemDetailNotes item={item} />
+                </div>
+              ) : null}
               <ItemActivitySection
+                className="border-t border-border pt-8"
                 comments={comments}
                 currentUserId={currentUserId}
                 commentText={commentText}
@@ -189,21 +190,17 @@ export function ItemDetailDialog({
                 onDeleteComment={handleDeleteComment}
               />
             </div>
+            <aside className="hidden pt-10 md:block" aria-label={t("Действия")}>
+              <div className="sticky top-0">
+                <ItemActionCard {...actionProps} />
+              </div>
+            </aside>
           </div>
         </div>
-        {item.url || canManage ? (
-          <div className="shrink-0 border-t border-border/55 bg-[hsl(var(--surface-2)/0.95)] px-4 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))] pt-3 backdrop-blur-md sm:hidden">
-            <ItemDetailActions
-              item={item}
-              canManage={canManage}
-              statusPending={statusPending}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onTogglePurchased={handleTogglePurchased}
-              mobileDock
-            />
-          </div>
-        ) : null}
+
+        <div className="shrink-0 border-t border-border bg-background px-4 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-3 md:hidden">
+          <ItemDetailDock {...actionProps} />
+        </div>
       </DialogContent>
     </Dialog>
   );

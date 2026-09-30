@@ -3,7 +3,6 @@ import {
   filterCalendarOccurrences,
   groupCalendarOccurrences,
   getCalendarSections,
-  getInitialCalendarView,
   getUpcomingOccurrences,
   type CalendarOccurrence,
 } from "./client-calendar";
@@ -91,8 +90,15 @@ describe("client calendar", () => {
     ]);
   });
 
-  it("uses list view initially on mobile and month view on wide screens", () => {
-    expect(getInitialCalendarView(true)).toBe("list");
-    expect(getInitialCalendarView(false)).toBe("month");
+  it("groups occurrences by month for the agenda", () => {
+    const nextMonth = { ...occurrences[3], id: "august", date: "2026-08-02" };
+    expect(
+      groupCalendarOccurrences([occurrences[1], occurrences[3], nextMonth], "month").map(
+        ([month, entries]) => [month, entries.map(({ id }) => id)],
+      ),
+    ).toEqual([
+      ["2026-07", ["birthday", "personal"]],
+      ["2026-08", ["august"]],
+    ]);
   });
 });

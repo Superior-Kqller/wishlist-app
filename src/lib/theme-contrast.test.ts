@@ -50,20 +50,12 @@ function contrastRatio(a: Rgb, b: Rgb): number {
 }
 
 /*
- * У продукта одна тема — фиолетовая, объявленная в `:root, .dark`. Раньше тем
- * было четыре, и каждая пара «текст на поверхности» проверялась четырежды;
- * следы ручной проверки видны в истории `globals.css`: винная краска буквой
- * давала 1.8:1, статусные цвета светлой темы наследовались из тёмной, рамка
- * выбранного чипа брала 1.95:1. Все три нашли глазами и после того, как они
- * уехали пользователям.
+ * Две темы: светлая в `:root`, тёмная переопределяет её под
+ * `:root[data-theme="dark"]` (DESIGN.md → «Цвет»). Тест берёт значения прямо
+ * из `globals.css` и не даёт тронуть токен, не заметив просевшую пару.
  *
- * Тест берёт значения прямо из `globals.css` — единственного места, где тема
- * объявлена, — и не даёт тронуть токен, не заметив просевшую пару. Заодно он
- * стережёт сам канон: вернувшийся класс `.theme-*` роняет сборку.
- *
- * Границы намеренно проверяются только у сплошных пар. Разметка часто кладёт
- * текст на подложку с прозрачностью (`bg-primary/16`), и её фактический цвет
- * зависит от того, что лежит ниже, — такие сочетания этот тест не считает.
+ * Проверяются только сплошные пары: у полупрозрачной подложки фактический
+ * цвет зависит от того, что лежит ниже.
  */
 
 /*
@@ -77,7 +69,7 @@ const CSS = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8").rep
   "\n",
 );
 
-/** Блок объявлений темы: единственный, в `:root, .dark`. */
+/** Блок объявлений темы по его первой строке. */
 function readThemeBlock(selector: string): Record<string, string> {
   const start = CSS.indexOf(selector);
   if (start === -1) throw new Error(`Не найден блок темы: ${selector}`);
@@ -104,7 +96,9 @@ function readThemeBlock(selector: string): Record<string, string> {
   return tokens;
 }
 
-const BASE = readThemeBlock(":root,\n  .dark");
+const LIGHT = readThemeBlock(":root {\n    color-scheme: light;");
+const DARK = { ...LIGHT, ...readThemeBlock(':root[data-theme="dark"] {\n    color-scheme: dark;') };
+const THEMES = { светлая: LIGHT, тёмная: DARK };
 
 /**
  * Значение токена в теме: собственное, иначе унаследованное из базовой.
@@ -161,7 +155,10 @@ const PAIRS: ReadonlyArray<{ label: string; fg: string; bg: string; min: number 
   { label: "предупреждение на панели", fg: "--warning", bg: "--surface-2", min: 3 },
   { label: "ошибка на панели", fg: "--error", bg: "--surface-2", min: 3 },
   { label: "сведения на панели", fg: "--info", bg: "--surface-2", min: 3 },
-  { label: "нейтральная рамка на панели", fg: "--border", bg: "--surface-2", min: 1.4 },
+  // Волосяная линия — разделитель, а не указатель (DESIGN.md → «Глубина»).
+  { label: "нейтральная рамка на панели", fg: "--border", bg: "--surface-2", min: 1.3 },
+  // Рамка поля плотнее: поле подписано, но граница должна читаться.
+  { label: "рамка поля на фоне", fg: "--input", bg: "--background", min: 1.75 },
   // Инициалы на подложке аватара: мелкая полужирная буква, обычный текст.
   ...Array.from({ length: 10 }, (_, index) => ({
     label: `инициалы на аватаре ${index + 1}`,
@@ -172,14 +169,12 @@ const PAIRS: ReadonlyArray<{ label: string; fg: string; bg: string; min: number 
 ];
 
 describe("контраст токенов темы", () => {
-  it("тема в продукте одна: классов `.theme-*` в `globals.css` нет", () => {
-    expect(CSS.match(/\.theme-[\w-]+/g)).toBeNull();
-  });
-
-  for (const pair of PAIRS) {
-    it(`${pair.label} — не ниже ${pair.min}:1`, () => {
-      const ratio = contrastRatio(resolve(BASE, pair.fg), resolve(BASE, pair.bg));
-      expect(ratio, `${pair.label}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(pair.min);
-    });
+  for (const [theme, tokens] of Object.entries(THEMES)) {
+    for (const pair of PAIRS) {
+      it(`${theme}: ${pair.label} — не ниже ${pair.min}:1`, () => {
+        const ratio = contrastRatio(resolve(tokens, pair.fg), resolve(tokens, pair.bg));
+        expect(ratio, `${pair.label}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(pair.min);
+      });
+    }
   }
 });

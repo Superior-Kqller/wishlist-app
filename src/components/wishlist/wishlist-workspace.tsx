@@ -74,6 +74,8 @@ export type WishlistScope = {
    */
   scopeError: boolean;
   onRetryScope: () => void;
+  /** Ближайший повод — пилюлей справа в строке «чей список». */
+  upcoming?: React.ReactNode;
 };
 
 /** Чем сузили выдачу и как её отсортировали. */
@@ -176,6 +178,7 @@ export function WishlistWorkspace({
     onCreateList,
     onEditSelectedList,
     scopeError,
+    upcoming,
     onRetryScope,
   } = scope;
 
@@ -279,28 +282,46 @@ export function WishlistWorkspace({
 
       {/*
        * Панель реагирует на собственную ширину, а не на ширину окна.
-       * Ширина контента здесь немонотонна: на 1023px сайдбара ещё нет и под
-       * контент остаётся ~975px, а на 1024px он появляется и остаётся ~712px.
-       * Любой viewport-брейкпоинт на этом ломается, container query — нет.
+       * Так ярусы переключаются по месту, которое реально есть у панели.
        */}
-      <div
-        className={`@container ${uiSurface.homeToolbar} overflow-hidden @max-[52rem]:rounded-xl @max-[52rem]:px-2 @max-[52rem]:py-2`}
-      >
+      <div className={`@container ${uiSurface.homeToolbar} overflow-hidden`}>
         {/*
-         * Люди — первым рядом на любой ширине. Главный вопрос на главной —
-         * «чей список», и отвечает на него лицо, а не пункт выпадающего меню:
-         * на десктопе люди прятались в обрезанный триггер «Все пользоват…»,
-         * и широкий экран показывал меньше, чем телефон.
+         * Две строки — два вопроса. Первая — «чей список»: лица людей, подборка
+         * и ближайший повод справа (повод тоже про людей). Вторая — «что ищу»:
+         * поиск и инструменты. Лица стоят первыми на любой ширине: на вопрос
+         * «чей список» отвечает лицо, а не пункт выпадающего меню.
          */}
-        {currentUserId && usersWithStats.length > 0 ? (
-          <PeopleChips
-            currentUserId={currentUserId}
-            users={usersWithStats}
-            selectedUserId={normalizedSelectedUserId}
-            onUserChange={onUserChange}
-            className="mb-2 @min-[52rem]:mb-3 @min-[52rem]:border-b @min-[52rem]:border-border/32 @min-[52rem]:pb-3"
-          />
-        ) : null}
+        <div className="mb-3 flex min-w-0 flex-col gap-3 @min-[52rem]:mb-4 @min-[52rem]:flex-row @min-[52rem]:items-center">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            {currentUserId && usersWithStats.length > 0 ? (
+              <>
+                <PeopleChips
+                  currentUserId={currentUserId}
+                  users={usersWithStats}
+                  selectedUserId={normalizedSelectedUserId}
+                  onUserChange={onUserChange}
+                  className="min-w-0"
+                />
+                <div className="hidden shrink-0 items-center gap-3 @min-[52rem]:flex">
+                  <span className="h-6 w-px bg-border" aria-hidden />
+                  <WishlistScopePicker
+                    currentUserId={currentUserId}
+                    users={usersWithStats}
+                    lists={lists}
+                    selectedUserId={normalizedSelectedUserId}
+                    selectedListId={selectedListId}
+                    onUserChange={onUserChange}
+                    onListChange={onListChange}
+                    onCreateList={onCreateList}
+                    onEditList={onEditSelectedList}
+                    showPeople={false}
+                  />
+                </div>
+              </>
+            ) : null}
+          </div>
+          {upcoming ? <div className="min-w-0 shrink-0">{upcoming}</div> : null}
+        </div>
         <div className="flex min-w-0 flex-col gap-2 @min-[52rem]:hidden">
           <div className="flex min-w-0 items-center gap-2">
             <WishlistSearchInput
@@ -313,10 +334,8 @@ export function WishlistWorkspace({
               type="button"
               variant={hasActiveFilters ? "secondary" : "outline"}
               className={cn(
-                "relative h-11 w-11 shrink-0 rounded-lg p-0",
-                hasActiveFilters
-                  ? "border-primary/45 bg-primary/10 text-foreground"
-                  : "border-border/55 bg-[hsl(var(--surface-3)/0.55)]",
+                "relative h-11 w-11 shrink-0 rounded-full p-0",
+                hasActiveFilters ? "border-foreground text-foreground" : "border-border",
               )}
               onClick={() => onFiltersOpenChange(true)}
               title={t("Фильтры")}
@@ -328,7 +347,10 @@ export function WishlistWorkspace({
             >
               <SlidersHorizontal className="h-4 w-4 shrink-0" />
               {activeFilterCount > 0 ? (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground">
+                <span
+                  key={activeFilterCount}
+                  className="count-pop absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-foreground px-1 text-[11px] font-semibold text-background"
+                >
                   {activeFilterCount}
                 </span>
               ) : null}
@@ -341,16 +363,33 @@ export function WishlistWorkspace({
             <Button
               type="button"
               variant="ghost"
-              className="h-11 w-11 shrink-0 rounded-lg p-0 text-muted-foreground"
+              className="h-11 w-11 shrink-0 rounded-full p-0 text-foreground"
               onClick={() => onViewModeChange(viewMode === "table" ? "grid" : "table")}
               aria-label={viewMode === "table" ? t("Показать карточками") : t("Показать списком")}
               title={viewMode === "table" ? t("Показать карточками") : t("Показать списком")}
             >
-              {viewMode === "table" ? (
-                <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden />
-              ) : (
-                <List className="h-4 w-4 shrink-0" aria-hidden />
-              )}
+              {/* Icon Morph Swap (kinetics): уходящая иконка размывается и
+                  поворачивается, приходящая проявляется на её месте. */}
+              <span className="relative size-4">
+                {(
+                  [
+                    ["grid", LayoutGrid],
+                    ["table", List],
+                  ] as const
+                ).map(([target, Icon]) => (
+                  <Icon
+                    key={target}
+                    aria-hidden
+                    className={cn(
+                      "absolute inset-0 size-4 transition-[opacity,filter,transform] duration-300",
+                      // Значок показывает, куда переключит касание.
+                      viewMode !== target
+                        ? "rotate-0 scale-100 opacity-100 blur-0"
+                        : "-rotate-[20deg] scale-[0.7] opacity-0 blur-[6px]",
+                    )}
+                  />
+                ))}
+              </span>
             </Button>
 
             <DropdownMenu>
@@ -358,7 +397,7 @@ export function WishlistWorkspace({
                 <Button
                   type="button"
                   variant="ghost"
-                  className="h-11 w-11 shrink-0 rounded-lg p-0 text-muted-foreground"
+                  className="h-11 w-11 shrink-0 rounded-full p-0 text-foreground"
                   aria-label={t("Ещё действия")}
                   title={t("Ещё действия")}
                 >
@@ -415,38 +454,14 @@ export function WishlistWorkspace({
           </div>
         </div>
 
-        {/*
-         * Десктопный ярус — один. Раньше их было четыре (поиск, фильтры,
-         * категории, чипы), и между заголовком страницы и первой карточкой
-         * стояло до одиннадцати контролов. Порядок слева направо повторяет
-         * вопросы, которые человек задаёт по очереди: чей список → что ищу →
-         * чем сузить → как показать → добавить своё.
-         */}
+        {/* Строка «что ищу» на десктопе: поиск → чем сузить → как показать → добавить своё. */}
         <div className="hidden min-w-0 w-full flex-col gap-2.5 @min-[52rem]:flex">
           <div className="flex min-w-0 items-center gap-2">
-            {currentUserId && usersWithStats.length > 0 ? (
-              <WishlistScopePicker
-                currentUserId={currentUserId}
-                users={usersWithStats}
-                lists={lists}
-                selectedUserId={normalizedSelectedUserId}
-                selectedListId={selectedListId}
-                onUserChange={onUserChange}
-                onListChange={onListChange}
-                onCreateList={onCreateList}
-                onEditList={onEditSelectedList}
-                showPeople={false}
-                className="shrink-0"
-              />
-            ) : null}
-
             <WishlistSearchInput
               search={search}
               onSearchChange={onSearchChange}
-              // Поиск больше не растягивается во всю ширину: в списке из
-              // десятков элементов он вторичен, а 22rem хватает на запрос
-              // из четырёх-пяти слов.
-              className="min-w-[11rem] max-w-[26rem] flex-1"
+              // Не во всю ширину: запросу из четырёх-пяти слов хватает 32rem.
+              className="min-w-[11rem] max-w-[32rem] flex-1"
             />
 
             <div className="ml-auto flex shrink-0 items-center gap-2">
@@ -456,9 +471,7 @@ export function WishlistWorkspace({
                 className={cn(
                   uiLayout.filterBarTrigger,
                   "gap-2 px-3",
-                  hasActiveFilters
-                    ? "border-primary-accent/70 bg-[hsl(var(--surface-4))] text-foreground"
-                    : "text-muted-foreground hover:text-foreground",
+                  hasActiveFilters ? "border-foreground text-foreground" : "text-foreground",
                 )}
                 onClick={() => onFiltersOpenChange(true)}
                 aria-controls="wishlist-filters"
@@ -470,7 +483,10 @@ export function WishlistWorkspace({
                 <SlidersHorizontal className="h-4 w-4 shrink-0" aria-hidden />
                 {t("Фильтры")}
                 {activeFilterCount > 0 ? (
-                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground">
+                  <span
+                    key={activeFilterCount}
+                    className="count-pop flex h-5 min-w-5 items-center justify-center rounded-full bg-foreground px-1 text-[11px] font-semibold text-background"
+                  >
                     {activeFilterCount}
                   </span>
                 ) : null}
@@ -485,8 +501,8 @@ export function WishlistWorkspace({
                     variant="outline"
                     className={cn(
                       uiLayout.filterBarTrigger,
-                      "w-10 px-0 text-muted-foreground hover:text-foreground",
-                      selectionMode && "border-primary/45 bg-primary/10 text-foreground",
+                      "w-10 px-0 text-foreground",
+                      selectionMode && "border-foreground",
                     )}
                     aria-label={t("Ещё действия")}
                     title={t("Ещё действия")}
@@ -535,7 +551,7 @@ export function WishlistWorkspace({
 
           {/* Второй ярус существует только когда есть что показать. */}
           {hasActiveFilters ? (
-            <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border/32 pt-2.5">
+            <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-border pt-2.5">
               <ActiveFilterChips chips={activeFilterChips} onClearAll={onClearAllFilters} />
               <span className="shrink-0 text-xs text-muted-foreground-subtle tabular-nums">
                 {t("Найдено")}: {items.length}
@@ -671,7 +687,7 @@ export function WishlistWorkspace({
           type="button"
           onClick={onAddItem}
           aria-label={t("Добавить желание")}
-          className="fixed bottom-[calc(var(--bottom-nav-clearance)+0.25rem)] right-4 z-40 h-14 w-14 rounded-2xl p-0 shadow-[var(--shadow-floating)] sm:hidden"
+          className="fixed bottom-[calc(var(--bottom-nav-clearance)+0.25rem)] right-4 z-40 h-14 w-14 rounded-full p-0 shadow-[var(--shadow-float)] sm:hidden"
         >
           <Plus className="h-6 w-6" aria-hidden />
         </Button>

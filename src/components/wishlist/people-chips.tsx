@@ -101,12 +101,13 @@ export function PeopleChips({
             </span>
           ) : (
             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--surface-4))]">
-              <Users className="size-4" aria-hidden />
+              <Users className="size-4 text-foreground" aria-hidden />
             </span>
           )}
           <span className="truncate">{chip.label}</span>
           {chip.user && chip.key !== "me" && birthdaySoon.has(chip.user.id) ? (
-            <span className="shrink-0 text-xs font-medium text-primary-accent">
+            // Цвет наследуется: на выбранной (чёрной) пилюле дата остаётся читаемой.
+            <span className="shrink-0 text-xs font-medium opacity-80">
               <span className="sr-only">{t("День рождения")}: </span>
               {birthdaySoon.get(chip.user.id)}
             </span>

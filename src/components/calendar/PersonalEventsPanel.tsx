@@ -188,7 +188,7 @@ export function PersonalEventsPanel() {
             </Button>
           </div>
         ) : data?.events.length ? (
-          <div className="mt-4 divide-y divide-border/55">
+          <div className="mt-4 divide-y divide-border">
             {data.events.map((event) => (
               <div key={event.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
                 <div className="min-w-0 flex-1">
@@ -229,7 +229,7 @@ export function PersonalEventsPanel() {
             ))}
           </div>
         ) : (
-          <p className="mt-4 rounded-lg border border-dashed border-border/70 px-4 py-6 text-center text-sm text-muted-foreground">
+          <p className="mt-4 rounded-xl bg-[hsl(var(--surface-3))] px-4 py-6 text-center text-sm text-muted-foreground">
             {t("Личных событий пока нет")}
           </p>
         )}

@@ -18,12 +18,12 @@ export default function GlobalError({
           fontFamily: "system-ui",
           padding: "2rem",
           maxWidth: "32rem",
-          background: "#0A090B",
-          color: "#e4e8f1",
+          background: "#ffffff",
+          color: "#222222",
         }}
       >
         <h1 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>Something went wrong</h1>
-        <p style={{ color: "#9ca6b8", marginBottom: "1rem" }}>
+        <p style={{ color: "#6a6a6a", marginBottom: "1rem" }}>
           {error.message || "Unexpected application error"}
         </p>
         <button
@@ -32,9 +32,9 @@ export default function GlobalError({
           style={{
             padding: "0.5rem 1rem",
             borderRadius: "0.5rem",
-            border: "1px solid #343b4b",
-            background: "#171b25",
-            color: "#e4e8f1",
+            border: "1px solid #222222",
+            background: "#ffffff",
+            color: "#222222",
             cursor: "pointer",
           }}
         >

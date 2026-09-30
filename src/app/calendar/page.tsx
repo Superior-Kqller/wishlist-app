@@ -1,50 +1,43 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import useSWR from "swr";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
   ArrowLeft,
   ArrowRight,
+  Bell,
+  BellOff,
   Cake,
   CalendarDays,
+  ChevronDown,
   ChevronRight,
   Clock3,
   Gift,
   History,
-  LayoutList,
-  Loader2,
   PartyPopper,
-  BellOff,
-  SlidersHorizontal,
 } from "lucide-react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { PersonalEventsPanel } from "@/components/calendar/PersonalEventsPanel";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { RetryNotice } from "@/components/ui/retry-notice";
 import { EmptyState } from "@/components/ui/empty-state";
-import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PageMain, PageShell } from "@/components/ui/page-shell";
+import { SegmentGlide } from "@/components/ui/segment-glide";
 import { capitalizeFirst, cn, fetcher } from "@/lib/utils";
-import { uiLayout, uiSurface } from "@/lib/ui-contract";
+import { uiLayout } from "@/lib/ui-contract";
 import {
   filterCalendarOccurrences,
   getCalendarSections,
   getClientLocalDate,
-  getInitialCalendarView,
   getOccurrenceTitle,
   groupCalendarOccurrences,
   thematicWishlistHref,
   type CalendarFilter,
   type CalendarOccurrence,
-  type CalendarView,
 } from "@/lib/calendar/client-calendar";
 import { occurrenceReminderKey } from "@/lib/calendar/reminder-event-key";
 import { responseError } from "@/lib/response-error";
@@ -56,74 +49,18 @@ const FILTERS: Array<{ value: CalendarFilter; label: string }> = [
   { value: "PERSONAL", label: "Личные события" },
 ];
 
-/**
- * Тип события несёт форма и подпись, а не цвет.
- *
- * Раньше в ячейке сетки и в мобильном списке тип кодировался только цветной
- * точкой с `aria-hidden`: скринридер не слышал её вовсе, а при дальтонизме
- * синий и циан не различались. Заодно текст чипа красился в тот же оттенок
- * поверх его же заливки — в светлой теме это давало 2.22:1 при норме 4.5.
- * Теперь текст всегда `foreground`, тип называет иконка и доступное имя,
- * а цвет остался усилением.
- */
+/** Тип события несёт иконка и подпись, а не цвет. */
 const EVENT_TYPE_META = {
-  BIRTHDAY: {
-    icon: Cake,
-    label: "День рождения",
-    chip: "bg-info/16",
-    dot: "bg-info",
-    number: "text-info",
-  },
-  HOLIDAY: {
-    icon: PartyPopper,
-    label: "Общий праздник",
-    chip: "bg-[hsl(var(--surface-4))]",
-    dot: "bg-primary-accent",
-    number: "text-primary-accent",
-  },
-  PERSONAL: {
-    icon: Clock3,
-    label: "Личное событие",
-    chip: "bg-success/16",
-    dot: "bg-success",
-    number: "text-success",
-  },
+  BIRTHDAY: { icon: Cake, label: "День рождения" },
+  HOLIDAY: { icon: PartyPopper, label: "Общий праздник" },
+  PERSONAL: { icon: Clock3, label: "Личное событие" },
 } as const;
 
-/**
- * Дата плиткой: крупное число над «месяц · день недели».
- *
- * В строке события дата стояла мелким текстом справа и на телефоне
- * пряталась совсем — список читался как перечень названий без времени.
- * Число окрашено типом события, но тип всё равно назван словом в строке.
- */
-function DateTile({
-  date,
-  type,
-  locale,
-}: {
-  date: string;
-  type: CalendarOccurrence["type"];
-  locale: string;
-}) {
-  const value = new Date(`${date}T12:00:00`);
-  return (
-    <time
-      dateTime={date}
-      className="flex h-[3.25rem] w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-[hsl(var(--surface-4))] leading-none"
-    >
-      <span className={cn("text-lg font-bold tabular-nums", EVENT_TYPE_META[type].number)}>
-        {value.getDate()}
-      </span>
-      <span className="pt-1 text-[10px] font-semibold text-muted-foreground">
-        {value.toLocaleDateString(locale, { month: "short" }).replace(".", "")} ·{" "}
-        {value.toLocaleDateString(locale, { weekday: "short" })}
-      </span>
-    </time>
-  );
+function isoDate(year: number, month: number, day: number) {
+  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-/** «через 12 дней», «завтра», «3 дня назад» — считать до события самому не нужно. */
+/** «через 12 дней», «завтра», «3 дня назад». */
 function relativeDays(date: string, today: string, locale: string) {
   const days = Math.round(
     (Date.parse(`${date}T12:00:00`) - Date.parse(`${today}T12:00:00`)) / 86_400_000,
@@ -131,81 +68,132 @@ function relativeDays(date: string, today: string, locale: string) {
   return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(days, "day");
 }
 
+function typeLabel(occurrence: CalendarOccurrence, t: (value: string) => string) {
+  if (occurrence.type === "PERSONAL") {
+    return occurrence.recurrence === "YEARLY"
+      ? t("Личное событие · ежегодно")
+      : t("Личное событие");
+  }
+  if (occurrence.type === "BIRTHDAY" && occurrence.isOwn) return t("Ваш день рождения");
+  return t(EVENT_TYPE_META[occurrence.type].label);
+}
+
+/** Плитка даты: крупное число над днём недели. */
+function DateTile({ date, locale }: { date: string; locale: string }) {
+  const value = new Date(`${date}T12:00:00`);
+  return (
+    <time
+      dateTime={date}
+      className="flex size-14 shrink-0 flex-col items-center justify-center rounded-xl bg-[hsl(var(--surface-3))] leading-none"
+    >
+      <span className="text-xl font-bold tabular-nums">{value.getDate()}</span>
+      <span className="pt-1 text-xs font-medium text-muted-foreground">
+        {value.toLocaleDateString(locale, { weekday: "short" })}
+      </span>
+    </time>
+  );
+}
+
+const pillLinkClass =
+  "inline-flex min-h-9 items-center gap-1.5 rounded-full border border-border px-3 text-sm font-medium transition-colors hover:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
 function EventRow({
   occurrence,
+  today,
   locale,
   t,
   muted,
+  highlighted,
   onToggleMuted,
 }: {
   occurrence: CalendarOccurrence;
+  today: string;
   locale: string;
   t: (value: string) => string;
   muted: boolean;
+  highlighted: boolean;
   onToggleMuted: () => void;
 }) {
   const title = getOccurrenceTitle(occurrence);
+  const TypeIcon = EVENT_TYPE_META[occurrence.type].icon;
+  const person = occurrence.type === "BIRTHDAY" ? occurrence.person : null;
 
   return (
-    <article className="group flex gap-3.5 px-3 py-3 sm:px-4">
-      <DateTile date={occurrence.date} type={occurrence.type} locale={locale} />
+    <article
+      data-date={occurrence.date}
+      className={cn(
+        "flex scroll-mt-28 gap-4 rounded-xl px-2 py-4 transition-colors duration-[var(--dur-base)]",
+        highlighted && "bg-accent",
+      )}
+    >
+      <DateTile date={occurrence.date} locale={locale} />
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-semibold">{title}</p>
-            <p className="text-xs text-muted-foreground sm:text-sm">
-              {relativeDays(occurrence.date, getClientLocalDate(), locale)} ·{" "}
-              {occurrence.type === "HOLIDAY"
-                ? t("Общий праздник")
-                : occurrence.type === "PERSONAL"
-                  ? occurrence.recurrence === "YEARLY"
-                    ? t("Личное событие · ежегодно")
-                    : t("Личное событие")
-                  : occurrence.isOwn
-                    ? t("Ваш день рождения")
-                    : t("День рождения")}
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="flex min-w-0 items-center gap-2 text-base font-semibold">
+              {person ? (
+                <UserAvatar
+                  avatarUrl={person.avatarUrl}
+                  name={person.name}
+                  userId={person.id}
+                  size="sm"
+                />
+              ) : null}
+              <span className="truncate">{title}</span>
+            </p>
+            <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
+              <TypeIcon className="size-3.5 shrink-0" aria-hidden />
+              <span>{typeLabel(occurrence, t)}</span>
+              <span aria-hidden>·</span>
+              <span>{relativeDays(occurrence.date, today, locale)}</span>
             </p>
           </div>
           <button
             type="button"
             onClick={onToggleMuted}
             aria-pressed={muted}
+            aria-label={muted ? t("Напоминания выключены") : t("Не напоминать")}
+            title={muted ? t("Напоминания выключены") : t("Не напоминать")}
             className={cn(
-              "inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-9 sm:min-w-0",
+              "inline-flex size-10 shrink-0 items-center justify-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               muted
-                ? "border-primary-accent/70 bg-[hsl(var(--surface-4))] text-foreground"
-                : "border-border/55 text-muted-foreground hover:bg-accent",
+                ? "border-foreground bg-foreground text-background"
+                : "border-border text-muted-foreground hover:border-foreground hover:text-foreground",
             )}
           >
-            <BellOff className="h-3.5 w-3.5" aria-hidden />
-            <span className="max-sm:sr-only">
-              {muted ? t("Напоминания выключены") : t("Не напоминать")}
-            </span>
+            {muted ? (
+              <BellOff className="size-4" aria-hidden />
+            ) : (
+              <Bell className="size-4" aria-hidden />
+            )}
           </button>
         </div>
 
         {occurrence.type === "BIRTHDAY" && !occurrence.isOwn ? (
-          <Link
-            href={`/?userId=${occurrence.person.id}`}
-            className="mt-2 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/55 px-3 text-xs font-semibold transition-colors hover:border-primary/32 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <Gift className="h-3.5 w-3.5" aria-hidden />
+          <Link href={`/?userId=${occurrence.person.id}`} className={cn(pillLinkClass, "mt-3")}>
+            <Gift className="size-4" aria-hidden />
             {t("Открыть вишлисты")}
-            <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+            <ChevronRight className="size-4" aria-hidden />
           </Link>
         ) : null}
 
         {occurrence.type === "HOLIDAY" && occurrence.congratulated.length > 0 ? (
           <div className="mt-3 flex flex-wrap gap-2">
-            {occurrence.congratulated.flatMap((person) =>
-              person.wishlists.map((wishlist) => (
+            {occurrence.congratulated.flatMap((congratulated) =>
+              congratulated.wishlists.map((wishlist) => (
                 <Link
-                  key={`${person.id}:${wishlist.id}`}
-                  href={thematicWishlistHref(person.id, wishlist.id)}
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border/55 bg-background/32 px-3 text-xs font-semibold transition-colors hover:border-primary/32 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  key={`${congratulated.id}:${wishlist.id}`}
+                  href={thematicWishlistHref(congratulated.id, wishlist.id)}
+                  className={cn(pillLinkClass, "pl-1.5")}
                 >
-                  {person.name}: {wishlist.name}
-                  <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+                  <UserAvatar
+                    avatarUrl={congratulated.avatarUrl}
+                    name={congratulated.name}
+                    userId={congratulated.id}
+                    size="sm"
+                  />
+                  {congratulated.name}: {wishlist.name}
+                  <ChevronRight className="size-4" aria-hidden />
                 </Link>
               )),
             )}
@@ -216,277 +204,190 @@ function EventRow({
   );
 }
 
-function MonthGrid({
-  occurrences,
+/**
+ * Мини-календарь правой колонки — по DESIGN.md → «Календарь» и анатомии HeroUI
+ * Calendar: шапка (месяц и стрелки), дни недели, шесть недель всегда (высота не
+ * прыгает при листании). Дни — круги 40px; сегодня — кольцо чернилами; день с
+ * поводом — точка `brand` и кнопка, которая ведёт к нему в ленте.
+ */
+function MiniMonth({
   year,
   month,
+  eventDates,
+  today,
+  selectedDate,
   locale,
   t,
+  onSelectDate,
+  onChangeMonth,
+  onToday,
 }: {
-  occurrences: CalendarOccurrence[];
   year: number;
   month: number;
+  eventDates: Map<string, number>;
+  today: string;
+  selectedDate: string | null;
   locale: string;
   t: (value: string) => string;
+  onSelectDate: (date: string) => void;
+  onChangeMonth: (delta: number) => void;
+  onToday: () => void;
 }) {
-  /*
-   * Высота строки следует плотности месяца.
-   *
-   * Шесть рядов по 112px — это 670px сетки под одно событие: ответ на «а что
-   * дальше» уезжал под сгиб, а экран читался как ошибка загрузки. В плотном
-   * месяце ячейка остаётся высокой: там ей есть что показывать.
-   */
-  const isSparse = occurrences.length <= 2;
-  const firstDay = new Date(year, month, 1);
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const leadingDays = (firstDay.getDay() + 6) % 7;
-  const groupedMonth = groupCalendarOccurrences(occurrences);
-  const byDate = new Map(groupedMonth);
+  const leadingDays = (new Date(year, month, 1).getDay() + 6) % 7;
+  const start = new Date(year, month, 1 - leadingDays);
+  const cells = Array.from({ length: 42 }, (_, index) => {
+    const value = new Date(start.getFullYear(), start.getMonth(), start.getDate() + index);
+    return {
+      date: isoDate(value.getFullYear(), value.getMonth(), value.getDate()),
+      day: value.getDate(),
+      inMonth: value.getMonth() === month,
+    };
+  });
+  const weeks = Array.from({ length: 6 }, (_, index) => cells.slice(index * 7, index * 7 + 7));
   const weekdayLabels = Array.from({ length: 7 }, (_, index) =>
     new Date(2026, 0, 5 + index).toLocaleDateString(locale, { weekday: "short" }),
   );
-  /** Сетка всегда закрывает последнюю неделю целиком, иначе месяц обрывается рваной строкой. */
-  const trailingDays = (7 - ((leadingDays + daysInMonth) % 7)) % 7;
-
-  /*
-   * Ячейки собираются в настоящие недели.
-   *
-   * Раньше `role="rowgroup"` содержал 28–42 `role="cell"` напрямую, без единого
-   * `role="row"`. Такая таблица невалидна: в табличном режиме NVDA и JAWS не
-   * могут ни посчитать строки, ни ходить по неделям стрелками. Полуфабрикат
-   * хуже обоих вариантов — либо честные строки, либо никакой ARIA.
-   */
-  const cells: Array<{ key: string; date: string | null }> = [
-    ...Array.from({ length: leadingDays }, (_, index) => ({
-      key: `empty-lead:${index}`,
-      date: null,
-    })),
-    ...Array.from({ length: daysInMonth }, (_, index) => {
-      const day = index + 1;
-      const date = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-      return { key: date, date };
-    }),
-    ...Array.from({ length: trailingDays }, (_, index) => ({
-      key: `empty-trail:${index}`,
-      date: null,
-    })),
-  ];
-  const weeks = Array.from({ length: cells.length / 7 }, (_, index) =>
-    cells.slice(index * 7, index * 7 + 7),
-  );
-  const isWeekendColumn = (columnIndex: number) => columnIndex >= 5;
+  const currentMonthKey = today.slice(0, 7);
+  const shownMonthKey = isoDate(year, month, 1).slice(0, 7);
+  const monthLabel = capitalizeFirst(
+    new Date(year, month, 1).toLocaleDateString(locale, { month: "long", year: "numeric" }),
+    locale,
+  ).replace(/\s?г\.$/, "");
 
   return (
-    <div
-      className="overflow-x-auto pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      role="region"
-      aria-label={t("Месячная сетка календаря")}
-      tabIndex={0}
-    >
-      <div className="min-w-0 md:min-w-[42rem]" role="table">
-        <div className="grid grid-cols-7 border-b border-border/55" role="row">
-          {weekdayLabels.map((label) => (
-            <div
-              key={label}
-              // На ступени `micro` подпись не уходит светлее `--muted-foreground`
-              // (DESIGN.md → The Micro Floor Rule): десять пикселей самым тихим
-              // полутоном — это две причины быть нечитаемым сразу.
-              className="px-0.5 pb-1.5 text-center text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground md:px-2 md:pb-2 md:text-left md:text-xs"
-              role="columnheader"
+    <div>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <Button
+          type="button"
+          size="icon"
+          variant="ghost"
+          onClick={() => onChangeMonth(-1)}
+          aria-label={t("Предыдущий месяц")}
+        >
+          <ArrowLeft className="size-4" aria-hidden />
+        </Button>
+        <div className="flex min-w-0 items-center gap-2">
+          <h2 className="truncate text-base font-semibold" aria-live="polite">
+            {monthLabel}
+          </h2>
+          {shownMonthKey !== currentMonthKey ? (
+            <button
+              type="button"
+              onClick={onToday}
+              className="rounded-full border border-border px-2.5 py-0.5 text-xs font-medium transition-colors hover:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              {label}
-            </div>
-          ))}
+              {t("Сегодня")}
+            </button>
+          ) : null}
         </div>
-        <div role="rowgroup">
-          {weeks.map((week, weekIndex) => (
-            <div key={`week:${weekIndex}`} className="grid grid-cols-7" role="row">
-              {week.map(({ key, date }, columnIndex) => {
-                if (!date) {
-                  return (
-                    <div
-                      key={key}
+        <Button
+          type="button"
+          size="icon"
+          variant="ghost"
+          onClick={() => onChangeMonth(1)}
+          aria-label={t("Следующий месяц")}
+        >
+          <ArrowRight className="size-4" aria-hidden />
+        </Button>
+      </div>
+
+      <table
+        className="w-full table-fixed border-collapse"
+        aria-label={t("Месячная сетка календаря")}
+      >
+        <thead>
+          <tr>
+            {weekdayLabels.map((label) => (
+              <th
+                key={label}
+                scope="col"
+                className="pb-1 text-center text-xs font-medium text-muted-foreground"
+              >
+                {label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {weeks.map((week) => (
+            <tr key={week[0].date}>
+              {week.map(({ date, day, inMonth }) => {
+                const count = eventDates.get(date) ?? 0;
+                const isToday = date === today;
+                const isSelected = date === selectedDate;
+                const circle = cn(
+                  "relative mx-auto flex size-10 items-center justify-center rounded-full text-sm tabular-nums",
+                  isToday && !isSelected && "ring-1 ring-inset ring-foreground",
+                  isSelected && "bg-foreground text-background",
+                );
+                const dot =
+                  count > 0 ? (
+                    <span
+                      aria-hidden
                       className={cn(
-                        "min-h-11 md:border-b md:border-r md:border-border/32 md:bg-[hsl(var(--surface-1)/0.45)]",
-                        isSparse ? "md:min-h-20" : "md:min-h-28",
-                        isWeekendColumn(columnIndex) && "md:bg-[hsl(var(--surface-1)/0.7)]",
+                        "absolute bottom-1 left-1/2 size-1 -translate-x-1/2 rounded-full",
+                        isSelected ? "bg-background" : "bg-brand",
                       )}
-                      role="cell"
                     />
-                  );
-                }
-                const day = Number(date.slice(-2));
-                const entries = byDate.get(date) ?? [];
-                const todayDate = getClientLocalDate();
-                const isToday = date === todayDate;
-                const isPast = date < todayDate;
+                  ) : null;
                 return (
-                  <div
-                    key={key}
-                    className={cn(
-                      /*
-                       * На телефоне сетка без рамок: число по центру и точки
-                       * событий под ним. Рамки и значки в ячейке 50px шириной
-                       * читались сеткой линий, а не месяцем.
-                       */
-                      "flex min-h-11 flex-col items-center gap-1 p-1 transition-colors duration-[var(--dur-base)] md:block md:border-b md:border-r md:border-border/32 md:p-2",
-                      // Высота ячейки взята с запасом на одну метку события: при
-                      // `min-h-16` строка с событием вырастала на 12px, и сетка
-                      // переставала быть сеткой.
-                      isSparse ? "md:min-h-20" : "md:min-h-28",
-                      isWeekendColumn(columnIndex) && "md:bg-[hsl(var(--surface-1)/0.45)]",
-                      // Ступени поверхности вместо фирменной заливки: 0.05 и 0.08
-                      // не лежали на лестнице прозрачностей и добавляли сетке
-                      // сиреневого тона, ничего при этом не различая.
-                      entries.length > 0 && "md:bg-[hsl(var(--surface-3)/0.55)]",
-                      isToday && "md:bg-[hsl(var(--surface-4)/0.55)]",
-                      // Прошедшие дни тише: месяц читается от «сегодня» вперёд.
-                      isPast && "opacity-55",
+                  <td key={date} className="p-0.5 text-center">
+                    {inMonth && count > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => onSelectDate(date)}
+                        data-today={isToday || undefined}
+                        data-selected={isSelected || undefined}
+                        aria-pressed={isSelected}
+                        aria-label={`${new Date(`${date}T12:00:00`).toLocaleDateString(locale, {
+                          day: "numeric",
+                          month: "long",
+                        })}: ${count}`}
+                        className={cn(
+                          circle,
+                          "font-semibold transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                          isSelected && "hover:bg-foreground",
+                        )}
+                      >
+                        {day}
+                        {dot}
+                      </button>
+                    ) : (
+                      <span
+                        data-today={isToday || undefined}
+                        data-outside-month={!inMonth || undefined}
+                        className={cn(
+                          circle,
+                          inMonth ? "text-foreground" : "text-muted-foreground/60",
+                        )}
+                      >
+                        {day}
+                        {inMonth ? dot : null}
+                      </span>
                     )}
-                    role="cell"
-                    aria-label={[
-                      new Date(`${date}T12:00:00`).toLocaleDateString(locale, {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }),
-                      ...entries.map(
-                        (entry) =>
-                          `${getOccurrenceTitle(entry)} — ${t(EVENT_TYPE_META[entry.type].label)}`,
-                      ),
-                    ].join(", ")}
-                  >
-                    <time
-                      dateTime={date}
-                      className={cn(
-                        "inline-flex h-7 min-w-7 items-center justify-center rounded-lg px-1 text-sm font-semibold md:px-1.5",
-                        isWeekendColumn(columnIndex) &&
-                          !isToday &&
-                          "text-muted-foreground md:text-foreground",
-                        // Сплошная фирменная плашка здесь спорила с единственной
-                        // сплошной заливкой продукта — главной кнопкой. Сегодня —
-                        // это состояние, значит рамка и голос.
-                        isToday && "border border-primary-accent text-primary-accent",
-                      )}
-                    >
-                      {day}
-                    </time>
-                    <div className="flex h-1.5 items-center justify-center gap-0.5 md:mt-1.5 md:block md:h-auto md:space-y-1">
-                      {entries.slice(0, 3).map((entry) => {
-                        const href =
-                          entry.type === "BIRTHDAY" && !entry.isOwn
-                            ? `/?userId=${entry.person.id}`
-                            : entry.type === "HOLIDAY" && entry.congratulated[0]?.wishlists[0]
-                              ? thematicWishlistHref(
-                                  entry.congratulated[0].id,
-                                  entry.congratulated[0].wishlists[0].id,
-                                )
-                              : null;
-                        const meta = EVENT_TYPE_META[entry.type];
-                        const TypeIcon = meta.icon;
-                        // Текст чипа — всегда foreground: тем же оттенком, что и заливка,
-                        // он давал 2.22:1 в светлой теме и 1.83:1 в wine-sky.
-                        const className = cn(
-                          "flex min-w-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                          meta.chip,
-                        );
-                        const label = `${getOccurrenceTitle(entry)} — ${t(meta.label)}`;
-                        const chipContent = (
-                          <>
-                            <TypeIcon className="h-3 w-3 shrink-0" aria-hidden />
-                            <span className="min-w-0 truncate">{getOccurrenceTitle(entry)}</span>
-                          </>
-                        );
-                        return (
-                          <span key={entry.id}>
-                            <span
-                              className={cn("block size-1.5 rounded-full md:hidden", meta.dot)}
-                              aria-hidden
-                            />
-                            {href ? (
-                              <Link
-                                href={href}
-                                title={label}
-                                className={cn(className, "max-md:hidden")}
-                              >
-                                {chipContent}
-                              </Link>
-                            ) : (
-                              <span title={label} className={cn(className, "max-md:hidden")}>
-                                {chipContent}
-                              </span>
-                            )}
-                          </span>
-                        );
-                      })}
-                      {entries.length > 3 ? (
-                        <p className="px-1 text-[11px] font-semibold text-muted-foreground max-md:hidden">
-                          {t("Ещё")}: {entries.length - 3}
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
+                  </td>
                 );
               })}
-            </div>
+            </tr>
           ))}
-        </div>
-      </div>
-      {groupedMonth.length > 0 ? (
-        <div className="mt-3 border-t border-border/45 pt-3 md:hidden">
-          <h3 className="mb-2 px-1 text-xs font-semibold text-muted-foreground">
-            {t("События месяца")}
-          </h3>
-          <div className="space-y-1">
-            {groupedMonth.flatMap(([date, entries]) =>
-              entries.map((entry) => {
-                const href =
-                  entry.type === "BIRTHDAY" && !entry.isOwn
-                    ? `/?userId=${entry.person.id}`
-                    : entry.type === "HOLIDAY" && entry.congratulated[0]?.wishlists[0]
-                      ? thematicWishlistHref(
-                          entry.congratulated[0].id,
-                          entry.congratulated[0].wishlists[0].id,
-                        )
-                      : null;
-                const meta = EVENT_TYPE_META[entry.type];
-                const content = (
-                  <>
-                    <DateTile date={date} type={entry.type} locale={locale} />
-                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                      <span className="truncate text-[15px] font-semibold">
-                        {getOccurrenceTitle(entry)}
-                      </span>
-                      {/* Тип назван словом, а не только цветом числа и точкой. */}
-                      <span className="truncate text-xs text-muted-foreground">
-                        {relativeDays(date, getClientLocalDate(), locale)} · {t(meta.label)}
-                      </span>
-                    </span>
-                    {href ? (
-                      <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-                    ) : null}
-                  </>
-                );
-                const itemClassName =
-                  "flex min-h-11 items-center gap-3.5 rounded-xl px-2 py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
-                return href ? (
-                  <Link
-                    key={`${date}:${entry.id}`}
-                    href={href}
-                    className={cn(itemClassName, "hover:bg-[hsl(var(--surface-3)/0.45)]")}
-                  >
-                    {content}
-                  </Link>
-                ) : (
-                  <div key={`${date}:${entry.id}`} className={itemClassName}>
-                    {content}
-                  </div>
-                );
-              }),
-            )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function AgendaSkeleton() {
+  return (
+    <div className="space-y-6" role="status">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div key={index} className="flex gap-4 px-2">
+          <Skeleton className="size-14 rounded-xl" />
+          <div className="flex-1 space-y-2 pt-1.5">
+            <Skeleton className="h-4 w-1/2 rounded" />
+            <Skeleton className="h-4 w-1/3 rounded" />
           </div>
         </div>
-      ) : null}
+      ))}
     </div>
   );
 }
@@ -499,13 +400,12 @@ export default function CalendarPage() {
   const [year, setYear] = useState(currentYear);
   const [month, setMonth] = useState(currentMonth);
   const [filter, setFilter] = useState<CalendarFilter>("ALL");
-  const [view, setView] = useState<CalendarView>("month");
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const { data, isLoading, error, mutate } = useSWR<{
     occurrences: CalendarOccurrence[];
   }>(`/api/calendar?from=${year}-01-01&to=${year + 1}-12-31`, fetcher);
-  // Ошибка загрузки мьютов читается: без неё `?? false` показывал заглушённое
-  // событие как активное, то есть интерфейс уверенно врал в обе стороны.
+  // Ошибка загрузки мьютов читается: иначе заглушённое событие выглядело бы активным.
   const {
     data: muteData,
     error: muteError,
@@ -522,30 +422,17 @@ export default function CalendarPage() {
     () => getCalendarSections(filtered, today),
     [filtered, today],
   );
-  const groupedUpcoming = useMemo(() => groupCalendarOccurrences(upcoming), [upcoming]);
-  const monthOccurrences = filtered.filter((occurrence) =>
-    occurrence.date.startsWith(`${year}-${String(month + 1).padStart(2, "0")}`),
-  );
-  /*
-   * Ближайшее за пределами показанного месяца: три даты, которыми заполняется
-   * пустота разреженной сетки. Берём из уже посчитанного `upcoming`, поэтому
-   * фильтр раздела действует и здесь.
-   */
-  const monthPrefix = `${year}-${String(month + 1).padStart(2, "0")}`;
-  const nextBeyondMonth = upcoming
-    .filter((occurrence) => !occurrence.date.startsWith(monthPrefix))
-    .slice(0, 3);
-  // Месяц и год частями: целиком `toLocaleDateString` давал «сентябрь 2026 г.»
-  // с канцелярским «г.», а в заголовке год и так читается годом.
-  const isCurrentMonth = year === currentYear && month === currentMonth;
-  const monthLabel = `${new Intl.DateTimeFormat(locale, { month: "long" }).formatToParts(new Date(year, month, 1)).find((part) => part.type === "month")!.value}${year === currentYear ? "" : ` ${year}`}`;
+  const agenda = useMemo(() => groupCalendarOccurrences(upcoming, "month"), [upcoming]);
+  const eventDates = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const occurrence of filtered) {
+      counts.set(occurrence.date, (counts.get(occurrence.date) ?? 0) + 1);
+    }
+    return counts;
+  }, [filtered]);
 
-  // Раньше это был обычный useEffect: на мобильном успевала отрисоваться
-  // месячная сетка, и только потом вид дёргался в список. Layout-эффект
-  // выполняется до отрисовки кадра, поэтому подмена больше не видна.
-  useLayoutEffect(() => {
-    setView(getInitialCalendarView(window.matchMedia("(max-width: 767px)").matches));
-  }, []);
+  const isMuted = (occurrence: CalendarOccurrence) =>
+    muteData?.mutedEventKeys.includes(occurrenceReminderKey(occurrence)) ?? false;
 
   function changeMonth(delta: number) {
     const next = new Date(year, month + delta, 1);
@@ -553,16 +440,23 @@ export default function CalendarPage() {
     setMonth(next.getMonth());
   }
 
+  /** День в мини-календаре ведёт к его строке в ленте (прошлое — в истории). */
+  function selectDate(date: string) {
+    setSelectedDate(date);
+    if (date < today) setHistoryOpen(true);
+    requestAnimationFrame(() => {
+      document
+        .querySelector(`[data-agenda] [data-date="${date}"]`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
+
   /*
-   * Ответ проверяется, отказ называется вслух.
-   *
-   * Раньше `fetch` уходил в пустоту: при сбое сети кнопка просто ничего
-   * не делала, состояние не откатывалось и человек, специально пришедший
-   * заглушить болезненную дату, оставался в уверенности, что заглушил.
+   * Ответ проверяется, отказ называется вслух: иначе человек, пришедший
+   * заглушить болезненную дату, остался бы в уверенности, что заглушил.
    */
   async function toggleReminderMute(occurrence: CalendarOccurrence) {
-    const key = occurrenceReminderKey(occurrence);
-    const muted = muteData?.mutedEventKeys.includes(key) ?? false;
+    const muted = isMuted(occurrence);
     try {
       const res = await fetch("/api/calendar/reminder-mutes", {
         method: "PUT",
@@ -582,284 +476,155 @@ export default function CalendarPage() {
     }
   }
 
+  const renderRow = (occurrence: CalendarOccurrence) => (
+    <EventRow
+      key={`${occurrence.id}:${occurrence.date}`}
+      occurrence={occurrence}
+      today={today}
+      locale={locale}
+      t={t}
+      muted={isMuted(occurrence)}
+      highlighted={occurrence.date === selectedDate}
+      onToggleMuted={() => void toggleReminderMute(occurrence)}
+    />
+  );
+
   return (
     <PageShell>
       <PageMain>
-        {/* Extension of the existing product world: a scan-first planning surface,
-            not a decorative calendar. The list leads on mobile; month context leads
-            on wide screens. Filters and history stay visible without hiding tasks. */}
-        <div className={uiLayout.pageStack}>
-          <PageIntro
-            title={t("Календарь")}
-            description={t("Планируйте внимание и подарки к значимым датам")}
-          />
+        {/* Раздел называет верхняя панель; видимого заголовка нет, как на главной. */}
+        <h1 className="sr-only">{t("Календарь")}</h1>
 
-          <section aria-label={t("Управление календарём")}>
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-              <div
-                className={cn(
-                  uiLayout.segmentBarInline,
-                  "overflow-x-auto [scrollbar-width:none] max-xl:hidden [&::-webkit-scrollbar]:hidden",
-                )}
-                role="group"
-                aria-label={t("Фильтры календаря")}
-              >
-                {FILTERS.map((option) => (
-                  <Button
-                    key={option.value}
-                    type="button"
-                    variant={filter === option.value ? "segmentActive" : "ghost"}
-                    size="sm"
-                    className="shrink-0"
-                    aria-pressed={filter === option.value}
-                    onClick={() => setFilter(option.value)}
-                  >
-                    {t(option.label)}
-                  </Button>
+        <div
+          className={cn(
+            uiLayout.segmentBarInline,
+            "mb-8 max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          )}
+          role="group"
+          aria-label={t("Фильтры календаря")}
+        >
+          <SegmentGlide />
+          {FILTERS.map((option) => (
+            <Button
+              key={option.value}
+              type="button"
+              variant={filter === option.value ? "segmentActive" : "ghost"}
+              size="sm"
+              className="shrink-0"
+              aria-pressed={filter === option.value}
+              onClick={() => setFilter(option.value)}
+            >
+              {t(option.label)}
+            </Button>
+          ))}
+        </div>
+
+        {muteError ? (
+          <RetryNotice className="mb-6" onRetry={() => void mutateMutes()}>
+            {t("Не удалось загрузить состояние напоминаний.")}
+          </RetryNotice>
+        ) : null}
+
+        {/*
+         * Детальный вид по DESIGN.md: слева лента поводов — главное, отсюда идут
+         * к вишлистам; справа липкая колонка с мини-календарём и своими
+         * событиями. На узком экране колонка уходит под ленту.
+         */}
+        <div className="grid gap-10 min-[1128px]:grid-cols-[minmax(0,1fr)_22rem] min-[1128px]:gap-12">
+          <div className="min-w-0" data-agenda>
+            {isLoading ? (
+              <AgendaSkeleton />
+            ) : error ? (
+              <EmptyState
+                icon={<CalendarDays aria-hidden />}
+                title={t("Не удалось загрузить календарь")}
+                description={t("Попробуйте загрузить события ещё раз")}
+                actionLabel={t("Повторить")}
+                onAction={() => void mutate()}
+              />
+            ) : agenda.length === 0 ? (
+              <EmptyState
+                icon={<CalendarDays aria-hidden />}
+                title={t("Нет ближайших событий")}
+                description={t("Измените фильтр или добавьте личное событие")}
+              />
+            ) : (
+              <div className="space-y-10">
+                {agenda.map(([monthKey, entries]) => (
+                  <section key={monthKey} aria-labelledby={`agenda-${monthKey}`}>
+                    <h2 id={`agenda-${monthKey}`} className="section-title mb-2 px-2">
+                      {capitalizeFirst(
+                        new Date(`${monthKey}-01T12:00:00`).toLocaleDateString(locale, {
+                          month: "long",
+                          ...(monthKey.slice(0, 4) === String(currentYear)
+                            ? {}
+                            : { year: "numeric" }),
+                        }),
+                        locale,
+                      ).replace(/\s?г\.$/, "")}
+                    </h2>
+                    <div className="divide-y divide-border">{entries.map(renderRow)}</div>
+                  </section>
                 ))}
               </div>
-              {/*
-               * Вид и фильтр — один ряд, а не три строки: подпись «Фильтр»,
-               * список на всю ширину и под ним переключатель с выбором года
-               * занимали на телефоне треть первого экрана. Год отдельно не
-               * выбирается: стрелки у сетки листают месяцы через границу года.
-               */}
-              <div className="flex items-stretch gap-2">
-                <div className={cn(uiLayout.segmentBarInline, "max-xl:flex-1 max-xl:auto-cols-fr")}>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={view === "list" ? "segmentActive" : "ghost"}
-                    aria-pressed={view === "list"}
-                    onClick={() => setView("list")}
-                  >
-                    <LayoutList className="h-4 w-4 shrink-0" aria-hidden />
-                    {t("Список")}
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={view === "month" ? "segmentActive" : "ghost"}
-                    aria-pressed={view === "month"}
-                    onClick={() => setView("month")}
-                  >
-                    <CalendarDays className="h-4 w-4 shrink-0" aria-hidden />
-                    {t("Месяц")}
-                  </Button>
-                </div>
-                <Select
-                  value={filter}
-                  onValueChange={(value) => setFilter(value as CalendarFilter)}
+            )}
+
+            {history.length > 0 ? (
+              <section className="mt-10 border-t border-border pt-4">
+                <button
+                  type="button"
+                  className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  aria-expanded={historyOpen}
+                  aria-controls="calendar-history-panel"
+                  onClick={() => setHistoryOpen((open) => !open)}
                 >
-                  <SelectTrigger
-                    aria-label={t("Фильтр")}
-                    className="h-auto w-auto max-w-[11rem] gap-2 font-semibold xl:hidden"
-                  >
-                    <SlidersHorizontal className="h-4 w-4 shrink-0" aria-hidden />
-                    <span className="min-w-0 truncate">
-                      <SelectValue />
+                  <span className="flex items-center gap-2 font-semibold">
+                    <History className="size-4 text-muted-foreground" aria-hidden />
+                    {t("История")}
+                    <span className="text-sm font-normal text-muted-foreground tabular-nums">
+                      {history.length}
                     </span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FILTERS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {t(option.label)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </section>
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "size-4 text-muted-foreground transition-transform duration-[var(--dur-base)]",
+                      historyOpen && "rotate-180",
+                    )}
+                    aria-hidden
+                  />
+                </button>
+                {historyOpen ? (
+                  <div id="calendar-history-panel" className="divide-y divide-border">
+                    {history.map(renderRow)}
+                  </div>
+                ) : null}
+              </section>
+            ) : null}
+          </div>
 
-          {/* Состояние напоминаний недоступно — говорим об этом, а не выдаём
-              все события за незаглушённые. */}
-          {muteError ? (
-            <RetryNotice onRetry={() => void mutateMutes()}>
-              {t("Не удалось загрузить состояние напоминаний.")}
-            </RetryNotice>
-          ) : null}
-
-          {isLoading ? (
-            <div className="flex min-h-64 items-center justify-center" role="status">
-              <Loader2
-                className="h-7 w-7 animate-spin motion-reduce:animate-none text-muted-foreground"
-                aria-hidden
-              />
-              <span className="sr-only">{t("Загрузка календаря")}</span>
-            </div>
-          ) : error ? (
-            <EmptyState
-              icon={<CalendarDays className="h-7 w-7" aria-hidden />}
-              title={t("Не удалось загрузить календарь")}
-              description={t("Попробуйте загрузить события ещё раз")}
-              actionLabel={t("Повторить")}
-              onAction={() => void mutate()}
-            />
-          ) : view === "month" ? (
-            <section className={cn(uiSurface.contentPanel, "overflow-hidden p-2.5 sm:p-4")}>
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => changeMonth(-1)}
-                  aria-label={t("Предыдущий месяц")}
-                >
-                  <ArrowLeft className="h-4 w-4" aria-hidden />
-                </Button>
-                {/* Смена месяца раньше проходила беззвучно: фокус оставался
-                    на стрелке, а заголовок и содержимое сетки менялись без
-                    единого объявления. */}
-                <div className="flex min-w-0 items-center gap-3">
-                  <h2 className="section-title" aria-live="polite">
-                    {capitalizeFirst(monthLabel, locale)}
-                  </h2>
-                  {!isCurrentMonth ? (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setYear(currentYear);
-                        setMonth(currentMonth);
-                      }}
-                    >
-                      {t("Сегодня")}
-                    </Button>
-                  ) : null}
-                </div>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => changeMonth(1)}
-                  aria-label={t("Следующий месяц")}
-                >
-                  <ArrowRight className="h-4 w-4" aria-hidden />
-                </Button>
-              </div>
-              <MonthGrid
-                occurrences={monthOccurrences}
+          <aside
+            className="space-y-6 min-[1128px]:sticky min-[1128px]:top-24 min-[1128px]:self-start"
+            aria-label={t("Календарь")}
+          >
+            <div className="rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-float)]">
+              <MiniMonth
                 year={year}
                 month={month}
+                eventDates={eventDates}
+                today={today}
+                selectedDate={selectedDate}
                 locale={locale}
                 t={t}
+                onSelectDate={selectDate}
+                onChangeMonth={changeMonth}
+                onToday={() => {
+                  setYear(currentYear);
+                  setMonth(currentMonth);
+                }}
               />
-              {/*
-               * Разреженный месяц отвечает на «а что дальше».
-               *
-               * Сорок две пустые ячейки и одна подпись «событий нет» — самый
-               * пустой экран продукта, и приходятся они на раздел, ради которого
-               * продукт и существует. Сетка остаётся: она честно показывает, что
-               * месяц пуст. Но под ней место отдаётся ближайшим датам за его
-               * пределами — тому, за чем человек сюда и пришёл.
-               */}
-              {monthOccurrences.length <= 2 && nextBeyondMonth.length > 0 ? (
-                <div className="border-t border-border/45 pt-4">
-                  <h3 className="mb-2 text-xs font-semibold text-muted-foreground sm:text-sm">
-                    {monthOccurrences.length === 0
-                      ? t("В этом месяце событий нет. Ближайшие")
-                      : t("Ближайшие после этого месяца")}
-                  </h3>
-                  <ul className="space-y-1.5">
-                    {nextBeyondMonth.map((occurrence) => (
-                      <li
-                        key={`${occurrence.type}:${occurrence.id}:${occurrence.date}`}
-                        className="flex min-w-0 items-center gap-3.5 px-2 py-1"
-                      >
-                        <DateTile date={occurrence.date} type={occurrence.type} locale={locale} />
-                        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                          <span className="truncate text-[15px] font-semibold">
-                            {getOccurrenceTitle(occurrence)}
-                          </span>
-                          <span className="truncate text-xs text-muted-foreground">
-                            {relativeDays(occurrence.date, today, locale)} ·{" "}
-                            {t(EVENT_TYPE_META[occurrence.type].label)}
-                          </span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : monthOccurrences.length === 0 ? (
-                <p className="border-t border-border/45 py-5 text-center text-sm text-muted-foreground">
-                  {t("В этом месяце событий нет")}
-                </p>
-              ) : null}
-            </section>
-          ) : groupedUpcoming.length === 0 ? (
-            <EmptyState
-              icon={<CalendarDays className="h-7 w-7" aria-hidden />}
-              title={t("Нет ближайших событий")}
-              description={t("Измените фильтр или добавьте личное событие")}
-            />
-          ) : (
-            /*
-             * Одна поверхность со строками, а не панель на каждую дату: дата
-             * стоит в плитке строки, и отдельный заголовок дня над каждой
-             * единственной записью лишь удваивал высоту списка.
-             */
-            <div className="divide-y divide-border/32 overflow-hidden rounded-2xl border border-border/45 bg-[hsl(var(--surface-2))] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]">
-              {groupedUpcoming.flatMap(([, entries]) =>
-                entries.map((entry) => (
-                  <EventRow
-                    key={entry.id}
-                    occurrence={entry}
-                    locale={locale}
-                    t={t}
-                    muted={muteData?.mutedEventKeys.includes(occurrenceReminderKey(entry)) ?? false}
-                    onToggleMuted={() => void toggleReminderMute(entry)}
-                  />
-                )),
-              )}
             </div>
-          )}
-
-          {/*
-           * Панель личных событий стоит после контента, а не над ним.
-           * Раньше она занимала половину первого экрана на телефоне и была
-           * увенчана самой яркой кнопкой страницы — при том что у большинства
-           * участников она пуста, а пришли они смотреть чужие даты.
-           */}
-          <PersonalEventsPanel />
-
-          {history.length > 0 ? (
-            <section className={cn(uiSurface.contentPanel, "p-4 sm:p-5")}>
-              <button
-                type="button"
-                className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-expanded={historyOpen}
-                aria-controls="calendar-history-panel"
-                onClick={() => setHistoryOpen((open) => !open)}
-              >
-                <span className="flex items-center gap-2 font-semibold">
-                  <History className="h-4 w-4 text-muted-foreground" aria-hidden />
-                  {t("История")}
-                </span>
-                <span className="text-sm text-muted-foreground">{history.length}</span>
-              </button>
-              {historyOpen ? (
-                <div
-                  id="calendar-history-panel"
-                  className="mt-3 divide-y divide-border/55 border-t border-border/55 pt-3"
-                >
-                  {history.map((entry) => (
-                    <EventRow
-                      key={entry.id}
-                      occurrence={entry}
-                      locale={locale}
-                      t={t}
-                      muted={
-                        muteData?.mutedEventKeys.includes(occurrenceReminderKey(entry)) ?? false
-                      }
-                      onToggleMuted={() => void toggleReminderMute(entry)}
-                    />
-                  ))}
-                </div>
-              ) : null}
-            </section>
-          ) : null}
+            <PersonalEventsPanel />
+          </aside>
         </div>
       </PageMain>
     </PageShell>

@@ -55,13 +55,8 @@ function EmptyState({
       {...props}
     >
       <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 size-[22rem] max-w-full -translate-x-1/2 -translate-y-[72%] rounded-full bg-[radial-gradient(circle,hsl(var(--theme-cool)/0.14),transparent_66%)] blur-2xl"
-      />
-
-      <div
         data-reveal=""
-        className="relative mb-5 flex size-14 items-center justify-center rounded-2xl border border-border/70 bg-[hsl(var(--surface-3)/0.85)] text-primary-accent/85 shadow-[var(--shadow-interactive-card)] [&_svg]:size-6"
+        className="relative mb-4 flex size-12 items-center justify-center text-muted-foreground [&_svg]:size-8 [&_svg]:stroke-[1.5]"
       >
         {icon ?? <Inbox aria-hidden />}
       </div>
@@ -73,7 +68,7 @@ function EmptyState({
         // Пустое состояние — первый экран раздела, а не заглушка (см. комментарий
         // выше), поэтому заголовок здесь звучит тем же голосом, что заголовок
         // страницы, и на шаг крупнее прежнего `text-lg`.
-        className="display-face relative max-w-[28ch] text-xl sm:text-2xl"
+        className="relative max-w-[28ch] text-base font-semibold"
       >
         {title}
       </h2>

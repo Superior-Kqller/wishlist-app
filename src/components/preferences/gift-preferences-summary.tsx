@@ -148,18 +148,13 @@ export function GiftPreferencesSummary({
     <section
       className={cn(
         "overflow-hidden",
-        embedded
-          ? "border-0 bg-transparent"
-          : cn(
-              uiSurface.contentPanel,
-              "border-primary/24 bg-[linear-gradient(120deg,hsl(var(--surface-2)/0.85),hsl(var(--primary)/0.05))]",
-            ),
+        embedded ? "border-0 bg-transparent" : cn(uiSurface.contentPanel, "border-border bg-card"),
       )}
       aria-label={t("Подарочный профиль")}
     >
       {!embedded ? (
         <div className="flex items-center gap-3 px-4 py-3 sm:px-5">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/55 bg-[hsl(var(--surface-3))] text-primary-accent">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border bg-[hsl(var(--surface-3))] text-foreground">
             <Gift className="h-5 w-5" aria-hidden />
           </div>
           {/* Надстрочная подпись «ПОДАРОЧНЫЙ ПРОФИЛЬ» убрана: она повторяла
@@ -198,7 +193,7 @@ export function GiftPreferencesSummary({
         <div
           className={cn(
             "px-4 py-4 text-sm text-muted-foreground sm:px-5",
-            !embedded && "border-t border-border/32",
+            !embedded && "border-t border-border",
           )}
         >
           {isOwn
@@ -216,7 +211,7 @@ export function GiftPreferencesSummary({
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
               transition={{ duration: duration.base, ease: easing.expo }}
-              className={cn(embedded ? "py-0.5" : "space-y-3 border-t border-border/32 p-3 sm:p-4")}
+              className={cn(embedded ? "py-0.5" : "space-y-3 border-t border-border p-3 sm:p-4")}
             >
               {/* Внутри карточки ширину задаёт не окно, а колонка сетки:
                   на широком экране в ряд встаёт три-четыре карточки, и
@@ -238,7 +233,7 @@ export function GiftPreferencesSummary({
                     id={`${detailsId}-likes`}
                     className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground"
                   >
-                    <Heart className="h-4 w-4 text-primary-accent" aria-hidden />
+                    <Heart className="h-4 w-4 text-foreground" aria-hidden />
                     {t("Понравится")}
                   </h3>
                   {visiblePositiveRows.length > 0 ? (
@@ -246,7 +241,7 @@ export function GiftPreferencesSummary({
                       <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
                     ))
                   ) : (
-                    <p className="border-t border-border/32 py-3 text-sm text-muted-foreground">
+                    <p className="border-t border-border py-3 text-sm text-muted-foreground">
                       {t("Любимые вещи пока не указаны")}
                     </p>
                   )}
@@ -256,8 +251,8 @@ export function GiftPreferencesSummary({
                   className={cn(
                     "min-w-0",
                     embedded
-                      ? "@[32rem]:border-l @[32rem]:border-border/32 @[32rem]:pl-6"
-                      : "md:border-l md:border-border/32 md:pl-6",
+                      ? "@[32rem]:border-l @[32rem]:border-border @[32rem]:pl-6"
+                      : "md:border-l md:border-border md:pl-6",
                   )}
                 >
                   <h3
@@ -272,7 +267,7 @@ export function GiftPreferencesSummary({
                       <PreferenceSignalRow key={row.label} {...row} compact={rowCompact} />
                     ))
                   ) : (
-                    <p className="border-t border-border/32 py-3 text-sm text-muted-foreground">
+                    <p className="border-t border-border py-3 text-sm text-muted-foreground">
                       {t("Ограничений пока нет")}
                     </p>
                   )}
@@ -284,7 +279,7 @@ export function GiftPreferencesSummary({
                     // От 60rem три группы встают в ряд: во всю ширину карточки
                     // «Детали» под двумя колонками оставляли справа пустой угол.
                     embedded &&
-                      "border-t border-border/32 pt-5 @[32rem]:col-span-2 @[60rem]:col-span-1 @[60rem]:border-l @[60rem]:border-t-0 @[60rem]:pl-6 @[60rem]:pt-0",
+                      "border-t border-border pt-5 @[32rem]:col-span-2 @[60rem]:col-span-1 @[60rem]:border-l @[60rem]:border-t-0 @[60rem]:pl-6 @[60rem]:pt-0",
                   )}
                 >
                   <h3
@@ -305,14 +300,14 @@ export function GiftPreferencesSummary({
                       ))}
                     </div>
                   ) : (
-                    <p className="border-t border-border/32 py-3 text-sm text-muted-foreground">
+                    <p className="border-t border-border py-3 text-sm text-muted-foreground">
                       {t("Размеры, бюджет и поводы пока не указаны")}
                     </p>
                   )}
                   {preferences.notes ? (
                     <p
                       className={cn(
-                        "mt-3 min-w-0 whitespace-pre-wrap border-l-2 border-primary/32 text-sm leading-relaxed text-muted-foreground [overflow-wrap:anywhere]",
+                        "mt-3 min-w-0 whitespace-pre-wrap border-l-2 border-border text-sm leading-relaxed text-muted-foreground [overflow-wrap:anywhere]",
                         embedded ? "pl-3" : "px-3 py-2",
                       )}
                     >

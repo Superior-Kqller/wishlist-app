@@ -217,7 +217,7 @@ export function ProfileForm({
     <>
       <div className={cn(uiSurface.contentPanel, "p-4 sm:p-6")}>
         <div className="mb-5 flex items-start gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/55 bg-[hsl(var(--surface-3))] text-primary-accent">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border bg-[hsl(var(--surface-3))] text-foreground">
             <UserRound className="h-5 w-5" aria-hidden />
           </span>
           <div className="min-w-0">
@@ -229,7 +229,7 @@ export function ProfileForm({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.45)] p-3.5">
+          <div className="rounded-xl border border-border bg-card p-3.5">
             <div className="flex items-center gap-3">
               <UserAvatar
                 avatarUrl={avatarUrl || undefined}
@@ -273,9 +273,9 @@ export function ProfileForm({
             </div>
           </div>
 
-          <div className="space-y-4 border-t border-border/45 pt-5">
+          <div className="space-y-4 border-t border-border pt-5">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-3))] text-primary-accent">
+              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-3))] text-foreground">
                 <UsersRound className="h-4 w-4" aria-hidden />
               </span>
               <div className="min-w-0">
@@ -308,7 +308,7 @@ export function ProfileForm({
               </p>
             </div>
 
-            <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.32)] px-3.5 py-3">
+            <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-border bg-card px-3.5 py-3">
               <span className="min-w-0">
                 <span className="block text-sm font-medium">
                   {t("Появляться среди поздравляемых")}
@@ -327,9 +327,9 @@ export function ProfileForm({
             </label>
           </div>
 
-          <div className="space-y-4 border-t border-border/45 pt-5">
+          <div className="space-y-4 border-t border-border pt-5">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-3))] text-primary-accent">
+              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-3))] text-foreground">
                 <CalendarDays className="h-4 w-4" aria-hidden />
               </span>
               <div className="min-w-0 flex-1">
@@ -346,7 +346,7 @@ export function ProfileForm({
             </div>
 
             {birthdayEnabled ? (
-              <div className="space-y-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.32)] p-3.5">
+              <div className="space-y-4 rounded-xl border border-border bg-card p-3.5">
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="birthdayDay">{t("День")}</Label>
@@ -414,7 +414,7 @@ export function ProfileForm({
                     <p className="text-xs font-medium text-muted-foreground">
                       {t("Выберите пользователей")}
                     </p>
-                    <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-border/55 p-2">
+                    <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-border p-2">
                       {(audienceData?.users ?? []).map((user) => (
                         <label
                           key={user.id}
@@ -446,9 +446,9 @@ export function ProfileForm({
             ) : null}
           </div>
 
-          <div className="space-y-4 border-t border-border/45 pt-5">
+          <div className="space-y-4 border-t border-border pt-5">
             <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-3))] text-primary-accent">
+              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-3))] text-foreground">
                 <Send className="h-4 w-4" aria-hidden />
               </span>
               <div className="min-w-0">
@@ -469,14 +469,14 @@ export function ProfileForm({
                 inputMode="numeric"
               />
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span className="rounded-full border border-border/55 bg-background/32 px-2 py-1">
+                <span className="rounded-full border border-border bg-background/32 px-2 py-1">
                   {t("Статус")}: {getTelegramStatusText(initialTelegramLinkStatus, t)}
                 </span>
                 <span>{t("После сохранения отправьте /start боту.")}</span>
               </div>
             </div>
 
-            <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.32)] px-3.5 py-2.5">
+            <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-card px-3.5 py-2.5">
               <span className="min-w-0">
                 <span className="block text-sm font-medium">{t("Telegram-уведомления")}</span>
                 <span className="mt-0.5 block text-xs text-muted-foreground">
@@ -488,7 +488,7 @@ export function ProfileForm({
                 onChange={(e) => setTelegramNotificationsEnabled(e.target.checked)}
               />
             </label>
-            <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.32)] px-3.5 py-2.5">
+            <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-card px-3.5 py-2.5">
               <span className="min-w-0">
                 <span className="block text-sm font-medium">{t("Напоминания календаря")}</span>
                 <span className="mt-0.5 block text-xs text-muted-foreground">

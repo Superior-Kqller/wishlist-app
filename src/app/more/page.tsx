@@ -4,9 +4,19 @@ import type { ComponentType, ReactNode } from "react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import useSWR from "swr";
-import { Bell, ChevronRight, Languages, LogOut, Send, Settings, Shield } from "lucide-react";
+import {
+  Bell,
+  ChevronRight,
+  Languages,
+  LogOut,
+  Palette,
+  Send,
+  Settings,
+  Shield,
+} from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { ThemeSwitcher } from "@/components/theme/theme-provider";
 import { useI18n } from "@/components/i18n/language-provider";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { uiLayout, uiState } from "@/lib/ui-contract";
@@ -22,10 +32,9 @@ type MeResponse = {
   calendarNotificationsEnabled?: boolean;
 };
 
-const surfaceClass =
-  "overflow-hidden rounded-2xl border border-border/45 bg-[hsl(var(--surface-2))] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]";
+const surfaceClass = "overflow-hidden rounded-xl border border-border bg-card";
 /** Строки группы разделены линией; у одиночной карточки профиля разделителей нет. */
-const groupClass = cn(surfaceClass, "divide-y divide-border/32");
+const groupClass = cn(surfaceClass, "divide-y divide-border");
 
 const rowClass = cn(
   "flex min-h-14 w-full items-center gap-3.5 px-3.5 text-left text-[15px] font-medium transition-colors hover:bg-[hsl(var(--surface-3)/0.45)]",
@@ -43,7 +52,7 @@ function RowIcon({
     <span
       className={cn(
         "flex size-9 shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--surface-3))]",
-        danger ? "text-destructive" : "text-primary-accent",
+        danger ? "text-destructive" : "text-foreground",
       )}
       aria-hidden
     >
@@ -146,6 +155,11 @@ export default function MorePage() {
               <RowIcon icon={Languages} />
               <span className="min-w-0 flex-1 truncate text-[15px] font-medium">{t("Язык")}</span>
               <LanguageSwitcher className="h-11 px-3" />
+            </div>
+            <div className="flex min-h-14 items-center gap-3.5 border-t border-border px-3.5">
+              <RowIcon icon={Palette} />
+              <span className="min-w-0 flex-1 truncate text-[15px] font-medium">{t("Тема")}</span>
+              <ThemeSwitcher className="h-11 px-3" />
             </div>
           </div>
 

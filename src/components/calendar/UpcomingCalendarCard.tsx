@@ -13,8 +13,9 @@ import {
   type CalendarOccurrence,
 } from "@/lib/calendar/client-calendar";
 
+// Компактная пилюля в строке «чей список» на главной (DESIGN.md → «Чипы»).
 const stripClass =
-  "group inline-flex min-h-11 max-w-full items-center gap-2.5 rounded-2xl border border-border/55 bg-[hsl(var(--surface-2))] px-3.5 py-2 text-sm shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)] transition-[border-color,background-color] duration-200 hover:border-primary-accent/45 hover:bg-[hsl(var(--surface-3))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+  "group inline-flex h-11 max-w-full items-center gap-2 rounded-full border border-border bg-background pl-3.5 pr-3 text-sm transition-colors hover:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 /** Ближайшие поводы на год вперёд — один запрос на всю главную (SWR склеит соседей). */
 export function useUpcomingOccurrences() {
@@ -35,12 +36,11 @@ export function daysBetween(today: string, date: string) {
 }
 
 /**
- * Ближайший повод — в строке заголовка главной.
+ * Ближайший повод — пилюлей справа в строке людей на главной.
  *
- * Если повод — день рождения человека из круга, карточка ведёт к его списку,
- * а не в календарь: от даты человек идёт выбирать подарок, и календарь был
- * лишним шагом. Число набрано антиквой — это «листок календаря», единственная
- * цифра в продукте, которой разрешён голос заголовка.
+ * Если повод — день рождения человека из круга, пилюля ведёт к его списку,
+ * а не в календарь: от даты человек идёт выбирать подарок. Точка `brand` —
+ * единственный фирменный знак повода (DESIGN.md → «Цвет»).
  */
 export function UpcomingCalendarCard({
   currentUserId,
@@ -83,7 +83,7 @@ export function UpcomingCalendarCard({
         <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground/70" aria-hidden />
         <span className="min-w-0 truncate">{t("Ближайших событий пока нет")}</span>
         <ArrowRight
-          className="h-4 w-4 shrink-0 text-primary-accent transition-transform duration-200 ease-[var(--ease-expo)] group-hover:translate-x-0.5"
+          className="h-4 w-4 shrink-0 text-foreground transition-transform duration-200 ease-[var(--ease-expo)] group-hover:translate-x-0.5"
           aria-hidden
         />
       </Link>
@@ -108,43 +108,26 @@ export function UpcomingCalendarCard({
           ? `${t("День рождения")}: ${title}, ${when}. ${t("Открыть список")}`
           : `${title}, ${when}. ${t("Весь календарь")}`
       }
-      className={cn(
-        stripClass,
-        "w-full gap-3.5 py-2.5 pl-2.5 sm:w-auto sm:min-w-[20rem]",
-        className,
-      )}
+      className={cn(stripClass, className)}
     >
-      <time
-        dateTime={nextOccurrence.date}
-        className="flex size-12 shrink-0 flex-col items-center justify-center rounded-xl bg-[hsl(var(--surface-4))] leading-none"
-      >
-        <span className="display-face text-[1.375rem] tabular-nums text-primary-accent">
-          {date.toLocaleDateString(locale, { day: "numeric" })}
-        </span>
-        <span className="pt-0.5 text-[10px] font-semibold text-muted-foreground">
-          {date.toLocaleDateString(locale, { month: "short" })}
-        </span>
+      <span className="size-2 shrink-0 rounded-full bg-brand" aria-hidden />
+      <time dateTime={nextOccurrence.date} className="shrink-0 font-semibold tabular-nums">
+        {date.toLocaleDateString(locale, { day: "numeric", month: "short" }).replace(".", "")}
       </time>
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="flex min-w-0 items-center gap-2">
-          {person ? (
-            <span className="pointer-events-none shrink-0">
-              <UserAvatar
-                avatarUrl={person.avatarUrl}
-                name={person.name}
-                userId={person.id}
-                size="sm"
-              />
-            </span>
-          ) : null}
-          <span className="truncate text-[15px] font-semibold text-foreground">{title}</span>
+      {person ? (
+        <span className="pointer-events-none shrink-0">
+          <UserAvatar
+            avatarUrl={person.avatarUrl}
+            name={person.name}
+            userId={person.id}
+            size="sm"
+          />
         </span>
-        <span className="text-xs text-muted-foreground">
-          {person ? `${t("День рождения")} · ${when}` : when}
-        </span>
-      </span>
+      ) : null}
+      <span className="min-w-0 truncate font-medium">{title}</span>
+      <span className="shrink-0 whitespace-nowrap text-muted-foreground">· {when}</span>
       <ArrowRight
-        className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ease-[var(--ease-expo)] group-hover:translate-x-0.5 group-hover:text-primary-accent"
+        className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ease-[var(--ease-expo)] group-hover:translate-x-0.5 group-hover:text-foreground"
         aria-hidden
       />
     </Link>

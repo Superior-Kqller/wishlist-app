@@ -4,8 +4,8 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
 
-/** Знак продукта: у фиолетовой основы он один, вариантов под темы больше нет. */
-const LOGO_MARK = "/assets/logo/logo-mark-1.8.0-512.png";
+/** Знак продукта: подарок с лентой-закладкой, вектор в цвете `primary`. */
+const LOGO_MARK = "/assets/logo/logo-mark.svg";
 
 interface BrandLockupProps {
   className?: string;
@@ -41,7 +41,8 @@ export function BrandLockup({ className, compact = false }: BrandLockupProps) {
         <span
           className={cn(
             "line-clamp-1 max-w-[65vw] text-[9px] text-muted-foreground-subtle sm:max-w-none sm:text-[11px]",
-            compact && "max-sm:hidden sm:text-[10px]",
+            // В шапке знак стоит один: подпись — для первой встречи на входе.
+            compact && "hidden",
           )}
         >
           {t("Подарки для своих")}

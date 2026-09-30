@@ -21,9 +21,7 @@ export type PreferenceTone = "neutral" | "avoid";
 function preferenceChipClass(tone: PreferenceTone) {
   return cn(
     "inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs leading-tight",
-    tone === "avoid"
-      ? "border-destructive/45 bg-destructive/8"
-      : "border-border/55 bg-[hsl(var(--surface-3)/0.55)]",
+    tone === "avoid" ? "border-destructive/45 bg-destructive/8" : "border-border bg-background",
   );
 }
 

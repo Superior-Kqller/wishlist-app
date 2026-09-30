@@ -30,6 +30,7 @@ import { getLanguageLocale } from "@/lib/i18n";
 import { useI18n } from "@/components/i18n/language-provider";
 import type { HolidayCatalogEntry } from "@/lib/calendar/holiday-catalog";
 import type { HolidayRule } from "@/lib/calendar/holiday-rules";
+import { SegmentGlide } from "@/components/ui/segment-glide";
 
 type HolidayTheme = HolidayCatalogEntry["theme"];
 type Occurrence = Extract<HolidayRule, { kind: "NTH_WEEKDAY" }>["occurrence"];
@@ -213,7 +214,7 @@ export function HolidayCatalog() {
         /* Каталог читают глазами чаще, чем правят: строка — название, дата словами
            и два переключателя. Раньше каждый праздник был открытой формой в три
            яруса с полями «0 / -1 / 11», и пятнадцать праздников занимали пять экранов. */
-        <ul className="divide-y divide-border/55 overflow-hidden rounded-xl border border-border/55 bg-[hsl(var(--surface-2)/0.85)]">
+        <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
           {holidays.map((holiday) => {
             const theme = themeLabel(holiday.theme);
             return (
@@ -298,6 +299,7 @@ export function HolidayCatalog() {
                 role="radiogroup"
                 aria-labelledby="holiday-rule-kind"
               >
+                <SegmentGlide />
                 {(["FIXED", "NTH_WEEKDAY"] as const).map((kind) => (
                   <Button
                     key={kind}

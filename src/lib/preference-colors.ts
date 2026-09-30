@@ -24,7 +24,7 @@ export const preferenceColors: PreferenceColor[] = [
   { label: "Оранжевый", hex: "#d78a4d" },
   { label: "Жёлтый", hex: "#d8b84a", aliases: ["Желтый"] },
   { label: "Зелёный", hex: "#6f9b76", aliases: ["Зеленый"] },
-  { label: "Хаки", hex: "#7b7d57" },
+  { label: "Хаки", hex: "#7b7d57", aliases: ["Оливковый"] },
   { label: "Мятный", hex: "#8bbfaf" },
   { label: "Голубой", hex: "#77aabd" },
   { label: "Синий", hex: "#56789f" },

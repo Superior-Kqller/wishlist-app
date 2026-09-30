@@ -128,7 +128,7 @@ export function ListFormDialog({
             <div className="space-y-2">
               <Label>{t("Кто увидит подборку")}</Label>
               {isEdit ? (
-                <div className="rounded-lg border border-border bg-[hsl(var(--surface-2)/0.55)] p-2">
+                <div className="rounded-lg border border-border bg-card p-2">
                   <MemberList
                     users={users}
                     ownerId={list.userId}
@@ -146,7 +146,7 @@ export function ListFormDialog({
                     className={cn(
                       "inline-flex min-h-11 items-center rounded-full border px-3 text-sm font-medium transition-colors sm:min-h-9",
                       viewerIds.includes(user.id)
-                        ? "border-primary/45 bg-primary/16 text-foreground"
+                        ? "border-foreground bg-accent text-foreground"
                         : "bg-background border-input hover:bg-accent",
                     )}
                   >
