@@ -3,7 +3,6 @@
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { UserAvatar } from "@/components/UserAvatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { BarChart3, ChevronDown, Gift, Heart, Package, Target, Users } from "lucide-react";
 import { ItemsPage, StatsSummary, UserStats, UserWithStats } from "@/types";
@@ -225,8 +224,11 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
           /* `interactiveCard` убран: он давал hover рамки на узле, который
              никуда не ведёт — карточка выглядела нажимаемой и ею не была.
              Нажимаемы теперь имя и две ссылки в подвале. */
-          <Card key={user.id} className="flex h-full flex-col border-border bg-card shadow-none">
-            <CardHeader className="pb-3">
+          <div
+            key={user.id}
+            className="flex h-full flex-col rounded-xl border border-border bg-card text-card-foreground"
+          >
+            <div className="flex flex-col space-y-1.5 p-4 pb-3">
               <div className="flex items-center gap-3">
                 <UserAvatar
                   avatarUrl={user.avatarUrl || undefined}
@@ -235,19 +237,19 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
                   size="lg"
                 />
                 <div className="min-w-0 flex-1">
-                  <CardTitle className="truncate text-lg">
+                  <h3 className="truncate text-lg font-semibold leading-none">
                     <Link
                       href={`/?userId=${user.id}`}
                       className="rounded transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {user.name}
                     </Link>
-                  </CardTitle>
+                  </h3>
                   <p className="truncate text-sm text-muted-foreground">@{user.username}</p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="flex flex-1 flex-col space-y-3">
+            </div>
+            <div className="flex flex-1 flex-col space-y-3 p-4 pt-0">
               <div className="grid grid-cols-2 border-y border-border py-2.5 text-sm">
                 <div className="pr-3">
                   <p className="text-xs text-muted-foreground">{t("Всего желаний")}</p>
@@ -276,8 +278,8 @@ function ParticipantsSection({ users }: { users: UserWithStats[] }) {
               ) : null}
 
               <ParticipantLinks userId={user.id} className="mt-auto border-t border-border pt-3" />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
     </section>

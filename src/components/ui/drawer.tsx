@@ -22,7 +22,7 @@ const sheetMotion = cn(
   "motion-reduce:transition-opacity motion-reduce:data-[starting-style]:translate-y-0 motion-reduce:data-[ending-style]:translate-y-0 motion-reduce:data-[starting-style]:opacity-0 motion-reduce:data-[ending-style]:opacity-0",
 );
 
-export interface DrawerProps extends Omit<
+interface DrawerProps extends Omit<
   React.ComponentPropsWithoutRef<typeof BaseDrawer.Root>,
   "onOpenChange" | "swipeDirection" | "children"
 > {
@@ -43,7 +43,7 @@ export function Drawer({ onOpenChange, modal = true, children, ...props }: Drawe
   );
 }
 
-export interface DrawerContentProps {
+interface DrawerContentProps {
   children: React.ReactNode;
   className?: string;
   id?: string;

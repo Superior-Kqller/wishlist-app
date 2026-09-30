@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@plugin "tailwindcss-animate";
 
 /* Тёмная тема — по атрибуту `data-theme` на `<html>` (src/lib/theme.ts). */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -535,6 +534,39 @@
   animation: draw-stroke 0.3s ease-out 0.4s forwards;
 }
 
+/*
+ * Появление поверхностей Radix (диалог, меню, список выбора) — 220ms `expo`,
+ * уход 140ms (DESIGN.md → «Движение»). Раньше это давал плагин
+ * tailwindcss-animate ради четырёх мест. Анимируется свойство `scale`, а не
+ * `transform`: центровка диалога через `translate` остаётся нетронутой.
+ */
+.motion-popup-surface[data-state="open"] {
+  animation: surface-enter var(--dur-base) var(--ease-expo);
+}
+.motion-popup-surface[data-state="closed"] {
+  animation: surface-exit var(--dur-fast) ease-in forwards;
+}
+.motion-overlay-surface[data-state="open"] {
+  animation: fade-enter var(--dur-base) var(--ease-expo);
+}
+.motion-overlay-surface[data-state="closed"] {
+  animation: fade-exit var(--dur-fast) ease-in forwards;
+}
+
+@keyframes surface-enter {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
+@keyframes surface-exit {
+  to {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto !important;
@@ -572,18 +604,18 @@
 
   .motion-popup-surface[data-state="open"],
   .motion-overlay-surface[data-state="open"] {
-    animation-name: reduced-fade-in !important;
+    animation-name: fade-enter !important;
     animation-duration: 120ms !important;
   }
 
   .motion-popup-surface[data-state="closed"],
   .motion-overlay-surface[data-state="closed"] {
-    animation-name: reduced-fade-out !important;
+    animation-name: fade-exit !important;
     animation-duration: 90ms !important;
   }
 }
 
-@keyframes reduced-fade-in {
+@keyframes fade-enter {
   from {
     opacity: 0;
   }
@@ -592,7 +624,7 @@
   }
 }
 
-@keyframes reduced-fade-out {
+@keyframes fade-exit {
   from {
     opacity: 1;
   }

@@ -20,7 +20,7 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-export const THEME_OPTIONS: Record<ThemePreference, { label: string; icon: typeof Sun }> = {
+const THEME_OPTIONS: Record<ThemePreference, { label: string; icon: typeof Sun }> = {
   system: { label: "Системная", icon: Monitor },
   light: { label: "Светлая", icon: Sun },
   dark: { label: "Тёмная", icon: Moon },
