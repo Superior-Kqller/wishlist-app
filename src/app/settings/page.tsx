@@ -81,7 +81,7 @@ export default function SettingsPage() {
         {/* Форма — колонка чтения, а не рамка страницы: во всю ширину
               переключатель стоял в 900px от своей подписи, а поле «Пол
               профиля» тянулось на 1100px ради двух слов. */}
-        <Tabs defaultValue="profile" className="grid max-w-3xl gap-8">
+        <Tabs defaultValue="profile" className="grid gap-8">
           <TabsList aria-label={t("Разделы настроек")} className="sm:max-w-sm">
             <TabsTrigger value="profile">
               <UserRound className="h-4 w-4 shrink-0" aria-hidden />

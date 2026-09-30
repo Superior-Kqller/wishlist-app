@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { validatePasswordComplexity } from "@/lib/password-validation";
-import { SettingsHeading } from "@/components/settings/ProfileForm";
+import { SettingsSection } from "@/components/settings/ProfileForm";
 import { useI18n } from "@/components/i18n/language-provider";
 import { responseError } from "@/lib/response-error";
 
@@ -75,72 +75,72 @@ export function PasswordForm({ userId }: PasswordFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <SettingsHeading
+    <form onSubmit={handleSubmit} className="space-y-8">
+      <SettingsSection
         title={t("Изменить пароль")}
         description={t("Обновите пароль для защиты аккаунта")}
-      />
-
-      <div className="max-w-sm space-y-2">
-        <Label htmlFor="currentPassword">{t("Текущий пароль")} *</Label>
-        <Input
-          id="currentPassword"
-          type="password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          placeholder={t("Текущий пароль")}
-          autoComplete="current-password"
-          required
-        />
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="password">{t("Новый пароль")} *</Label>
+      >
+        <div className="max-w-sm space-y-2">
+          <Label htmlFor="currentPassword">{t("Текущий пароль")} *</Label>
           <Input
-            id="password"
+            id="currentPassword"
             type="password"
-            value={password}
-            onChange={(e) => handlePasswordChange(e.target.value)}
-            placeholder={t("Пароль")}
-            autoComplete="new-password"
-            aria-invalid={passwordErrors.length > 0 || undefined}
-            aria-describedby="password-requirements"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder={t("Текущий пароль")}
+            autoComplete="current-password"
             required
           />
-          {/* Требования — подписью под полем, а не отдельной рамкой с иконкой. */}
-          <div id="password-requirements" className="text-xs leading-relaxed">
-            {passwordErrors.length > 0 ? (
-              <ul className="space-y-0.5 text-destructive">
-                {passwordErrors.map((err, i) => (
-                  <li key={i}>{t(err)}</li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-muted-foreground">
-                {t("Минимум 8 символов, буквы, цифры и спецсимволы")}
-              </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="password">{t("Новый пароль")} *</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => handlePasswordChange(e.target.value)}
+              placeholder={t("Пароль")}
+              autoComplete="new-password"
+              aria-invalid={passwordErrors.length > 0 || undefined}
+              aria-describedby="password-requirements"
+              required
+            />
+            {/* Требования — подписью под полем, а не отдельной рамкой с иконкой. */}
+            <div id="password-requirements" className="text-xs leading-relaxed">
+              {passwordErrors.length > 0 ? (
+                <ul className="space-y-0.5 text-destructive">
+                  {passwordErrors.map((err, i) => (
+                    <li key={i}>{t(err)}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-muted-foreground">
+                  {t("Минимум 8 символов, буквы, цифры и спецсимволы")}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">{t("Подтвердите пароль")} *</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder={t("Повторите пароль")}
+              autoComplete="new-password"
+              aria-invalid={(confirmPassword && password !== confirmPassword) || undefined}
+              required
+            />
+            {confirmPassword && password !== confirmPassword && (
+              <p className="text-xs text-destructive">{t("Пароли не совпадают")}</p>
             )}
           </div>
         </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="confirmPassword">{t("Подтвердите пароль")} *</Label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder={t("Повторите пароль")}
-            autoComplete="new-password"
-            aria-invalid={(confirmPassword && password !== confirmPassword) || undefined}
-            required
-          />
-          {confirmPassword && password !== confirmPassword && (
-            <p className="text-xs text-destructive">{t("Пароли не совпадают")}</p>
-          )}
-        </div>
-      </div>
+      </SettingsSection>
 
       <div className="flex justify-end border-t border-border pt-8">
         <Button

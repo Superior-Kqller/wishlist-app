@@ -56,26 +56,37 @@ function getTelegramStatusText(
   return t("Не настроено");
 }
 
-/** Заголовок раздела настроек: `title-md` и одна строка пояснения; справа — тумблер раздела. */
-export function SettingsHeading({
+/** Заголовок раздела настроек: `section-title` и одна строка пояснения. */
+function SettingsHeading({ title, description }: { title: string; description?: string }) {
+  return (
+    <div className="min-w-0">
+      <h2 className="section-title">{title}</h2>
+      {description ? (
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * Раздел настроек: с 1128px — заголовок и пояснение слева, поля справа (раскладка
+ * «боковых заголовков»), так форма занимает ширину контента, а не узкую колонку у
+ * левого края. На телефоне — одна колонка.
+ */
+export function SettingsSection({
   title,
   description,
-  action,
+  children,
 }: {
   title: string;
   description?: string;
-  action?: ReactNode;
+  children?: ReactNode;
 }) {
   return (
-    <div className="flex items-start justify-between gap-6">
-      <div className="min-w-0">
-        <h2 className="section-title">{title}</h2>
-        {description ? (
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
-        ) : null}
-      </div>
-      {action ? <div className="shrink-0 pt-0.5">{action}</div> : null}
-    </div>
+    <section className="grid gap-6 min-[1128px]:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] min-[1128px]:gap-16">
+      <SettingsHeading title={title} description={description} />
+      {children ? <div className="min-w-0 max-w-2xl space-y-6">{children}</div> : null}
+    </section>
   );
 }
 
@@ -87,7 +98,7 @@ function SwitchRow({
   onCheckedChange,
 }: {
   title: string;
-  description: string;
+  description?: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
 }) {
@@ -95,9 +106,11 @@ function SwitchRow({
     <label className="flex min-h-14 cursor-pointer items-center justify-between gap-6 py-3">
       <span className="min-w-0">
         <span className="block text-sm font-medium">{title}</span>
-        <span className="mt-0.5 block text-sm leading-relaxed text-muted-foreground">
-          {description}
-        </span>
+        {description ? (
+          <span className="mt-0.5 block text-sm leading-relaxed text-muted-foreground">
+            {description}
+          </span>
+        ) : null}
       </span>
       <Switch checked={checked} onChange={(event) => onCheckedChange(event.target.checked)} />
     </label>
@@ -269,11 +282,7 @@ export function ProfileForm({
         onSubmit={handleSubmit}
         className="divide-y divide-border [&>*]:py-8 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0"
       >
-        <section className="space-y-6">
-          <SettingsHeading
-            title={t("Профиль")}
-            description={t("Основные данные и способы связи")}
-          />
+        <SettingsSection title={t("Профиль")} description={t("Основные данные и способы связи")}>
           <div className="flex items-center gap-4">
             <UserAvatar
               avatarUrl={avatarUrl || undefined}
@@ -306,21 +315,18 @@ export function ProfileForm({
               <p className="text-xs text-muted-foreground">{t("Логин нельзя изменить")}</p>
             </div>
           </div>
-        </section>
+        </SettingsSection>
 
-        <section className="space-y-6">
-          <SettingsHeading
-            title={t("День рождения")}
-            description={t("Год и возраст видны только вам")}
-            action={
-              <Switch
-                checked={birthdayEnabled}
-                onChange={(event) => setBirthdayEnabled(event.target.checked)}
-                aria-label={t("Добавить день рождения")}
-              />
-            }
+        <SettingsSection
+          title={t("День рождения")}
+          description={t("Год и возраст видны только вам")}
+        >
+          {/* Тумблер — в колонке полей, рядом с тем, что он раскрывает. */}
+          <SwitchRow
+            title={t("Добавить день рождения")}
+            checked={birthdayEnabled}
+            onCheckedChange={setBirthdayEnabled}
           />
-
           {birthdayEnabled ? (
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-3">
@@ -420,14 +426,12 @@ export function ProfileForm({
               ) : null}
             </div>
           ) : null}
-        </section>
+        </SettingsSection>
 
-        <section className="space-y-6">
-          <SettingsHeading
-            title={t("Тематические праздники")}
-            description={t("Настройте участие в поздравлениях 23 февраля и 8 марта")}
-          />
-
+        <SettingsSection
+          title={t("Тематические праздники")}
+          description={t("Настройте участие в поздравлениях 23 февраля и 8 марта")}
+        >
           <div className="max-w-sm space-y-2">
             <Label htmlFor="profileGender">{t("Пол профиля")}</Label>
             <Select
@@ -456,14 +460,12 @@ export function ProfileForm({
             checked={thematicHolidayConsent}
             onCheckedChange={setThematicHolidayConsent}
           />
-        </section>
+        </SettingsSection>
 
-        <section className="space-y-6">
-          <SettingsHeading
-            title={t("Telegram")}
-            description={t("Уведомления о важных изменениях в списках")}
-          />
-
+        <SettingsSection
+          title={t("Telegram")}
+          description={t("Уведомления о важных изменениях в списках")}
+        >
           <div className="max-w-sm space-y-2">
             <Label htmlFor="telegramId">Telegram ID</Label>
             <Input
@@ -493,7 +495,7 @@ export function ProfileForm({
               onCheckedChange={setCalendarNotificationsEnabled}
             />
           </div>
-        </section>
+        </SettingsSection>
 
         <div className="flex justify-end">
           <Button
