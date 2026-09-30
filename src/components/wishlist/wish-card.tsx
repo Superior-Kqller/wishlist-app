@@ -50,6 +50,9 @@ export const WishCard = memo(function WishCard({
   // Подложка светлеет только под загруженным снимком: пока он грузится или
   // если ссылка мертва, кадр остаётся тёмным, а не пустым светлым окном.
   const [imageLoaded, setImageLoaded] = useState(false);
+  // Почти квадратный снимок заполняет плитку (DESIGN.md → «Карточка желания»),
+  // вытянутый вписывается с отступом, чтобы товар не обрезался.
+  const [fillTile, setFillTile] = useState(false);
   const [ownerImageError, setOwnerImageError] = useState(false);
 
   const imageUrl = item.images?.[0] ?? null;
@@ -115,15 +118,21 @@ export const WishCard = memo(function WishCard({
           )}
         >
           {showImage ? (
-            /* Снимки приходят в разных пропорциях: `contain` не обрезает ни один товар. */
+            /* Снимки приходят в разных пропорциях: квадратный (от 4:5 до 5:4) идёт
+               на всю плитку — срезается не больше десятой доли с каждой стороны; вытянутый
+               вписывается целиком, `contain` не срезает товар. */
             <Image
               src={imageUrl!}
               alt=""
               fill
-              className="wish-card-image object-contain p-6"
+              className={cn("wish-card-image", fillTile ? "object-cover" : "object-contain p-6")}
               sizes="(max-width: 744px) 50vw, (max-width: 1128px) 33vw, 25vw"
               unoptimized
-              onLoad={() => setImageLoaded(true)}
+              onLoad={(event) => {
+                const { naturalWidth: w, naturalHeight: h } = event.currentTarget;
+                setFillTile(h > 0 && w / h >= 0.8 && w / h <= 1.25);
+                setImageLoaded(true);
+              }}
               onError={() => setImageError(true)}
             />
           ) : (

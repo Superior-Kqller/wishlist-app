@@ -3,13 +3,13 @@
 </p>
 
 <p align="center">
-  <img src="./assets/readme/hero.svg" width="100%" alt="Wishlist — shared wishlists, gift preferences, and self-hosted gift planning">
+  <img src="./assets/readme/hero.png" width="100%" alt="Wishlist — self-hosted gift planning: shared lists with chosen viewers, prices, priorities, and reminders">
 </p>
 
 Wishlist is a self-hosted web app for families, friends, and small teams. It keeps wish ideas, preferences, important dates, and gift coordination in one place—without turning the group chat into a planning database.
 
 <p align="center">
-  <img src="./assets/readme-home-desktop.png" width="100%" alt="Wishlist desktop catalog with shared lists, filters, priorities, prices, and product cards">
+  <img src="./assets/readme-home-desktop.png" width="100%" alt="Wishlist home page in the dark theme: people and list filters, the next occasion, search, and wish cards with photos, priority labels, owners, categories, and prices">
 </p>
 
 ## One place for the whole gift loop
