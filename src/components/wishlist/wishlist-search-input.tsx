@@ -18,7 +18,11 @@ interface WishlistSearchInputProps {
 
 // Пилюля поиска (DESIGN.md → «Поиск»): одна форма, высота по месту.
 const INPUT_CLASS_BY_VARIANT = {
-  toolbar: cn(uiLayout.filterBarTrigger, "pl-10 pr-4 text-sm placeholder:text-muted-foreground"),
+  // Поле в строке инструментов — компактное, вровень с кнопками панели (40px).
+  toolbar: cn(
+    uiLayout.filterBarTrigger,
+    "min-h-10 pl-10 pr-4 text-sm placeholder:text-muted-foreground",
+  ),
   mobile: "h-11 min-h-[44px] pl-10 text-base placeholder:text-muted-foreground",
 } as const;
 

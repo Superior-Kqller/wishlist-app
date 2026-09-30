@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { PasswordForm } from "@/components/settings/PasswordForm";
-import { Loader2, ShieldCheck, UserRound } from "lucide-react";
+import { ShieldCheck, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetcher } from "@/lib/utils";
@@ -34,8 +34,24 @@ export default function SettingsPage() {
 
   if (status === "loading" || isLoading) {
     return (
-      <PageShell className="flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      <PageShell>
+        {/* Скелет повторяет раскладку страницы, как на остальных разделах, —
+            вместо спиннера по центру, после которого всё прыгало на место. */}
+        <PageMain>
+          <div className="animate-pulse" aria-busy="true" aria-label={t("Загрузка…")}>
+            <div className="mb-10 h-14 w-64 rounded-lg bg-muted/55" />
+            <div className="mb-8 h-12 w-full max-w-sm rounded-full bg-muted/55" />
+            {[0, 1, 2].map((row) => (
+              <div
+                key={row}
+                className="grid gap-6 border-t border-border py-8 first-of-type:border-t-0 first-of-type:pt-0 min-[1128px]:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] min-[1128px]:gap-16"
+              >
+                <div className="h-12 w-48 rounded-lg bg-muted/55" />
+                <div className="h-28 max-w-2xl rounded-xl bg-muted/45" />
+              </div>
+            ))}
+          </div>
+        </PageMain>
       </PageShell>
     );
   }
@@ -93,7 +109,9 @@ export default function SettingsPage() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="profile" className="m-0">
+          {/* Вкладка «Профиль» не размонтируется при переходе на «Защиту»:
+                иначе несохранённые правки формы молча пропадали. */}
+          <TabsContent value="profile" forceMount className="m-0 data-[state=inactive]:hidden">
             <ProfileForm
               key={`profile-${refreshKey}`}
               initialName={user.name}

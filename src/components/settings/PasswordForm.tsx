@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
@@ -132,12 +133,13 @@ export function PasswordForm({ userId }: PasswordFormProps) {
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder={t("Повторите пароль")}
               autoComplete="new-password"
-              aria-invalid={(confirmPassword && password !== confirmPassword) || undefined}
+              aria-invalid={(Boolean(confirmPassword) && password !== confirmPassword) || undefined}
+              aria-describedby="confirm-password-error"
               required
             />
-            {confirmPassword && password !== confirmPassword && (
-              <p className="text-xs text-destructive">{t("Пароли не совпадают")}</p>
-            )}
+            <FieldError id="confirm-password-error">
+              {confirmPassword && password !== confirmPassword ? t("Пароли не совпадают") : null}
+            </FieldError>
           </div>
         </div>
       </SettingsSection>

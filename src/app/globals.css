@@ -174,7 +174,6 @@
     --shadow-interactive-card-hover: var(--shadow-float);
     --shadow-floating: var(--shadow-float);
     --shadow-dialog: var(--shadow-float);
-    --shadow-brand-action: none;
   }
 
   /*

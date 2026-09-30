@@ -10,6 +10,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -108,10 +109,12 @@ export function ItemFormDialog({
   const [parseError, setParseError] = useState<string | null>(null);
   const autoFillOnceDoneRef = useRef(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ title?: string; price?: string }>({});
 
   const isEdit = !!item;
 
   const resetForm = useCallback(() => {
+    setFieldErrors({});
     setTitle("");
     setUrl("");
     setPrice("");
@@ -249,12 +252,15 @@ export function ItemFormDialog({
     const nextPriceText = price.trim().replace(",", ".");
     const nextPrice = nextPriceText ? Number(nextPriceText) : null;
 
-    if (!nextTitle) {
-      toast.error(t("Введите название"));
-      return;
-    }
+    // Ошибка — у поля: фокус на первое неверное, текст под ним.
+    const nextErrors: typeof fieldErrors = {};
+    if (!nextTitle) nextErrors.title = t("Введите название");
     if (nextPrice !== null && (!Number.isFinite(nextPrice) || nextPrice < 0)) {
-      toast.error(t("Введите корректную цену"));
+      nextErrors.price = t("Введите корректную цену");
+    }
+    setFieldErrors(nextErrors);
+    if (nextErrors.title || nextErrors.price) {
+      document.getElementById(nextErrors.title ? "title" : "price")?.focus();
       return;
     }
 
@@ -380,10 +386,16 @@ export function ItemFormDialog({
                       ref={titleInputRef}
                       id="title"
                       value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+                      onChange={(e) => {
+                        setTitle(e.target.value);
+                        setFieldErrors((current) => ({ ...current, title: undefined }));
+                      }}
                       placeholder="iPhone 16 Pro Max"
+                      aria-invalid={Boolean(fieldErrors.title) || undefined}
+                      aria-describedby={fieldErrors.title ? "title-error" : undefined}
                       required
                     />
+                    <FieldError id="title-error">{fieldErrors.title}</FieldError>
                   </div>
 
                   <div className="space-y-2 rounded-xl border border-border bg-[hsl(var(--surface-3)/0.32)] p-3">
@@ -532,9 +544,15 @@ export function ItemFormDialog({
                         step="0.01"
                         min="0"
                         value={price}
-                        onChange={(e) => setPrice(e.target.value)}
+                        onChange={(e) => {
+                          setPrice(e.target.value);
+                          setFieldErrors((current) => ({ ...current, price: undefined }));
+                        }}
                         placeholder="0"
+                        aria-invalid={Boolean(fieldErrors.price) || undefined}
+                        aria-describedby={fieldErrors.price ? "price-error" : undefined}
                       />
+                      <FieldError id="price-error">{fieldErrors.price}</FieldError>
                     </div>
                     <div className="space-y-2">
                       <Label>{t("Валюта")}</Label>

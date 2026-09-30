@@ -35,7 +35,7 @@ export function ListFilter({
         value={selectedListId ?? "all"}
         onValueChange={(v) => onListChange(v === "all" ? null : v)}
       >
-        <SelectTrigger className="h-10 w-full min-w-0 max-w-[180px] sm:w-[180px]">
+        <SelectTrigger className="w-full min-w-0 max-w-[180px] sm:w-[180px]">
           <SelectValue placeholder={t("Подборка")} />
         </SelectTrigger>
         <SelectContent>

@@ -19,7 +19,7 @@ export default function NotFound() {
         <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
           {t("Проверьте ссылку или вернитесь к каталогу желаний.")}
         </p>
-        <Button asChild className="mt-7 shadow-[var(--shadow-brand-action)]">
+        <Button asChild size="lg" className="mt-7">
           <Link href="/">{t("На главную")}</Link>
         </Button>
       </section>

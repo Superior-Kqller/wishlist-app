@@ -18,6 +18,7 @@ import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { UserAvatar } from "@/components/UserAvatar";
 import { AvatarUploadDialog } from "./AvatarUploadDialog";
+import { FieldError } from "@/components/ui/field-error";
 import { fetcher } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getLanguageLocale } from "@/lib/i18n";
@@ -167,6 +168,11 @@ export function ProfileForm({
   );
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<"name" | "telegramId" | "birthday", string>>>(
+    {},
+  );
+  const clearError = (field: keyof typeof errors) =>
+    setErrors((current) => (current[field] ? { ...current, [field]: undefined } : current));
 
   const hasChanges = useMemo(() => {
     return (
@@ -218,18 +224,28 @@ export function ProfileForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim()) {
-      toast.error(t("Введите имя"));
-      return;
-    }
-
+    // Ошибка — у поля, а не во всплывающем уведомлении: фокус уходит на первое
+    // неверное поле, текст под ним остаётся, пока его не поправят.
+    const nextErrors: typeof errors = {};
+    if (!name.trim()) nextErrors.name = t("Введите имя");
     if (telegramId.trim() && !/^\d{5,20}$/.test(telegramId.trim())) {
-      toast.error(t("Telegram ID должен содержать только цифры (5-20 символов)"));
-      return;
+      nextErrors.telegramId = t("Telegram ID должен содержать только цифры (5-20 символов)");
     }
-
     if (birthdayEnabled && (!birthdayDay || !birthdayMonth)) {
-      toast.error(t("Укажите день и месяц рождения"));
+      nextErrors.birthday = t("Укажите день и месяц рождения");
+    }
+    setErrors(nextErrors);
+    const firstInvalid = nextErrors.name
+      ? "name"
+      : nextErrors.birthday
+        ? birthdayDay
+          ? "birthdayMonth"
+          : "birthdayDay"
+        : nextErrors.telegramId
+          ? "telegramId"
+          : null;
+    if (firstInvalid) {
+      document.getElementById(firstInvalid)?.focus();
       return;
     }
 
@@ -303,10 +319,16 @@ export function ProfileForm({
               <Input
                 id="name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  clearError("name");
+                }}
                 placeholder={t("Ваше имя")}
+                aria-invalid={Boolean(errors.name) || undefined}
+                aria-describedby={errors.name ? "name-error" : undefined}
                 required
               />
+              <FieldError id="name-error">{errors.name}</FieldError>
             </div>
 
             <div className="space-y-2">
@@ -338,14 +360,29 @@ export function ProfileForm({
                     min={1}
                     max={31}
                     value={birthdayDay}
-                    onChange={(event) => setBirthdayDay(event.target.value)}
+                    onChange={(event) => {
+                      setBirthdayDay(event.target.value);
+                      clearError("birthday");
+                    }}
+                    aria-invalid={(Boolean(errors.birthday) && !birthdayDay) || undefined}
+                    aria-describedby={errors.birthday ? "birthday-error" : undefined}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="birthdayMonth">{t("Месяц")}</Label>
                   {/* Месяц — названием: «3» рядом с днём «8» читалось как дата наоборот. */}
-                  <Select value={birthdayMonth || undefined} onValueChange={setBirthdayMonth}>
-                    <SelectTrigger id="birthdayMonth">
+                  <Select
+                    value={birthdayMonth || undefined}
+                    onValueChange={(value) => {
+                      setBirthdayMonth(value);
+                      clearError("birthday");
+                    }}
+                  >
+                    <SelectTrigger
+                      id="birthdayMonth"
+                      aria-invalid={(Boolean(errors.birthday) && !birthdayMonth) || undefined}
+                      aria-describedby={errors.birthday ? "birthday-error" : undefined}
+                    >
                       <SelectValue placeholder="—" />
                     </SelectTrigger>
                     <SelectContent>
@@ -373,6 +410,7 @@ export function ProfileForm({
                   />
                 </div>
               </div>
+              <FieldError id="birthday-error">{errors.birthday}</FieldError>
 
               <div className="space-y-2">
                 <Label htmlFor="birthdayAudience">{t("Кто видит событие")}</Label>
@@ -471,11 +509,17 @@ export function ProfileForm({
             <Input
               id="telegramId"
               value={telegramId}
-              onChange={(e) => setTelegramId(e.target.value)}
+              onChange={(e) => {
+                setTelegramId(e.target.value);
+                clearError("telegramId");
+              }}
+              aria-invalid={Boolean(errors.telegramId) || undefined}
+              aria-describedby={errors.telegramId ? "telegramId-error" : "telegramId-status"}
               placeholder={t("Например: 123456789")}
               inputMode="numeric"
             />
-            <p className="text-xs text-muted-foreground">
+            <FieldError id="telegramId-error">{errors.telegramId}</FieldError>
+            <p id="telegramId-status" className="text-xs text-muted-foreground">
               {t("Статус")}: {getTelegramStatusText(initialTelegramLinkStatus, t)} ·{" "}
               {t("После сохранения отправьте /start боту.")}
             </p>

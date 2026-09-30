@@ -30,37 +30,39 @@ type PreferenceChipPickerProps = {
 const SUGGESTION_PREVIEW_COUNT = 12;
 
 /**
- * Галочка отмеченного чипа — Selector Chips (21st.dev, preetsuthar17): место под
- * неё раскрывается, штрих прорисовывается. Пружины исходника заменены на `expo`
+ * Галочка отмеченного чипа — Selector Chips (21st.dev, preetsuthar17): галочка
+ * появляется и штрих прорисовывается. Пружины исходника заменены на `expo`
  * без перелёта, оранжевая заливка — на рамку чернилами (DESIGN.md → «Чипы»).
+ * Ширину исходник анимировал — это свойство раскладки; место под галочку здесь
+ * встаёт сразу, а движение идёт только через transform, прозрачность и штрих.
  */
 export function ChipTick({ shown }: { shown: boolean }) {
   const reduceMotion = useReducedMotion();
+  // `initial={false}`: уже отмеченные при загрузке чипы не анимируются.
   return (
     <AnimatePresence initial={false}>
       {shown ? (
-        <motion.span
+        <motion.svg
           key="tick"
           aria-hidden
-          className="-mr-1 flex shrink-0 overflow-hidden"
-          initial={reduceMotion ? false : { width: 0, marginLeft: 0 }}
-          animate={{ width: 16, marginLeft: 6 }}
-          exit={reduceMotion ? { opacity: 0 } : { width: 0, marginLeft: 0 }}
+          viewBox="0 0 20 20"
+          fill="none"
+          className="-mr-1 ml-1.5 size-4 shrink-0"
+          initial={reduceMotion ? false : { opacity: 0, scale: 0.6 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: duration.base, ease: easing.expo }}
         >
-          <svg viewBox="0 0 20 20" fill="none" className="size-4 shrink-0">
-            <motion.path
-              d="M5 10.5L9 14.5L15 7.5"
-              stroke="currentColor"
-              strokeWidth={2.2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              initial={reduceMotion ? false : { pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 0.25, ease: easing.expo }}
-            />
-          </svg>
-        </motion.span>
+          <motion.path
+            d="M5 10.5L9 14.5L15 7.5"
+            stroke="currentColor"
+            strokeWidth={2.2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            initial={reduceMotion ? false : { pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.25, ease: easing.expo }}
+          />
+        </motion.svg>
       ) : null}
     </AnimatePresence>
   );

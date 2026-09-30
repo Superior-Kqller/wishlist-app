@@ -96,12 +96,14 @@ export function DeleteUserDialog({
         {canDelete && (
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label htmlFor="delete-user-confirm" className="text-sm font-medium">
                 {t("Для подтверждения введите логин пользователя")}:{" "}
                 <strong>{user.username}</strong>
               </label>
               <Input
+                id="delete-user-confirm"
                 type="text"
+                autoComplete="off"
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
                 placeholder={user.username}

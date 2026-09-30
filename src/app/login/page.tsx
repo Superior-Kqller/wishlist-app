@@ -122,7 +122,7 @@ export default function LoginPage() {
               </p>
             ) : null}
 
-            <Button type="submit" className="mt-2 w-full" disabled={loading}>
+            <Button type="submit" size="lg" className="mt-2 w-full" disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
               {t("Войти")}
             </Button>

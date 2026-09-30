@@ -10,6 +10,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Trash2 } from "lucide-react";
@@ -44,6 +45,7 @@ export function ListFormDialog({
   const [name, setName] = useState("");
   const [viewerIds, setViewerIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   const isEdit = !!list;
 
@@ -66,7 +68,8 @@ export function ListFormDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      toast.error(t("Введите название подборки"));
+      setNameError(t("Введите название подборки"));
+      document.getElementById("list-name")?.focus();
       return;
     }
 
@@ -118,10 +121,16 @@ export function ListFormDialog({
             <Input
               id="list-name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                setNameError(null);
+              }}
               placeholder={t("Например: День рождения")}
+              aria-invalid={Boolean(nameError) || undefined}
+              aria-describedby={nameError ? "list-name-error" : undefined}
               required
             />
+            <FieldError id="list-name-error">{nameError}</FieldError>
           </div>
 
           {otherUsers.length > 0 && (

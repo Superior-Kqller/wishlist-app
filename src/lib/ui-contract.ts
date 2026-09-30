@@ -71,8 +71,9 @@ export const uiState = {
   /** Фокус и выбор — чернилами (DESIGN.md → «Цвет»), без свечения. */
   focusRing:
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  /** Фокус поля — рамка 2px чернилами; ошибка (`aria-invalid`) — та же рамка цветом `error` (DESIGN.md → «Поля»). */
   focusField:
-    "focus-visible:outline-none focus-visible:border-foreground focus-visible:shadow-[inset_0_0_0_1px_hsl(var(--foreground))]",
+    "focus-visible:outline-none focus-visible:border-foreground focus-visible:shadow-[inset_0_0_0_1px_hsl(var(--foreground))] aria-[invalid=true]:border-destructive aria-[invalid=true]:focus-visible:border-destructive aria-[invalid=true]:focus-visible:shadow-[inset_0_0_0_1px_hsl(var(--destructive))]",
   navBase:
     "h-11 gap-2.5 border border-transparent px-3 text-muted-foreground hover:bg-accent hover:text-foreground",
   navActive: "bg-accent text-foreground font-semibold",

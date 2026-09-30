@@ -27,7 +27,7 @@ export default function Error({
       <p className="mt-2 text-sm text-muted-foreground text-center max-w-sm">
         {t("Произошла ошибка. Попробуйте обновить страницу.")}
       </p>
-      <Button onClick={reset} className="mt-6">
+      <Button size="lg" onClick={reset} className="mt-6">
         {t("Попробовать снова")}
       </Button>
     </div>

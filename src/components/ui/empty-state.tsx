@@ -90,12 +90,12 @@ function EmptyState({
           className="relative mt-6 flex flex-col gap-2 sm:flex-row"
         >
           {actionLabel && onAction ? (
-            <Button type="button" onClick={onAction}>
+            <Button type="button" size="lg" onClick={onAction}>
               {actionLabel}
             </Button>
           ) : null}
           {secondaryLabel && onSecondaryAction ? (
-            <Button type="button" variant="outline" onClick={onSecondaryAction}>
+            <Button type="button" size="lg" variant="outline" onClick={onSecondaryAction}>
               {secondaryIcon}
               {secondaryLabel}
             </Button>

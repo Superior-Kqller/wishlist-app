@@ -10,6 +10,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
@@ -114,16 +115,21 @@ export function ChangePasswordDialog({
               value={password}
               onChange={(e) => handlePasswordChange(e.target.value)}
               placeholder={t("Пароль")}
+              aria-invalid={passwordErrors.length > 0 || undefined}
+              aria-describedby="admin-password-requirements"
               required
             />
             {passwordErrors.length > 0 && (
-              <ul className="text-xs text-destructive space-y-1">
+              <ul id="admin-password-requirements" className="space-y-1 text-xs text-destructive">
                 {passwordErrors.map((err, i) => (
-                  <li key={i}>• {t(err)}</li>
+                  <li key={i}>{t(err)}</li>
                 ))}
               </ul>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p
+              id={passwordErrors.length > 0 ? undefined : "admin-password-requirements"}
+              className="text-xs text-muted-foreground"
+            >
               {t("Минимум 8 символов, буквы, цифры и спецсимволы")}
             </p>
           </div>
@@ -136,11 +142,13 @@ export function ChangePasswordDialog({
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder={t("Повторите пароль")}
+              aria-invalid={(Boolean(confirmPassword) && password !== confirmPassword) || undefined}
+              aria-describedby="admin-confirm-error"
               required
             />
-            {confirmPassword && password !== confirmPassword && (
-              <p className="text-xs text-destructive">{t("Пароли не совпадают")}</p>
-            )}
+            <FieldError id="admin-confirm-error">
+              {confirmPassword && password !== confirmPassword ? t("Пароли не совпадают") : null}
+            </FieldError>
           </div>
 
           <DialogFooter>

@@ -127,7 +127,7 @@ const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
        * содержимого, и «Отмена» с «Создать» расходились на пару пикселей —
        * достаточно, чтобы пара читалась несимметричной.
        */
-      "flex flex-wrap justify-end gap-2 [&>button]:min-w-[7.5rem] [&>button]:grow [&>button]:basis-0 sm:[&>button]:grow-0 sm:[&>button]:basis-auto",
+      "flex flex-wrap justify-end gap-2 [&>button]:min-h-12 [&>button]:min-w-[7.5rem] [&>button]:grow [&>button]:basis-0 sm:[&>button]:grow-0 sm:[&>button]:basis-auto",
       className,
     )}
     {...props}
