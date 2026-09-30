@@ -4,11 +4,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { KeyRound, Loader2, ShieldCheck } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { validatePasswordComplexity } from "@/lib/password-validation";
-import { cn } from "@/lib/utils";
-import { uiSurface } from "@/lib/ui-contract";
+import { SettingsHeading } from "@/components/settings/ProfileForm";
 import { useI18n } from "@/components/i18n/language-provider";
 import { responseError } from "@/lib/response-error";
 
@@ -76,101 +75,90 @@ export function PasswordForm({ userId }: PasswordFormProps) {
   };
 
   return (
-    <div className={cn(uiSurface.contentPanel, "p-4 sm:p-6")}>
-      <div className="mb-5 flex items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border bg-[hsl(var(--surface-3))] text-foreground">
-          <ShieldCheck className="h-5 w-5" aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <h2 className="section-title">{t("Изменить пароль")}</h2>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            {t("Обновите пароль для защиты аккаунта")}
-          </p>
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <SettingsHeading
+        title={t("Изменить пароль")}
+        description={t("Обновите пароль для защиты аккаунта")}
+      />
+
+      <div className="max-w-sm space-y-2">
+        <Label htmlFor="currentPassword">{t("Текущий пароль")} *</Label>
+        <Input
+          id="currentPassword"
+          type="password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          placeholder={t("Текущий пароль")}
+          autoComplete="current-password"
+          required
+        />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="currentPassword">{t("Текущий пароль")} *</Label>
+          <Label htmlFor="password">{t("Новый пароль")} *</Label>
           <Input
-            id="currentPassword"
+            id="password"
             type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            placeholder={t("Текущий пароль")}
-            autoComplete="current-password"
+            value={password}
+            onChange={(e) => handlePasswordChange(e.target.value)}
+            placeholder={t("Пароль")}
+            autoComplete="new-password"
+            aria-invalid={passwordErrors.length > 0 || undefined}
+            aria-describedby="password-requirements"
             required
           />
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="password">{t("Новый пароль")} *</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => handlePasswordChange(e.target.value)}
-              placeholder={t("Пароль")}
-              autoComplete="new-password"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">{t("Подтвердите пароль")} *</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder={t("Повторите пароль")}
-              autoComplete="new-password"
-              required
-            />
-            {confirmPassword && password !== confirmPassword && (
-              <p className="text-xs text-destructive">{t("Пароли не совпадают")}</p>
+          {/* Требования — подписью под полем, а не отдельной рамкой с иконкой. */}
+          <div id="password-requirements" className="text-xs leading-relaxed">
+            {passwordErrors.length > 0 ? (
+              <ul className="space-y-0.5 text-destructive">
+                {passwordErrors.map((err, i) => (
+                  <li key={i}>{t(err)}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted-foreground">
+                {t("Минимум 8 символов, буквы, цифры и спецсимволы")}
+              </p>
             )}
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-3.5">
-          <div className="flex gap-3">
-            <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-foreground" aria-hidden />
-            <div className="min-w-0">
-              <p className="text-sm font-medium">{t("Требования к паролю")}</p>
-              {passwordErrors.length > 0 ? (
-                <ul className="mt-1.5 space-y-1 text-xs text-destructive">
-                  {passwordErrors.map((err, i) => (
-                    <li key={i}>• {t(err)}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  {t("Минимум 8 символов, буквы, цифры и спецсимволы")}
-                </p>
-              )}
-            </div>
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="confirmPassword">{t("Подтвердите пароль")} *</Label>
+          <Input
+            id="confirmPassword"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder={t("Повторите пароль")}
+            autoComplete="new-password"
+            aria-invalid={(confirmPassword && password !== confirmPassword) || undefined}
+            required
+          />
+          {confirmPassword && password !== confirmPassword && (
+            <p className="text-xs text-destructive">{t("Пароли не совпадают")}</p>
+          )}
         </div>
+      </div>
 
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            className="w-full sm:w-auto"
-            disabled={
-              saving ||
-              !currentPassword ||
-              passwordErrors.length > 0 ||
-              password !== confirmPassword ||
-              !password
-            }
-          >
-            {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            {t("Изменить пароль")}
-          </Button>
-        </div>
-      </form>
-    </div>
+      <div className="flex justify-end border-t border-border pt-8">
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full sm:w-auto"
+          disabled={
+            saving ||
+            !currentPassword ||
+            passwordErrors.length > 0 ||
+            password !== confirmPassword ||
+            !password
+          }
+        >
+          {saving && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
+          {t("Изменить пароль")}
+        </Button>
+      </div>
+    </form>
   );
 }

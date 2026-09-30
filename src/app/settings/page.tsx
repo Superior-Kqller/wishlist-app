@@ -6,13 +6,11 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { PasswordForm } from "@/components/settings/PasswordForm";
-import { CalendarDays, Loader2, ShieldCheck, UserRound } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Loader2, ShieldCheck, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetcher } from "@/lib/utils";
-import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
-import { uiLayout, uiSurface } from "@/lib/ui-contract";
+import { PageMain, PageShell } from "@/components/ui/page-shell";
 import { useI18n } from "@/components/i18n/language-provider";
 
 export default function SettingsPage() {
@@ -63,65 +61,59 @@ export default function SettingsPage() {
   return (
     <PageShell>
       <PageMain>
-        <div className={uiLayout.pageStack}>
-          <PageIntro
-            title={t("Настройки")}
-            description={t("Профиль и безопасность аккаунта")}
-            actions={
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:justify-end">
-                <Badge variant="outline">
-                  {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}
-                </Badge>
-                <span className={uiSurface.metaPill}>
-                  <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  {t("С нами с")}{" "}
-                  {new Date(user.createdAt).toLocaleDateString(locale, {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </span>
-              </div>
-            }
-          />
+        {/* Настройки живут в меню аккаунта, а не в верхней панели — поэтому
+            заголовок видимый, 28/700 (DESIGN.md → «Типографика»). Роль и дата
+            — одной строкой `muted` вместо плашек. */}
+        <div className="mb-8 sm:mb-10">
+          <h1 className="text-[1.75rem] font-bold leading-tight tracking-[-0.02em]">
+            {t("Настройки")}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")} · {t("С нами с")}{" "}
+            {new Date(user.createdAt).toLocaleDateString(locale, {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+        </div>
 
-          {/* Форма — колонка чтения, а не рамка страницы: во всю ширину
+        {/* Форма — колонка чтения, а не рамка страницы: во всю ширину
               переключатель стоял в 900px от своей подписи, а поле «Пол
               профиля» тянулось на 1100px ради двух слов. */}
-          <Tabs defaultValue="profile" className="grid max-w-3xl gap-5">
-            <TabsList aria-label={t("Разделы настроек")} className="sm:max-w-sm">
-              <TabsTrigger value="profile">
-                <UserRound className="h-4 w-4 shrink-0" aria-hidden />
-                <span className="truncate">{t("Профиль")}</span>
-              </TabsTrigger>
-              <TabsTrigger value="security">
-                <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
-                <span className="truncate">{t("Защита")}</span>
-              </TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="profile" className="grid max-w-3xl gap-8">
+          <TabsList aria-label={t("Разделы настроек")} className="sm:max-w-sm">
+            <TabsTrigger value="profile">
+              <UserRound className="h-4 w-4 shrink-0" aria-hidden />
+              <span className="truncate">{t("Профиль")}</span>
+            </TabsTrigger>
+            <TabsTrigger value="security">
+              <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
+              <span className="truncate">{t("Защита")}</span>
+            </TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="profile" className="m-0">
-              <ProfileForm
-                key={`profile-${refreshKey}`}
-                initialName={user.name}
-                initialUsername={user.username}
-                initialAvatarUrl={user.avatarUrl}
-                initialTelegramId={user.telegramId}
-                initialTelegramLinkStatus={user.telegramLinkStatus}
-                initialTelegramNotificationsEnabled={Boolean(user.telegramNotificationsEnabled)}
-                initialCalendarNotificationsEnabled={Boolean(user.calendarNotificationsEnabled)}
-                initialBirthday={user.birthday}
-                initialGender={user.gender}
-                initialThematicHolidayConsent={Boolean(user.thematicHolidayConsent)}
-                userId={user.id}
-                onSuccess={handleSuccess}
-              />
-            </TabsContent>
-            <TabsContent value="security" className="m-0">
-              <PasswordForm key={`password-${refreshKey}`} userId={user.id} />
-            </TabsContent>
-          </Tabs>
-        </div>
+          <TabsContent value="profile" className="m-0">
+            <ProfileForm
+              key={`profile-${refreshKey}`}
+              initialName={user.name}
+              initialUsername={user.username}
+              initialAvatarUrl={user.avatarUrl}
+              initialTelegramId={user.telegramId}
+              initialTelegramLinkStatus={user.telegramLinkStatus}
+              initialTelegramNotificationsEnabled={Boolean(user.telegramNotificationsEnabled)}
+              initialCalendarNotificationsEnabled={Boolean(user.calendarNotificationsEnabled)}
+              initialBirthday={user.birthday}
+              initialGender={user.gender}
+              initialThematicHolidayConsent={Boolean(user.thematicHolidayConsent)}
+              userId={user.id}
+              onSuccess={handleSuccess}
+            />
+          </TabsContent>
+          <TabsContent value="security" className="m-0">
+            <PasswordForm key={`password-${refreshKey}`} userId={user.id} />
+          </TabsContent>
+        </Tabs>
       </PageMain>
     </PageShell>
   );

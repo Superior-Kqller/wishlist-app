@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import useSWR, { mutate as mutateCache } from "swr";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,12 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CalendarDays, Camera, Loader2, Send, UserRound, UsersRound } from "lucide-react";
+import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { UserAvatar } from "@/components/UserAvatar";
 import { AvatarUploadDialog } from "./AvatarUploadDialog";
-import { cn, fetcher } from "@/lib/utils";
-import { uiSurface } from "@/lib/ui-contract";
+import { fetcher } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getLanguageLocale } from "@/lib/i18n";
 import type { BirthdayAudience, BirthdayProfile } from "@/types";
@@ -55,6 +54,54 @@ function getTelegramStatusText(
   if (status === "linked") return t("Подключено");
   if (status === "pending") return t("Ожидает подтверждения");
   return t("Не настроено");
+}
+
+/** Заголовок раздела настроек: `title-md` и одна строка пояснения; справа — тумблер раздела. */
+export function SettingsHeading({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-6">
+      <div className="min-w-0">
+        <h2 className="section-title">{title}</h2>
+        {description ? (
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
+        ) : null}
+      </div>
+      {action ? <div className="shrink-0 pt-0.5">{action}</div> : null}
+    </div>
+  );
+}
+
+/** Строка-переключатель: вся строка — подпись, тумблер справа. */
+function SwitchRow({
+  title,
+  description,
+  checked,
+  onCheckedChange,
+}: {
+  title: string;
+  description: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}) {
+  return (
+    <label className="flex min-h-14 cursor-pointer items-center justify-between gap-6 py-3">
+      <span className="min-w-0">
+        <span className="block text-sm font-medium">{title}</span>
+        <span className="mt-0.5 block text-sm leading-relaxed text-muted-foreground">
+          {description}
+        </span>
+      </span>
+      <Switch checked={checked} onChange={(event) => onCheckedChange(event.target.checked)} />
+    </label>
+  );
 }
 
 export function ProfileForm({
@@ -215,52 +262,33 @@ export function ProfileForm({
 
   return (
     <>
-      <div className={cn(uiSurface.contentPanel, "p-4 sm:p-6")}>
-        <div className="mb-5 flex items-start gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border bg-[hsl(var(--surface-3))] text-foreground">
-            <UserRound className="h-5 w-5" aria-hidden />
-          </span>
-          <div className="min-w-0">
-            <h2 className="section-title">{t("Профиль")}</h2>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              {t("Основные данные и способы связи")}
-            </p>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="rounded-xl border border-border bg-card p-3.5">
-            <div className="flex items-center gap-3">
-              <UserAvatar
-                avatarUrl={avatarUrl || undefined}
-                name={name}
-                userId={userId}
-                size="lg"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                /* На телефоне кнопка добирает строку до края — иначе между
-                   40-пиксельным аватаром и подписью оставалась дыра в треть
-                   экрана. На широком экране она снова по содержимому и стоит
-                   сразу за аватаром. */
-                className="flex-1 sm:flex-none"
-                onClick={() => setAvatarDialogOpen(true)}
-              >
-                <Camera className="h-4 w-4" />
-                {t("Изменить аватар")}
-              </Button>
-            </div>
+      {/* Разделы — плоские группы под волосяной линией (Settings Sidebar Layout,
+          21st.dev): заголовок, одна строка пояснения, поля; переключатели —
+          строкой «подпись слева, тумблер справа». Рамок внутри рамок нет. */}
+      <form
+        onSubmit={handleSubmit}
+        className="divide-y divide-border [&>*]:py-8 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0"
+      >
+        <section className="space-y-6">
+          <SettingsHeading
+            title={t("Профиль")}
+            description={t("Основные данные и способы связи")}
+          />
+          <div className="flex items-center gap-4">
+            <UserAvatar
+              avatarUrl={avatarUrl || undefined}
+              name={name}
+              userId={userId}
+              size="xl"
+              className="size-16 text-xl"
+            />
+            <Button type="button" variant="outline" onClick={() => setAvatarDialogOpen(true)}>
+              <Camera className="h-4 w-4" aria-hidden />
+              {t("Изменить аватар")}
+            </Button>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="username">{t("Логин")}</Label>
-              <Input id="username" value={initialUsername} disabled className="bg-muted/45" />
-              <p className="text-xs text-muted-foreground">{t("Логин нельзя изменить")}</p>
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="name">{t("Имя")} *</Label>
               <Input
@@ -271,245 +299,214 @@ export function ProfileForm({
                 required
               />
             </div>
-          </div>
-
-          <div className="space-y-4 border-t border-border pt-5">
-            <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-3))] text-foreground">
-                <UsersRound className="h-4 w-4" aria-hidden />
-              </span>
-              <div className="min-w-0">
-                <h3 className="text-sm font-semibold">{t("Тематические праздники")}</h3>
-                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                  {t("Настройте участие в поздравлениях 23 февраля и 8 марта")}
-                </p>
-              </div>
-            </div>
 
             <div className="space-y-2">
-              <Label htmlFor="profileGender">{t("Пол профиля")}</Label>
-              <Select
-                value={gender === "" ? "none" : gender}
-                onValueChange={(value) =>
-                  setGender(value === "none" ? "" : (value as ProfileGender))
-                }
-              >
-                <SelectTrigger id="profileGender">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">{t("Не указан")}</SelectItem>
-                  <SelectItem value="MALE">{t("Мужской")}</SelectItem>
-                  <SelectItem value="FEMALE">{t("Женский")}</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                {t("Значение видно только вам и не отображается в чужом профиле.")}
-              </p>
+              <Label htmlFor="username">{t("Логин")}</Label>
+              <Input id="username" value={initialUsername} disabled />
+              <p className="text-xs text-muted-foreground">{t("Логин нельзя изменить")}</p>
             </div>
-
-            <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-border bg-card px-3.5 py-3">
-              <span className="min-w-0">
-                <span className="block text-sm font-medium">
-                  {t("Появляться среди поздравляемых")}
-                </span>
-                <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
-                  {t(
-                    "Ваш пол не будет показан напрямую, но появление в тематическом празднике может косвенно раскрыть выбранное значение. Согласие можно отозвать в любой момент.",
-                  )}
-                </span>
-              </span>
-              <Switch
-                className="mt-1"
-                checked={thematicHolidayConsent}
-                onChange={(event) => setThematicHolidayConsent(event.target.checked)}
-              />
-            </label>
           </div>
+        </section>
 
-          <div className="space-y-4 border-t border-border pt-5">
-            <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-3))] text-foreground">
-                <CalendarDays className="h-4 w-4" aria-hidden />
-              </span>
-              <div className="min-w-0 flex-1">
-                <h3 className="text-sm font-semibold">{t("День рождения")}</h3>
-                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                  {t("Год и возраст видны только вам")}
-                </p>
-              </div>
+        <section className="space-y-6">
+          <SettingsHeading
+            title={t("День рождения")}
+            description={t("Год и возраст видны только вам")}
+            action={
               <Switch
                 checked={birthdayEnabled}
                 onChange={(event) => setBirthdayEnabled(event.target.checked)}
                 aria-label={t("Добавить день рождения")}
               />
-            </div>
+            }
+          />
 
-            {birthdayEnabled ? (
-              <div className="space-y-4 rounded-xl border border-border bg-card p-3.5">
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="birthdayDay">{t("День")}</Label>
-                    <Input
-                      id="birthdayDay"
-                      type="number"
-                      min={1}
-                      max={31}
-                      value={birthdayDay}
-                      onChange={(event) => setBirthdayDay(event.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="birthdayMonth">{t("Месяц")}</Label>
-                    {/* Месяц — названием: «3» рядом с днём «8» читалось как дата наоборот. */}
-                    <Select value={birthdayMonth || undefined} onValueChange={setBirthdayMonth}>
-                      <SelectTrigger id="birthdayMonth">
-                        <SelectValue placeholder="—" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Array.from({ length: 12 }, (_, index) => (
-                          <SelectItem key={index + 1} value={String(index + 1)}>
-                            {new Intl.DateTimeFormat(getLanguageLocale(language), {
-                              month: "long",
-                              timeZone: "UTC",
-                            }).format(new Date(Date.UTC(2028, index, 1)))}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="birthdayYear">{t("Год")}</Label>
-                    <Input
-                      id="birthdayYear"
-                      type="number"
-                      min={1900}
-                      max={new Date().getFullYear()}
-                      value={birthdayYear}
-                      placeholder={t("Необязательно")}
-                      onChange={(event) => setBirthdayYear(event.target.value)}
-                    />
-                  </div>
-                </div>
-
+          {birthdayEnabled ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="birthdayAudience">{t("Кто видит событие")}</Label>
-                  <Select
-                    value={birthdayAudience}
-                    onValueChange={(value) => setBirthdayAudience(value as BirthdayAudience)}
-                  >
-                    <SelectTrigger id="birthdayAudience">
-                      <SelectValue />
+                  <Label htmlFor="birthdayDay">{t("День")}</Label>
+                  <Input
+                    id="birthdayDay"
+                    type="number"
+                    min={1}
+                    max={31}
+                    value={birthdayDay}
+                    onChange={(event) => setBirthdayDay(event.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="birthdayMonth">{t("Месяц")}</Label>
+                  {/* Месяц — названием: «3» рядом с днём «8» читалось как дата наоборот. */}
+                  <Select value={birthdayMonth || undefined} onValueChange={setBirthdayMonth}>
+                    <SelectTrigger id="birthdayMonth">
+                      <SelectValue placeholder="—" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ALL">{t("Все пользователи")}</SelectItem>
-                      <SelectItem value="SELECTED">{t("Выбранные пользователи")}</SelectItem>
-                      <SelectItem value="PRIVATE">{t("Только я")}</SelectItem>
+                      {Array.from({ length: 12 }, (_, index) => (
+                        <SelectItem key={index + 1} value={String(index + 1)}>
+                          {new Intl.DateTimeFormat(getLanguageLocale(language), {
+                            month: "long",
+                            timeZone: "UTC",
+                          }).format(new Date(Date.UTC(2028, index, 1)))}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="birthdayYear">{t("Год")}</Label>
+                  <Input
+                    id="birthdayYear"
+                    type="number"
+                    min={1900}
+                    max={new Date().getFullYear()}
+                    value={birthdayYear}
+                    placeholder={t("Необязательно")}
+                    onChange={(event) => setBirthdayYear(event.target.value)}
+                  />
+                </div>
+              </div>
 
-                {birthdayAudience === "SELECTED" ? (
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground">
-                      {t("Выберите пользователей")}
-                    </p>
-                    <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-border p-2">
-                      {(audienceData?.users ?? []).map((user) => (
-                        <label
-                          key={user.id}
-                          className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-2 hover:bg-accent/45 sm:min-h-10"
-                        >
-                          <Checkbox
-                            checked={selectedViewerIds.includes(user.id)}
-                            onChange={(event) =>
-                              setSelectedViewerIds((current) =>
-                                event.target.checked
-                                  ? [...current, user.id]
-                                  : current.filter((id) => id !== user.id),
-                              )
-                            }
-                          />
-                          <UserAvatar
-                            avatarUrl={user.avatarUrl}
-                            name={user.name}
-                            userId={user.id}
-                            size="sm"
-                          />
-                          <span className="truncate text-sm">{user.name}</span>
-                        </label>
-                      ))}
-                    </div>
+              <div className="space-y-2">
+                <Label htmlFor="birthdayAudience">{t("Кто видит событие")}</Label>
+                <Select
+                  value={birthdayAudience}
+                  onValueChange={(value) => setBirthdayAudience(value as BirthdayAudience)}
+                >
+                  <SelectTrigger id="birthdayAudience">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">{t("Все пользователи")}</SelectItem>
+                    <SelectItem value="SELECTED">{t("Выбранные пользователи")}</SelectItem>
+                    <SelectItem value="PRIVATE">{t("Только я")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {birthdayAudience === "SELECTED" ? (
+                <fieldset>
+                  <legend className="mb-2 text-xs font-medium text-muted-foreground">
+                    {t("Выберите пользователей")}
+                  </legend>
+                  <div className="max-h-56 overflow-y-auto rounded-lg border border-border p-1">
+                    {(audienceData?.users ?? []).map((user) => (
+                      <label
+                        key={user.id}
+                        className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2.5 hover:bg-accent"
+                      >
+                        <Checkbox
+                          checked={selectedViewerIds.includes(user.id)}
+                          onChange={(event) =>
+                            setSelectedViewerIds((current) =>
+                              event.target.checked
+                                ? [...current, user.id]
+                                : current.filter((id) => id !== user.id),
+                            )
+                          }
+                        />
+                        <UserAvatar
+                          avatarUrl={user.avatarUrl}
+                          name={user.name}
+                          userId={user.id}
+                          size="sm"
+                        />
+                        <span className="truncate text-sm">{user.name}</span>
+                      </label>
+                    ))}
                   </div>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-
-          <div className="space-y-4 border-t border-border pt-5">
-            <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--surface-3))] text-foreground">
-                <Send className="h-4 w-4" aria-hidden />
-              </span>
-              <div className="min-w-0">
-                <h3 className="text-sm font-semibold">{t("Telegram")}</h3>
-                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                  {t("Уведомления о важных изменениях в списках")}
-                </p>
-              </div>
+                </fieldset>
+              ) : null}
             </div>
+          ) : null}
+        </section>
 
-            <div className="space-y-2">
-              <Label htmlFor="telegramId">Telegram ID</Label>
-              <Input
-                id="telegramId"
-                value={telegramId}
-                onChange={(e) => setTelegramId(e.target.value)}
-                placeholder={t("Например: 123456789")}
-                inputMode="numeric"
-              />
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span className="rounded-full border border-border bg-background/32 px-2 py-1">
-                  {t("Статус")}: {getTelegramStatusText(initialTelegramLinkStatus, t)}
-                </span>
-                <span>{t("После сохранения отправьте /start боту.")}</span>
-              </div>
-            </div>
+        <section className="space-y-6">
+          <SettingsHeading
+            title={t("Тематические праздники")}
+            description={t("Настройте участие в поздравлениях 23 февраля и 8 марта")}
+          />
 
-            <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-card px-3.5 py-2.5">
-              <span className="min-w-0">
-                <span className="block text-sm font-medium">{t("Telegram-уведомления")}</span>
-                <span className="mt-0.5 block text-xs text-muted-foreground">
-                  {t("Получать уведомления в подключённом чате")}
-                </span>
-              </span>
-              <Switch
-                checked={telegramNotificationsEnabled}
-                onChange={(e) => setTelegramNotificationsEnabled(e.target.checked)}
-              />
-            </label>
-            <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-card px-3.5 py-2.5">
-              <span className="min-w-0">
-                <span className="block text-sm font-medium">{t("Напоминания календаря")}</span>
-                <span className="mt-0.5 block text-xs text-muted-foreground">
-                  {t("Получать в Telegram напоминания о доступных событиях")}
-                </span>
-              </span>
-              <Switch
-                checked={calendarNotificationsEnabled}
-                onChange={(event) => setCalendarNotificationsEnabled(event.target.checked)}
-              />
-            </label>
+          <div className="max-w-sm space-y-2">
+            <Label htmlFor="profileGender">{t("Пол профиля")}</Label>
+            <Select
+              value={gender === "" ? "none" : gender}
+              onValueChange={(value) => setGender(value === "none" ? "" : (value as ProfileGender))}
+            >
+              <SelectTrigger id="profileGender">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t("Не указан")}</SelectItem>
+                <SelectItem value="MALE">{t("Мужской")}</SelectItem>
+                <SelectItem value="FEMALE">{t("Женский")}</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {t("Значение видно только вам и не отображается в чужом профиле.")}
+            </p>
           </div>
 
-          <div className="flex justify-end">
-            <Button type="submit" className="w-full sm:w-auto" disabled={saving || !hasChanges}>
-              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {t("Сохранить")}
-            </Button>
+          <SwitchRow
+            title={t("Появляться среди поздравляемых")}
+            description={t(
+              "Ваш пол не будет показан напрямую, но появление в тематическом празднике может косвенно раскрыть выбранное значение. Согласие можно отозвать в любой момент.",
+            )}
+            checked={thematicHolidayConsent}
+            onCheckedChange={setThematicHolidayConsent}
+          />
+        </section>
+
+        <section className="space-y-6">
+          <SettingsHeading
+            title={t("Telegram")}
+            description={t("Уведомления о важных изменениях в списках")}
+          />
+
+          <div className="max-w-sm space-y-2">
+            <Label htmlFor="telegramId">Telegram ID</Label>
+            <Input
+              id="telegramId"
+              value={telegramId}
+              onChange={(e) => setTelegramId(e.target.value)}
+              placeholder={t("Например: 123456789")}
+              inputMode="numeric"
+            />
+            <p className="text-xs text-muted-foreground">
+              {t("Статус")}: {getTelegramStatusText(initialTelegramLinkStatus, t)} ·{" "}
+              {t("После сохранения отправьте /start боту.")}
+            </p>
           </div>
-        </form>
-      </div>
+
+          <div className="divide-y divide-border">
+            <SwitchRow
+              title={t("Telegram-уведомления")}
+              description={t("Получать уведомления в подключённом чате")}
+              checked={telegramNotificationsEnabled}
+              onCheckedChange={setTelegramNotificationsEnabled}
+            />
+            <SwitchRow
+              title={t("Напоминания календаря")}
+              description={t("Получать в Telegram напоминания о доступных событиях")}
+              checked={calendarNotificationsEnabled}
+              onCheckedChange={setCalendarNotificationsEnabled}
+            />
+          </div>
+        </section>
+
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full sm:w-auto"
+            disabled={saving || !hasChanges}
+          >
+            {saving && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
+            {t("Сохранить")}
+          </Button>
+        </div>
+      </form>
 
       <AvatarUploadDialog
         open={avatarDialogOpen}

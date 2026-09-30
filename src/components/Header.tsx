@@ -37,6 +37,11 @@ const focusRing =
  * Оболочка по DESIGN.md → «Навигация»: верхняя панель с разделами по центру и
  * меню аккаунта справа; на узких экранах разделы уходят вниз, под палец.
  */
+/** Раздел активен и на вложенных адресах: «/preferences/me» — это «Подарочные профили». */
+function isSectionActive(pathname: string, href: string) {
+  return pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+}
+
 export function Header() {
   const { t, language, setLanguage } = useI18n();
   const { data: session } = useSession();
@@ -103,7 +108,7 @@ export function Header() {
             >
               <div ref={railRef} className="relative flex items-center gap-1">
                 {primaryNavItems.map((item) => {
-                  const active = pathname === item.href;
+                  const active = isSectionActive(pathname, item.href);
                   return (
                     <Link
                       key={item.href}
@@ -199,7 +204,10 @@ export function Header() {
         aria-label={t("Разделы")}
       >
         {[
-          ...primaryNavItems.map((item) => ({ ...item, active: pathname === item.href })),
+          ...primaryNavItems.map((item) => ({
+            ...item,
+            active: isSectionActive(pathname, item.href),
+          })),
           { label: t("Ещё"), href: "/more", icon: MoreHorizontal, active: moreActive },
         ].map((item) => {
           const Icon = item.icon;

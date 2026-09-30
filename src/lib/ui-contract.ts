@@ -86,6 +86,13 @@ export const uiState = {
   selectionActive:
     "h-9 gap-1.5 px-4 rounded-full border border-foreground bg-foreground text-background",
   chipSelected: "border-foreground bg-foreground text-background",
-  chipSelectedDanger: "border-destructive bg-destructive/10 text-destructive",
+  /**
+   * Отмеченный чип мультивыбора (DESIGN.md → «Чипы»): рамка 2px чернилами, фон холста.
+   * Второй пиксель — внутренней тенью, чтобы чип не толкал соседей.
+   */
+  chipChecked:
+    "border-foreground bg-background text-foreground shadow-[inset_0_0_0_1px_hsl(var(--foreground))]",
+  chipCheckedDanger:
+    "border-destructive bg-destructive/8 text-destructive shadow-[inset_0_0_0_1px_hsl(var(--destructive))]",
   chipIdle: "border-border bg-background text-foreground hover:border-foreground",
 } as const;

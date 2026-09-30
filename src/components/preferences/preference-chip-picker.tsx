@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Check, Plus, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/components/i18n/language-provider";
 import { PreferenceColorDot } from "@/components/preferences/preference-color-dot";
 import { cn } from "@/lib/utils";
-import { uiState, uiSurface } from "@/lib/ui-contract";
-import { duration } from "@/lib/motion";
+import { uiState } from "@/lib/ui-contract";
+import { duration, easing } from "@/lib/motion";
 
 export type PreferenceSuggestion = {
   label: string;
@@ -28,6 +28,52 @@ type PreferenceChipPickerProps = {
 };
 
 const SUGGESTION_PREVIEW_COUNT = 12;
+
+/**
+ * Галочка отмеченного чипа — Selector Chips (21st.dev, preetsuthar17): место под
+ * неё раскрывается, штрих прорисовывается. Пружины исходника заменены на `expo`
+ * без перелёта, оранжевая заливка — на рамку чернилами (DESIGN.md → «Чипы»).
+ */
+export function ChipTick({ shown }: { shown: boolean }) {
+  const reduceMotion = useReducedMotion();
+  return (
+    <AnimatePresence initial={false}>
+      {shown ? (
+        <motion.span
+          key="tick"
+          aria-hidden
+          className="-mr-1 flex shrink-0 overflow-hidden"
+          initial={reduceMotion ? false : { width: 0, marginLeft: 0 }}
+          animate={{ width: 16, marginLeft: 6 }}
+          exit={reduceMotion ? { opacity: 0 } : { width: 0, marginLeft: 0 }}
+          transition={{ duration: duration.base, ease: easing.expo }}
+        >
+          <svg viewBox="0 0 20 20" fill="none" className="size-4 shrink-0">
+            <motion.path
+              d="M5 10.5L9 14.5L15 7.5"
+              stroke="currentColor"
+              strokeWidth={2.2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={reduceMotion ? false : { pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.25, ease: easing.expo }}
+            />
+          </svg>
+        </motion.span>
+      ) : null}
+    </AnimatePresence>
+  );
+}
+
+/** Чип-переключатель анкеты: неактивный — волосяная рамка, отмеченный — 2px чернилами. */
+export function chipToggleClass(active: boolean, warning = false) {
+  return cn(
+    "inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-medium transition-[color,background-color,border-color,box-shadow] duration-fast sm:min-h-10",
+    uiState.focusRing,
+    active ? (warning ? uiState.chipCheckedDanger : uiState.chipChecked) : uiState.chipIdle,
+  );
+}
 
 function normalizeKey(value: string) {
   return value.trim().toLocaleLowerCase("ru-RU");
@@ -97,9 +143,9 @@ export function PreferenceChipPicker({
   };
 
   return (
-    <section className={cn("space-y-4", uiSurface.formSection)}>
+    <section className="min-w-0 space-y-4">
       <div>
-        <h2 className="text-base font-semibold">{t(title)}</h2>
+        <h3 className="text-base font-semibold">{t(title)}</h3>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(description)}</p>
       </div>
 
@@ -112,19 +158,11 @@ export function PreferenceChipPicker({
               type="button"
               onClick={() => toggleValue(suggestion.label)}
               aria-pressed={active}
-              className={cn(
-                "inline-flex min-h-11 items-center gap-2 rounded-full border px-3 sm:min-h-10 text-sm font-medium transition-colors duration-base",
-                uiState.focusRing,
-                active
-                  ? warning
-                    ? uiState.chipSelectedDanger
-                    : uiState.chipSelected
-                  : uiState.chipIdle,
-              )}
+              className={cn(chipToggleClass(active, warning), suggestion.color && "gap-2 pl-3")}
             >
               {suggestion.color ? <PreferenceColorDot value={suggestion.label} size="md" /> : null}
               {t(suggestion.label)}
-              {active ? <Check className="h-3.5 w-3.5" aria-hidden /> : null}
+              <ChipTick shown={active} />
             </button>
           );
         })}
@@ -154,7 +192,7 @@ export function PreferenceChipPicker({
           placeholder={t(placeholder)}
           maxLength={100}
           disabled={limitReached}
-          className="min-w-0 border-border bg-[hsl(var(--surface-3)/0.55)]"
+          className="min-w-0"
           aria-label={t("Добавить свой вариант")}
         />
         <Button
@@ -191,11 +229,9 @@ export function PreferenceChipPicker({
                   transition={{ duration: duration.fast }}
                   onClick={() => toggleValue(item)}
                   className={cn(
-                    "inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full border px-2.5 sm:min-h-9 text-xs font-semibold transition-colors duration-base hover:bg-accent",
+                    "inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium sm:min-h-10",
                     uiState.focusRing,
-                    warning
-                      ? "border-destructive/32 bg-destructive/10 text-destructive"
-                      : "border-border bg-accent text-foreground/85",
+                    warning ? uiState.chipCheckedDanger : uiState.chipChecked,
                   )}
                   aria-label={`${t("Убрать")}: ${t(item)}`}
                 >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +19,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import type { ProductCategoryOption } from "@/lib/categories";
 import { ProductCategoryIcon } from "@/lib/category-icons";
 import { cn } from "@/lib/utils";
+import { useMediaQuery } from "@/lib/use-media-query";
 
 interface FiltersDrawerProps {
   open: boolean;
@@ -318,18 +319,5 @@ function FilterChoice({
       <span className="min-w-0 truncate">{label}</span>
       {selected ? <Check className="absolute right-2.5 h-4 w-4 shrink-0 text-foreground" /> : null}
     </button>
-  );
-}
-
-/** Подписка на медиазапрос без эффекта: на сервере — `false`. */
-function useMediaQuery(query: string) {
-  return useSyncExternalStore(
-    (onChange) => {
-      const media = window.matchMedia(query);
-      media.addEventListener("change", onChange);
-      return () => media.removeEventListener("change", onChange);
-    },
-    () => window.matchMedia(query).matches,
-    () => false,
   );
 }

@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { RetryNotice } from "@/components/ui/retry-notice";
-import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
+import { PageMain, PageShell } from "@/components/ui/page-shell";
 import { useI18n } from "@/components/i18n/language-provider";
 import {
   GiftProfileEditor,
@@ -17,8 +17,7 @@ import {
   type ListPreferenceKey,
 } from "@/components/preferences/gift-profile-editor";
 import { giftPreferencesDraftKey } from "@/lib/preference-profiles";
-import { uiSurface } from "@/lib/ui-contract";
-import { cn, fetcher } from "@/lib/utils";
+import { fetcher } from "@/lib/utils";
 import {
   type GiftPreferences,
   emptyGiftPreferences,
@@ -67,6 +66,39 @@ function describeSaveError(
   return typeof body.error === "string" && body.error
     ? body.error
     : t("Не удалось сохранить профиль");
+}
+
+/**
+ * Шапка редактора: круглая кнопка «назад», заголовок страницы 28/700 и одна
+ * строка о том, кто это увидит, — единственная опора, снимающая неловкость
+ * публичного рассказа о себе.
+ */
+function EditorHeader({ onBack, description }: { onBack: () => void; description?: string }) {
+  const { t } = useI18n();
+  return (
+    <div className="mb-8 flex items-start gap-4 sm:mb-10">
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        className="mt-0.5 shrink-0 rounded-full"
+        onClick={onBack}
+        aria-label={t("К подарочным профилям")}
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden />
+      </Button>
+      <div className="min-w-0">
+        <h1 className="text-[1.75rem] font-bold leading-tight tracking-[-0.02em]">
+          {t("Подарочный профиль")}
+        </h1>
+        {description ? (
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            {description}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -229,9 +261,15 @@ export default function GiftProfilePage() {
     return (
       <PageShell>
         <PageMain>
-          <div className="animate-pulse space-y-5">
-            <div className="h-24 rounded-2xl bg-muted/55" />
-            <div className="h-[28rem] rounded-2xl bg-muted/45" />
+          <div className="animate-pulse">
+            <div className="mb-10 flex gap-4">
+              <div className="size-10 rounded-full bg-muted/55" />
+              <div className="h-16 w-full max-w-md rounded-lg bg-muted/55" />
+            </div>
+            <div className="grid gap-8 min-[1128px]:grid-cols-[15rem_minmax(0,1fr)] min-[1128px]:gap-16">
+              <div className="h-12 rounded-full bg-muted/55 min-[1128px]:h-40 min-[1128px]:rounded-xl" />
+              <div className="h-[28rem] max-w-3xl rounded-xl bg-muted/45" />
+            </div>
           </div>
         </PageMain>
       </PageShell>
@@ -249,15 +287,7 @@ export default function GiftProfilePage() {
     return (
       <PageShell>
         <PageMain>
-          <PageIntro
-            title={t("Подарочный профиль")}
-            actions={
-              <Button type="button" variant="outline" className="gap-2" onClick={requestLeave}>
-                <ArrowLeft className="h-4 w-4" aria-hidden />
-                {t("К подарочным профилям")}
-              </Button>
-            }
-          />
+          <EditorHeader onBack={requestLeave} />
           <RetryNotice onRetry={() => mutate()}>
             {t(
               "Не удалось загрузить ваш подарочный профиль. Пока он не загрузится, править нечего.",
@@ -271,24 +301,13 @@ export default function GiftProfilePage() {
   return (
     <PageShell>
       <PageMain>
-        {/*
-         * Три сложенных блока до первого поля стали одним. «Кто это увидит»
-         * никуда не делось — это единственная опора, снимающая неловкость
-         * публичного рассказа о себе, — но ему хватает строки описания, а не
-         * собственной панели с заголовком. Плашка «Заполнено подсказок: N»
-         * убрана целиком: она измеряла откровенность анкеты числом.
-         */}
-        <PageIntro
-          title={t("Подарочный профиль")}
+        {/* Плашка «Заполнено подсказок: N» убрана целиком: она измеряла
+            откровенность анкеты числом. */}
+        <EditorHeader
+          onBack={requestLeave}
           description={t(
             "Подсказки для тех, кто выбирает вам подарок. Их видят только участники, у которых есть доступ к вашим общим подборкам.",
           )}
-          actions={
-            <Button type="button" variant="outline" className="gap-2" onClick={requestLeave}>
-              <ArrowLeft className="h-4 w-4" aria-hidden />
-              {t("К подарочным профилям")}
-            </Button>
-          }
         />
 
         <GiftProfileEditor
@@ -298,41 +317,33 @@ export default function GiftProfilePage() {
           sectionFilled={sectionFilled}
           updateList={updateList}
           updateText={updateText}
+          footer={
+            /*
+             * Сохранение не уезжает вверх вместе с прокруткой: анкета длинная.
+             * Сплошной холст с волосяной линией сверху (без градиента), на
+             * телефоне — над нижней панелью разделов.
+             */
+            <div className="sticky bottom-[var(--bottom-nav-clearance)] z-20 mt-10 flex items-center justify-between gap-3 border-t border-border bg-background py-4 after:absolute after:inset-x-0 after:top-full after:h-3 after:bg-background">
+              <p className="min-w-0 truncate text-sm text-muted-foreground" aria-live="polite">
+                {hasChanges ? t("Не сохранено") : t("Сохранено")}
+              </p>
+              <Button
+                type="button"
+                size="lg"
+                className="shrink-0 gap-2"
+                disabled={!hasChanges || saving}
+                onClick={handleSubmit}
+              >
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                ) : (
+                  <Save className="h-4 w-4" aria-hidden />
+                )}
+                {saving ? t("Сохраняем") : t("Сохранить")}
+              </Button>
+            </div>
+          }
         />
-
-        {/*
-         * Сохранение больше не уезжает вверх вместе с прокруткой: анкета
-         * длинная, и кнопка, до которой надо возвращаться, — это шаг, который
-         * форма может не требовать.
-         */}
-        <div className="sticky bottom-0 z-20 -mx-4 mt-5 bg-gradient-to-t from-background via-background to-transparent px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-5 sm:-mx-6 sm:px-6 xl:-mx-8 xl:px-8">
-          <div
-            className={cn(
-              uiSurface.contentPanel,
-              // Второй фон той же специфичности убран: `contentPanel` уже несёт
-              // `surface-2/0.7`, и кто победит, решал порядок в сгенерированном
-              // CSS. Непрозрачность здесь даёт градиент обёртки выше.
-              "flex items-center justify-between gap-3 px-4 py-3",
-            )}
-          >
-            <p className="min-w-0 truncate text-sm text-muted-foreground" aria-live="polite">
-              {hasChanges ? t("Не сохранено") : t("Сохранено")}
-            </p>
-            <Button
-              type="button"
-              className="shrink-0 gap-2"
-              disabled={!hasChanges || saving}
-              onClick={handleSubmit}
-            >
-              {saving ? (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-              ) : (
-                <Save className="h-4 w-4" aria-hidden />
-              )}
-              {saving ? t("Сохраняем") : t("Сохранить")}
-            </Button>
-          </div>
-        </div>
 
         <ConfirmDialog
           open={discardOpen}
