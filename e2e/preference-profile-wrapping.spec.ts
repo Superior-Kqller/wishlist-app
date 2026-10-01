@@ -79,7 +79,7 @@ for (const scenario of scenarios) {
         };
       });
       expect(nameLayout.headingWidth).toBeLessThanOrEqual(nameLayout.stageWidth);
-      await expect(page.getByTestId(`profile-swatch-${me.id}`)).toBeVisible();
+      await expect(page.getByTestId(`profile-card-${me.id}`)).toBeVisible();
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,

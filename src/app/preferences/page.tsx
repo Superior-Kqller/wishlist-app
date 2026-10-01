@@ -15,9 +15,10 @@ import { cn, fetcher } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
 import { PreferenceProfileSearch } from "@/components/preferences/preference-profile-search";
 import {
-  ProfileSwatchCard,
+  PersonCard,
+  PersonCardGrid,
   type ProfileOccasion,
-} from "@/components/preferences/profile-swatch-card";
+} from "@/components/preferences/person-card";
 import { ProfileStage } from "@/components/preferences/profile-stage";
 import { daysBetween, useUpcomingOccurrences } from "@/components/calendar/UpcomingCalendarCard";
 import {
@@ -102,8 +103,8 @@ function PreferencesPageSkeleton() {
           <div className="h-11 w-72 rounded-full bg-muted" />
           <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-12">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="h-24 rounded-xl bg-muted" />
-              <div className="h-24 rounded-xl bg-muted" />
+              <div className="h-52 rounded-xl bg-muted" />
+              <div className="h-52 rounded-xl bg-muted" />
             </div>
             <div className="h-96 rounded-xl bg-muted max-lg:order-first" />
           </div>
@@ -242,7 +243,7 @@ function PreferencesPageContent() {
     orderedUsers.find((user) => user.id === requestedUserId)?.id ?? orderedUsers[0]?.id;
   useEffect(() => {
     const strip = stripRef.current;
-    const card = strip?.querySelector<HTMLElement>(`[data-testid="profile-swatch-${selectedId}"]`);
+    const card = strip?.querySelector<HTMLElement>(`[data-testid="profile-card-${selectedId}"]`);
     if (!strip || !card || strip.scrollWidth <= strip.clientWidth) return;
     const offset = card.getBoundingClientRect().left - strip.getBoundingClientRect().left - 16;
     strip.scrollTo({ left: strip.scrollLeft + offset, behavior: "auto" });
@@ -322,15 +323,13 @@ function PreferencesPageContent() {
                   <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-12">
                     {/* Ниже `lg` круг — лента образцов над сценой: палитры видны
                         сразу, а не после полной сводки первого человека. */}
-                    <div
-                      ref={stripRef}
-                      role="group"
-                      aria-label={t("Круг")}
-                      className="scrollbar-none -mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 pt-1 sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:mx-0 lg:scroll-px-0 lg:grid lg:grid-cols-2 lg:gap-x-4 lg:gap-y-8 lg:overflow-visible lg:px-0 lg:pb-0 [&>*]:w-[15.5rem] [&>*]:shrink-0 [&>*]:snap-start lg:[&>*]:w-auto"
-                    >
-                      {orderedUsers.map((user) => (
-                        <ProfileSwatchCard
-                          key={user.id}
+                    <PersonCardGrid
+                      stripRef={stripRef}
+                      label={t("Круг")}
+                      people={orderedUsers}
+                      className="scrollbar-none -mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-3 pt-2 sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:mx-0 lg:scroll-px-0 lg:grid lg:grid-cols-2 lg:gap-4 lg:overflow-visible lg:px-0 lg:pb-0 lg:pt-0 [&>*]:w-[17rem] [&>*]:shrink-0 [&>*]:snap-start lg:[&>*]:w-auto"
+                      renderCard={(user) => (
+                        <PersonCard
                           id={user.id}
                           name={user.name}
                           avatarUrl={user.avatarUrl}
@@ -340,8 +339,8 @@ function PreferencesPageContent() {
                           selected={user.id === selectedUser.id}
                           onSelect={() => selectUser(user.id)}
                         />
-                      ))}
-                    </div>
+                      )}
+                    />
                     <div
                       ref={stageRef}
                       id={STAGE_ID}
