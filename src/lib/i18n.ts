@@ -115,6 +115,7 @@ const en: Dictionary = {
   "Открыть список": "Open their list",
   сегодня: "today",
   Сегодня: "Today",
+  Вчера: "Yesterday",
   Вход: "Sign in",
   Круг: "Circle",
   "Дата не указана": "No date set",
