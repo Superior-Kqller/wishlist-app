@@ -26,6 +26,8 @@ export interface WishlistItem {
 export interface List {
   id: string;
   name: string;
+  /** Своя обложка подборки; без неё плитка собирается из фото желаний. */
+  coverUrl?: string | null;
   userId: string;
   createdAt: string;
   updatedAt: string;
@@ -34,6 +36,8 @@ export interface List {
 export interface ListWithMeta extends List {
   _count: { items: number };
   viewerIds: string[];
+  /** Только в `GET /api/lists`: фото первых желаний для плитки. */
+  previewImages?: string[];
 }
 
 export interface ItemComment {

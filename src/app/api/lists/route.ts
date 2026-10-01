@@ -39,6 +39,13 @@ export async function GET(req: NextRequest) {
       include: {
         _count: { select: activeListItemCount },
         viewers: { select: { userId: true } },
+        // Фото для плитки: снимки четырёх свежих желаний (по одному на желание).
+        items: {
+          where: { images: { isEmpty: false } },
+          orderBy: { createdAt: "desc" },
+          take: 4,
+          select: { images: true },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -46,9 +53,11 @@ export async function GET(req: NextRequest) {
     const result = lists.map((list) => ({
       id: list.id,
       name: list.name,
+      coverUrl: list.coverUrl,
       userId: list.userId,
       _count: list._count,
       viewerIds: list.viewers.map((v) => v.userId),
+      previewImages: list.items.map((item) => item.images[0]),
       createdAt: list.createdAt,
       updatedAt: list.updatedAt,
     }));
@@ -110,6 +119,7 @@ export async function POST(req: NextRequest) {
     const result = {
       id: list.id,
       name: list.name,
+      coverUrl: list.coverUrl,
       userId: list.userId,
       _count: list._count,
       viewerIds: list.viewers.map((v) => v.userId),

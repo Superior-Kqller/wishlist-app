@@ -6,6 +6,8 @@ import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
+import { unlink } from "fs/promises";
+import { join } from "path";
 import { unauthorizedResponse } from "@/lib/api-responses";
 
 const updateListSchema = z.object({
@@ -52,6 +54,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   return NextResponse.json({
     id: list.id,
     name: list.name,
+    coverUrl: list.coverUrl,
     userId: list.userId,
     _count: list._count,
     viewerIds: list.viewers.map((v) => v.userId),
@@ -133,6 +136,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({
       id: list.id,
       name: list.name,
+      coverUrl: list.coverUrl,
       userId: list.userId,
       _count: list._count,
       viewerIds: list.viewers.map((v) => v.userId),
@@ -186,6 +190,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       await tx.item.updateMany({ where: { listId: id }, data: { listId: null } });
       await tx.list.delete({ where: { id } });
     });
+    await unlink(join(process.cwd(), "public", "uploads", "lists", `${id}.webp`)).catch(() => {});
     return NextResponse.json({ success: true });
   } catch (err) {
     sanitizeError("Delete list error", err, { listId: id });

@@ -51,6 +51,7 @@ export const config = {
     "/",
     "/admin",
     "/calendar",
+    "/lists",
     "/more",
     "/preferences",
     "/preferences/me",

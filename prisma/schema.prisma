@@ -179,6 +179,7 @@ model Holiday {
 model List {
   id        String       @id @default(cuid())
   name      String
+  coverUrl  String?
   userId    String
   user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   items     Item[]

@@ -8,6 +8,7 @@ import {
   Bell,
   ChevronRight,
   Languages,
+  LayoutGrid,
   LogOut,
   Palette,
   Send,
@@ -140,6 +141,10 @@ export default function MorePage() {
             </span>
             <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
           </Link>
+
+          <div className={groupClass}>
+            <LinkRow href="/lists" icon={LayoutGrid} label={t("Подборки")} />
+          </div>
 
           <nav aria-label={t("Настройки")} className={groupClass}>
             <LinkRow href="/settings" icon={Settings} label={t("Настройки")} />

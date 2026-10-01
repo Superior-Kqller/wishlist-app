@@ -13,7 +13,9 @@ import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Trash2 } from "lucide-react";
+import Image from "next/image";
+import { mutate } from "swr";
+import { ImagePlus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { ListWithMeta } from "@/types";
 import { UserWithStats } from "@/types";
@@ -46,6 +48,8 @@ export function ListFormDialog({
   const [viewerIds, setViewerIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [coverBusy, setCoverBusy] = useState(false);
 
   const isEdit = !!list;
 
@@ -53,9 +57,11 @@ export function ListFormDialog({
     if (list) {
       setName(list.name);
       setViewerIds(list.viewerIds || []);
+      setCoverUrl(list.coverUrl ?? null);
     } else {
       setName("");
       setViewerIds([]);
+      setCoverUrl(null);
     }
   }, [list, open]);
 
@@ -63,6 +69,33 @@ export function ListFormDialog({
     setViewerIds((prev) =>
       prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId],
     );
+  };
+
+  // Обложка сохраняется сразу, как аватар: отдельный запрос, форму отправлять не нужно.
+  const changeCover = async (file: File | null) => {
+    if (!list) return;
+    setCoverBusy(true);
+    try {
+      if (file) {
+        const body = new FormData();
+        body.append("cover", file);
+        const res = await fetch(`/api/lists/${list.id}/cover`, { method: "POST", body });
+        if (!res.ok) throw await responseError(res, t("Не удалось загрузить обложку"));
+        setCoverUrl((await res.json()).coverUrl);
+        toast.success(t("Обложка обновлена"));
+      } else {
+        const res = await fetch(`/api/lists/${list.id}/cover`, { method: "DELETE" });
+        if (!res.ok) throw await responseError(res, t("Не удалось загрузить обложку"));
+        setCoverUrl(null);
+        toast.success(t("Обложка убрана"));
+      }
+      // Не onSuccess: родитель по нему закрывает редактирование, а форма остаётся открытой.
+      void mutate("/api/lists");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : t("Не удалось загрузить обложку"));
+    } finally {
+      setCoverBusy(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -132,6 +165,65 @@ export function ListFormDialog({
             />
             <FieldError id="list-name-error">{nameError}</FieldError>
           </div>
+
+          {isEdit ? (
+            <div className="space-y-2">
+              <Label>{t("Обложка")}</Label>
+              <div className="flex items-center gap-3">
+                <div className="relative size-16 shrink-0 overflow-hidden rounded-[14px] bg-[hsl(var(--surface-3))]">
+                  {coverUrl ? (
+                    <Image
+                      src={coverUrl}
+                      alt=""
+                      fill
+                      sizes="64px"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <ImagePlus
+                      className="absolute inset-0 m-auto size-6 text-muted-foreground"
+                      aria-hidden
+                    />
+                  )}
+                </div>
+                <div className="flex flex-col items-start gap-1">
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" size="sm" disabled={coverBusy} asChild>
+                      <label className="cursor-pointer">
+                        {coverBusy ? <Loader2 className="size-4 animate-spin" /> : null}
+                        {coverUrl ? t("Сменить фото") : t("Выбрать фото")}
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/gif"
+                          className="sr-only"
+                          disabled={coverBusy}
+                          onChange={(e) => {
+                            void changeCover(e.target.files?.[0] ?? null);
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                    </Button>
+                    {coverUrl ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled={coverBusy}
+                        onClick={() => void changeCover(null)}
+                      >
+                        {t("Убрать обложку")}
+                      </Button>
+                    ) : null}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {t("Без обложки плитка собирается из фото желаний.")}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           {otherUsers.length > 0 && (
             <div className="space-y-2">
