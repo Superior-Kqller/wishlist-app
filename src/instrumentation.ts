@@ -4,6 +4,7 @@ export async function register() {
     await import("@/lib/calendar/production-reminder-runner");
   startProductionCalendarReminderRunner();
 
-  const { setupTelegramBot } = await import("@/lib/telegram/client");
-  void setupTelegramBot(process.env.NEXTAUTH_URL);
+  const { startTelegramBot } = await import("@/lib/telegram/client");
+  const { handleTelegramUpdate } = await import("@/lib/telegram/actions");
+  void startTelegramBot(process.env.NEXTAUTH_URL, handleTelegramUpdate);
 }

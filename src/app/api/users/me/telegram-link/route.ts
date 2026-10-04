@@ -21,21 +21,12 @@ export async function POST(req: NextRequest) {
   if (!config.enabled) {
     return NextResponse.json({ error: "Telegram-бот не настроен" }, { status: 503 });
   }
-  // Без секрета вебхук отклоняет все обновления — «Старт» до приложения не дойдёт.
-  if (!config.webhookSecret) {
-    return NextResponse.json(
-      { error: "Бот не принимает команды: администратор не задал TELEGRAM_WEBHOOK_SECRET" },
-      { status: 503 },
-    );
-  }
 
   try {
-    const [bot, webhookUrl] = await Promise.all([
-      getTelegramBotUsername(),
-      getTelegramWebhookUrl(),
-    ]);
-    // Бот в режиме «только уведомления» не ответит на «Старт» — говорим сразу.
-    if (!webhookUrl) {
+    const bot = await getTelegramBotUsername();
+    // Без секрета бот сам забирает обновления. С секретом «Старт» дойдёт, только
+    // если вебхук действительно поставлен — иначе говорим сразу, а не молчим.
+    if (config.webhookSecret && !(await getTelegramWebhookUrl())) {
       return NextResponse.json(
         { error: "Бот не принимает команды: администратор не настроил вебхук" },
         { status: 503 },
