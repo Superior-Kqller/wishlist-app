@@ -692,7 +692,8 @@ function HomePageContent() {
 
   return (
     <PageShell>
-      <PageMain>
+      {/* На телефоне лица начинаются ближе к шапке: видимого заголовка здесь нет. */}
+      <PageMain className="max-sm:pt-3">
         <h1 className="sr-only">{pageTitle}</h1>
         <WishlistWorkspace
           scope={scope}

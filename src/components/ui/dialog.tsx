@@ -65,6 +65,12 @@ const DialogContent = React.forwardRef<
         className={cn(
           "motion-popup-surface fixed left-[50%] top-[50%] z-50 flex w-[min(100%,calc(100vw-1rem))] max-w-lg max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.5rem))] min-w-0 -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border p-0",
           "glass dialog-modal-surface",
+          /*
+           * На телефоне — нижний лист во всю ширину со скруглением сверху
+           * (DESIGN.md → «Диалоги»). Карточка по центру с полями в 8px
+           * оставляла форме узкую колонку, а до кнопок приходилось тянуться.
+           */
+          "dialog-sheet max-sm:bottom-0 max-sm:left-0 max-sm:top-auto max-sm:w-full max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:border-x-0 max-sm:border-b-0",
           className,
         )}
         {...props}

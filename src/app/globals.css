@@ -261,6 +261,13 @@
     font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /*
+     * Русские слова длинные («шумоподавлением», «Администрирование»): на
+     * телефоне одно такое слово шире колонки и вылезало за карточку. Слово,
+     * которое не помещается целиком, переносится внутри; обычные переносы
+     * по пробелам не меняются.
+     */
+    overflow-wrap: break-word;
   }
 
   @supports (min-height: 100dvh) {
@@ -319,7 +326,12 @@
 /* Имя осталось от прежней системы: теперь это просто непрозрачный оверлей. */
 .glass {
   background: hsl(var(--popover));
-  border: 1px solid hsl(var(--border));
+  /*
+   * Только цвет: ширину задаёт утилита `border` у окна. Правило вне слоёв
+   * перебивало утилиты, и нижний лист на телефоне держал боковые рамки,
+   * хотя у него стоит `max-sm:border-x-0`.
+   */
+  border-color: hsl(var(--border));
 }
 
 .dialog-modal-surface,
@@ -564,6 +576,28 @@
   to {
     opacity: 0;
     scale: 0.96;
+  }
+}
+
+/* На телефоне диалог — нижний лист: выезжает снизу за 420ms (DESIGN.md → «Движение»). */
+@media (max-width: 639.98px) {
+  .dialog-sheet[data-state="open"] {
+    animation: sheet-enter var(--dur-slow) var(--ease-expo);
+  }
+  .dialog-sheet[data-state="closed"] {
+    animation: sheet-exit var(--dur-base) ease-in forwards;
+  }
+}
+
+@keyframes sheet-enter {
+  from {
+    translate: 0 100%;
+  }
+}
+
+@keyframes sheet-exit {
+  to {
+    translate: 0 100%;
   }
 }
 

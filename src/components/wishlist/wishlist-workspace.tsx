@@ -293,7 +293,7 @@ export function WishlistWorkspace({
          * поиск и инструменты. Лица стоят первыми на любой ширине: на вопрос
          * «чей список» отвечает лицо, а не пункт выпадающего меню.
          */}
-        <div className="mb-3 flex min-w-0 flex-col gap-3 @min-[52rem]:mb-4 @min-[52rem]:flex-row @min-[52rem]:items-center">
+        <div className="mb-3 flex min-w-0 flex-col gap-3 max-sm:mb-0 max-sm:gap-1 @min-[52rem]:mb-4 @min-[52rem]:flex-row @min-[52rem]:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             {currentUserId && usersWithStats.length > 0 ? (
               <>

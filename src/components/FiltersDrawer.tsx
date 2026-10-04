@@ -316,7 +316,8 @@ function FilterChoice({
       data-testid={testId}
     >
       {prefix}
-      <span className="min-w-0 truncate">{label}</span>
+      {/* Две строки вместо многоточия: «Сначала неважные» не влезала в полколонки телефона. */}
+      <span className="min-w-0 text-balance text-center leading-tight">{label}</span>
       {selected ? <Check className="absolute right-2.5 h-4 w-4 shrink-0 text-foreground" /> : null}
     </button>
   );

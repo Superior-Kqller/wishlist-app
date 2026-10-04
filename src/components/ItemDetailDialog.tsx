@@ -133,15 +133,19 @@ export function ItemDetailDialog({
   };
 
   /*
-   * Детальный вид по DESIGN.md: слева название, фото, описание и комментарии,
-   * справа липкая карточка действий; на телефоне она становится нижней
-   * панелью. Крестик — в правом верхнем углу (Atlassian → Modal dialog).
+   * Детальный вид по DESIGN.md: слева фото, описание и комментарии, справа
+   * липкая карточка; на телефоне она становится нижней панелью. Название
+   * стоит в карточке рядом с ценой и действиями (21st.dev → Product Detail
+   * Page): раньше оно висело над фото, а цена — отдельно справа, и взгляд
+   * собирал желание из двух концов окна. Крестик — в правом верхнем углу
+   * (Atlassian → Modal dialog).
    */
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
         className={cn(
-          "item-detail-dialog-surface bottom-0 left-0 top-auto max-h-[min(96dvh,calc(100dvh-env(safe-area-inset-top,0px)))] w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl border-border",
+          // Крестик (последний ребёнок окна) лежит на фото — с тенью `float`, как плашки.
+          "item-detail-dialog-surface [&>button:last-child]:shadow-[var(--shadow-float)] bottom-0 left-0 top-auto max-h-[min(96dvh,calc(100dvh-env(safe-area-inset-top,0px)))] w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl border-border",
           "sm:bottom-auto sm:left-[50%] sm:top-[50%] sm:max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px)-0.5rem))] sm:w-[min(100%,calc(100vw-2rem))] sm:max-w-[67.5rem] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl",
         )}
         bodyClassName="relative gap-0 overflow-hidden p-0"
@@ -165,16 +169,41 @@ export function ItemDetailDialog({
           aria-label={t("Закрыть")}
           className="absolute left-1/2 top-0 z-20 flex h-6 w-16 -translate-x-1/2 items-center justify-center rounded-b-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden"
         >
-          <span className="h-1 w-10 rounded-full bg-border" aria-hidden />
+          {/* Хват лежит на фото: у плашек поверх снимка тень `float` (DESIGN.md → «Глубина»). */}
+          <span
+            className="h-1 w-10 rounded-full bg-background shadow-[var(--shadow-float)]"
+            aria-hidden
+          />
         </button>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-          <div className="grid gap-8 px-4 pb-8 pt-8 sm:px-8 md:grid-cols-[minmax(0,1fr)_20rem] md:gap-12">
-            <div className="min-w-0 space-y-8">
-              <ItemDetailHeader item={item} />
-              {hasImage ? <ItemMediaSection item={item} /> : null}
+          {/*
+           * Три области: фото, карточка (название, цена, действия) и остальное.
+           * На телефоне они идут столбиком, фото — первым и от края до края;
+           * с `md` карточка встаёт справа на две строки и липнет к верху.
+           */}
+          <div className="grid gap-x-12 gap-y-6 px-4 pb-8 sm:px-8 md:grid-cols-[minmax(0,1fr)_20rem] md:grid-rows-[auto_1fr] md:pt-14">
+            {hasImage ? (
+              <ItemMediaSection
+                item={item}
+                className="max-md:-mx-4 max-md:w-auto max-md:rounded-none sm:max-md:-mx-8"
+              />
+            ) : null}
+            <aside
+              className={cn(
+                "min-w-0 md:col-start-2 md:row-span-2 md:row-start-1",
+                !hasImage && "max-md:pt-10",
+              )}
+              aria-label={t("Действия")}
+            >
+              <div className="md:sticky md:top-0 md:rounded-xl md:border md:border-border md:bg-card md:p-6 md:shadow-[var(--shadow-float)]">
+                <ItemDetailHeader item={item} />
+                <ItemActionCard {...actionProps} className="hidden md:block" />
+              </div>
+            </aside>
+            <div className="min-w-0 space-y-8 md:col-start-1">
               {item.notes?.trim() ? (
-                <div className="border-t border-border pt-8">
+                <div className="border-t border-border pt-8 md:border-t-0 md:pt-2">
                   <ItemDetailNotes item={item} />
                 </div>
               ) : null}
@@ -190,11 +219,6 @@ export function ItemDetailDialog({
                 onDeleteComment={handleDeleteComment}
               />
             </div>
-            <aside className="hidden pt-10 md:block" aria-label={t("Действия")}>
-              <div className="sticky top-0">
-                <ItemActionCard {...actionProps} />
-              </div>
-            </aside>
           </div>
         </div>
 

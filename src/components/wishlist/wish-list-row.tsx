@@ -33,7 +33,7 @@ interface WishListRowProps {
  * Таблица на узком экране превращалась в горизонтальную прокрутку, а карточка
  * со снимком занимает пол-экрана: за один взгляд помещалось два желания.
  * Строка держит то же самое — снимок, название, цену, важность и категорию —
- * в 84px высоты.
+ * в 85px высоты (с длинным названием — в 103px).
  */
 export const WishListRow = memo(function WishListRow({
   item,
@@ -71,14 +71,14 @@ export const WishListRow = memo(function WishListRow({
     <li
       data-testid="wishlist-list-row"
       className={cn(
-        "relative flex min-w-0 items-center gap-3.5 py-2.5 pl-2.5 pr-1.5 transition-colors duration-[var(--dur-base)]",
+        "relative flex min-w-0 items-center gap-3 py-2.5 pl-2.5 pr-1 transition-colors duration-[var(--dur-base)]",
         isInteractive && "hover:bg-[hsl(var(--surface-3)/0.45)]",
         isSelected && "bg-[hsl(var(--surface-4)/0.7)]",
       )}
     >
       <div
         className={cn(
-          "relative size-16 shrink-0 overflow-hidden rounded-xl",
+          "relative size-14 shrink-0 overflow-hidden rounded-xl",
           showImage && imageLoaded
             ? "media-tile"
             : showImage
@@ -92,7 +92,7 @@ export const WishListRow = memo(function WishListRow({
             alt=""
             fill
             className={cn("object-contain p-1.5", isBought && "grayscale")}
-            sizes="64px"
+            sizes="56px"
             unoptimized
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageError(true)}
@@ -107,8 +107,14 @@ export const WishListRow = memo(function WishListRow({
         ) : null}
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <div className="flex min-w-0 items-start justify-between gap-2.5">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        {/*
+         * Название занимает всю ширину, под ним цена с важностью, ниже —
+         * категория и владелец. Цена справа от названия отнимала у него треть
+         * ширины: короткие названия ломались в две строки, а владелец
+         * случайно переезжал на третью.
+         */}
+        <div className="min-w-0">
           {/*
            * Название — единственная кнопка строки, растянутая на всю её площадь
            * (`after:inset-0`): вся строка открывается касанием, а меню справа
@@ -138,32 +144,36 @@ export const WishListRow = memo(function WishListRow({
               {item.title}
             </h3>
           )}
+        </div>
+
+        <div className="flex min-w-0 items-center gap-x-2.5 whitespace-nowrap text-xs text-muted-foreground">
           {item.price != null ? (
             <span
               className={cn(
-                "shrink-0 whitespace-nowrap text-[15px] font-bold tabular-nums",
+                "shrink-0 text-sm font-semibold tabular-nums",
                 isBought ? "text-muted-foreground" : "text-foreground",
               )}
             >
               {formatPrice(item.price, item.currency, language)}
             </span>
           ) : null}
-        </div>
-
-        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
           {isBought ? (
             <span
               data-testid="wishlist-list-row-purchased-label"
-              className="font-semibold text-success"
+              className="shrink-0 font-semibold text-success"
             >
               {t("Уже куплено")}
             </span>
           ) : (
             <PriorityBadgeInline priority={item.priority} />
           )}
-          {item.category ? <span className="truncate">{categoryLabel}</span> : null}
-          {item.user?.name ? <span className="truncate">{item.user.name}</span> : null}
         </div>
+        {/* Категория и владелец — своей строкой: рядом с ценой и важностью они не помещались. */}
+        {item.category || item.user?.name ? (
+          <p className="truncate text-xs text-muted-foreground">
+            {[item.category ? categoryLabel : null, item.user?.name].filter(Boolean).join(" · ")}
+          </p>
+        ) : null}
       </div>
 
       {/* Поверх растянутой кнопки названия: действия ловят касание сами. */}

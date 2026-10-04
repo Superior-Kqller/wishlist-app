@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ExternalLink, MoreHorizontal, Pencil, ShoppingCart, Trash2, Undo2 } from "lucide-react";
+import {
+  Check,
+  ExternalLink,
+  MoreHorizontal,
+  Pencil,
+  ShoppingCart,
+  Trash2,
+  Undo2,
+} from "lucide-react";
 import { DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,9 +24,7 @@ import { formatPrice, cn } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getProductCategoryLabel } from "@/lib/categories";
-import { ProductCategoryIcon } from "@/lib/category-icons";
 import { isItemPurchased } from "@/lib/item-status";
-import { Badge } from "@/components/ui/badge";
 
 type ItemActionProps = {
   item: WishlistItem;
@@ -35,7 +41,8 @@ export function ItemDetailHeader({ item }: { item: WishlistItem }) {
   const categoryLabel = getProductCategoryLabel(item.category, language);
 
   return (
-    <header className="space-y-2 pr-10">
+    // Справа сверху на телефоне без фото — крестик окна: отступ под него.
+    <header className="space-y-2 max-md:pr-12">
       <DialogTitle
         className={cn(
           "min-w-0 break-words text-[1.375rem] font-semibold leading-tight tracking-[-0.02em] [overflow-wrap:anywhere]",
@@ -58,8 +65,7 @@ export function ItemDetailHeader({ item }: { item: WishlistItem }) {
         ) : null}
         {item.user && item.category ? <span aria-hidden>·</span> : null}
         {item.category ? <span className="truncate">{categoryLabel}</span> : null}
-        {/* На телефоне карточки фактов нет — важность встаёт в эту строку. */}
-        <PriorityBadgeInline priority={item.priority} className="md:hidden" />
+        <PriorityBadgeInline priority={item.priority} />
       </div>
     </header>
   );
@@ -111,20 +117,10 @@ export function ItemDetailNotes({ item }: { item: WishlistItem }) {
   );
 }
 
-function StatusBadge({ item }: { item: WishlistItem }) {
-  const { t } = useI18n();
-  const isBought = isItemPurchased(item);
-  return (
-    <Badge variant={isBought ? "success" : "info"} className="gap-1.5">
-      <span className="size-1.5 rounded-full bg-current" aria-hidden />
-      {isBought ? t("Уже куплено") : t("Ещё не куплено")}
-    </Badge>
-  );
-}
-
 /**
- * Липкая карточка действий справа (DESIGN.md → reservation-card): цена, факты
- * о желании, одно главное действие, ниже — действия владельца.
+ * Нижняя часть липкой карточки справа (DESIGN.md → reservation-card): цена со
+ * статусом, одно главное действие, ниже — действия владельца. Название и
+ * владелец стоят над ней в той же карточке (`ItemDetailHeader`).
  */
 export function ItemActionCard({
   item,
@@ -133,64 +129,35 @@ export function ItemActionCard({
   onEdit,
   onDelete,
   onTogglePurchased,
-}: ItemActionProps) {
+  className,
+}: ItemActionProps & { className?: string }) {
   const { language, t } = useI18n();
   const isBought = isItemPurchased(item);
   const hasPrice = item.price != null && item.price > 0;
-  const facts: Array<{ label: string; value: React.ReactNode }> = [
-    {
-      label: t("Приоритет"),
-      value: <PriorityBadgeInline priority={item.priority} className="text-foreground" />,
-    },
-    ...(item.category
-      ? [
-          {
-            label: t("Категория"),
-            value: (
-              <span className="inline-flex min-w-0 items-center gap-1.5">
-                <ProductCategoryIcon category={item.category} className="size-4 shrink-0" />
-                <span className="truncate">{getProductCategoryLabel(item.category, language)}</span>
-              </span>
-            ),
-          },
-        ]
-      : []),
-    { label: t("Статус"), value: <StatusBadge item={item} /> },
-  ];
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6 shadow-[var(--shadow-float)]">
-      {hasPrice ? (
-        <p className="text-[1.3125rem] font-bold leading-tight tabular-nums">
-          {formatPrice(item.price!, item.currency, language)}
-          <span className="sr-only"> — {t("Ориентировочная стоимость").toLowerCase()}</span>
-        </p>
-      ) : null}
-
-      <dl className={cn("divide-y divide-border text-sm", hasPrice && "mt-4")}>
-        {facts.map((fact) => (
-          <div key={fact.label} className="flex items-center justify-between gap-3 py-3">
-            <dt className="shrink-0 text-muted-foreground">{fact.label}</dt>
-            <dd className="flex min-w-0 justify-end">{fact.value}</dd>
-          </div>
-        ))}
-      </dl>
-
-      {canManage ? (
-        <Button
-          type="button"
-          variant="secondary"
-          className="mt-4 h-12 w-full gap-2"
-          onClick={onTogglePurchased}
-          disabled={statusPending}
+    <div className={cn("mt-5 border-t border-border pt-5", className)}>
+      <div className="flex items-baseline justify-between gap-3">
+        {hasPrice ? (
+          <p className="text-[1.75rem] font-bold leading-none tabular-nums">
+            {formatPrice(item.price!, item.currency, language)}
+            <span className="sr-only"> — {t("Ориентировочная стоимость").toLowerCase()}</span>
+          </p>
+        ) : null}
+        {/* Статусный цвет — только у состояния «куплено» (DESIGN.md → «Цвет»). */}
+        <p
+          className={cn(
+            "ml-auto inline-flex shrink-0 items-center gap-1.5 text-sm",
+            isBought ? "font-semibold text-success" : "text-muted-foreground",
+          )}
         >
-          {isBought ? <Undo2 className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
-          {isBought ? t("Снять отметку") : t("Отметить купленным")}
-        </Button>
-      ) : null}
+          {isBought ? <Check className="size-4" aria-hidden /> : null}
+          {isBought ? t("Уже куплено") : t("Ещё не куплено")}
+        </p>
+      </div>
 
       {item.url ? (
-        <Button asChild size="lg" className={cn("w-full gap-2", canManage ? "mt-2" : "mt-4")}>
+        <Button asChild size="lg" className="mt-5 w-full gap-2">
           <a href={item.url} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="h-4 w-4 shrink-0" />
             {t("Открыть ссылку")}
@@ -199,7 +166,20 @@ export function ItemActionCard({
       ) : null}
 
       {canManage ? (
-        <div className="mt-4 flex items-center justify-center gap-1 border-t border-border pt-3">
+        <Button
+          type="button"
+          variant="secondary"
+          className={cn("h-12 w-full gap-2", item.url ? "mt-2" : "mt-5")}
+          onClick={onTogglePurchased}
+          disabled={statusPending}
+        >
+          {isBought ? <Undo2 className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
+          {isBought ? t("Снять отметку") : t("Отметить купленным")}
+        </Button>
+      ) : null}
+
+      {canManage ? (
+        <div className="mt-3 flex items-center justify-center gap-1">
           <Button type="button" variant="ghost" size="sm" className="gap-2" onClick={onEdit}>
             <Pencil className="h-4 w-4" />
             {t("Редактировать")}

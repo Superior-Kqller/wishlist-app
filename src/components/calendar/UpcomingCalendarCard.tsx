@@ -14,8 +14,12 @@ import {
 } from "@/lib/calendar/client-calendar";
 
 // Компактная пилюля в строке «чей список» на главной (DESIGN.md → «Чипы»).
+/*
+ * На телефоне — строка-ссылка без рамки: третья обведённая пилюля подряд
+ * (лица, повод, поиск) делала шапку главной громоздкой. Высота касания та же, 44px.
+ */
 const stripClass =
-  "group inline-flex h-11 max-w-full items-center gap-2 rounded-full border border-border bg-background pl-3.5 pr-3 text-sm transition-colors hover:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+  "group inline-flex h-11 max-w-full items-center gap-2 rounded-full border border-border bg-background pl-3.5 pr-3 text-sm transition-colors hover:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background max-sm:border-transparent max-sm:px-0 max-sm:hover:border-transparent";
 
 /** Ближайшие поводы на год вперёд — один запрос на всю главную (SWR склеит соседей). */
 export function useUpcomingOccurrences() {

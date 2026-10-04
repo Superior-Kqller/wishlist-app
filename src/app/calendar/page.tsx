@@ -122,8 +122,10 @@ function EventRow({
     <article
       data-date={occurrence.date}
       className={cn(
-        "flex scroll-mt-28 gap-4 rounded-xl px-2 py-4 transition-colors duration-[var(--dur-base)]",
-        highlighted && "bg-accent",
+        // Скругление — только у подсвеченной строки: у остальных оно загибало
+        // концы разделителя `divide-y` дугой.
+        "flex scroll-mt-28 gap-4 px-2 py-4 transition-colors duration-[var(--dur-base)]",
+        highlighted && "rounded-xl bg-accent",
       )}
     >
       <DateTile date={occurrence.date} locale={locale} />
@@ -139,13 +141,22 @@ function EventRow({
                   size="sm"
                 />
               ) : null}
-              <span className="truncate">{title}</span>
+              <span className="line-clamp-2">{title}</span>
             </p>
             <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
               <TypeIcon className="size-3.5 shrink-0" aria-hidden />
               <span>{typeLabel(occurrence, t)}</span>
-              <span aria-hidden>·</span>
-              <span>{relativeDays(occurrence.date, today, locale)}</span>
+              {/*
+               * На телефоне тип и срок вместе не влезают рядом с колокольчиком,
+               * и точка-разделитель повисала в конце строки. Там срок — своя
+               * строка без точки, и все строки ленты одной высоты.
+               */}
+              <span aria-hidden className="max-sm:hidden">
+                ·
+              </span>
+              <span className="max-sm:basis-full">
+                {relativeDays(occurrence.date, today, locale)}
+              </span>
             </p>
           </div>
           <button
@@ -499,6 +510,12 @@ export default function CalendarPage() {
           className={cn(
             uiLayout.segmentBarInline,
             "mb-8 max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+            /*
+             * На телефоне четыре сегмента не влезают в рельсу, и она резала
+             * подпись посреди слова. Там это ряд чипов до края экрана, как лица
+             * на главной: обрезанный чип у края читается как «листай дальше».
+             */
+            "max-sm:-mx-4 max-sm:w-[calc(100%+2rem)] max-sm:max-w-none max-sm:gap-2 max-sm:rounded-none max-sm:border-0 max-sm:bg-transparent max-sm:px-4 max-sm:py-0",
           )}
           role="group"
           aria-label={t("Фильтры календаря")}
@@ -510,7 +527,7 @@ export default function CalendarPage() {
               type="button"
               variant={filter === option.value ? "segmentActive" : "ghost"}
               size="sm"
-              className="shrink-0"
+              className="shrink-0 max-sm:rounded-full max-sm:border max-sm:border-border"
               aria-pressed={filter === option.value}
               onClick={() => setFilter(option.value)}
             >

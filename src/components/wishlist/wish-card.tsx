@@ -154,7 +154,7 @@ export const WishCard = memo(function WishCard({
           {selectionMode ? (
             <span
               className={cn(
-                "absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-semibold shadow-[var(--shadow-float)]",
+                "absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-semibold shadow-[var(--shadow-float)] max-sm:bottom-2 max-sm:left-2 max-sm:top-auto",
                 isSelected ? "bg-foreground text-background" : "bg-background text-foreground",
               )}
             >
@@ -163,7 +163,7 @@ export const WishCard = memo(function WishCard({
           ) : isBought ? (
             <span
               data-testid="wishlist-card-v2-purchased-label"
-              className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-background px-2.5 py-1 text-xs font-semibold text-success shadow-[var(--shadow-float)]"
+              className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-background px-2.5 py-1 text-xs font-semibold text-success shadow-[var(--shadow-float)] max-sm:bottom-2 max-sm:left-2 max-sm:top-auto"
             >
               {/* Success Check (kinetics): кольцо, затем галочка — только в момент отметки. */}
               <svg
@@ -192,10 +192,14 @@ export const WishCard = memo(function WishCard({
               {t("Уже куплено")}
             </span>
           ) : (
-            // DESIGN.md → «Карточка желания»: важность — белой плашкой поверх фото.
+            /*
+             * DESIGN.md → «Карточка желания»: важность — белой плашкой поверх фото.
+             * На телефоне плашки стоят снизу слева: в две колонки между краем и
+             * кнопкой действий оставалось 90px, и «Очень хочу» сжималась до «О…».
+             */
             <PriorityBadgeInline
               priority={item.priority}
-              className="absolute left-3 top-3 max-w-[calc(100%-6.5rem)] rounded-full bg-background px-2.5 py-1 text-xs font-semibold text-foreground shadow-[var(--shadow-float)]"
+              className="absolute left-3 top-3 max-w-[calc(100%-6.5rem)] rounded-full bg-background px-2.5 py-1 text-xs font-semibold text-foreground shadow-[var(--shadow-float)] max-sm:bottom-2 max-sm:left-2 max-sm:top-auto max-sm:max-w-[calc(100%-1rem)] max-sm:gap-1 max-sm:px-2"
             />
           )}
         </div>
@@ -213,12 +217,12 @@ export const WishCard = memo(function WishCard({
 
           <div
             data-testid="wishlist-card-v2-meta"
-            className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground"
+            className="flex min-w-0 items-center gap-x-3 text-sm text-muted-foreground"
           >
             {ownerName ? (
               <span
                 data-testid="wishlist-card-v2-owner"
-                className="inline-flex min-w-0 items-center gap-1.5"
+                className="inline-flex min-w-0 max-w-full shrink-0 items-center gap-1.5"
               >
                 <span className="relative size-5 shrink-0 overflow-hidden rounded-full">
                   {ownerImage && !ownerImageError ? (

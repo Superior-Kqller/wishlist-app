@@ -398,7 +398,7 @@ export function ItemFormDialog({
                     <FieldError id="title-error">{fieldErrors.title}</FieldError>
                   </div>
 
-                  <div className="space-y-2 rounded-xl border border-border bg-[hsl(var(--surface-3)/0.32)] p-3">
+                  <div className="space-y-2">
                     <Label htmlFor="url">{t("Ссылка (необязательно)")}</Label>
                     <Input
                       id="url"
@@ -531,7 +531,7 @@ export function ItemFormDialog({
                       id="item-image-url"
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
-                      placeholder={t("Ссылка на картинку (необязательно)")}
+                      placeholder={t("Ссылка на картинку")}
                     />
                   </div>
 
@@ -608,7 +608,9 @@ export function ItemFormDialog({
                             <span className="min-w-0 flex-1">
                               <span className="block truncate">{label}</span>
                               <span className="block truncate text-[11px] font-medium text-muted-foreground-subtle sm:text-xs">
-                                {t("Уровень")} {value} · {shortLabel}
+                                {t("Уровень")} {value}
+                                {/* В две колонки телефона пояснение обрезалось на полуслове. */}
+                                <span className="max-sm:hidden"> · {shortLabel}</span>
                               </span>
                             </span>
                             {isSelected ? (
