@@ -7,6 +7,18 @@
 
 ## [Unreleased]
 
+> **Перед обновлением:** вместо четырёх compose-файлов — один `docker-compose.yml`, режим задаёт `COMPOSE_PROFILES` в `.env`. Тома и имена контейнеров прежние, данные на месте.
+>
+> - PostgreSQL (был `docker-compose.prod.yml`): `COMPOSE_PROFILES=postgres`.
+> - PGlite (был `docker-compose.pglite.yml`): `COMPOSE_PROFILES=` и `DATABASE_PROVIDER=pglite`.
+> - Valkey (был `docker-compose.valkey.yml`): добавьте `valkey` в профили и `REDIS_URL=/run/valkey/valkey.sock`.
+>
+> Дальше просто `docker compose up -d`, без `-f`. Нужен Docker Compose 2.20.2 или новее.
+
+### Удалено
+
+- `docker-compose.dev.yml`. Локальная база без Docker — `npm run db:local` (PGlite) или свой PostgreSQL.
+
 ## [1.9.6] — 2026-09-27
 
 > **Перед обновлением prod:** PostgreSQL и Valkey больше не в сети `proxy`. Если к `wishlist-db` ходил кто-то ещё из `proxy` (бэкапы, pgAdmin) — подключите его к сети стека явно.

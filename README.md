@@ -23,17 +23,19 @@ The interface supports card and list views, search, filters, sorting, roles, an 
 
 ## Run it your way
 
-| Mode | Best for | Database |
+One `docker-compose.yml` covers every installation; `COMPOSE_PROFILES` in `.env` picks the mode.
+
+| Mode | Best for | `COMPOSE_PROFILES` |
 | --- | --- | --- |
-| **Docker Compose** | A regular long-running installation | PostgreSQL in its own container |
-| **Single container** | A compact personal or home deployment | Embedded PGlite volume |
-| **Development** | Local feature work and testing | Local PostgreSQL |
+| **PostgreSQL** | A regular long-running installation | `postgres` |
+| **Single container** | A compact personal or home deployment with embedded PGlite | empty, plus `DATABASE_PROVIDER=pglite` |
+| **Development** | Local feature work and testing | not used: `npm run dev` |
 
 Valkey/Redis is optional. Without it, rate limiting falls back to the application process memory.
 
 ## Quick start
 
-Requirements: Docker and Docker Compose.
+Requirements: Docker and Docker Compose 2.20.2 or newer.
 
 ```bash
 git clone https://github.com/Superior-Kqller/wishlist-app.git
@@ -42,36 +44,31 @@ cp .env.example .env
 openssl rand -base64 32
 ```
 
-Set strong values for `DB_PASSWORD`, `NEXTAUTH_SECRET`, and `NEXTAUTH_URL` in `.env`, then start the PostgreSQL deployment:
+Set strong values for `DB_PASSWORD`, `NEXTAUTH_SECRET`, and `NEXTAUTH_URL` in `.env`, then start it:
 
 ```bash
 docker network create proxy
-docker compose -f docker-compose.prod.yml pull
-docker compose -f docker-compose.prod.yml up -d
+docker compose pull
+docker compose up -d
 ```
 
 Open `http://127.0.0.1:4030`.
 
-For a single-container PGlite installation:
-
-```bash
-docker compose -f docker-compose.pglite.yml pull
-docker compose -f docker-compose.pglite.yml up -d
-```
-
-PGlite does not need `DB_PASSWORD`; its files live in the `pglite-data` Docker volume.
+For a single-container PGlite installation, leave `COMPOSE_PROFILES` empty and set `DATABASE_PROVIDER=pglite` in `.env` before starting. PGlite does not need `DB_PASSWORD`; its files live in the `pglite-data` Docker volume.
 
 All required and optional settings—including Telegram, reverse proxy, seed users, and Valkey—are documented in [`.env.example`](./.env.example).
 
 <details>
 <summary><strong>Add shared Valkey/Redis rate limiting</strong></summary>
 
+Add `valkey` to the profiles and point the app at its socket in `.env`:
+
 ```bash
-docker compose \
-  -f docker-compose.prod.yml \
-  -f docker-compose.valkey.yml \
-  up -d
+COMPOSE_PROFILES=postgres,valkey
+REDIS_URL=/run/valkey/valkey.sock
 ```
+
+Then run `docker compose up -d` again.
 
 </details>
 
@@ -89,19 +86,17 @@ The app exposes `/api/health` and `/api/version`. PostgreSQL data and uploaded i
 <summary><strong>Common Docker commands</strong></summary>
 
 ```bash
-docker compose -f docker-compose.prod.yml ps
-docker compose -f docker-compose.prod.yml logs -f wishlist-app
-docker compose -f docker-compose.prod.yml pull
-docker compose -f docker-compose.prod.yml up -d
+docker compose ps
+docker compose logs -f wishlist-app
+docker compose pull
+docker compose up -d
 ```
-
-For PGlite, replace `docker-compose.prod.yml` with `docker-compose.pglite.yml`.
 
 </details>
 
 ## Local development
 
-Requirements: Node.js 22, npm, and PostgreSQL (or the bundled PGlite, see below).
+Requirements: Node.js 22, npm, and PostgreSQL or the bundled PGlite.
 
 ```bash
 npm ci
@@ -113,15 +108,7 @@ npm run dev
 
 Use a local `DATABASE_URL`, set `NEXTAUTH_URL=http://localhost:3000`, and add `DISABLE_PWA=1` to `.env`.
 
-To start only the local database:
-
-```bash
-docker compose -f docker-compose.dev.yml up -d
-```
-
-Add `--profile cache` and set `REDIS_URL=redis://localhost:6379` when local Valkey is useful.
-
-Without Docker, `npm run db:local` serves an embedded PGlite on `127.0.0.1:5432`. Point `DATABASE_URL` at `postgresql://postgres:postgres@127.0.0.1:5432/postgres`, then run `npm run db:push` and `npm run db:seed`.
+No PostgreSQL at hand? `npm run db:local` serves an embedded PGlite on `127.0.0.1:5432`. Point `DATABASE_URL` at `postgresql://postgres:postgres@127.0.0.1:5432/postgres`, then run `npm run db:push` and `npm run db:seed`.
 
 <details>
 <summary><strong>Development commands</strong></summary>
