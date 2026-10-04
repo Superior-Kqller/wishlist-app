@@ -37,8 +37,9 @@ interface ProfileFormProps {
   initialName: string;
   initialUsername: string;
   initialAvatarUrl?: string | null;
-  initialTelegramId?: string | null;
+  initialTelegramUsername?: string | null;
   initialTelegramLinkStatus?: TelegramLinkStatus;
+  telegramAvailable?: boolean;
   initialTelegramNotificationsEnabled?: boolean;
   initialCalendarNotificationsEnabled?: boolean;
   initialBirthday?: BirthdayProfile | null;
@@ -48,13 +49,94 @@ interface ProfileFormProps {
   onSuccess: () => void;
 }
 
-function getTelegramStatusText(
-  status: TelegramLinkStatus | undefined,
-  t: (key: string) => string,
-): string {
-  if (status === "linked") return t("Подключено");
-  if (status === "pending") return t("Ожидает подтверждения");
-  return t("Не настроено");
+/**
+ * Привязка Telegram по ссылке `t.me/<bot>?start=<токен>`: бот сам узнаёт ID,
+ * вводить его не нужно. Не часть формы — действует сразу, без «Сохранить».
+ */
+function TelegramConnection({
+  status,
+  username,
+  available,
+  onChange,
+}: {
+  status: TelegramLinkStatus | undefined;
+  username: string | null | undefined;
+  available: boolean;
+  onChange: () => void;
+}) {
+  const { t } = useI18n();
+  const [busy, setBusy] = useState(false);
+
+  async function connect() {
+    // Вкладку открываем до запроса: после await Safari считает её всплывающим окном.
+    const tab = window.open("", "_blank");
+    if (tab) tab.opener = null;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/users/me/telegram-link", { method: "POST" });
+      if (!res.ok) throw await responseError(res, t("Не удалось получить ссылку на бота"));
+      const { url } = (await res.json()) as { url: string };
+      if (tab) tab.location.href = url;
+      else window.location.assign(url);
+    } catch (err: unknown) {
+      tab?.close();
+      toast.error(err instanceof Error ? err.message : t("Не удалось получить ссылку на бота"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function disconnect() {
+    setBusy(true);
+    try {
+      const res = await fetch("/api/users/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ telegramId: null }),
+      });
+      if (!res.ok) throw await responseError(res, t("Не удалось отключить Telegram"));
+      toast.success(t("Telegram отключён"));
+      onChange();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : t("Не удалось отключить Telegram"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (status === "linked") {
+    return (
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="text-sm">
+          {t("Подключено")}
+          {username ? <span className="text-muted-foreground"> · @{username}</span> : null}
+        </p>
+        <Button type="button" variant="outline" disabled={busy} onClick={disconnect}>
+          {t("Отключить")}
+        </Button>
+      </div>
+    );
+  }
+
+  if (!available) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        {t("Администратор ещё не подключил Telegram-бота.")}
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <Button type="button" variant="secondary" disabled={busy} onClick={connect}>
+        {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
+        {t("Подключить Telegram")}
+      </Button>
+      <p className="text-xs text-muted-foreground">
+        {t("Откроется чат с ботом — нажмите в нём «Старт».")}
+      </p>
+    </div>
+  );
 }
 
 /** Заголовок раздела настроек: `section-title` и одна строка пояснения. */
@@ -122,8 +204,9 @@ export function ProfileForm({
   initialName,
   initialUsername,
   initialAvatarUrl,
-  initialTelegramId,
+  initialTelegramUsername,
   initialTelegramLinkStatus,
+  telegramAvailable = false,
   initialTelegramNotificationsEnabled = false,
   initialCalendarNotificationsEnabled = true,
   initialBirthday = null,
@@ -135,7 +218,6 @@ export function ProfileForm({
   const { t, language } = useI18n();
   const [name, setName] = useState(initialName);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
-  const [telegramId, setTelegramId] = useState(initialTelegramId ?? "");
   const [telegramNotificationsEnabled, setTelegramNotificationsEnabled] = useState(
     initialTelegramNotificationsEnabled,
   );
@@ -168,16 +250,13 @@ export function ProfileForm({
   );
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [errors, setErrors] = useState<Partial<Record<"name" | "telegramId" | "birthday", string>>>(
-    {},
-  );
+  const [errors, setErrors] = useState<Partial<Record<"name" | "birthday", string>>>({});
   const clearError = (field: keyof typeof errors) =>
     setErrors((current) => (current[field] ? { ...current, [field]: undefined } : current));
 
   const hasChanges = useMemo(() => {
     return (
       name.trim() !== initialName ||
-      telegramId.trim() !== (initialTelegramId ?? "") ||
       telegramNotificationsEnabled !== initialTelegramNotificationsEnabled ||
       calendarNotificationsEnabled !== initialCalendarNotificationsEnabled ||
       gender !== (initialGender ?? "") ||
@@ -201,7 +280,6 @@ export function ProfileForm({
     );
   }, [
     initialName,
-    initialTelegramId,
     initialTelegramNotificationsEnabled,
     initialCalendarNotificationsEnabled,
     initialGender,
@@ -213,7 +291,6 @@ export function ProfileForm({
     birthdayMonth,
     birthdayYear,
     name,
-    telegramId,
     telegramNotificationsEnabled,
     calendarNotificationsEnabled,
     gender,
@@ -228,9 +305,6 @@ export function ProfileForm({
     // неверное поле, текст под ним остаётся, пока его не поправят.
     const nextErrors: typeof errors = {};
     if (!name.trim()) nextErrors.name = t("Введите имя");
-    if (telegramId.trim() && !/^\d{5,20}$/.test(telegramId.trim())) {
-      nextErrors.telegramId = t("Telegram ID должен содержать только цифры (5-20 символов)");
-    }
     if (birthdayEnabled && (!birthdayDay || !birthdayMonth)) {
       nextErrors.birthday = t("Укажите день и месяц рождения");
     }
@@ -241,9 +315,7 @@ export function ProfileForm({
         ? birthdayDay
           ? "birthdayMonth"
           : "birthdayDay"
-        : nextErrors.telegramId
-          ? "telegramId"
-          : null;
+        : null;
     if (firstInvalid) {
       document.getElementById(firstInvalid)?.focus();
       return;
@@ -261,7 +333,6 @@ export function ProfileForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: name.trim(),
-          telegramId: telegramId.trim() ? telegramId.trim() : null,
           telegramNotificationsEnabled,
           calendarNotificationsEnabled,
           gender: gender || null,
@@ -504,41 +575,29 @@ export function ProfileForm({
           title={t("Telegram")}
           description={t("Уведомления о важных изменениях в списках")}
         >
-          <div className="max-w-sm space-y-2">
-            <Label htmlFor="telegramId">Telegram ID</Label>
-            <Input
-              id="telegramId"
-              value={telegramId}
-              onChange={(e) => {
-                setTelegramId(e.target.value);
-                clearError("telegramId");
-              }}
-              aria-invalid={Boolean(errors.telegramId) || undefined}
-              aria-describedby={errors.telegramId ? "telegramId-error" : "telegramId-status"}
-              placeholder={t("Например: 123456789")}
-              inputMode="numeric"
-            />
-            <FieldError id="telegramId-error">{errors.telegramId}</FieldError>
-            <p id="telegramId-status" className="text-xs text-muted-foreground">
-              {t("Статус")}: {getTelegramStatusText(initialTelegramLinkStatus, t)} ·{" "}
-              {t("После сохранения отправьте /start боту.")}
-            </p>
-          </div>
+          <TelegramConnection
+            status={initialTelegramLinkStatus}
+            username={initialTelegramUsername}
+            available={telegramAvailable}
+            onChange={onSuccess}
+          />
 
-          <div className="divide-y divide-border">
-            <SwitchRow
-              title={t("Telegram-уведомления")}
-              description={t("Получать уведомления в подключённом чате")}
-              checked={telegramNotificationsEnabled}
-              onCheckedChange={setTelegramNotificationsEnabled}
-            />
-            <SwitchRow
-              title={t("Напоминания календаря")}
-              description={t("Получать в Telegram напоминания о доступных событиях")}
-              checked={calendarNotificationsEnabled}
-              onCheckedChange={setCalendarNotificationsEnabled}
-            />
-          </div>
+          {initialTelegramLinkStatus === "linked" && (
+            <div className="divide-y divide-border">
+              <SwitchRow
+                title={t("Telegram-уведомления")}
+                description={t("Получать уведомления в подключённом чате")}
+                checked={telegramNotificationsEnabled}
+                onCheckedChange={setTelegramNotificationsEnabled}
+              />
+              <SwitchRow
+                title={t("Напоминания календаря")}
+                description={t("Получать в Telegram напоминания о доступных событиях")}
+                checked={calendarNotificationsEnabled}
+                onCheckedChange={setCalendarNotificationsEnabled}
+              />
+            </div>
+          )}
         </SettingsSection>
 
         <div className="flex justify-end">

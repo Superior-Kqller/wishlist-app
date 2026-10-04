@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { sanitizeError } from "@/lib/logger";
 import { canTransitionStatus, type ItemStatus } from "@/lib/item-status";
 import { answerTelegramCallback, sendTelegramMessage } from "@/lib/telegram/client";
-import { confirmTelegramLinkByTelegramId } from "@/lib/telegram/linking";
+import { confirmTelegramLinkByToken } from "@/lib/telegram/linking";
 import type { TelegramCallbackQuery, TelegramMessage, TelegramUpdate } from "@/lib/telegram/types";
 import { notifyStatusTransition } from "@/lib/telegram/notifications";
 
@@ -85,36 +85,58 @@ function buildMyItemsMarkup(
   return { inline_keyboard: rows };
 }
 
-async function handleStart(message: TelegramMessage): Promise<void> {
+async function handleStart(message: TelegramMessage, token: string | undefined): Promise<void> {
   const from = message.from;
   if (!from) return;
 
   const telegramId = toTelegramIdString(from.id);
-  const result = await confirmTelegramLinkByTelegramId({
-    telegramId,
-    telegramUsername: from.username,
-  });
+  const chatId = String(message.chat.id);
 
-  if (!result.ok) {
-    if (result.reason === "already_linked") {
-      await sendMainMenu(
-        String(message.chat.id),
-        "Привязка уже подтверждена. Используйте кнопки меню для работы с подарками.",
-      );
+  // Ссылка из настроек: `t.me/<bot>?start=<токен>`. Уведомления идут на from.id,
+  // а это адрес только личного чата — в группе токен не принимаем.
+  if (token) {
+    if (message.chat.type !== "private") {
+      await sendTelegramMessage({ chatId, text: PRIVATE_CHAT_ONLY_MESSAGE });
       return;
     }
 
-    await sendTelegramMessage({
-      chatId: String(message.chat.id),
-      text: "Не удалось подтвердить привязку. Укажите Telegram ID в настройках аккаунта wishlist и отправьте /start снова.",
+    const linked = await confirmTelegramLinkByToken({
+      token,
+      telegramId,
+      telegramUsername: from.username,
     });
+    if (!linked.ok) {
+      await sendTelegramMessage({
+        chatId,
+        text:
+          linked.reason === "taken"
+            ? "Этот Telegram уже подключён к другому аккаунту вишлиста. Сначала отключите его там."
+            : "Ссылка устарела или уже использована. Получите новую в настройках вишлиста.",
+      });
+      return;
+    }
+
+    await sendMainMenu(
+      chatId,
+      `Telegram подключен к аккаунту ${linked.userName}. Используйте кнопки ниже для быстрых действий.`,
+    );
     return;
   }
 
-  await sendMainMenu(
-    String(message.chat.id),
-    `Telegram подключен к аккаунту ${result.userName}. Используйте кнопки ниже для быстрых действий.`,
-  );
+  // Голый `/start` больше ничего не привязывает: подтверждение введённого
+  // вручную ID отдало бы Telegram тому, кто вписал чужой номер.
+  if (await getActorByTelegramId(telegramId)) {
+    await sendMainMenu(
+      chatId,
+      "Telegram уже подключён. Используйте кнопки меню для работы с подарками.",
+    );
+    return;
+  }
+
+  await sendTelegramMessage({
+    chatId,
+    text: "Telegram не подключён. Откройте настройки вишлиста и нажмите «Подключить Telegram».",
+  });
 }
 
 async function handleMyItems(actorUserId: string, chatId: string): Promise<void> {
@@ -363,8 +385,9 @@ async function handleMessage(message: TelegramMessage): Promise<void> {
     return;
   }
 
-  if (text === "/start") {
-    await handleStart(message);
+  const start = text.match(/^\/start(?:@\w+)?(?:\s+(\S+))?$/);
+  if (start) {
+    await handleStart(message, start[1]);
     return;
   }
 
@@ -375,7 +398,7 @@ async function handleMessage(message: TelegramMessage): Promise<void> {
   if (!actor) {
     await sendTelegramMessage({
       chatId: String(message.chat.id),
-      text: "Сначала привяжите Telegram в настройках аккаунта wishlist и отправьте /start.",
+      text: "Сначала подключите Telegram в настройках вишлиста.",
     });
     return;
   }

@@ -74,3 +74,23 @@ export async function answerTelegramCallback(input: AnswerCallbackInput): Promis
 
   await callTelegramApi("answerCallbackQuery", payload);
 }
+
+let botUsername: Promise<string> | null = null;
+
+/** Имя бота для ссылок `t.me/<bot>`: спрашиваем у Telegram один раз, а не держим в .env. */
+export function getTelegramBotUsername(): Promise<string> {
+  botUsername ??= callTelegramApi<{ username: string }>("getMe", {}).then(
+    (me) => me.username,
+    (error: unknown) => {
+      botUsername = null;
+      throw error;
+    },
+  );
+  return botUsername;
+}
+
+/** Адрес вебхука или пустая строка: без него бот не получит `/start` и привязка не пройдёт. */
+export async function getTelegramWebhookUrl(): Promise<string> {
+  const info = await callTelegramApi<{ url: string }>("getWebhookInfo", {});
+  return info.url;
+}

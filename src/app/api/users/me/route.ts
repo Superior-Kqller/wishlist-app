@@ -5,6 +5,7 @@ import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { normalizeAvatarUrl } from "@/lib/avatar-url-policy";
 import { inferTelegramLinkStatus } from "@/lib/telegram/link-status";
+import { getTelegramConfig } from "@/lib/telegram/config";
 import { normalizeGiftPreferences, giftPreferencesSchema } from "@/lib/preferences";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
@@ -12,10 +13,6 @@ import { isValidCalendarDate } from "@/lib/calendar/local-date";
 import { profileGenderSchema, type ProfileGender } from "@/lib/calendar/calendar-events";
 import { unauthorizedResponse } from "@/lib/api-responses";
 
-const telegramIdSchema = z
-  .string()
-  .trim()
-  .regex(/^\d{5,20}$/);
 const birthdayAudienceSchema = z.enum(["ALL", "SELECTED", "PRIVATE"]);
 const birthdaySchema = z
   .object({
@@ -39,7 +36,8 @@ const birthdaySchema = z
 const updateProfileSchema = z.object({
   name: z.string().trim().min(1).max(100).optional(),
   avatarUrl: z.string().max(2048).optional(),
-  telegramId: z.union([telegramIdSchema, z.literal(""), z.null()]).optional(),
+  // Подключают Telegram по ссылке из бота; здесь его можно только отключить.
+  telegramId: z.null().optional(),
   telegramNotificationsEnabled: z.boolean().optional(),
   calendarNotificationsEnabled: z.boolean().optional(),
   giftPreferences: giftPreferencesSchema.optional(),
@@ -123,6 +121,7 @@ export async function GET(req: NextRequest) {
       telegramId: user.telegramId,
       telegramConfirmedAt: user.telegramConfirmedAt,
     }),
+    telegramAvailable: getTelegramConfig().enabled,
   });
 }
 
@@ -204,25 +203,11 @@ export async function PATCH(req: NextRequest) {
       updateData.birthdayAudience = data.birthday?.audience ?? "PRIVATE";
     }
 
-    if (data.telegramId !== undefined) {
-      const nextTelegramId =
-        data.telegramId === "" || data.telegramId === null ? null : data.telegramId;
-
-      const current = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { telegramId: true },
-      });
-
-      if (!current) {
-        return NextResponse.json({ error: "User not found" }, { status: 404 });
-      }
-
-      if (current.telegramId !== nextTelegramId) {
-        updateData.telegramId = nextTelegramId;
-        updateData.telegramUsername = null;
-        updateData.telegramConfirmedAt = null;
-        updateData.telegramLinkedAt = nextTelegramId ? new Date() : null;
-      }
+    if (data.telegramId === null) {
+      updateData.telegramId = null;
+      updateData.telegramUsername = null;
+      updateData.telegramConfirmedAt = null;
+      updateData.telegramLinkedAt = null;
     }
 
     if (Object.keys(updateData).length === 0) {
@@ -309,13 +294,6 @@ export async function PATCH(req: NextRequest) {
 
     if (err instanceof Error && err.message === "INVALID_BIRTHDAY_VIEWERS") {
       return NextResponse.json({ error: "Некорректная аудитория события" }, { status: 400 });
-    }
-
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-      return NextResponse.json(
-        { error: "Этот Telegram ID уже привязан к другому аккаунту" },
-        { status: 409 },
-      );
     }
 
     sanitizeError("Update profile error", err, { userId });

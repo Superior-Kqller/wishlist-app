@@ -114,11 +114,14 @@ export default function SettingsPage() {
                 иначе несохранённые правки формы молча пропадали. */}
           <TabsContent value="profile" forceMount className="m-0 data-[state=inactive]:hidden">
             <ProfileForm
-              key={`profile-${refreshKey}`}
+              // Привязка завершается в боте; когда профиль перечитается при возврате
+              // на вкладку, форма пересоздаётся со свежими тумблерами уведомлений.
+              key={`profile-${refreshKey}-${user.telegramLinkStatus}`}
               initialName={user.name}
               initialUsername={user.username}
               initialAvatarUrl={user.avatarUrl}
-              initialTelegramId={user.telegramId}
+              initialTelegramUsername={user.telegramUsername}
+              telegramAvailable={Boolean(user.telegramAvailable)}
               initialTelegramLinkStatus={user.telegramLinkStatus}
               initialTelegramNotificationsEnabled={Boolean(user.telegramNotificationsEnabled)}
               initialCalendarNotificationsEnabled={Boolean(user.calendarNotificationsEnabled)}

@@ -534,14 +534,19 @@ const en: Dictionary = {
   Имя: "Name",
   "Ваше имя": "Your name",
   "Введите имя": "Enter a name",
-  "Например: 123456789": "Example: 123456789",
   Подключено: "Connected",
   "Ожидает подтверждения": "Waiting for confirmation",
   "Не настроено": "Not configured",
-  "После сохранения отправьте /start боту.": "After saving, send /start to the bot.",
   "Включить Telegram-уведомления": "Enable Telegram notifications",
-  "Telegram ID должен содержать только цифры (5-20 символов)":
-    "Telegram ID must contain digits only (5-20 characters)",
+  "Подключить Telegram": "Connect Telegram",
+  "Откроется чат с ботом — нажмите в нём «Старт».":
+    "A chat with the bot will open — tap “Start” there.",
+  "Администратор ещё не подключил Telegram-бота.":
+    "The administrator hasn’t set up the Telegram bot yet.",
+  "Не удалось получить ссылку на бота": "Could not get the bot link",
+  "Не удалось отключить Telegram": "Could not disconnect Telegram",
+  "Telegram отключён": "Telegram disconnected",
+  Отключить: "Disconnect",
   "Нет изменений для сохранения": "No changes to save",
   "Ошибка при обновлении профиля": "Could not update profile",
   "Профиль обновлен": "Profile updated",

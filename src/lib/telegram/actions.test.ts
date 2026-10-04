@@ -291,3 +291,127 @@ describe("telegram actions", () => {
     expect(mockAnswerTelegramCallback).toHaveBeenCalledWith({ callbackQueryId: "callback-4" });
   });
 });
+
+describe("привязка по ссылке /start <токен>", () => {
+  const tokenUser = {
+    id: "user-1",
+    name: "Аня",
+    telegramLinkTokenExpiresAt: new Date(Date.now() + 60_000),
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  async function setup(
+    holder: { id: string; telegramConfirmedAt: Date | null } | null,
+    owner: typeof tokenUser | null = tokenUser,
+  ) {
+    const { prisma } = await import("@/lib/prisma");
+    const findUnique = prisma.user.findUnique as unknown as ReturnType<typeof vi.fn>;
+    findUnique.mockImplementation(({ where }: { where: Record<string, unknown> }) =>
+      Promise.resolve(where.telegramLinkTokenHash ? owner : holder),
+    );
+    (prisma.$transaction as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (run: (tx: typeof prisma) => unknown) => run(prisma),
+    );
+    return { findUnique, update: prisma.user.update as unknown as ReturnType<typeof vi.fn> };
+  }
+
+  async function start(text: string, chatType: "private" | "group" = "private") {
+    const { handleTelegramUpdate } = await import("./actions");
+    await handleTelegramUpdate({
+      update_id: 1,
+      message: {
+        message_id: 1,
+        from: { id: 555, is_bot: false, first_name: "Аня", username: "anya" },
+        chat: { id: 555, type: chatType },
+        text,
+      },
+    });
+  }
+
+  it("привязывает Telegram, из которого открыли ссылку, и гасит токен", async () => {
+    const { update } = await setup(null);
+
+    await start("/start@wishlist_bot tok_123-abc");
+
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(update).toHaveBeenCalledWith({
+      where: { id: "user-1" },
+      data: expect.objectContaining({
+        telegramId: "555",
+        telegramUsername: "anya",
+        telegramConfirmedAt: expect.any(Date),
+        telegramNotificationsEnabled: true,
+        telegramLinkTokenHash: null,
+        telegramLinkTokenExpiresAt: null,
+      }),
+    });
+    expect(mockSendTelegramMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ text: expect.stringContaining("подключен к аккаунту Аня") }),
+    );
+  });
+
+  it("не принимает просроченный токен", async () => {
+    const { update } = await setup(null, {
+      ...tokenUser,
+      telegramLinkTokenExpiresAt: new Date(Date.now() - 1),
+    });
+
+    await start("/start tok");
+
+    expect(update).not.toHaveBeenCalled();
+    expect(mockSendTelegramMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ text: expect.stringContaining("Ссылка устарела") }),
+    );
+  });
+
+  it("не перехватывает Telegram, подтверждённый у другого аккаунта", async () => {
+    const { update } = await setup({ id: "user-2", telegramConfirmedAt: new Date() });
+
+    await start("/start tok");
+
+    expect(update).not.toHaveBeenCalled();
+    expect(mockSendTelegramMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ text: expect.stringContaining("другому аккаунту") }),
+    );
+  });
+
+  it("снимает неподтверждённый ID, введённый когда-то вручную у другого аккаунта", async () => {
+    const { update } = await setup({ id: "user-2", telegramConfirmedAt: null });
+
+    await start("/start tok");
+
+    expect(update).toHaveBeenNthCalledWith(1, {
+      where: { id: "user-2" },
+      data: { telegramId: null, telegramLinkedAt: null },
+    });
+    expect(update).toHaveBeenNthCalledWith(2, expect.objectContaining({ where: { id: "user-1" } }));
+  });
+
+  it("голый /start не подтверждает введённый вручную ID", async () => {
+    const { update } = await setup(null);
+    const { prisma } = await import("@/lib/prisma");
+    (prisma.user.findFirst as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+
+    await start("/start");
+
+    expect(update).not.toHaveBeenCalled();
+    expect(mockSendTelegramMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ text: expect.stringContaining("«Подключить Telegram»") }),
+    );
+  });
+
+  it("не принимает токен в группе: уведомления ходят только в личный чат", async () => {
+    const { findUnique } = await setup(null);
+
+    await start("/start tok", "group");
+
+    expect(findUnique).not.toHaveBeenCalled();
+    expect(mockSendTelegramMessage).toHaveBeenCalledWith({
+      chatId: "555",
+      text: "Команда доступна только в личном чате.",
+    });
+  });
+});

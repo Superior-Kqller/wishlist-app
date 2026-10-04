@@ -59,6 +59,9 @@ model User {
   telegramLinkedAt DateTime?
   telegramConfirmedAt DateTime?
   telegramNotificationsEnabled Boolean @default(false)
+  /// sha256 одноразового токена из ссылки t.me/<bot>?start=<токен>
+  telegramLinkTokenHash String? @unique
+  telegramLinkTokenExpiresAt DateTime?
   calendarNotificationsEnabled Boolean @default(true)
   giftPreferences Json?
   gender        ProfileGender?
