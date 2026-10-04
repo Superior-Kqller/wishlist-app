@@ -2,6 +2,16 @@ import { getTelegramConfig } from "@/lib/telegram/config";
 import { sanitizeError } from "@/lib/logger";
 import type { TelegramParseMode, TelegramReplyMarkup } from "@/lib/telegram/types";
 
+export interface TelegramInlineArticle {
+  type: "article";
+  id: string;
+  title: string;
+  description?: string;
+  thumbnail_url?: string;
+  input_message_content: { message_text: string };
+  reply_markup?: TelegramReplyMarkup;
+}
+
 /** Дольше этого ждать ответа Telegram незачем: уведомление не стоит очереди. */
 const TELEGRAM_REQUEST_TIMEOUT_MS = 5000;
 
@@ -96,6 +106,25 @@ export async function answerTelegramCallback(input: AnswerCallbackInput): Promis
   await callTelegramApi("answerCallbackQuery", payload);
 }
 
+/**
+ * Ответ на `@бот …`. Список у каждого свой: без `is_personal` Telegram отдал бы
+ * закэшированные желания одного человека другому, набравшему тот же запрос.
+ * Кэш короткий, чтобы только что добавленное желание появлялось сразу.
+ */
+export async function answerTelegramInlineQuery(input: {
+  inlineQueryId: string;
+  results: TelegramInlineArticle[];
+  button?: { text: string; start_parameter: string };
+}): Promise<void> {
+  await callTelegramApi("answerInlineQuery", {
+    inline_query_id: input.inlineQueryId,
+    results: input.results,
+    is_personal: true,
+    cache_time: 5,
+    ...(input.button ? { button: input.button } : {}),
+  });
+}
+
 let botUsername: Promise<string> | null = null;
 
 /** Имя бота для ссылок `t.me/<bot>`: спрашиваем у Telegram один раз, а не держим в .env. */
@@ -146,7 +175,7 @@ export async function setupTelegramBot(publicBaseUrl: string | undefined): Promi
     await callTelegramApi("setWebhook", {
       url: `${base}/api/integrations/telegram/webhook`,
       secret_token: config.webhookSecret,
-      allowed_updates: ["message", "callback_query"],
+      allowed_updates: ["message", "callback_query", "inline_query"],
     });
     for (const menu of BOT_COMMANDS) {
       await callTelegramApi("setMyCommands", menu);

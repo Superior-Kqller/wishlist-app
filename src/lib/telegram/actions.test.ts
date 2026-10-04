@@ -1,15 +1,17 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockSendTelegramMessage = vi.fn();
 const mockAnswerTelegramCallback = vi.fn();
 const mockEditTelegramMessage = vi.fn();
 const mockParseWishlistProductUrl = vi.fn();
 const mockNotifyItemCreated = vi.fn();
+const mockAnswerTelegramInlineQuery = vi.fn();
 
 vi.mock("@/lib/telegram/client", () => ({
   sendTelegramMessage: mockSendTelegramMessage,
   answerTelegramCallback: mockAnswerTelegramCallback,
   editTelegramMessage: mockEditTelegramMessage,
+  answerTelegramInlineQuery: mockAnswerTelegramInlineQuery,
   sendTelegramTyping: vi.fn().mockResolvedValue(undefined),
 }));
 
@@ -614,6 +616,108 @@ describe("желание по ссылке, присланной боту", () =
         messageId: 7,
         text: "🎁 Добавлено в «Мечты»\n📌 Наушники\n💰 5000 RUB",
       }),
+    );
+  });
+});
+
+describe("inline-режим: @бот в любом чате", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubEnv("NEXTAUTH_URL", "https://wish.example.com");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  async function inline(query: string, actor: { id: string } | null) {
+    const { prisma } = await import("@/lib/prisma");
+    (prisma.user.findFirst as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(actor);
+    const { handleTelegramUpdate } = await import("./actions");
+    await handleTelegramUpdate({
+      update_id: 1,
+      inline_query: { id: "q-1", from: { id: 42, is_bot: false, first_name: "Аня" }, query },
+    });
+    return prisma;
+  }
+
+  it("показывает только свои некупленные желания по запросу — лично и без долгого кэша", async () => {
+    const { prisma } = await import("@/lib/prisma");
+    (prisma.item.findMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([
+      {
+        id: "item-1",
+        title: "Книга",
+        url: "https://shop.example.com/book",
+        price: 1500,
+        currency: "RUB",
+        images: ["http://shop.example.com/book.jpg"],
+      },
+    ]);
+
+    await inline("  кни ", { id: "actor-1" });
+
+    expect(prisma.item.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          userId: "actor-1",
+          status: "AVAILABLE",
+          purchased: false,
+          title: { contains: "кни", mode: "insensitive" },
+        },
+      }),
+    );
+    expect(mockAnswerTelegramInlineQuery).toHaveBeenCalledWith({
+      inlineQueryId: "q-1",
+      results: [
+        {
+          type: "article",
+          id: "item-1",
+          title: "Книга",
+          description: expect.stringContaining("1"),
+          input_message_content: {
+            message_text: expect.stringMatching(
+              /^🎁 Хочу в подарок: Книга\n.+\nhttps:\/\/shop\.example\.com\/book$/,
+            ),
+          },
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: "Открыть в вишлисте", url: "https://wish.example.com/?item=item-1" }],
+            ],
+          },
+        },
+      ],
+    });
+  });
+
+  it("без привязки не показывает ничего, кроме кнопки подключения", async () => {
+    const prisma = await inline("", null);
+
+    expect(prisma.item.findMany).not.toHaveBeenCalled();
+    expect(mockAnswerTelegramInlineQuery).toHaveBeenCalledWith({
+      inlineQueryId: "q-1",
+      results: [],
+      button: { text: "Подключить вишлист", start_parameter: "inline" },
+    });
+  });
+
+  it("/start inline из этой кнопки объясняет подключение, а не ругает ссылку", async () => {
+    const { prisma } = await import("@/lib/prisma");
+    (prisma.user.findFirst as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    const { handleTelegramUpdate } = await import("./actions");
+
+    await handleTelegramUpdate({
+      update_id: 1,
+      message: {
+        message_id: 1,
+        from: { id: 42, is_bot: false, first_name: "Аня" },
+        chat: { id: 42, type: "private" },
+        text: "/start inline",
+      },
+    });
+
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(mockSendTelegramMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ text: expect.stringContaining("«Подключить Telegram»") }),
     );
   });
 });

@@ -33,10 +33,18 @@ export interface TelegramCallbackQuery {
   data?: string;
 }
 
+/** Набор `@бот …` в поле ввода любого чата. */
+export interface TelegramInlineQuery {
+  id: string;
+  from: TelegramUser;
+  query: string;
+}
+
 export interface TelegramUpdate {
   update_id: number;
   message?: TelegramMessage;
   callback_query?: TelegramCallbackQuery;
+  inline_query?: TelegramInlineQuery;
 }
 
 export type TelegramParseMode = "MarkdownV2" | "HTML";

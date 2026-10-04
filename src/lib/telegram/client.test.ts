@@ -45,7 +45,7 @@ describe("setupTelegramBot", () => {
         body: {
           url: "https://wish.example.com/api/integrations/telegram/webhook",
           secret_token: "secret_1",
-          allowed_updates: ["message", "callback_query"],
+          allowed_updates: ["message", "callback_query", "inline_query"],
         },
       },
       {

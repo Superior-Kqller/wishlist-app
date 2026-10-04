@@ -1,14 +1,26 @@
 import { prisma } from "@/lib/prisma";
 import { sanitizeError } from "@/lib/logger";
 import { canTransitionStatus, getItemStatusLabel, type ItemStatus } from "@/lib/item-status";
-import { answerTelegramCallback, sendTelegramMessage } from "@/lib/telegram/client";
+import { formatPrice } from "@/lib/utils";
+import {
+  answerTelegramCallback,
+  answerTelegramInlineQuery,
+  sendTelegramMessage,
+  type TelegramInlineArticle,
+} from "@/lib/telegram/client";
+import { appLinks, itemPath } from "@/lib/telegram/app-links";
 import { confirmTelegramLinkByToken } from "@/lib/telegram/linking";
 import {
   findMessageLink,
   handleAddLink,
   handleAddedItemCallback,
 } from "@/lib/telegram/add-by-link";
-import type { TelegramCallbackQuery, TelegramMessage, TelegramUpdate } from "@/lib/telegram/types";
+import type {
+  TelegramCallbackQuery,
+  TelegramInlineQuery,
+  TelegramMessage,
+  TelegramUpdate,
+} from "@/lib/telegram/types";
 import { notifyStatusTransition } from "@/lib/telegram/notifications";
 
 function toTelegramIdString(id: number): string {
@@ -390,6 +402,69 @@ async function handleCallback(actorUserId: string, callback: TelegramCallbackQue
   }
 }
 
+/**
+ * Кнопка под пустым inline-списком открывает личный чат с `/start inline`. Это не
+ * токен привязки (те длиннее), а просьба объяснить, как подключиться.
+ */
+const INLINE_START_PARAMETER = "inline";
+
+function toInlineArticle(item: {
+  id: string;
+  title: string;
+  url: string | null;
+  price: number | null;
+  currency: string;
+  images: string[];
+}): TelegramInlineArticle {
+  const price = item.price === null ? null : formatPrice(item.price, item.currency);
+  const links = appLinks([{ text: "Открыть в вишлисте", path: itemPath(item.id) }]);
+  const thumbnail = item.images[0];
+  return {
+    type: "article",
+    id: item.id,
+    title: item.title,
+    description: price ?? "Без цены",
+    ...(thumbnail?.startsWith("https://") ? { thumbnail_url: thumbnail } : {}),
+    // Сообщение уходит и тем, у кого нет доступа к вишлисту: главное в нём —
+    // ссылка на магазин, а кнопка на сайт пригодится своим.
+    input_message_content: {
+      message_text: [`🎁 Хочу в подарок: ${item.title}`, price, item.url, ...links.lines]
+        .filter(Boolean)
+        .join("\n"),
+    },
+    ...(links.replyMarkup ? { reply_markup: links.replyMarkup } : {}),
+  };
+}
+
+/** `@бот …` в любом чате: свои некупленные желания, чтобы отправить одно карточкой. */
+async function handleInlineQuery(query: TelegramInlineQuery): Promise<void> {
+  const actor = await getActorByTelegramId(toTelegramIdString(query.from.id));
+  if (!actor) {
+    await answerTelegramInlineQuery({
+      inlineQueryId: query.id,
+      results: [],
+      button: { text: "Подключить вишлист", start_parameter: INLINE_START_PARAMETER },
+    });
+    return;
+  }
+
+  const search = query.query.trim();
+  // ponytail: первые 50 без листания по offset; понадобится — отдавать next_offset.
+  const items = await prisma.item.findMany({
+    where: {
+      userId: actor.id,
+      status: "AVAILABLE",
+      purchased: false,
+      ...(search ? { title: { contains: search, mode: "insensitive" as const } } : {}),
+    },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+    select: { id: true, title: true, url: true, price: true, currency: true, images: true },
+  });
+
+  await answerTelegramInlineQuery({ inlineQueryId: query.id, results: items.map(toInlineArticle) });
+}
+
 async function handleMessage(message: TelegramMessage): Promise<void> {
   const text = message.text?.trim();
   if (!text) return;
@@ -404,7 +479,7 @@ async function handleMessage(message: TelegramMessage): Promise<void> {
 
   const start = text.match(/^\/start(?:@\w+)?(?:\s+(\S+))?$/);
   if (start) {
-    await handleStart(message, start[1]);
+    await handleStart(message, start[1] === INLINE_START_PARAMETER ? undefined : start[1]);
     return;
   }
 
@@ -468,6 +543,11 @@ export async function handleTelegramUpdate(update: TelegramUpdate): Promise<void
   try {
     if (update.message) {
       await handleMessage(update.message);
+      return;
+    }
+
+    if (update.inline_query) {
+      await handleInlineQuery(update.inline_query);
       return;
     }
 
