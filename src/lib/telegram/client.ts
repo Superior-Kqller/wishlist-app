@@ -1,4 +1,5 @@
 import { getTelegramConfig } from "@/lib/telegram/config";
+import { sanitizeError } from "@/lib/logger";
 import type { TelegramParseMode, TelegramReplyMarkup } from "@/lib/telegram/types";
 
 /** Дольше этого ждать ответа Telegram незачем: уведомление не стоит очереди. */
@@ -113,4 +114,44 @@ export function getTelegramBotUsername(): Promise<string> {
 export async function getTelegramWebhookUrl(): Promise<string> {
   const info = await callTelegramApi<{ url: string }>("getWebhookInfo", {});
   return info.url;
+}
+
+// Подарки — только в личном чате (в группе бот на них отказывает), ID чата — в группах.
+const BOT_COMMANDS = [
+  {
+    scope: { type: "all_private_chats" },
+    commands: [
+      { command: "myitems", description: "Мои подарки" },
+      { command: "available", description: "Доступные подарки" },
+    ],
+  },
+  {
+    scope: { type: "all_group_chats" },
+    commands: [{ command: "chatid", description: "ID этого чата" }],
+  },
+];
+
+/**
+ * Настройка бота при старте приложения: вебхук на этот экземпляр и меню команд —
+ * вместо ручного запроса setWebhook. Только когда вебхук можно защитить секретом и
+ * Telegram достучится до https-адреса; иначе бот остаётся в режиме уведомлений.
+ * Не бросает: старт приложения от Telegram не зависит.
+ */
+export async function setupTelegramBot(publicBaseUrl: string | undefined): Promise<void> {
+  const config = getTelegramConfig();
+  const base = publicBaseUrl?.trim().replace(/\/+$/, "");
+  if (!config.enabled || !config.webhookSecret || !base?.startsWith("https://")) return;
+
+  try {
+    await callTelegramApi("setWebhook", {
+      url: `${base}/api/integrations/telegram/webhook`,
+      secret_token: config.webhookSecret,
+      allowed_updates: ["message", "callback_query"],
+    });
+    for (const menu of BOT_COMMANDS) {
+      await callTelegramApi("setMyCommands", menu);
+    }
+  } catch (error) {
+    sanitizeError("Telegram bot setup error", error);
+  }
 }

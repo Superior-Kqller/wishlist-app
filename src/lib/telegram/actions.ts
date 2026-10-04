@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { sanitizeError } from "@/lib/logger";
-import { canTransitionStatus, type ItemStatus } from "@/lib/item-status";
+import { canTransitionStatus, getItemStatusLabel, type ItemStatus } from "@/lib/item-status";
 import { answerTelegramCallback, sendTelegramMessage } from "@/lib/telegram/client";
 import { confirmTelegramLinkByToken } from "@/lib/telegram/linking";
 import {
@@ -35,7 +35,14 @@ async function sendMainMenu(chatId: string, text: string): Promise<void> {
   await sendTelegramMessage({
     chatId,
     text,
-    replyMarkup: { inline_keyboard: [[{ text: "Мои подарки", callback_data: "menu:mine" }]] },
+    replyMarkup: {
+      inline_keyboard: [
+        [
+          { text: "Мои подарки", callback_data: "menu:mine" },
+          { text: "Доступные подарки", callback_data: "menu:available" },
+        ],
+      ],
+    },
   });
 }
 
@@ -46,7 +53,7 @@ function formatMyItems(items: Array<{ id: string; title: string; status: ItemSta
     return "У вас пока нет подарков.";
   }
 
-  const lines = items.map((item) => `- ${item.title} [${item.status}]`);
+  const lines = items.map((item) => `- ${item.title} · ${getItemStatusLabel(item.status)}`);
   return ["Ваши подарки:", ...lines].join("\n");
 }
 

@@ -247,7 +247,7 @@ describe("telegram actions", () => {
     expect(mockFindMany).toHaveBeenCalledTimes(1);
     expect(mockSendTelegramMessage).toHaveBeenCalledWith({
       chatId: "123456789",
-      text: expect.stringContaining("Мой приватный подарок [AVAILABLE]"),
+      text: expect.stringContaining("Мой приватный подарок · Доступно"),
       replyMarkup: expect.anything(),
     });
   });
@@ -303,7 +303,7 @@ describe("telegram actions", () => {
     expect(mockFindMany).toHaveBeenCalledTimes(1);
     expect(mockSendTelegramMessage).toHaveBeenCalledWith({
       chatId: "123456789",
-      text: expect.stringContaining("Мой приватный подарок [AVAILABLE]"),
+      text: expect.stringContaining("Мой приватный подарок · Доступно"),
       replyMarkup: expect.anything(),
     });
     expect(mockAnswerTelegramCallback).toHaveBeenCalledWith({ callbackQueryId: "callback-4" });
