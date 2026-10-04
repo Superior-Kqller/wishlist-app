@@ -38,9 +38,9 @@ export function useWishlistAddUrlDeepLink(
       routerReplace(qs ? `/?${qs}` : "/", { scroll: false });
     };
 
-    let decoded: string;
+    // `searchParams` уже раскодировал адрес; второй decode ломал ссылки с `%` внутри.
+    const decoded = box.addUrl;
     try {
-      decoded = decodeURIComponent(box.addUrl);
       if (decoded.length > 2048) throw new Error("too long");
       new URL(decoded);
     } catch {

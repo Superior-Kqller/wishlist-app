@@ -11,6 +11,12 @@ import { Loader2 } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { useI18n } from "@/components/i18n/language-provider";
+import { safeCallbackPath } from "@/lib/deep-links";
+
+/** Страница, с которой отправили на вход, — например, форма из букмарклета. */
+function callbackPath(): string {
+  return safeCallbackPath(new URLSearchParams(window.location.search).get("callbackUrl"));
+}
 
 export default function LoginPage() {
   const { t } = useI18n();
@@ -25,7 +31,7 @@ export default function LoginPage() {
 
   // Уже вошедшему форма входа не нужна: закладка на /login вела в тупик.
   useEffect(() => {
-    if (status === "authenticated") router.replace("/");
+    if (status === "authenticated") router.replace(callbackPath());
   }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,7 +50,7 @@ export default function LoginPage() {
       setFailedAttempts((count) => count + 1);
       setLoading(false);
     } else {
-      router.push("/");
+      router.push(callbackPath());
       router.refresh();
     }
   };

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { PasswordForm } from "@/components/settings/PasswordForm";
+import { BookmarkletSection } from "@/components/settings/BookmarkletSection";
 import { ShieldCheck, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -127,6 +128,10 @@ export default function SettingsPage() {
               userId={user.id}
               onSuccess={handleSuccess}
             />
+            {/* Закладки — это компьютер; на телефоне ссылку присылают через «Поделиться». */}
+            <div className="mt-8 hidden border-t border-border pt-8 min-[744px]:block">
+              <BookmarkletSection />
+            </div>
           </TabsContent>
           <TabsContent value="security" className="m-0">
             <PasswordForm key={`password-${refreshKey}`} userId={user.id} />

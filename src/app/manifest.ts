@@ -17,6 +17,11 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     theme_color: "#ffffff",
     orientation: "portrait-primary",
     lang: language,
+    share_target: {
+      action: "/share",
+      method: "GET",
+      params: { title: "title", text: "text", url: "url" },
+    },
     icons: [
       {
         src: "/assets/favicon/app-icon-192.png",
