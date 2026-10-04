@@ -14,12 +14,12 @@ Wishlist is a self-hosted web app for families, friends, and small teams. It kee
 
 ## One place for the whole gift loop
 
-- **Collect ideas** — create personal or shared lists with product links, photos, prices, notes, categories, and priorities.
-- **Share list by list** — every list stays yours until you name who else may see it, so each person opens only the lists meant for them.
-- **Plan around people** — use preferences, birthdays, personal dates, shared holidays, and automatic reminders to decide what matters and when.
-- **Stay in sync** — track available and purchased items, comment on activity, export data, and optionally receive Telegram notifications.
+- **Collect ideas** — add wishes with product links, photos, prices, notes, categories, and five-step priorities.
+- **Share list by list** — group wishes into lists with their own cover; every list stays yours until you name who else may see it, so each person opens only the lists meant for them.
+- **Plan around people** — gift profiles keep favorite colors, sizes, and hints; birthdays, personal dates, shared holidays, and automatic reminders show what matters and when.
+- **Stay in sync** — mark wishes as purchased, comment on them, follow totals and recent activity in Statistics, export to CSV or JSON, and optionally receive Telegram notifications.
 
-The interface supports card and table views, search, filters, sorting, roles, an admin area, English and Russian, and installation as a mobile PWA.
+The interface supports card and list views, search, filters, sorting, roles, an admin area, English and Russian, system, light, and dark themes, and installation as a mobile PWA.
 
 ## Run it your way
 
@@ -101,7 +101,7 @@ For PGlite, replace `docker-compose.prod.yml` with `docker-compose.pglite.yml`.
 
 ## Local development
 
-Requirements: Node.js 22, npm, and PostgreSQL.
+Requirements: Node.js 22, npm, and PostgreSQL (or the bundled PGlite, see below).
 
 ```bash
 npm ci
@@ -121,6 +121,8 @@ docker compose -f docker-compose.dev.yml up -d
 
 Add `--profile cache` and set `REDIS_URL=redis://localhost:6379` when local Valkey is useful.
 
+Without Docker, `npm run db:local` serves an embedded PGlite on `127.0.0.1:5432`. Point `DATABASE_URL` at `postgresql://postgres:postgres@127.0.0.1:5432/postgres`, then run `npm run db:push` and `npm run db:seed`.
+
 <details>
 <summary><strong>Development commands</strong></summary>
 
@@ -130,8 +132,11 @@ Add `--profile cache` and set `REDIS_URL=redis://localhost:6379` when local Valk
 | `npm run build` | Build the production app |
 | `npm start` | Start the built app |
 | `npm run lint` | Run ESLint |
+| `npm run typecheck` | Check TypeScript types |
+| `npm run format` | Format code with Prettier |
 | `npm test` | Run unit tests |
 | `npm run test:e2e` | Run Playwright end-to-end tests |
+| `npm run db:local` | Start the local PGlite database without Docker |
 | `npm run db:seed` | Create initial users |
 | `npm run db:studio` | Open Prisma Studio |
 
@@ -139,7 +144,7 @@ Add `--profile cache` and set `REDIS_URL=redis://localhost:6379` when local Valk
 
 ## Stack
 
-Next.js · React · TypeScript · Prisma · PostgreSQL / PGlite · NextAuth · Tailwind CSS · Radix UI · Docker Compose · optional Valkey/Redis
+Next.js · React · TypeScript · Prisma · PostgreSQL / PGlite · NextAuth · Tailwind CSS · Radix UI · Base UI · Framer Motion · Docker Compose · optional Valkey/Redis
 
 See [CHANGELOG.md](./CHANGELOG.md) for release history.
 
