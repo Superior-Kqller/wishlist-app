@@ -11,6 +11,12 @@ vi.mock("@/lib/telegram/config", () => ({
   getTelegramConfig: mockGetTelegramConfig,
 }));
 
+// `after` вне запроса Next не работает — здесь он просто вызывает задачу сразу.
+vi.mock("next/server", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/server")>()),
+  after: (task: () => unknown) => task(),
+}));
+
 describe("telegram webhook route", () => {
   beforeEach(() => {
     vi.resetModules();

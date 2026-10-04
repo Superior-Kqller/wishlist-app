@@ -2,10 +2,22 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockSendTelegramMessage = vi.fn();
 const mockAnswerTelegramCallback = vi.fn();
+const mockEditTelegramMessage = vi.fn();
+const mockParseWishlistProductUrl = vi.fn();
+const mockNotifyItemCreated = vi.fn();
 
 vi.mock("@/lib/telegram/client", () => ({
   sendTelegramMessage: mockSendTelegramMessage,
   answerTelegramCallback: mockAnswerTelegramCallback,
+  editTelegramMessage: mockEditTelegramMessage,
+  sendTelegramTyping: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("@/lib/parser", () => ({ parseWishlistProductUrl: mockParseWishlistProductUrl }));
+
+vi.mock("@/lib/telegram/notifications", () => ({
+  notifyItemCreated: mockNotifyItemCreated,
+  notifyStatusTransition: vi.fn(),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -19,6 +31,12 @@ vi.mock("@/lib/prisma", () => ({
       findMany: vi.fn(),
       findUnique: vi.fn(),
       updateMany: vi.fn(),
+      create: vi.fn(),
+      deleteMany: vi.fn(),
+    },
+    list: {
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
     },
     $transaction: vi.fn(),
   },
@@ -413,5 +431,189 @@ describe("привязка по ссылке /start <токен>", () => {
       chatId: "555",
       text: "Команда доступна только в личном чате.",
     });
+  });
+});
+
+describe("желание по ссылке, присланной боту", () => {
+  const lists = [
+    { id: "list-b", name: "Мечты" },
+    { id: "list-a", name: "Дом" },
+  ];
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    const { prisma } = await import("@/lib/prisma");
+    (prisma.user.findFirst as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "actor-1",
+      name: "Аня",
+    });
+    (prisma.list.findMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(lists);
+    (prisma.list.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      userId: "actor-1",
+    });
+    (prisma.item.create as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      ({ data }: { data: Record<string, unknown> }) =>
+        Promise.resolve({ ...data, id: "item-new", user: { name: "Аня" } }),
+    );
+  });
+
+  async function send(text: string, chatType: "private" | "group" = "private") {
+    const { handleTelegramUpdate } = await import("./actions");
+    await handleTelegramUpdate({
+      update_id: 1,
+      message: {
+        message_id: 1,
+        from: { id: 555, is_bot: false, first_name: "Аня" },
+        chat: { id: 555, type: chatType },
+        text,
+        entities: [{ type: "url", offset: 7, length: text.length - 7 }],
+      },
+    });
+  }
+
+  async function press(data: string) {
+    const { handleTelegramUpdate } = await import("./actions");
+    await handleTelegramUpdate({
+      update_id: 2,
+      callback_query: {
+        id: "cb-1",
+        from: { id: 555, is_bot: false, first_name: "Аня" },
+        message: { message_id: 7, chat: { id: 555, type: "private" } },
+        data,
+      },
+    });
+  }
+
+  it("кладёт желание в первую по алфавиту подборку и предлагает перенести или удалить", async () => {
+    const { prisma } = await import("@/lib/prisma");
+    mockParseWishlistProductUrl.mockResolvedValue({
+      title: "  Наушники  ",
+      price: Number.NaN,
+      currency: "RUB",
+      images: ["/relative.jpg"],
+      url: "https://shop.ru/p/1",
+    });
+
+    await send("Хочу → shop.ru/p/1");
+
+    expect(mockParseWishlistProductUrl).toHaveBeenCalledWith("https://shop.ru/p/1");
+    // Невалидные цена и картинка отброшены, как их отбросил бы API.
+    expect(prisma.item.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          title: "Наушники",
+          url: "https://shop.ru/p/1",
+          price: null,
+          images: [],
+          listId: "list-a",
+          userId: "actor-1",
+        }),
+      }),
+    );
+    expect(mockSendTelegramMessage).toHaveBeenCalledWith({
+      chatId: "555",
+      text: "🎁 Добавлено в «Дом»\n📌 Наушники",
+      replyMarkup: {
+        inline_keyboard: [
+          [{ text: "Перенести в «Мечты»", callback_data: "mv:item-new:list-b" }],
+          [{ text: "Удалить", callback_data: "rm:item-new" }],
+        ],
+      },
+    });
+    expect(mockNotifyItemCreated).toHaveBeenCalledWith(
+      expect.objectContaining({ itemId: "item-new", actorUserId: "actor-1" }),
+    );
+  });
+
+  it("кривая картинка не уносит верную цену", async () => {
+    const { prisma } = await import("@/lib/prisma");
+    mockParseWishlistProductUrl.mockResolvedValue({
+      title: "Лампа",
+      price: 5000,
+      currency: "RUB",
+      images: ["//cdn.shop.ru/x.jpg"],
+      url: "https://shop.ru/p/2",
+    });
+
+    await send("Хочу → shop.ru/p/2");
+
+    expect(prisma.item.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ price: 5000, images: [] }),
+      }),
+    );
+  });
+
+  it("не трогает ссылки в группе", async () => {
+    const { prisma } = await import("@/lib/prisma");
+
+    await send("Хочу → shop.ru/p/1", "group");
+
+    expect(mockParseWishlistProductUrl).not.toHaveBeenCalled();
+    expect(prisma.item.create).not.toHaveBeenCalled();
+    expect(mockSendTelegramMessage).not.toHaveBeenCalled();
+  });
+
+  it("если страница не читается, ничего не создаёт и отправляет на сайт", async () => {
+    const { prisma } = await import("@/lib/prisma");
+    mockParseWishlistProductUrl.mockRejectedValue(new Error("fetch failed"));
+
+    await send("Хочу → shop.ru/p/1");
+
+    expect(prisma.item.create).not.toHaveBeenCalled();
+    expect(mockSendTelegramMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ text: expect.stringContaining("Не удалось прочитать страницу") }),
+    );
+  });
+
+  it("удаляет только своё желание", async () => {
+    const { prisma } = await import("@/lib/prisma");
+    (prisma.item.deleteMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ count: 0 });
+
+    await press("rm:someone-elses");
+
+    expect(prisma.item.deleteMany).toHaveBeenCalledWith({
+      where: { id: "someone-elses", userId: "actor-1" },
+    });
+    expect(mockAnswerTelegramCallback).toHaveBeenCalledWith(
+      expect.objectContaining({ text: "Желание не найдено", showAlert: true }),
+    );
+    expect(mockEditTelegramMessage).not.toHaveBeenCalled();
+  });
+
+  it("не переносит в чужую подборку", async () => {
+    const { prisma } = await import("@/lib/prisma");
+
+    await press("mv:item-new:list-of-other-user");
+
+    expect(prisma.item.updateMany).not.toHaveBeenCalled();
+    expect(mockAnswerTelegramCallback).toHaveBeenCalledWith(
+      expect.objectContaining({ showAlert: true }),
+    );
+  });
+
+  it("переносит в свою подборку и обновляет сообщение", async () => {
+    const { prisma } = await import("@/lib/prisma");
+    (prisma.item.updateMany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ count: 1 });
+    (prisma.item.findUnique as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "item-new",
+      title: "Наушники",
+      price: 5000,
+      currency: "RUB",
+    });
+
+    await press("mv:item-new:list-b");
+
+    expect(prisma.item.updateMany).toHaveBeenCalledWith({
+      where: { id: "item-new", userId: "actor-1" },
+      data: { listId: "list-b" },
+    });
+    expect(mockEditTelegramMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        chatId: "555",
+        messageId: 7,
+        text: "🎁 Добавлено в «Мечты»\n📌 Наушники\n💰 5000 RUB",
+      }),
+    );
   });
 });

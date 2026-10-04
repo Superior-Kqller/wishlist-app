@@ -64,6 +64,26 @@ export async function sendTelegramMessage(input: SendMessageInput): Promise<void
   await callTelegramApi("sendMessage", payload);
 }
 
+/** Правка уже отправленного сообщения ботом: без `replyMarkup` кнопки пропадают. */
+export async function editTelegramMessage(input: {
+  chatId: string;
+  messageId: number;
+  text: string;
+  replyMarkup?: TelegramReplyMarkup;
+}): Promise<void> {
+  await callTelegramApi("editMessageText", {
+    chat_id: input.chatId,
+    message_id: input.messageId,
+    text: input.text,
+    reply_markup: input.replyMarkup ?? { inline_keyboard: [] },
+  });
+}
+
+/** «печатает…» в шапке чата, пока бот разбирает ссылку. */
+export async function sendTelegramTyping(chatId: string): Promise<void> {
+  await callTelegramApi("sendChatAction", { chat_id: chatId, action: "typing" });
+}
+
 export async function answerTelegramCallback(input: AnswerCallbackInput): Promise<void> {
   const payload: Record<string, unknown> = {
     callback_query_id: input.callbackQueryId,

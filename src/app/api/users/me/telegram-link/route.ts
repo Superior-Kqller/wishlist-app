@@ -17,8 +17,16 @@ export async function POST(req: NextRequest) {
     return unauthorizedResponse();
   }
 
-  if (!getTelegramConfig().enabled) {
+  const config = getTelegramConfig();
+  if (!config.enabled) {
     return NextResponse.json({ error: "Telegram-бот не настроен" }, { status: 503 });
+  }
+  // Без секрета вебхук отклоняет все обновления — «Старт» до приложения не дойдёт.
+  if (!config.webhookSecret) {
+    return NextResponse.json(
+      { error: "Бот не принимает команды: администратор не задал TELEGRAM_WEBHOOK_SECRET" },
+      { status: 503 },
+    );
   }
 
   try {

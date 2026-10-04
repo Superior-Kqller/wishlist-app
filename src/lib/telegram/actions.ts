@@ -3,6 +3,11 @@ import { sanitizeError } from "@/lib/logger";
 import { canTransitionStatus, type ItemStatus } from "@/lib/item-status";
 import { answerTelegramCallback, sendTelegramMessage } from "@/lib/telegram/client";
 import { confirmTelegramLinkByToken } from "@/lib/telegram/linking";
+import {
+  findMessageLink,
+  handleAddLink,
+  handleAddedItemCallback,
+} from "@/lib/telegram/add-by-link";
 import type { TelegramCallbackQuery, TelegramMessage, TelegramUpdate } from "@/lib/telegram/types";
 import { notifyStatusTransition } from "@/lib/telegram/notifications";
 
@@ -118,7 +123,7 @@ async function handleStart(message: TelegramMessage, token: string | undefined):
 
     await sendMainMenu(
       chatId,
-      `Telegram подключен к аккаунту ${linked.userName}. Используйте кнопки ниже для быстрых действий.`,
+      `Telegram подключен к аккаунту ${linked.userName}. Пришлите ссылку на товар — добавлю её в желания.`,
     );
     return;
   }
@@ -332,13 +337,18 @@ async function handleCallback(actorUserId: string, callback: TelegramCallbackQue
     return;
   }
 
-  const [action, itemId] = data.split(":");
+  const [action, itemId, listId] = data.split(":");
   if (!itemId) {
     await answerTelegramCallback({
       callbackQueryId: callback.id,
       text: "Неизвестная команда",
       showAlert: true,
     });
+    return;
+  }
+
+  if (action === "rm" || action === "mv") {
+    await handleAddedItemCallback(actorUserId, callback, action, itemId, listId);
     return;
   }
 
@@ -403,6 +413,16 @@ async function handleMessage(message: TelegramMessage): Promise<void> {
     return;
   }
 
+  // Ссылка на товар — новое желание. Только в личном чате: иначе любая ссылка,
+  // брошенная в семейный чат, попала бы в вишлист отправителя.
+  const link = text.startsWith("/") ? null : findMessageLink(message);
+  if (link) {
+    if (message.chat.type === "private") {
+      await handleAddLink(actor.id, String(message.chat.id), link);
+    }
+    return;
+  }
+
   if (text === "/myitems") {
     if (message.chat.type !== "private") {
       await sendTelegramMessage({
@@ -431,7 +451,9 @@ async function handleMessage(message: TelegramMessage): Promise<void> {
 
   await sendMainMenu(
     String(message.chat.id),
-    "Команда не распознана. Используйте /myitems, /available или кнопки меню.",
+    message.chat.type === "private"
+      ? "Пришлите ссылку на товар — добавлю её в желания. Ещё есть /myitems, /available и кнопки меню."
+      : "Команда не распознана. Используйте /myitems, /available или кнопки меню.",
   );
 }
 
@@ -447,7 +469,7 @@ export async function handleTelegramUpdate(update: TelegramUpdate): Promise<void
       if (!actor) {
         await answerTelegramCallback({
           callbackQueryId: update.callback_query.id,
-          text: "Нужно подтвердить привязку через /start",
+          text: "Сначала подключите Telegram в настройках вишлиста.",
           showAlert: true,
         });
         return;

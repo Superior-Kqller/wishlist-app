@@ -1,6 +1,6 @@
 import { Buffer } from "node:buffer";
 import { timingSafeEqual } from "node:crypto";
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { getTelegramConfig } from "@/lib/telegram/config";
 import { handleTelegramUpdate } from "@/lib/telegram/actions";
 import type { TelegramUpdate } from "@/lib/telegram/types";
@@ -33,6 +33,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid telegram update payload" }, { status: 400 });
   }
 
-  await handleTelegramUpdate(body);
+  // Отвечаем сразу: разбор ссылки на товар идёт десятки секунд, а не дождавшись
+  // ответа, Telegram присылает то же обновление снова — и желание задвоилось бы.
+  after(() => handleTelegramUpdate(body));
   return NextResponse.json({ ok: true });
 }

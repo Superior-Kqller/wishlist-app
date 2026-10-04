@@ -15,6 +15,15 @@ export interface TelegramMessage {
   from?: TelegramUser;
   chat: TelegramChat;
   text?: string;
+  /** Ссылки в тексте: `url` — видимый адрес, `text_link` — адрес под словом. */
+  entities?: TelegramMessageEntity[];
+}
+
+interface TelegramMessageEntity {
+  type: string;
+  offset: number;
+  length: number;
+  url?: string;
 }
 
 export interface TelegramCallbackQuery {
@@ -32,10 +41,7 @@ export interface TelegramUpdate {
 
 export type TelegramParseMode = "MarkdownV2" | "HTML";
 
-interface TelegramInlineButton {
-  text: string;
-  callback_data: string;
-}
+type TelegramInlineButton = { text: string; callback_data: string } | { text: string; url: string };
 
 export interface TelegramReplyMarkup {
   inline_keyboard: TelegramInlineButton[][];

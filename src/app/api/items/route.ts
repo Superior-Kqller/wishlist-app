@@ -5,7 +5,7 @@ import { rateLimit, rateLimitPresets } from "@/lib/rate-limit";
 import { sanitizeError } from "@/lib/logger";
 import { canUserSeeList, getVisibleListIdsForUser } from "@/lib/list-utils";
 import { notifyItemCreated } from "@/lib/telegram/notifications";
-import { normalizeProductCategory } from "@/lib/categories";
+import { createItemSchema, createWishlistItem } from "@/lib/wishlist/create-item";
 import {
   buildWishlistCursorCondition,
   encodeWishlistCursor,
@@ -21,18 +21,6 @@ import {
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { unauthorizedResponse } from "@/lib/api-responses";
-
-const createItemSchema = z.object({
-  title: z.string().min(1).max(500),
-  url: z.string().url().optional().or(z.literal("")),
-  price: z.number().min(0).optional(),
-  currency: z.string().default("RUB"),
-  priority: z.number().min(1).max(5).default(3),
-  images: z.array(z.string().url()).max(1).default([]),
-  notes: z.string().max(2000).optional(),
-  category: z.string().trim().max(80).nullable().optional(),
-  listId: z.string().trim().nullable().optional(),
-});
 
 // GET /api/items — элементы в подборках, доступных текущему пользователю
 export async function GET(req: NextRequest) {
@@ -167,38 +155,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const data = createItemSchema.parse(body);
 
-    const listId: string | null = data.listId ?? null;
-    if (listId) {
-      const list = await prisma.list.findUnique({
-        where: { id: listId },
-        select: { userId: true },
-      });
-      if (!list || list.userId !== userId) {
-        return NextResponse.json(
-          { error: "Подборка не найдена или доступ запрещён" },
-          { status: 400 },
-        );
-      }
+    const item = await createWishlistItem(userId, data);
+    if (!item) {
+      return NextResponse.json(
+        { error: "Подборка не найдена или доступ запрещён" },
+        { status: 400 },
+      );
     }
-
-    const item = await prisma.item.create({
-      data: {
-        title: data.title,
-        url: data.url || null,
-        price: data.price ?? null,
-        currency: data.currency,
-        priority: data.priority,
-        images: data.images,
-        notes: data.notes || null,
-        category: normalizeProductCategory(data.category),
-        status: "AVAILABLE",
-        userId,
-        listId,
-      },
-      include: {
-        user: { select: { id: true, name: true, avatarUrl: true } },
-      },
-    });
     /*
      * Желание уже записано — ответ не ждёт Telegram. Раньше внешний сервис
      * стоял между записью и ответом: его задержка становилась задержкой
