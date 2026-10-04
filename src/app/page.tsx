@@ -302,6 +302,20 @@ function HomePageContent() {
     });
   }, [router, searchParams]);
 
+  // `/?item=<id>` — ссылка из уведомления в Telegram: открывает карточку желания,
+  // даже если оно не попало в загруженную страницу списка.
+  useEffect(() => {
+    const itemId = searchParams.get("item");
+    if (!itemId || !currentUserId) return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("item");
+    router.replace(params.toString() ? `/?${params.toString()}` : "/", { scroll: false });
+    fetch(`/api/items/${encodeURIComponent(itemId)}`)
+      .then((res) => (res.ok ? (res.json() as Promise<WishlistItem>) : Promise.reject()))
+      .then(setDetailItem)
+      .catch(() => toast.error(t("Желание не найдено")));
+  }, [currentUserId, router, searchParams, t]);
+
   const selectedListName = useMemo(
     () => lists.find((list) => list.id === selectedListId)?.name ?? null,
     [lists, selectedListId],

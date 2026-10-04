@@ -85,7 +85,9 @@ describe("calendar reminder module", () => {
 
       expect(send).toHaveBeenCalledTimes(2);
       expect(send.mock.calls[0][0].text).toContain("Годовщина");
-      expect(send.mock.calls[0][0].text).toContain("https://wishlist.example/calendar");
+      expect(send.mock.calls[0][0].replyMarkup.inline_keyboard[0]).toEqual([
+        { text: "Календарь", url: "https://wishlist.example/calendar" },
+      ]);
     },
   );
 

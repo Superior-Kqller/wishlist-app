@@ -489,6 +489,7 @@ const en: Dictionary = {
     "Paste a link to fill the title, price, and image automatically.",
   "Ошибка парсинга": "Parsing failed",
   "Некорректная ссылка в параметре addUrl": "Invalid link in addUrl parameter",
+  "Желание не найдено": "Wish not found",
   "Кнопка «В вишлист»": "“Add to wishlist” button",
   "Перетащите кнопку на панель закладок. На странице товара нажмите закладку — откроется форма с заполненными полями.":
     "Drag the button to your bookmarks bar. On a product page, click the bookmark to open a prefilled form.",

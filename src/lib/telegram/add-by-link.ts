@@ -8,6 +8,7 @@ import {
   type CreateItemInput,
 } from "@/lib/wishlist/create-item";
 import { notifyItemCreated } from "@/lib/telegram/notifications";
+import { appLinks } from "@/lib/telegram/app-links";
 import {
   answerTelegramCallback,
   editTelegramMessage,
@@ -99,19 +100,15 @@ function addedMessage(
 }
 
 function parseFailedReply(chatId: string, link: string) {
-  const base = process.env.NEXTAUTH_URL?.replace(/\/+$/, "");
-  const formUrl = base ? `${base}${buildAddItemPath(link)}` : null;
-  const text = "Не удалось прочитать страницу товара. Заполните желание на сайте";
-
-  // Кнопку на непубличный адрес (localhost, http) Telegram отклоняет вместе с сообщением.
-  if (formUrl?.startsWith("https://")) {
-    return {
-      chatId,
-      text: `${text}.`,
-      replyMarkup: { inline_keyboard: [[{ text: "Открыть форму", url: formUrl }]] },
-    };
-  }
-  return { chatId, text: formUrl ? `${text}: ${formUrl}` : `${text}.` };
+  const links = appLinks([{ text: "Открыть форму", path: buildAddItemPath(link) }]);
+  return {
+    chatId,
+    text: [
+      "Не удалось прочитать страницу товара. Заполните желание на сайте.",
+      ...links.lines,
+    ].join("\n"),
+    replyMarkup: links.replyMarkup,
+  };
 }
 
 /**

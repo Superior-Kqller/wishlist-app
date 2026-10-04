@@ -24,6 +24,8 @@ describe("telegram notifications", () => {
       ...originalEnv,
       TELEGRAM_BOT_TOKEN: "token",
       TELEGRAM_CHAT_IDS: "123456789,-1001234567890",
+      // Ссылки зависят от адреса приложения; по умолчанию его нет — текст без ссылок.
+      NEXTAUTH_URL: "",
     };
   });
 
@@ -76,6 +78,29 @@ describe("telegram notifications", () => {
       chatId: "-1001234567890",
       text: "✅ Подарок куплен\n👤 Аня\n📌 Книга",
     });
+  });
+
+  it("adds an «open wish» button when the app has a public https address", async () => {
+    process.env.NEXTAUTH_URL = "https://wish.example.com";
+    const { notifyItemCreated } = await import("./notifications");
+
+    await notifyItemCreated({
+      itemId: "item-1",
+      itemTitle: "Книга",
+      actorUserId: "user-1",
+      actorName: "Аня",
+    });
+
+    expect(mockSendTelegramMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        chatId: "123456789",
+        replyMarkup: {
+          inline_keyboard: [
+            [{ text: "Открыть желание", url: "https://wish.example.com/?item=item-1" }],
+          ],
+        },
+      }),
+    );
   });
 
   it("sends item created notifications to configured chat ids", async () => {

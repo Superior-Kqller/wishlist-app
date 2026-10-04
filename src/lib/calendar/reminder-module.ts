@@ -1,6 +1,8 @@
 import { parseLocalDate } from "./local-date";
 import type { CalendarEventSourceType, CalendarRange, ReminderEventFact } from "./calendar-events";
 import { reminderEventKey } from "./reminder-event-key";
+import { appLinks } from "@/lib/telegram/app-links";
+import type { TelegramReplyMarkup } from "@/lib/telegram/types";
 
 type CalendarReminderSourceType = CalendarEventSourceType;
 type CalendarReminderCheckpoint = 30 | 21 | 7 | 0;
@@ -34,7 +36,7 @@ interface CalendarReminderEventSource {
 }
 
 interface CalendarTelegramAdapter {
-  send(message: { chatId: string; text: string }): Promise<void>;
+  send(message: { chatId: string; text: string; replyMarkup?: TelegramReplyMarkup }): Promise<void>;
 }
 
 interface CalendarReminderLogger {
@@ -70,19 +72,25 @@ function formatMessage(
   recipientId: string,
   checkpoint: CalendarReminderCheckpoint,
   publicBaseUrl: string,
-): string {
-  const baseUrl = publicBaseUrl.replace(/\/+$/, "");
+): { text: string; replyMarkup?: TelegramReplyMarkup } {
   const remaining =
     checkpoint === 0 ? "сегодня" : `через ${checkpoint} ${checkpoint === 21 ? "день" : "дней"}`;
   const lines = [`📅 ${event.title}`, `Дата: ${event.occurrenceDate}`, `Осталось: ${remaining}`];
   if (event.congratulated.length > 0) {
     lines.push(`Поздравляем: ${event.congratulated.join(", ")}`);
   }
-  lines.push(`Календарь: ${baseUrl}/calendar`);
-  for (const wishlist of event.wishlistLinksByRecipient[recipientId] ?? []) {
-    lines.push(`${wishlist.label}: ${new URL(wishlist.href, `${baseUrl}/`).toString()}`);
-  }
-  return lines.join("\n");
+  // На https-адрес — кнопки под сообщением, иначе прежние строки со ссылками.
+  const links = appLinks(
+    [
+      { text: "Календарь", path: "/calendar" },
+      ...(event.wishlistLinksByRecipient[recipientId] ?? []).map((wishlist) => ({
+        text: wishlist.label,
+        path: wishlist.href,
+      })),
+    ],
+    publicBaseUrl,
+  );
+  return { text: [...lines, ...links.lines].join("\n"), replyMarkup: links.replyMarkup };
 }
 
 export function createCalendarReminderModule(
@@ -134,7 +142,7 @@ export function createCalendarReminderModule(
           try {
             await telegram.send({
               chatId: recipient.telegramId,
-              text: formatMessage(event, recipient.id, checkpoint, input.publicBaseUrl),
+              ...formatMessage(event, recipient.id, checkpoint, input.publicBaseUrl),
             });
             sent += 1;
           } catch (error) {
