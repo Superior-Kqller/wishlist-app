@@ -101,13 +101,6 @@ export async function GET(req: NextRequest) {
         }
       });
 
-      const sortedCurrencies = Object.keys(pricesByCurrency).sort((a, b) => a.localeCompare(b));
-      const mainCurrency = sortedCurrencies[0] || "RUB";
-      const mainStats = pricesByCurrency[mainCurrency] || {
-        unpurchased: 0,
-        purchased: 0,
-      };
-
       return {
         id: user.id,
         username: user.username,
@@ -117,9 +110,6 @@ export async function GET(req: NextRequest) {
         stats: {
           totalItems,
           unpurchasedItems,
-          totalWishlistValue: mainStats.unpurchased,
-          totalPurchasedValue: mainStats.purchased,
-          currency: mainCurrency,
           pricesByCurrency,
           priorityCounts,
         },

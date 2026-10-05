@@ -39,7 +39,6 @@ describe("formatStatsSummary", () => {
   it("складывает несколько валют в одну строку", () => {
     const s = formatStatsSummary(
       {
-        currency: "RUB",
         pricesByCurrency: {
           USD: { unpurchased: 10, purchased: 0 },
           RUB: { unpurchased: 100, purchased: 0 },
@@ -52,24 +51,14 @@ describe("formatStatsSummary", () => {
     expect(s).toContain("·");
   });
 
-  it("без разбивки по валютам берёт общий итог", () => {
-    expect(
-      formatStatsSummary({ totalWishlistValue: 500, currency: "RUB" }, "unpurchased"),
-    ).toContain("500");
-    expect(
-      formatStatsSummary({ totalWishlistValue: 300, pricesByCurrency: {} }, "unpurchased"),
-    ).toContain("300");
-    expect(formatStatsSummary({ totalPurchasedValue: 10 }, "purchased")).toContain("10");
-  });
-
   it("возвращает null, если ненулевых сумм нет", () => {
     expect(
       formatStatsSummary(
-        { totalPurchasedValue: 0, pricesByCurrency: { RUB: { unpurchased: 100, purchased: 0 } } },
+        { pricesByCurrency: { RUB: { unpurchased: 100, purchased: 0 } } },
         "purchased",
       ),
     ).toBeNull();
-    expect(formatStatsSummary({ totalPurchasedValue: 0 }, "purchased")).toBeNull();
+    expect(formatStatsSummary({ pricesByCurrency: {} }, "purchased")).toBeNull();
   });
 });
 

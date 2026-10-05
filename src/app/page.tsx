@@ -52,7 +52,7 @@ import { useDebounce } from "@/lib/use-debounce";
 import { filterListsBySelectedUser, getFirstOwnedListId } from "@/lib/list-filter-client";
 import { normalizeSelectedUserId } from "@/lib/filter-state";
 import { useInfiniteWishlistItems } from "@/hooks/use-infinite-wishlist-items";
-import { useIsPhone } from "@/hooks/use-is-phone";
+import { useMediaQuery } from "@/lib/use-media-query";
 import { BulkDeleteFailure, useWishlistItemEditor } from "@/hooks/use-wishlist-item-editor";
 import { useSearchDraftUrlSync, useWishlistUrlSync } from "@/hooks/use-wishlist-url-sync";
 import { parseWishlistFilters } from "@/lib/home/wishlist-filters-url";
@@ -102,7 +102,7 @@ function HomePageContent() {
   const listIdParam = searchParams.get("listId");
   // Не выбранный вид на телефоне — список: карточка со снимком занимает там
   // пол-экрана, и за один взгляд видно два желания вместо шести.
-  const isPhone = useIsPhone();
+  const isPhone = useMediaQuery("(max-width: 639px)");
   const viewMode: WishlistViewMode = chosenView ?? (isPhone ? "table" : "grid");
 
   // Единственный черновик: печатать в адресную строку по букве нельзя.
@@ -562,147 +562,84 @@ function HomePageContent() {
   );
 
   /*
-   * Шесть связок вместо полусотни пропсов россыпью. Каждая меняется как целое,
-   * поэтому и передаётся целиком — см. типы в wishlist-workspace.
+   * Шесть связок вместо полусотни пропсов россыпью — см. типы в wishlist-workspace.
+   * Без useMemo: WishlistWorkspace не мемоизирован, а строки списка берут колбэки
+   * поштучно, так что стабильность самих связок ничего не даёт.
    */
-  const scope = useMemo<WishlistScope>(
-    () => ({
-      currentUserId,
-      currentUserRole: session?.user?.role ?? null,
-      usersWithStats,
-      selectedWishlistUser,
-      lists,
-      ownedListsForCreate,
-      normalizedSelectedUserId,
-      selectedListId,
-      onUserChange: handleUserChange,
-      onListChange: handleListChange,
-      onCreateList: handleCreateList,
-      onEditSelectedList: selectedListId ? handleEditSelectedList : undefined,
-      scopeError,
-      onRetryScope: retryScope,
-      upcoming: <UpcomingCalendarCard currentUserId={currentUserId} />,
-    }),
-    [
-      currentUserId,
-      session?.user?.role,
-      usersWithStats,
-      selectedWishlistUser,
-      lists,
-      ownedListsForCreate,
-      normalizedSelectedUserId,
-      selectedListId,
-      handleUserChange,
-      handleListChange,
-      handleCreateList,
-      handleEditSelectedList,
-      scopeError,
-      retryScope,
-    ],
-  );
+  const scope: WishlistScope = {
+    currentUserId,
+    currentUserRole: session?.user?.role ?? null,
+    usersWithStats,
+    selectedWishlistUser,
+    lists,
+    ownedListsForCreate,
+    normalizedSelectedUserId,
+    selectedListId,
+    onUserChange: handleUserChange,
+    onListChange: handleListChange,
+    onCreateList: handleCreateList,
+    onEditSelectedList: selectedListId ? handleEditSelectedList : undefined,
+    scopeError,
+    onRetryScope: retryScope,
+    upcoming: <UpcomingCalendarCard currentUserId={currentUserId} />,
+  };
 
-  const filters = useMemo<WishlistFilters>(
-    () => ({
-      search,
-      onSearchChange: setSearch,
-      hasActiveFilters,
-      activeFilterChips,
-      filtersOpen,
-      onFiltersOpenChange: setFiltersOpen,
-      categories: PRODUCT_CATEGORIES,
-      selectedCategories: effectiveSelectedCategories,
-      onToggleCategory: handleToggleCategory,
-      onClearCategories: handleClearCategories,
-      sortBy,
-      onSortChange: setSortBy,
-      showPurchased,
-      onTogglePurchasedVisibility: handleTogglePurchasedVisibility,
-      onClearAll: handleClearAllFilters,
-    }),
-    [
-      search,
-      hasActiveFilters,
-      activeFilterChips,
-      filtersOpen,
-      effectiveSelectedCategories,
-      handleToggleCategory,
-      handleClearCategories,
-      sortBy,
-      setSortBy,
-      showPurchased,
-      handleTogglePurchasedVisibility,
-      handleClearAllFilters,
-    ],
-  );
+  const filters: WishlistFilters = {
+    search,
+    onSearchChange: setSearch,
+    hasActiveFilters,
+    activeFilterChips,
+    filtersOpen,
+    onFiltersOpenChange: setFiltersOpen,
+    categories: PRODUCT_CATEGORIES,
+    selectedCategories: effectiveSelectedCategories,
+    onToggleCategory: handleToggleCategory,
+    onClearCategories: handleClearCategories,
+    sortBy,
+    onSortChange: setSortBy,
+    showPurchased,
+    onTogglePurchasedVisibility: handleTogglePurchasedVisibility,
+    onClearAll: handleClearAllFilters,
+  };
 
-  const selection = useMemo<WishlistSelection>(
-    () => ({
-      selectionMode,
-      selectedIds,
-      onToggle: handleToggleSelect,
-      onToggleMode: handleToggleSelectionMode,
-      onClearMode: handleClearSelection,
-    }),
-    [
-      selectionMode,
-      selectedIds,
-      handleToggleSelect,
-      handleToggleSelectionMode,
-      handleClearSelection,
-    ],
-  );
+  const selection: WishlistSelection = {
+    selectionMode,
+    selectedIds,
+    onToggle: handleToggleSelect,
+    onToggleMode: handleToggleSelectionMode,
+    onClearMode: handleClearSelection,
+  };
 
-  const feed = useMemo<WishlistFeed>(
-    () => ({
-      items,
-      isLoading,
-      loadError,
-      onRetry: retry,
-      hasMore,
-      isLoadingMore,
-      sentinelRef,
-      size,
-      setSize: handleLoadMore,
-      viewMode,
-      onViewModeChange: setViewMode,
-    }),
-    [
-      items,
-      isLoading,
-      loadError,
-      retry,
-      hasMore,
-      isLoadingMore,
-      sentinelRef,
-      size,
-      handleLoadMore,
-      viewMode,
-      setViewMode,
-    ],
-  );
+  const feed: WishlistFeed = {
+    items,
+    isLoading,
+    loadError,
+    onRetry: retry,
+    hasMore,
+    isLoadingMore,
+    sentinelRef,
+    size,
+    setSize: handleLoadMore,
+    viewMode,
+    onViewModeChange: setViewMode,
+  };
 
-  const itemActions = useMemo<WishlistItemActions>(
-    () => ({
-      onEdit: handleEditItem,
-      onDelete: handleDeleteItem,
-      onSetStatus: editor.handleSetItemStatus,
-      pendingStatusByItemId: editor.pendingStatusByItemId,
-      justPurchasedId: editor.justPurchasedId,
-      onOpenDetail: setDetailItem,
-      onEmptyAdd: handleEmptyAdd,
-    }),
-    [handleEditItem, handleDeleteItem, editor, handleEmptyAdd],
-  );
+  const itemActions: WishlistItemActions = {
+    onEdit: handleEditItem,
+    onDelete: handleDeleteItem,
+    onSetStatus: editor.handleSetItemStatus,
+    pendingStatusByItemId: editor.pendingStatusByItemId,
+    justPurchasedId: editor.justPurchasedId,
+    onOpenDetail: setDetailItem,
+    onEmptyAdd: handleEmptyAdd,
+  };
 
-  const catalogActions = useMemo<WishlistCatalogActions>(
-    () => ({
-      onAddItem: handleOpenAddItem,
-      onExport: editor.handleExport,
-      onImport: handleImport,
-      isImporting: editor.isImporting,
-    }),
-    [handleOpenAddItem, editor, handleImport],
-  );
+  const catalogActions: WishlistCatalogActions = {
+    onAddItem: handleOpenAddItem,
+    onExport: editor.handleExport,
+    onImport: handleImport,
+    isImporting: editor.isImporting,
+  };
 
   return (
     <PageShell>

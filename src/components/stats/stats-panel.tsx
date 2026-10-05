@@ -18,47 +18,10 @@ import type { ItemsPage, StatsSummary, UserWithStats } from "@/types";
 
 type StatsResponse = {
   users: UserWithStats[];
-  summary?: StatsSummary;
+  summary: StatsSummary;
 };
 
 const PRIORITY_ORDER = [5, 4, 3, 2, 1] as const;
-
-function mergeCurrencyTotals(
-  target: Record<string, { unpurchased: number; purchased: number }>,
-  source?: Record<string, { unpurchased: number; purchased: number }>,
-) {
-  if (!source) return;
-  for (const [currency, totals] of Object.entries(source)) {
-    if (!target[currency]) target[currency] = { unpurchased: 0, purchased: 0 };
-    target[currency].unpurchased += totals.unpurchased;
-    target[currency].purchased += totals.purchased;
-  }
-}
-
-function buildStatsSummary(users: UserWithStats[]): StatsSummary {
-  const pricesByCurrency: StatsSummary["pricesByCurrency"] = {};
-  const priorityCounts: StatsSummary["priorityCounts"] = {};
-  let totalItems = 0;
-  let unpurchasedItems = 0;
-
-  for (const user of users) {
-    totalItems += user.stats.totalItems;
-    unpurchasedItems += user.stats.unpurchasedItems;
-    mergeCurrencyTotals(pricesByCurrency, user.stats.pricesByCurrency);
-    for (const [priority, count] of Object.entries(user.stats.priorityCounts ?? {})) {
-      priorityCounts[priority] = (priorityCounts[priority] ?? 0) + count;
-    }
-  }
-
-  return {
-    totalItems,
-    unpurchasedItems,
-    memberCount: users.length,
-    pricesByCurrency,
-    priorityCounts,
-    topItems: [],
-  };
-}
 
 /** Непокупленная сумма по валютам; без цен — ноль в рублях. */
 function summaryTotals(pricesByCurrency: StatsSummary["pricesByCurrency"]) {
@@ -184,7 +147,7 @@ function PriorityBars({ priorityCounts }: { priorityCounts: StatsSummary["priori
   );
 }
 
-function TopItems({ summary, available }: { summary: StatsSummary; available: boolean }) {
+function TopItems({ summary }: { summary: StatsSummary }) {
   const { language, t } = useI18n();
   return (
     <section aria-labelledby="stats-top" className="min-w-0">
@@ -211,9 +174,7 @@ function TopItems({ summary, available }: { summary: StatsSummary; available: bo
           ))}
         </ol>
       ) : (
-        <p className="mt-3 text-sm text-muted-foreground">
-          {available ? t("Нет желаний с ценой") : t("Подборка недоступна офлайн")}
-        </p>
+        <p className="mt-3 text-sm text-muted-foreground">{t("Нет желаний с ценой")}</p>
       )}
     </section>
   );
@@ -228,8 +189,7 @@ function ParticipantCard({ user }: { user: UserWithStats }) {
   const { language, t } = useI18n();
   const purchasedItems = Math.max(0, user.stats.totalItems - user.stats.unpurchasedItems);
   const wishlistValue =
-    formatStatsSummary(user.stats, "unpurchased", language) ??
-    formatPrice(0, user.stats.currency || "RUB", language);
+    formatStatsSummary(user.stats, "unpurchased", language) ?? formatPrice(0, "RUB", language);
   const purchasedValue = formatStatsSummary(user.stats, "purchased", language);
   const counters = [
     { label: "Всего желаний", value: user.stats.totalItems },
@@ -367,8 +327,7 @@ export function StatsPanel() {
     );
   }
 
-  const users = statsData.users || [];
-  const summary = statsData.summary ?? buildStatsSummary(users);
+  const { users, summary } = statsData;
 
   if (users.length === 0) {
     return (
@@ -387,7 +346,7 @@ export function StatsPanel() {
       <div className="grid gap-12 border-t border-border pt-12 xl:grid-cols-[minmax(0,1fr)_24rem] xl:gap-16">
         <div className="flex min-w-0 flex-col gap-12">
           <PriorityBars priorityCounts={summary.priorityCounts} />
-          <TopItems summary={summary} available={Boolean(statsData.summary)} />
+          <TopItems summary={summary} />
         </div>
         {recentItemsError ? (
           <RetryNotice>

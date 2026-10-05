@@ -210,7 +210,6 @@ const en: Dictionary = {
   "Заполненные подсказки не сохранятся.": "The hints you filled in will be lost.",
   "Отменить правки": "Discard changes",
   "Продолжить редактирование": "Keep editing",
-  "Подборка недоступна офлайн": "This breakdown is unavailable right now",
   "Желания в общих подборках и ориентировочная стоимость по участникам":
     "Wishes in shared lists and estimated value by member",
   "Снять фильтр": "Remove filter",

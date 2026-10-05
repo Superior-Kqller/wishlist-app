@@ -4,7 +4,7 @@ import { WishlistItem } from "@/types";
 import { WishCard } from "@/components/wishlist/wish-card";
 import { ProductRow } from "@/components/wishlist/product-row";
 import { WishListRow } from "@/components/wishlist/wish-list-row";
-import { useIsPhone } from "@/hooks/use-is-phone";
+import { useMediaQuery } from "@/lib/use-media-query";
 import type { WishlistViewMode } from "@/components/wishlist/wishlist-view-toggle";
 import { WishlistCardSkeleton } from "./WishlistCardSkeleton";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -85,7 +85,7 @@ export function WishlistGrid({
 }: WishlistGridProps) {
   const { language, t } = useI18n();
   const reduceMotion = useReducedMotion();
-  const isPhone = useIsPhone();
+  const isPhone = useMediaQuery("(max-width: 639px)");
 
   if (isLoading) {
     return (

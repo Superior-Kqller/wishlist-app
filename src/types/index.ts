@@ -117,9 +117,6 @@ export interface User {
 export interface UserStats {
   totalItems: number;
   unpurchasedItems: number;
-  totalWishlistValue: number;
-  totalPurchasedValue: number;
-  currency?: string;
   pricesByCurrency?: Record<string, { unpurchased: number; purchased: number }>;
   priorityCounts?: Record<string, number>;
 }

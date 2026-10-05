@@ -53,9 +53,3 @@ export function hasConflictingStatusPayload(input: {
 export function getItemStatusLabel(status: ItemStatus, language: Language = "ru"): string {
   return translate(language, status === "PURCHASED" ? "Куплено" : "Доступно");
 }
-
-export function getItemStatusTone(status: ItemStatus): string {
-  return status === "PURCHASED"
-    ? "border-success/45 bg-success/16 text-success-foreground"
-    : "border-info/45 bg-info/16 text-info-foreground";
-}

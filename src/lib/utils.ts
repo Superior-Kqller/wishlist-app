@@ -48,25 +48,14 @@ export function sortCurrencyTotalsEntries(
 
 /**
  * Сумма некупленного или купленного по валютам для компактного UI: «100 ₽ · 10 $».
- * Без разбивки по валютам — общий итог. `null` — ненулевых сумм нет.
+ * `null` — ненулевых сумм нет.
  */
 export function formatStatsSummary(
-  stats: {
-    totalWishlistValue?: number;
-    totalPurchasedValue?: number;
-    currency?: string;
-    pricesByCurrency?: Record<string, CurrencyTotals>;
-  },
+  stats: { pricesByCurrency?: Record<string, CurrencyTotals> },
   kind: keyof CurrencyTotals,
   language: Language = "ru",
 ): string | null {
-  const entries = sortCurrencyTotalsEntries(stats.pricesByCurrency);
-  if (entries.length === 0) {
-    const total =
-      (kind === "purchased" ? stats.totalPurchasedValue : stats.totalWishlistValue) ?? 0;
-    return total > 0 ? formatPrice(total, stats.currency || "RUB", language) : null;
-  }
-  const parts = entries
+  const parts = sortCurrencyTotalsEntries(stats.pricesByCurrency)
     .filter(([, v]) => v[kind] > 0)
     .map(([c, v]) => formatPrice(v[kind], c, language));
   return parts.length > 0 ? parts.join(" · ") : null;

@@ -34,9 +34,6 @@ const users: UserWithStats[] = [
     stats: {
       totalItems: 1,
       unpurchasedItems: 1,
-      totalWishlistValue: 0,
-      totalPurchasedValue: 0,
-      currency: "RUB",
     },
   },
   {
@@ -49,9 +46,6 @@ const users: UserWithStats[] = [
     stats: {
       totalItems: 2,
       unpurchasedItems: 2,
-      totalWishlistValue: 0,
-      totalPurchasedValue: 0,
-      currency: "RUB",
     },
   },
 ];
