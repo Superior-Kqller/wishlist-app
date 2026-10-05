@@ -7,6 +7,31 @@ import { selectTopItems } from "@/lib/stats-top-items";
 import { normalizeGiftPreferences } from "@/lib/preferences";
 import { unauthorizedResponse } from "@/lib/api-responses";
 
+type StatsItem = {
+  price: number | null;
+  currency: string | null;
+  purchased: boolean;
+  priority: number;
+};
+
+/** Счётчики и суммы по валютам — одни и те же для участника и для всего круга. */
+function tally(items: StatsItem[]) {
+  const pricesByCurrency: Record<string, { unpurchased: number; purchased: number }> = {};
+  const priorityCounts: Record<string, number> = {};
+  for (const item of items) {
+    priorityCounts[item.priority] = (priorityCounts[item.priority] ?? 0) + 1;
+    if (!item.price) continue;
+    const totals = (pricesByCurrency[item.currency || "RUB"] ??= { unpurchased: 0, purchased: 0 });
+    totals[item.purchased ? "purchased" : "unpurchased"] += item.price;
+  }
+  return {
+    totalItems: items.length,
+    unpurchasedItems: items.filter((item) => !item.purchased).length,
+    pricesByCurrency,
+    priorityCounts,
+  };
+}
+
 // GET /api/users/stats — статистика по пользователям из «круга» общих подборок
 export async function GET(req: NextRequest) {
   const rateLimitResponse = await rateLimit(req, rateLimitPresets.read);
@@ -79,58 +104,14 @@ export async function GET(req: NextRequest) {
     });
     const itemsByUserId = Map.groupBy(items, (item) => item.userId);
 
-    const usersWithStats = users.map((user) => {
-      const userItems = itemsByUserId.get(user.id) || [];
-      const totalItems = userItems.length;
-      const unpurchasedItems = userItems.filter((item) => !item.purchased).length;
-
-      const pricesByCurrency: Record<string, { unpurchased: number; purchased: number }> = {};
-      const priorityCounts: Record<string, number> = {};
-
-      userItems.forEach((item) => {
-        priorityCounts[item.priority] = (priorityCounts[item.priority] ?? 0) + 1;
-        if (!item.price) return;
-        const currency = item.currency || "RUB";
-        if (!pricesByCurrency[currency]) {
-          pricesByCurrency[currency] = { unpurchased: 0, purchased: 0 };
-        }
-        if (item.purchased) {
-          pricesByCurrency[currency].purchased += item.price;
-        } else {
-          pricesByCurrency[currency].unpurchased += item.price;
-        }
-      });
-
-      return {
-        id: user.id,
-        username: user.username,
-        name: user.name,
-        avatarUrl: user.avatarUrl,
-        giftPreferences: normalizeGiftPreferences(user.giftPreferences),
-        stats: {
-          totalItems,
-          unpurchasedItems,
-          pricesByCurrency,
-          priorityCounts,
-        },
-      };
-    });
-
-    const summaryPricesByCurrency: Record<string, { unpurchased: number; purchased: number }> = {};
-    const summaryPriorityCounts: Record<string, number> = {};
-    for (const item of items) {
-      summaryPriorityCounts[item.priority] = (summaryPriorityCounts[item.priority] ?? 0) + 1;
-      if (!item.price) continue;
-      const currency = item.currency || "RUB";
-      if (!summaryPricesByCurrency[currency]) {
-        summaryPricesByCurrency[currency] = { unpurchased: 0, purchased: 0 };
-      }
-      if (item.purchased) {
-        summaryPricesByCurrency[currency].purchased += item.price;
-      } else {
-        summaryPricesByCurrency[currency].unpurchased += item.price;
-      }
-    }
+    const usersWithStats = users.map((user) => ({
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      avatarUrl: user.avatarUrl,
+      giftPreferences: normalizeGiftPreferences(user.giftPreferences),
+      stats: tally(itemsByUserId.get(user.id) ?? []),
+    }));
 
     const userNameById = new Map(users.map((user) => [user.id, user.name]));
     const topItems = selectTopItems(items).map((item) => ({
@@ -144,11 +125,8 @@ export async function GET(req: NextRequest) {
     }));
 
     const summary = {
-      totalItems: items.length,
-      unpurchasedItems: items.filter((item) => !item.purchased).length,
+      ...tally(items),
       memberCount: users.length,
-      pricesByCurrency: summaryPricesByCurrency,
-      priorityCounts: summaryPriorityCounts,
       topItems,
     };
 

@@ -56,4 +56,6 @@ const withSerwist = withSerwistInit({
   scope: "/",
 });
 
+// Не `withSerwist` с `disable`: обёртка и выключенной добавляет ключ `webpack`, а `next dev`
+// на Turbopack с ним падает (`process.exit(1)` в next/dist/lib/turbopack-warning.js).
 export default pwaDisabled ? nextConfig : withSerwist(nextConfig);

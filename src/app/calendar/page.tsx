@@ -39,6 +39,7 @@ import {
   type CalendarFilter,
   type CalendarOccurrence,
 } from "@/lib/calendar/client-calendar";
+import { formatLocalDate } from "@/lib/calendar/local-date";
 import { occurrenceReminderKey } from "@/lib/calendar/reminder-event-key";
 import { responseError } from "@/lib/response-error";
 
@@ -55,10 +56,6 @@ const EVENT_TYPE_META = {
   HOLIDAY: { icon: PartyPopper, label: "Общий праздник" },
   PERSONAL: { icon: Clock3, label: "Личное событие" },
 } as const;
-
-function isoDate(year: number, month: number, day: number) {
-  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-}
 
 /** «через 12 дней», «завтра», «3 дня назад». */
 function relativeDays(date: string, today: string, locale: string) {
@@ -249,7 +246,7 @@ function MiniMonth({
   const cells = Array.from({ length: 42 }, (_, index) => {
     const value = new Date(start.getFullYear(), start.getMonth(), start.getDate() + index);
     return {
-      date: isoDate(value.getFullYear(), value.getMonth(), value.getDate()),
+      date: formatLocalDate(value.getFullYear(), value.getMonth() + 1, value.getDate()),
       day: value.getDate(),
       inMonth: value.getMonth() === month,
     };
@@ -259,7 +256,7 @@ function MiniMonth({
     new Date(2026, 0, 5 + index).toLocaleDateString(locale, { weekday: "short" }),
   );
   const currentMonthKey = today.slice(0, 7);
-  const shownMonthKey = isoDate(year, month, 1).slice(0, 7);
+  const shownMonthKey = formatLocalDate(year, month + 1, 1).slice(0, 7);
   const monthLabel = capitalizeFirst(
     new Date(year, month, 1).toLocaleDateString(locale, { month: "long", year: "numeric" }),
     locale,

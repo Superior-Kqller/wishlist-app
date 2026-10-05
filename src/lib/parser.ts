@@ -762,11 +762,7 @@ async function fetchHtml(url: string): Promise<string> {
 // --- Main entry point ---
 
 function mergeSpecializedWithOg(specialized: ParsedProduct, og: ParsedProduct): ParsedProduct {
-  const images = specialized.images.length
-    ? [...new Set([...specialized.images, ...og.images])].slice(0, 10)
-    : og.images.length > 0
-      ? og.images
-      : specialized.images;
+  const images = [...new Set([...specialized.images, ...og.images])].slice(0, 10);
   return {
     ...specialized,
     images,
