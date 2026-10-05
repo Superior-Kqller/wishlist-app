@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import useSWR, { mutate as mutateCache } from "swr";
-import { Button } from "@/components/ui/button";
+import { Button, useDoneFlash } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -250,6 +250,7 @@ export function ProfileForm({
   );
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [done, flashDone] = useDoneFlash();
   const [errors, setErrors] = useState<Partial<Record<"name" | "birthday", string>>>({});
   const clearError = (field: keyof typeof errors) =>
     setErrors((current) => (current[field] ? { ...current, [field]: undefined } : current));
@@ -352,6 +353,7 @@ export function ProfileForm({
       if (!res.ok) throw await responseError(res, t("Ошибка при обновлении профиля"));
 
       toast.success(t("Профиль обновлен"));
+      flashDone();
       onSuccess();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : t("Ошибка при обновлении профиля"));
@@ -606,8 +608,8 @@ export function ProfileForm({
             size="lg"
             className="w-full sm:w-auto"
             disabled={saving || !hasChanges}
+            status={saving ? "loading" : done ? "done" : "idle"}
           >
-            {saving && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
             {t("Сохранить")}
           </Button>
         </div>

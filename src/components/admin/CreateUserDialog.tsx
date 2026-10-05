@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { passwordSchema, validatePasswordComplexity } from "@/lib/password-validation";
 import { CreateUserPayload } from "@/types";
@@ -188,8 +187,11 @@ export function CreateUserDialog({ open, onOpenChange, onSuccess }: CreateUserDi
             >
               {t("Отмена")}
             </Button>
-            <Button type="submit" disabled={saving || passwordErrors.length > 0}>
-              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            <Button
+              type="submit"
+              disabled={saving || passwordErrors.length > 0}
+              status={saving ? "loading" : "idle"}
+            >
               {t("Создать")}
             </Button>
           </DialogFooter>

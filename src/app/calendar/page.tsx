@@ -563,7 +563,8 @@ export default function CalendarPage() {
                 description={t("Измените фильтр или добавьте личное событие")}
               />
             ) : (
-              <div className="space-y-10">
+              // Skeleton to Content (kinetics): список сменяет скелетон, всплывая на 8px.
+              <div className="space-y-10" data-reveal>
                 {agenda.map(([monthKey, entries]) => (
                   <section key={monthKey} aria-labelledby={`agenda-${monthKey}`}>
                     <h2 id={`agenda-${monthKey}`} className="section-title mb-2 px-2">
@@ -601,17 +602,20 @@ export default function CalendarPage() {
                   </span>
                   <ChevronDown
                     className={cn(
-                      "size-4 text-muted-foreground transition-transform duration-[var(--dur-base)]",
+                      "accordion-chevron size-4 text-muted-foreground",
                       historyOpen && "rotate-180",
                     )}
                     aria-hidden
                   />
                 </button>
-                {historyOpen ? (
-                  <div id="calendar-history-panel" className="divide-y divide-border">
-                    {history.map(renderRow)}
-                  </div>
-                ) : null}
+                <div
+                  id="calendar-history-panel"
+                  className="accordion-body"
+                  data-open={historyOpen ? "" : undefined}
+                  inert={!historyOpen}
+                >
+                  <div className="divide-y divide-border">{history.map(renderRow)}</div>
+                </div>
               </section>
             ) : null}
           </div>

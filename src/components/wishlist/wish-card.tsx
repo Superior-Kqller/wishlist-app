@@ -125,6 +125,7 @@ export const WishCard = memo(function WishCard({
               src={imageUrl!}
               alt=""
               fill
+              data-loaded={imageLoaded || undefined}
               className={cn("wish-card-image", fillTile ? "object-cover" : "object-contain p-6")}
               sizes="(max-width: 744px) 50vw, (max-width: 1128px) 33vw, 25vw"
               unoptimized

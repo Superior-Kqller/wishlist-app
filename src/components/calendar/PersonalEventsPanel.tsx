@@ -355,8 +355,12 @@ export function PersonalEventsPanel() {
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               {t("Отмена")}
             </Button>
-            <Button type="button" onClick={save} disabled={saving || !canSubmit}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
+            <Button
+              type="button"
+              onClick={save}
+              disabled={saving || !canSubmit}
+              status={saving ? "loading" : "idle"}
+            >
               {editingId ? t("Сохранить") : t("Создать")}
             </Button>
           </DialogFooter>

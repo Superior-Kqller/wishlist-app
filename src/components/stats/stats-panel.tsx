@@ -340,7 +340,8 @@ export function StatsPanel() {
   }
 
   return (
-    <div className="flex flex-col gap-12">
+    // Skeleton to Content (kinetics): итоги сменяют скелетон, всплывая на 8px.
+    <div className="flex flex-col gap-12" data-reveal>
       <StatsTotals summary={summary} />
 
       <div className="grid gap-12 border-t border-border pt-12 xl:grid-cols-[minmax(0,1fr)_24rem] xl:gap-16">

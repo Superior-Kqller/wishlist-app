@@ -3,7 +3,7 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { toast } from "sonner";
-import { Loader2, Pencil, Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -374,8 +374,11 @@ export function HolidayCatalog() {
               <Button type="button" variant="outline" onClick={() => setEditing(null)}>
                 {t("Отмена")}
               </Button>
-              <Button type="submit" disabled={saving || !draft.name.trim()}>
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
+              <Button
+                type="submit"
+                disabled={saving || !draft.name.trim()}
+                status={saving ? "loading" : "idle"}
+              >
                 {editing === "new" ? t("Добавить") : t("Сохранить")}
               </Button>
             </DialogFooter>

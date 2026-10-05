@@ -68,10 +68,20 @@ export function ChipTick({ shown }: { shown: boolean }) {
   );
 }
 
+/**
+ * Choice Chips (kinetics, select(pop)): на каждом переключении чип коротко
+ * вырастает до 1.12 и пружиной возвращается. Класс `.pop` исходника держим
+ * 150мс — ровно на разгон пружины.
+ */
+export function popChip(element: HTMLElement) {
+  element.dataset.pop = "";
+  setTimeout(() => delete element.dataset.pop, 150);
+}
+
 /** Чип-переключатель анкеты: неактивный — волосяная рамка, отмеченный — 2px чернилами. */
 export function chipToggleClass(active: boolean, warning = false) {
   return cn(
-    "inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-medium transition-[color,background-color,border-color,box-shadow] duration-fast sm:min-h-10",
+    "chip-pop inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-medium transition-[color,background-color,border-color,box-shadow] duration-fast sm:min-h-10",
     uiState.focusRing,
     active ? (warning ? uiState.chipCheckedDanger : uiState.chipChecked) : uiState.chipIdle,
   );
@@ -158,11 +168,16 @@ export function PreferenceChipPicker({
             <button
               key={suggestion.label}
               type="button"
-              onClick={() => toggleValue(suggestion.label)}
+              onClick={(event) => {
+                popChip(event.currentTarget);
+                toggleValue(suggestion.label);
+              }}
               aria-pressed={active}
               className={cn(chipToggleClass(active, warning), suggestion.color && "gap-2 pl-3")}
             >
-              {suggestion.color ? <PreferenceColorDot value={suggestion.label} size="md" /> : null}
+              {suggestion.color ? (
+                <PreferenceColorDot value={suggestion.label} size="md" className="swatch-pop" />
+              ) : null}
               {t(suggestion.label)}
               <ChipTick shown={active} />
             </button>

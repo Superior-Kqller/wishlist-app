@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { User } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -128,8 +128,8 @@ export function DeleteUserDialog({
             variant="destructive"
             onClick={handleDelete}
             disabled={deleting || !canDelete || confirmText !== user.username}
+            status={deleting ? "loading" : "idle"}
           >
-            {deleting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             {t("Удалить")}
           </Button>
         </DialogFooter>

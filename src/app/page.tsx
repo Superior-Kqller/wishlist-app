@@ -187,6 +187,12 @@ function HomePageContent() {
 
   /** Вся правка желаний — за одним швом: сеть, исходы и их состояние живут там. */
   const editor = useWishlistItemEditor({ mutateItems, t });
+  // Желания, ждущие удаления, уже не показываются: отмена вернёт их на место.
+  const { hiddenItemIds } = editor;
+  const visibleItems = useMemo(
+    () => (hiddenItemIds.size ? items.filter((item) => !hiddenItemIds.has(item.id)) : items),
+    [items, hiddenItemIds],
+  );
 
   // Dialog states
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -197,7 +203,6 @@ function HomePageContent() {
   const [editingList, setEditingList] = useState<ListWithMeta | null>(null);
   const [detailItem, setDetailItem] = useState<WishlistItem | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
   const [listDeleteTarget, setListDeleteTarget] = useState<{
     id: string;
     name: string;
@@ -381,10 +386,6 @@ function HomePageContent() {
   // Но счётчик результата он включает — именно при поиске он нужнее всего.
   const hasActiveFilters = activeFilterChips.length > 0 || Boolean(search.trim());
 
-  const deletingItemTitle = deletingItemId
-    ? (items.find((item) => item.id === deletingItemId)?.title ?? null)
-    : null;
-
   /** Подтверждение называет то, что исчезнет: числа без имён не удерживают от ошибки. */
   const bulkDeleteDescription = useMemo(() => {
     const titles = Array.from(selectedIds)
@@ -408,9 +409,8 @@ function HomePageContent() {
     [editingItem, editor],
   );
 
-  const handleDeleteItem = useCallback((id: string) => {
-    setDeletingItemId(id);
-  }, []);
+  // Одиночное удаление не спрашивает подтверждения — его можно отменить из тоста.
+  const handleDeleteItem = editor.deleteItemWithUndo;
 
   const handleEditItem = useCallback((item: WishlistItem) => {
     setEditingItem(item);
@@ -423,12 +423,6 @@ function HomePageContent() {
     setAddDialogAutoFill(false);
     setAddDialogOpen(true);
   }, []);
-
-  const confirmDeleteItem = useCallback(async () => {
-    if (!deletingItemId) return;
-    await editor.confirmDeleteItem(deletingItemId);
-    setDeletingItemId(null);
-  }, [deletingItemId, editor]);
 
   // Ошибку намеренно не глотаем: её ловит ConfirmDialog и показывает внутри
   // окна, оставляя его открытым. Тост здесь закрыл бы диалог как при успехе.
@@ -611,7 +605,7 @@ function HomePageContent() {
   };
 
   const feed: WishlistFeed = {
-    items,
+    items: visibleItems,
     isLoading,
     loadError,
     onRetry: retry,
@@ -703,19 +697,6 @@ function HomePageContent() {
         onDelete={handleDeleteItem}
         onSetStatus={editor.handleSetItemStatus}
         statusPending={detailItem ? !!editor.pendingStatusByItemId[detailItem.id] : false}
-      />
-
-      {/* Confirm delete dialog */}
-      <ConfirmDialog
-        open={!!deletingItemId}
-        onOpenChange={(open) => !open && setDeletingItemId(null)}
-        title={
-          deletingItemTitle ? `${t("Удалить")} «${deletingItemTitle}»?` : t("Удалить желание?")
-        }
-        description={t("Это действие нельзя отменить.")}
-        confirmLabel={t("Удалить")}
-        variant="destructive"
-        onConfirm={confirmDeleteItem}
       />
 
       {/* Confirm bulk delete dialog */}

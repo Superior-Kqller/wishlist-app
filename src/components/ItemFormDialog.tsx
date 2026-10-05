@@ -695,8 +695,14 @@ export function ItemFormDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("Отмена")}
             </Button>
-            <Button type="submit" disabled={saving || parsingUrl || (!showFullForm && !url.trim())}>
-              {(saving || parsingUrl) && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
+            {/* Разбор ссылки идёт долго и подписан словами — там остаётся спиннер;
+                сохранение — Submit States (kinetics). */}
+            <Button
+              type="submit"
+              disabled={saving || parsingUrl || (!showFullForm && !url.trim())}
+              status={saving ? "loading" : "idle"}
+            >
+              {parsingUrl && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
               {!showFullForm
                 ? parsingUrl
                   ? t("Получаем данные…")

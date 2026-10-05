@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { validatePasswordComplexity } from "@/lib/password-validation";
 import { User } from "@/types";
@@ -169,8 +168,8 @@ export function ChangePasswordDialog({
               disabled={
                 saving || passwordErrors.length > 0 || password !== confirmPassword || !password
               }
+              status={saving ? "loading" : "idle"}
             >
-              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {t("Изменить")}
             </Button>
           </DialogFooter>

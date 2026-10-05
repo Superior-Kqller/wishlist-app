@@ -4,9 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import useSWR, { mutate as mutateCache } from "swr";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button, useDoneFlash } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { RetryNotice } from "@/components/ui/retry-notice";
 import { PageMain, PageShell } from "@/components/ui/page-shell";
@@ -128,6 +128,7 @@ export default function GiftProfilePage() {
   const [draft, setDraft] = useState<GiftPreferences>(emptyGiftPreferences);
   const [activeSection, setActiveSection] = useState<EditorSection>("likes");
   const [saving, setSaving] = useState(false);
+  const [done, flashDone] = useDoneFlash();
   const [discardOpen, setDiscardOpen] = useState(false);
 
   const draftStorageKey = data?.id ? giftPreferencesDraftKey(data.id) : null;
@@ -217,6 +218,7 @@ export default function GiftProfilePage() {
         throw new Error(describeSaveError(body, t));
       }
       toast.success(t("Подарочный профиль сохранён"));
+      flashDone();
       clearStoredDraft();
       // Возврат к своей раскрытой карточке, а не к свёрнутой строке с аватаром:
       // после пятнадцати минут рассказа о себе человек должен увидеть, как его
@@ -333,13 +335,10 @@ export default function GiftProfilePage() {
                 className="shrink-0 gap-2"
                 disabled={!hasChanges || saving}
                 onClick={handleSubmit}
+                status={saving ? "loading" : done ? "done" : "idle"}
               >
-                {saving ? (
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                ) : (
-                  <Save className="h-4 w-4" aria-hidden />
-                )}
-                {saving ? t("Сохраняем") : t("Сохранить")}
+                <Save className="h-4 w-4" aria-hidden />
+                {t("Сохранить")}
               </Button>
             </div>
           }

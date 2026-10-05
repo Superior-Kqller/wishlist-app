@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { mutate } from "swr";
 import type { CreateItemPayload, UpdateItemPayload } from "@/types";
@@ -19,6 +19,9 @@ import {
 
 /** Печать «куплено» держится ровно на время анимации карточки. */
 const JUST_PURCHASED_MS = 1200;
+
+/** Undo Snackbar (kinetics, timer(3000)): столько удаление ждёт отмены. */
+const UNDO_DELETE_MS = 3000;
 
 /*
  * Отказ массового удаления несёт с собой имена уцелевших.
@@ -68,6 +71,41 @@ export function useWishlistItemEditor({ mutateItems, t }: EditorParams) {
   const inFlightIds = useRef<Set<string>>(new Set());
   const justPurchasedTimer = useRef<number | null>(null);
 
+  /*
+   * Удаление с отменой: желание сразу скрывается из сетки, а запрос уходит,
+   * только когда тост закрылся сам или его закрыли. Карта — id → тост, чтобы
+   * при уходе со страницы снять тост и отправить удаление сразу.
+   */
+  const [hiddenItemIds, setHiddenItemIds] = useState<ReadonlySet<string>>(() => new Set());
+  const pendingDeletes = useRef<Map<string, string | number>>(new Map());
+
+  const setItemHidden = useCallback((id: string, hidden: boolean) => {
+    setHiddenItemIds((prev) => {
+      const next = new Set(prev);
+      if (hidden) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    const pending = pendingDeletes.current;
+    // `keepalive` переживает выгрузку страницы — отменить уже было нельзя.
+    const flush = () => {
+      const entries = [...pending];
+      pending.clear();
+      for (const [id, toastId] of entries) {
+        void fetch(`/api/items/${id}`, { method: "DELETE", keepalive: true });
+        toast.dismiss(toastId);
+      }
+    };
+    window.addEventListener("pagehide", flush);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      flush();
+    };
+  }, []);
+
   useEffect(() => {
     return () => {
       if (justPurchasedTimer.current !== null) {
@@ -104,18 +142,44 @@ export function useWishlistItemEditor({ mutateItems, t }: EditorParams) {
     [mutateItems, t],
   );
 
-  const confirmDeleteItem = useCallback(
+  const commitDelete = useCallback(
     async (id: string) => {
+      if (!pendingDeletes.current.delete(id)) return;
       const result = await deleteItem(id);
       if (result.kind !== "ok") {
-        throw new Error(
+        setItemHidden(id, false);
+        toast.error(
           (result.kind === "error" && result.message) || t("Ошибка при удалении желания"),
         );
+        return;
       }
-      toast.success(t("Удалено"));
       await mutateItems();
+      setItemHidden(id, false);
     },
-    [mutateItems, t],
+    [mutateItems, setItemHidden, t],
+  );
+
+  const deleteItemWithUndo = useCallback(
+    (id: string) => {
+      if (pendingDeletes.current.has(id)) return;
+      setItemHidden(id, true);
+      const toastId = toast(t("Желание удалено"), {
+        duration: UNDO_DELETE_MS,
+        className: "undo-toast",
+        description: createElement("span", { className: "undo-drain", "aria-hidden": true }),
+        action: {
+          label: t("Отменить"),
+          onClick: () => {
+            pendingDeletes.current.delete(id);
+            setItemHidden(id, false);
+          },
+        },
+        onAutoClose: () => void commitDelete(id),
+        onDismiss: () => void commitDelete(id),
+      });
+      pendingDeletes.current.set(id, toastId);
+    },
+    [commitDelete, setItemHidden, t],
   );
 
   const handleSetItemStatus = useCallback(
@@ -255,7 +319,8 @@ export function useWishlistItemEditor({ mutateItems, t }: EditorParams) {
       bulkProcessing,
       handleCreateItem,
       updateItemById,
-      confirmDeleteItem,
+      hiddenItemIds,
+      deleteItemWithUndo,
       handleSetItemStatus,
       handleBulkDelete,
       handleBulkMarkPurchased,
@@ -269,7 +334,8 @@ export function useWishlistItemEditor({ mutateItems, t }: EditorParams) {
       bulkProcessing,
       handleCreateItem,
       updateItemById,
-      confirmDeleteItem,
+      hiddenItemIds,
+      deleteItemWithUndo,
       handleSetItemStatus,
       handleBulkDelete,
       handleBulkMarkPurchased,

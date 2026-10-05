@@ -1,7 +1,6 @@
 "use client";
 
 import { useId, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronDown, Gift, Heart, Ruler, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,7 +8,6 @@ import {
   type PreferenceSignalRowProps,
 } from "@/components/preferences/preference-signal-row";
 import { useI18n } from "@/components/i18n/language-provider";
-import { duration, easing } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import {
   countGiftPreferences,
@@ -35,7 +33,6 @@ export function GiftPreferencesSummary({
   embedded = false,
 }: GiftPreferencesSummaryProps) {
   const { t } = useI18n();
-  const reduceMotion = useReducedMotion();
   // `aria-expanded` без `aria-controls` ничего не связывает: у сворачиваемой
   // области не было id, и скринридер не знал, что именно раскрывает кнопка.
   const detailsId = useId();
@@ -178,10 +175,7 @@ export function GiftPreferencesSummary({
             >
               <span className="hidden sm:inline">{expanded ? t("Свернуть") : t("Показать")}</span>
               <ChevronDown
-                className={cn(
-                  "h-4 w-4 transition-transform duration-base",
-                  expanded && "rotate-180",
-                )}
+                className={cn("accordion-chevron h-4 w-4", expanded && "rotate-180")}
                 aria-hidden
               />
             </Button>
@@ -203,14 +197,14 @@ export function GiftPreferencesSummary({
             : t("Подсказок пока нет. Загляните в список желаний или спросите напрямую.")}
         </div>
       ) : (
-        <AnimatePresence initial={false}>
-          {expanded || embedded ? (
-            <motion.div
-              id={detailsId}
-              initial={reduceMotion ? false : { opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
-              transition={{ duration: duration.base, ease: easing.expo }}
+        <div
+          id={detailsId}
+          className="accordion-body"
+          data-open={expanded || embedded ? "" : undefined}
+          inert={!(expanded || embedded)}
+        >
+          <div>
+            <div
               className={cn(embedded ? "py-0.5" : "space-y-3 border-t border-border p-3 sm:p-4")}
             >
               {/* Внутри карточки ширину задаёт не окно, а колонка сетки:
@@ -316,9 +310,9 @@ export function GiftPreferencesSummary({
                   ) : null}
                 </section>
               </div>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
+            </div>
+          </div>
+        </div>
       )}
     </section>
   );

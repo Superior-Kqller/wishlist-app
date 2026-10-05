@@ -56,7 +56,8 @@ export function PreferenceColorDot({
         inset && "ring-offset-1 ring-offset-[hsl(var(--surface-2))]",
         className,
       )}
-      style={{ backgroundColor: hex }}
+      // `color` — для кольца Swatch Picker в своём цвете (`.swatch-pop`).
+      style={{ backgroundColor: hex, color: hex }}
     />
   );
 }

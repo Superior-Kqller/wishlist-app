@@ -79,7 +79,7 @@ export function RecentActivityPanel({ items }: RecentActivityPanelProps) {
           >
             {expanded ? t("Свернуть") : t("Все изменения")}
             <ChevronDown
-              className={cn("h-4 w-4 transition-transform duration-base", expanded && "rotate-180")}
+              className={cn("accordion-chevron h-4 w-4", expanded && "rotate-180")}
               aria-hidden
             />
           </Button>

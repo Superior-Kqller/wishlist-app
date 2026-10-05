@@ -40,16 +40,55 @@ const buttonVariants = cva(
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  /**
+   * Submit States (kinetics): подпись → прыгающие точки → прорисованная галочка.
+   * Подпись при этом остаётся в разметке прозрачной — ширина кнопки и её
+   * доступное имя не меняются. С `asChild` не сочетается.
+   */
+  status?: "idle" | "loading" | "done";
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, status, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
-      <Comp className={cn(buttonVariants({ variant, size }), className)} ref={ref} {...props} />
+      <Comp
+        className={cn(buttonVariants({ variant, size }), status && "submit-states", className)}
+        ref={ref}
+        data-status={status}
+        aria-busy={status === "loading" || undefined}
+        {...props}
+      >
+        {status ? (
+          <>
+            <span className="submit-label">{children}</span>
+            <span className="submit-dots" aria-hidden>
+              <i />
+              <i />
+              <i />
+            </span>
+            <svg className="submit-check" viewBox="0 0 24 24" aria-hidden>
+              <path d="M5 12.5l4.5 4.5L19 7.5" />
+            </svg>
+          </>
+        ) : (
+          children
+        )}
+      </Comp>
     );
   },
 );
 Button.displayName = "Button";
 
-export { Button };
+/** Галочка Submit States после успешного сохранения: `done` на 1.4с после `flash()`. */
+function useDoneFlash(): [boolean, () => void] {
+  const [done, setDone] = React.useState(false);
+  React.useEffect(() => {
+    if (!done) return;
+    const timer = setTimeout(() => setDone(false), 1400);
+    return () => clearTimeout(timer);
+  }, [done]);
+  return [done, React.useCallback(() => setDone(true), [])];
+}
+
+export { Button, useDoneFlash };

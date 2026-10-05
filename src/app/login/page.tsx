@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
 import { BrandLockup } from "@/components/BrandLockup";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -128,8 +127,13 @@ export default function LoginPage() {
               </p>
             ) : null}
 
-            <Button type="submit" size="lg" className="mt-2 w-full" disabled={loading}>
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
+            <Button
+              type="submit"
+              size="lg"
+              className="mt-2 w-full"
+              disabled={loading}
+              status={loading ? "loading" : "idle"}
+            >
               {t("Войти")}
             </Button>
           </form>

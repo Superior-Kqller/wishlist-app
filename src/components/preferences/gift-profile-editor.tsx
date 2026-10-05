@@ -12,6 +12,7 @@ import {
   ChipTick,
   PreferenceChipPicker,
   chipToggleClass,
+  popChip,
   type PreferenceSuggestion,
 } from "@/components/preferences/preference-chip-picker";
 import { duration, easing } from "@/lib/motion";
@@ -180,7 +181,10 @@ function QuickTextField({
             key={suggestion}
             type="button"
             aria-pressed={value === suggestion}
-            onClick={() => onChange(value === suggestion ? "" : suggestion)}
+            onClick={(event) => {
+              popChip(event.currentTarget);
+              onChange(value === suggestion ? "" : suggestion);
+            }}
             className={chipToggleClass(value === suggestion)}
           >
             {t(suggestion)}
@@ -278,7 +282,10 @@ function SizeBuilder({ value, onChange }: { value: string; onChange: (value: str
                       key={preset}
                       type="button"
                       aria-pressed={active}
-                      onClick={() => togglePreset(category.id, preset)}
+                      onClick={(event) => {
+                        popChip(event.currentTarget);
+                        togglePreset(category.id, preset);
+                      }}
                       className={cn(
                         chipToggleClass(active),
                         "min-w-11 justify-center whitespace-nowrap px-3 tabular-nums",

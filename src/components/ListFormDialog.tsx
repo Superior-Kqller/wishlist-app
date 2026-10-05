@@ -280,8 +280,7 @@ export function ListFormDialog({
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 {t("Отмена")}
               </Button>
-              <Button type="submit" disabled={saving}>
-                {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <Button type="submit" disabled={saving} status={saving ? "loading" : "idle"}>
                 {isEdit ? t("Сохранить") : t("Создать")}
               </Button>
             </div>

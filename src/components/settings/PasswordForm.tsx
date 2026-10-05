@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, useDoneFlash } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { validatePasswordComplexity } from "@/lib/password-validation";
 import { SettingsSection } from "@/components/settings/ProfileForm";
@@ -23,6 +22,7 @@ export function PasswordForm({ userId }: PasswordFormProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [done, flashDone] = useDoneFlash();
 
   const handlePasswordChange = (value: string) => {
     setPassword(value);
@@ -64,6 +64,7 @@ export function PasswordForm({ userId }: PasswordFormProps) {
       if (!res.ok) throw await responseError(res, t("Ошибка при изменении пароля"));
 
       toast.success(t("Пароль изменен"));
+      flashDone();
       setCurrentPassword("");
       setPassword("");
       setConfirmPassword("");
@@ -156,8 +157,8 @@ export function PasswordForm({ userId }: PasswordFormProps) {
             password !== confirmPassword ||
             !password
           }
+          status={saving ? "loading" : done ? "done" : "idle"}
         >
-          {saving && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
           {t("Изменить пароль")}
         </Button>
       </div>

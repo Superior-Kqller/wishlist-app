@@ -379,8 +379,23 @@
   mix-blend-mode: multiply;
 }
 
+/*
+ * Blur Fade (21st.dev, magicui): снимок проявляется из размытия 6px за 400ms
+ * `ease-out` с задержкой 40ms, когда загрузился. Сдвиг по y исходника
+ * опущен — фото сидит в плитке с `overflow: hidden`, и сдвиг оставил бы полосу.
+ */
 .wish-card-image {
-  transition: transform var(--dur-base) var(--ease-soft);
+  opacity: 0;
+  filter: blur(6px);
+  transition:
+    transform var(--dur-base) var(--ease-soft),
+    opacity 0.4s ease-out 0.04s,
+    filter 0.4s ease-out 0.04s;
+}
+
+.wish-card-image[data-loaded] {
+  opacity: 1;
+  filter: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -547,6 +562,189 @@
 }
 
 /*
+ * Accordion Spring — spring(260, 28): тело раскрывается за 450ms `expo`,
+ * шеврон поворачивается пружиной за 350ms. Вместо `max-height` с потолком
+ * исходника — `grid-template-rows: 0fr → 1fr`: та же кривая, но высота любая.
+ * Свёрнутое тело остаётся в разметке с `inert`.
+ */
+.accordion-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.accordion-body[data-open] {
+  grid-template-rows: 1fr;
+}
+
+.accordion-body > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.accordion-chevron {
+  transition-property: transform, rotate;
+  transition-duration: 0.35s;
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/*
+ * Submit States — spring(300, 20): подпись, три прыгающие точки (0.6s,
+ * задержки 0 / 0.12 / 0.24s), затем галочка прорисовывается пружиной за 0.4s.
+ * Состояния сменяются наплывом — видно только одно.
+ */
+.submit-states {
+  position: relative;
+}
+
+.submit-label,
+.submit-dots,
+.submit-check {
+  transition: opacity var(--dur-fast) ease;
+}
+
+.submit-label {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+}
+
+.submit-dots,
+.submit-check {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  opacity: 0;
+}
+
+.submit-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.submit-dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: currentColor;
+}
+
+[data-status="loading"] .submit-dots i {
+  animation: submit-bounce 0.6s ease-in-out infinite;
+}
+
+.submit-dots i:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.submit-dots i:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+@keyframes submit-bounce {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.submit-check {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.submit-check path {
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  transition: stroke-dashoffset 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+[data-status="loading"] .submit-label,
+[data-status="done"] .submit-label {
+  opacity: 0;
+}
+
+[data-status="loading"] .submit-dots,
+[data-status="done"] .submit-check {
+  opacity: 1;
+}
+
+[data-status="done"] .submit-check path {
+  stroke-dashoffset: 0;
+}
+
+/* Choice Chips — select(pop): чип на переключении вырастает до 1.12 пружиной 0.3s. */
+.chip-pop {
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    color var(--dur-fast),
+    background-color var(--dur-fast),
+    border-color var(--dur-fast),
+    box-shadow var(--dur-fast);
+}
+
+.chip-pop[data-pop] {
+  transform: scale(1.12);
+}
+
+/*
+ * Swatch Picker — spring scale 1.2: образец выбранного цвета вырастает пружиной
+ * за 0.5s и обводится кольцом своего цвета. Галочку исходника уже рисует чип.
+ */
+.swatch-pop {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition:
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    outline-color 0.3s ease;
+}
+
+[aria-pressed="true"] > .swatch-pop {
+  transform: scale(1.2);
+  outline-color: currentColor;
+}
+
+/*
+ * Undo Snackbar — timer(3000): тост удаления выезжает пружиной за 0.4s, полоса
+ * под подписью тает за 3s слева направо — сколько осталось на отмену. Sonner
+ * держит таймер, пока над тостами курсор; полоса стоит вместе с ним.
+ * Полоса — индикатор времени, а не украшение, поэтому остаётся и при
+ * уменьшенном движении.
+ */
+[data-sonner-toast].undo-toast {
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.undo-drain {
+  display: block;
+  height: 2px;
+  margin-top: 8px;
+  border-radius: 9999px;
+  background: hsl(var(--muted-foreground));
+  transform-origin: left;
+  animation: undo-drain 3s linear forwards;
+}
+
+[data-expanded="true"] .undo-drain {
+  animation-play-state: paused;
+}
+
+@keyframes undo-drain {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/*
  * Появление поверхностей Radix (диалог, меню, список выбора) — 220ms `expo`,
  * уход 140ms (DESIGN.md → «Движение»). Раньше это давал плагин
  * tailwindcss-animate ради четырёх мест. Анимируется свойство `scale`, а не
@@ -633,6 +831,25 @@
 
   .wish-card-image {
     transform: none !important;
+    filter: none;
+  }
+
+  [data-status="loading"] .submit-dots i {
+    animation: none;
+  }
+
+  .submit-check path {
+    stroke-dashoffset: 0;
+  }
+
+  .chip-pop[data-pop],
+  [aria-pressed="true"] > .swatch-pop {
+    transform: none;
+  }
+
+  /* Свои `transition` у классов сильнее общего правила выше — гасим явно. */
+  .accordion-body,
+  .accordion-chevron {
     transition: none;
   }
 
