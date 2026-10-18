@@ -20,7 +20,8 @@ function discoverPageRoutes(): string[] {
     const entries = readdirSync(dir, { withFileTypes: true });
 
     if (entries.some((entry) => entry.isFile() && entry.name === "page.tsx")) {
-      routes.push(route === "" ? "/" : route);
+      // Динамический сегмент `[id]` в matcher пишется как `:id`.
+      routes.push(route === "" ? "/" : route.replace(/\[(\w+)\]/g, ":$1"));
     }
 
     for (const entry of entries) {

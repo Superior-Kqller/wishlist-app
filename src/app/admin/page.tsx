@@ -7,7 +7,8 @@ import useSWR from "swr";
 import { UserTable } from "@/components/admin/UserTable";
 import { CreateUserDialog } from "@/components/admin/CreateUserDialog";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2 } from "lucide-react";
+import { CalendarDays, PartyPopper, Plus, Users } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User } from "@/types";
 import { fetcher } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
@@ -48,9 +49,16 @@ export default function AdminPage() {
   }, [status, session, router]);
 
   if (status === "loading" || isLoading) {
+    // Скелет повторяет раскладку страницы, как в настройках, а не спиннер по центру.
     return (
-      <PageShell className="flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      <PageShell>
+        <PageMain>
+          <div className="animate-pulse" aria-busy="true" aria-label={t("Загрузка…")}>
+            <div className="mb-8 h-14 w-72 rounded-lg bg-muted/55" />
+            <div className="mb-8 h-12 w-full max-w-lg rounded-full bg-muted/55" />
+            <div className="h-64 rounded-xl bg-muted/45" />
+          </div>
+        </PageMain>
       </PageShell>
     );
   }
@@ -68,33 +76,60 @@ export default function AdminPage() {
             description={t("Участники, напоминания календаря и каталог общих праздников")}
           />
 
-          {error ? (
-            <div className="text-center py-12 space-y-2">
-              <p className="text-destructive font-medium">
-                {t("Не удалось загрузить пользователей")}
-              </p>
-              <Button variant="outline" size="sm" onClick={() => mutate()}>
-                {t("Повторить")}
-              </Button>
-            </div>
-          ) : (
-            <section className="space-y-3.5" aria-labelledby="admin-users-title">
-              {/* Действие стоит у своей секции, как «Добавить праздник» у каталога:
-                  в шапке страницы оно читалось действием всей админки. */}
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <h2 id="admin-users-title" className="section-title">
-                  {t("Участники")}
-                </h2>
-                <Button variant="outline" onClick={() => setCreateDialogOpen(true)}>
-                  <Plus className="h-4 w-4" aria-hidden />
-                  {t("Создать пользователя")}
-                </Button>
-              </div>
-              <UserTable users={users} currentUserId={currentUserId} onRefresh={() => mutate()} />
-            </section>
-          )}
-          <CalendarSettings />
-          <HolidayCatalog />
+          <Tabs defaultValue="users" className="grid gap-8">
+            <TabsList aria-label={t("Разделы администрирования")} className="sm:max-w-xl">
+              <TabsTrigger value="users">
+                <Users className="h-4 w-4 shrink-0" aria-hidden />
+                <span className="truncate">{t("Участники")}</span>
+                <span className="tabular-nums text-muted-foreground">{users.length}</span>
+              </TabsTrigger>
+              <TabsTrigger value="calendar">
+                <CalendarDays className="h-4 w-4 shrink-0" aria-hidden />
+                <span className="truncate">{t("Календарь")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="holidays">
+                <PartyPopper className="h-4 w-4 shrink-0" aria-hidden />
+                <span className="truncate">{t("Праздники")}</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="users" className="m-0">
+              {error ? (
+                <div className="text-center py-12 space-y-2">
+                  <p className="text-destructive font-medium">
+                    {t("Не удалось загрузить пользователей")}
+                  </p>
+                  <Button variant="outline" size="sm" onClick={() => mutate()}>
+                    {t("Повторить")}
+                  </Button>
+                </div>
+              ) : (
+                <section className="space-y-3.5" aria-labelledby="admin-users-title">
+                  {/* Действие стоит у своей секции, как «Добавить праздник» у каталога. */}
+                  <div className="flex flex-wrap items-end justify-between gap-3">
+                    <h2 id="admin-users-title" className="section-title">
+                      {t("Участники")}
+                    </h2>
+                    <Button variant="outline" onClick={() => setCreateDialogOpen(true)}>
+                      <Plus className="h-4 w-4" aria-hidden />
+                      {t("Создать пользователя")}
+                    </Button>
+                  </div>
+                  <UserTable
+                    users={users}
+                    currentUserId={currentUserId}
+                    onRefresh={() => mutate()}
+                  />
+                </section>
+              )}
+            </TabsContent>
+            <TabsContent value="calendar" className="m-0">
+              <CalendarSettings />
+            </TabsContent>
+            <TabsContent value="holidays" className="m-0">
+              <HolidayCatalog />
+            </TabsContent>
+          </Tabs>
         </div>
       </PageMain>
 

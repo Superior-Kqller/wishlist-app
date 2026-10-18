@@ -1,7 +1,7 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useState, type ReactNode } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { UserAvatar } from "@/components/UserAvatar";
 import { PreferenceColorDot } from "@/components/preferences/preference-color-dot";
 import { PreferenceHintChip } from "@/components/preferences/preference-hint-chip";
@@ -77,47 +77,63 @@ export function PersonCardGrid<T extends { id: string }>({
   stripRef?: React.Ref<HTMLDivElement>;
   label: string;
 }) {
-  const plateId = useId();
   const reduceMotion = useReducedMotion();
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  // Подложка одна на сетку и ездит по измеренному прямоугольнику карточки;
+  // `offset*` не зависят от `transform`, так что лесенка появления её не сбивает.
+  const [plate, setPlate] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+  const [active, setActive] = useState(false);
+  const pad = 8;
 
   return (
     <div
       ref={stripRef}
       role="group"
       aria-label={label}
-      className={className}
-      onPointerLeave={() => setHoveredId(null)}
+      className={cn("relative", className)}
+      onPointerLeave={() => setActive(false)}
     >
+      {plate && !reduceMotion ? (
+        <motion.span
+          aria-hidden
+          className="pointer-events-none absolute left-0 top-0 rounded-[1.25rem] bg-accent"
+          initial={{
+            opacity: 0,
+            x: plate.x - pad,
+            y: plate.y - pad,
+            width: plate.w + pad * 2,
+            height: plate.h + pad * 2,
+          }}
+          animate={{
+            opacity: active ? 1 : 0,
+            x: plate.x - pad,
+            y: plate.y - pad,
+            width: plate.w + pad * 2,
+            height: plate.h + pad * 2,
+          }}
+          transition={{
+            duration: 0.4,
+            ease: easing.expo,
+            opacity: { duration: 0.15, delay: active ? 0 : 0.2 },
+          }}
+        />
+      ) : null}
       {people.map((person, index) => (
         // Карточки появляются лесенкой — Stagger Entrance (kinetics): 14px,
-        // 450ms `expo`, шаг 90ms, не больше 8 шагов. `initial` играет только
-        // при монтировании, смена выбора его не повторяет.
+        // 450ms `expo`, шаг 90ms, не больше 8 шагов.
         <motion.div
           key={person.id}
           className="relative min-w-0"
           initial={reduceMotion ? false : { opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: easing.expo, delay: Math.min(index, 8) * 0.09 }}
-          // Только мышь: тап на телефоне шлёт эмулированный enter без leave,
-          // и подложка залипала бы под выбранной карточкой.
+          // Только мышь: тап на телефоне шлёт эмулированный enter без leave.
           onPointerEnter={(event) => {
-            if (event.pointerType === "mouse") setHoveredId(person.id);
+            if (event.pointerType !== "mouse") return;
+            const el = event.currentTarget;
+            setPlate({ x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight });
+            setActive(true);
           }}
         >
-          <AnimatePresence>
-            {hoveredId === person.id && !reduceMotion ? (
-              <motion.span
-                aria-hidden
-                layoutId={plateId}
-                className="pointer-events-none absolute -inset-2 rounded-[1.25rem] bg-accent"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1, transition: { duration: 0.15 } }}
-                exit={{ opacity: 0, transition: { duration: 0.15, delay: 0.2 } }}
-                transition={{ layout: { duration: 0.4, ease: easing.expo } }}
-              />
-            ) : null}
-          </AnimatePresence>
           {renderCard(person, index)}
         </motion.div>
       ))}

@@ -1,12 +1,30 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Loader2, MessageCircle, SendHorizontal, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { UserAvatar } from "@/components/UserAvatar";
 import type { ItemComment } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
+import { easing } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+
+/** «5 минут назад», «вчера»; старше недели — обычная дата. */
+function formatCommentTime(iso: string, locale: string) {
+  const diffSec = Math.round((new Date(iso).getTime() - Date.now()) / 1000);
+  const abs = Math.abs(diffSec);
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+  if (abs < 60) return rtf.format(0, "second");
+  if (abs < 3600) return rtf.format(Math.round(diffSec / 60), "minute");
+  if (abs < 86400) return rtf.format(Math.round(diffSec / 3600), "hour");
+  if (abs < 7 * 86400) return rtf.format(Math.round(diffSec / 86400), "day");
+  return new Date(iso).toLocaleDateString(locale, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 type ItemActivitySectionProps = {
   comments: ItemComment[];
@@ -32,6 +50,7 @@ export function ItemActivitySection({
   className,
 }: ItemActivitySectionProps) {
   const { locale, t } = useI18n();
+  const reduceMotion = useReducedMotion();
 
   return (
     <section className={cn("space-y-3", className)} aria-label={t("Комментарии")}>
@@ -49,51 +68,59 @@ export function ItemActivitySection({
             {t("Комментариев пока нет")}
           </p>
         ) : (
-          comments.map((comment) => (
-            <div key={comment.id} className="flex gap-3 py-2.5 text-sm first:pt-0">
-              <UserAvatar
-                avatarUrl={comment.user.avatarUrl || undefined}
-                name={comment.user.name}
-                userId={comment.user.id}
-                size="md"
-              />
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium">{comment.user.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(comment.createdAt).toLocaleString(locale, {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
+          <AnimatePresence initial={false}>
+            {comments.map((comment) => (
+              <motion.div
+                key={comment.id}
+                layout={!reduceMotion}
+                initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3, ease: easing.expo }}
+                className="flex gap-3 py-2.5 text-sm first:pt-0"
+              >
+                <UserAvatar
+                  avatarUrl={comment.user.avatarUrl || undefined}
+                  name={comment.user.name}
+                  userId={comment.user.id}
+                  size="md"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium">{comment.user.name}</span>
+                    <time
+                      dateTime={comment.createdAt}
+                      title={new Date(comment.createdAt).toLocaleString(locale)}
+                      className="text-xs text-muted-foreground"
+                    >
+                      {formatCommentTime(comment.createdAt, locale)}
+                    </time>
+                  </div>
+                  <p className="mt-0.5 break-words whitespace-pre-wrap leading-relaxed text-foreground/85">
+                    {comment.text}
+                  </p>
                 </div>
-                <p className="mt-0.5 break-words whitespace-pre-wrap leading-relaxed text-foreground/85">
-                  {comment.text}
-                </p>
-              </div>
-              {currentUserId === comment.userId ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
-                  title={t("Удалить комментарий")}
-                  aria-label={t("Удалить комментарий")}
-                  disabled={deletingCommentId === comment.id}
-                  onClick={() => onDeleteComment(comment.id)}
-                >
-                  {deletingCommentId === comment.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-4 w-4" />
-                  )}
-                </Button>
-              ) : null}
-            </div>
-          ))
+                {currentUserId === comment.userId ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                    title={t("Удалить комментарий")}
+                    aria-label={t("Удалить комментарий")}
+                    disabled={deletingCommentId === comment.id}
+                    onClick={() => onDeleteComment(comment.id)}
+                  >
+                    {deletingCommentId === comment.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                ) : null}
+              </motion.div>
+            ))}
+          </AnimatePresence>
         )}
       </div>
 
@@ -106,6 +133,12 @@ export function ItemActivitySection({
         <Textarea
           value={commentText}
           onChange={(event) => onCommentTextChange(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+              event.preventDefault();
+              event.currentTarget.form?.requestSubmit();
+            }
+          }}
           placeholder={t("Добавить комментарий…")}
           aria-label={t("Комментарий")}
           rows={1}

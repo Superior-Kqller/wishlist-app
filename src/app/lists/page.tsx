@@ -94,7 +94,7 @@ function ListTile({
 
   return (
     <div className="group relative">
-      <Link href={`/?listId=${list.id}`} className={cn("block rounded-[14px]", uiState.focusRing)}>
+      <Link href={`/lists/${list.id}`} className={cn("block rounded-[14px]", uiState.focusRing)}>
         <div className="overflow-hidden rounded-[14px] [&_img]:transition-transform [&_img]:duration-[220ms] group-hover:[&_img]:scale-[1.02] motion-reduce:[&_img]:transition-none">
           <ListTileMedia list={list} />
         </div>

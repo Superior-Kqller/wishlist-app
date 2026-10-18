@@ -52,6 +52,7 @@ export const config = {
     "/admin",
     "/calendar",
     "/lists",
+    "/lists/:id",
     "/more",
     "/preferences",
     "/preferences/me",
