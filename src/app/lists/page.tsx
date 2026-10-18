@@ -10,6 +10,7 @@ import { FolderOpen, Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { RetryNotice } from "@/components/ui/retry-notice";
+import { SearchField } from "@/components/ui/search-field";
 import { PageIntro, PageMain, PageShell } from "@/components/ui/page-shell";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getWishWord } from "@/lib/i18n";
@@ -140,6 +141,7 @@ export default function ListsPage() {
   const currentUserId = session?.user?.id;
   const [editing, setEditing] = useState<ListWithMeta | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
   const {
     data: lists,
@@ -151,8 +153,10 @@ export default function ListsPage() {
   });
   const users = useMemo(() => usersData?.users ?? [], [usersData?.users]);
 
-  const mine = (lists ?? []).filter((l) => l.userId === currentUserId);
-  const shared = (lists ?? []).filter((l) => l.userId !== currentUserId);
+  const needle = query.trim().toLowerCase();
+  const found = (lists ?? []).filter((l) => !needle || l.name.toLowerCase().includes(needle));
+  const mine = found.filter((l) => l.userId === currentUserId);
+  const shared = found.filter((l) => l.userId !== currentUserId);
   const ownerName = (id: string) => users.find((u) => u.id === id)?.name ?? null;
 
   const openDialog = (list: ListWithMeta | null) => {
@@ -192,6 +196,20 @@ export default function ListsPage() {
             />
           ) : (
             <div className="space-y-12">
+              <SearchField
+                value={query}
+                onValueChange={setQuery}
+                placeholder={t("Поиск по названию…")}
+                aria-label={t("Поиск")}
+                wrapperClassName="sm:max-w-md"
+              />
+              {found.length === 0 ? (
+                <EmptyState
+                  icon={<FolderOpen aria-hidden />}
+                  title={t("Ничего не найдено")}
+                  description={t("Измените поисковый запрос.")}
+                />
+              ) : null}
               {mine.length > 0 ? (
                 <Section title={t("Мои подборки")}>
                   {mine.map((l) => (

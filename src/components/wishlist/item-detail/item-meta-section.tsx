@@ -37,8 +37,20 @@ type ItemActionProps = {
 
 /** Название и чьё это желание — шапка левой колонки (DESIGN.md → display-lg). */
 export function ItemDetailHeader({ item }: { item: WishlistItem }) {
-  const { language } = useI18n();
+  const { language, locale, t } = useI18n();
   const categoryLabel = getProductCategoryLabel(item.category, language);
+  // Откуда желание: домен ссылки без `www.` — где искать и сверять цену.
+  let storeHost: string | null = null;
+  try {
+    if (item.url) storeHost = new URL(item.url).hostname.replace(/^www\./, "");
+  } catch {
+    storeHost = null;
+  }
+  const added = new Date(item.createdAt).toLocaleDateString(locale, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     // Справа сверху на телефоне без фото — крестик окна: отступ под него.
@@ -67,6 +79,17 @@ export function ItemDetailHeader({ item }: { item: WishlistItem }) {
         {item.category ? <span className="truncate">{categoryLabel}</span> : null}
         <PriorityBadgeInline priority={item.priority} />
       </div>
+      {storeHost || added ? (
+        <p className="flex min-w-0 flex-wrap gap-x-2 text-sm text-muted-foreground">
+          {storeHost ? <span className="truncate">{storeHost}</span> : null}
+          {storeHost && added ? <span aria-hidden>·</span> : null}
+          {added ? (
+            <span>
+              {t("Добавлено")} {added}
+            </span>
+          ) : null}
+        </p>
+      ) : null}
     </header>
   );
 }

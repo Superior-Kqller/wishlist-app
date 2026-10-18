@@ -45,7 +45,10 @@ export function ItemMediaSection({ item, className }: { item: WishlistItem; clas
         src={mainImage}
         alt={item.title}
         fill
+        // Blur Fade: проявление из размытия, как у фото в сетке (globals.css).
+        data-loaded={ratio != null || undefined}
         className={cn(
+          "wish-card-image",
           fillMobile ? "max-md:object-cover" : "max-md:object-contain max-md:p-6",
           fillDesktop ? "md:object-cover" : "md:object-contain md:p-6",
           isItemPurchased(item) && "grayscale",

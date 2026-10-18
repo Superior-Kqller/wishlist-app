@@ -6,6 +6,8 @@ import { WishlistItem } from "@/types";
 import { ItemComment } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import useSWR from "swr";
+import { motion, useReducedMotion } from "framer-motion";
+import { easing } from "@/lib/motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ItemMediaSection } from "@/components/wishlist/item-detail/item-media-section";
@@ -48,6 +50,7 @@ export function ItemDetailDialog({
   statusPending = false,
 }: ItemDetailDialogProps) {
   const { language, t } = useI18n();
+  const reduceMotion = useReducedMotion();
   const [commentText, setCommentText] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
@@ -123,6 +126,13 @@ export function ItemDetailDialog({
     onSetStatus(item.id, getPurchaseToggleTarget(item));
   };
 
+  // Stagger Entrance (kinetics): блоки поднимаются на 14px по очереди, шаг 90ms.
+  const rise = (step: number) => ({
+    initial: reduceMotion ? (false as const) : { opacity: 0, y: 14 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.45, ease: easing.expo, delay: step * 0.09 },
+  });
+
   const actionProps = {
     item,
     canManage,
@@ -184,12 +194,12 @@ export function ItemDetailDialog({
            */}
           <div className="grid gap-x-12 gap-y-6 px-4 pb-8 sm:px-8 md:grid-cols-[minmax(0,1fr)_20rem] md:grid-rows-[auto_1fr] md:pt-14">
             {hasImage ? (
-              <ItemMediaSection
-                item={item}
-                className="max-md:-mx-4 max-md:w-auto max-md:rounded-none sm:max-md:-mx-8"
-              />
+              <motion.div {...rise(0)} className="max-md:-mx-4 sm:max-md:-mx-8">
+                <ItemMediaSection item={item} className="max-md:w-auto max-md:rounded-none" />
+              </motion.div>
             ) : null}
-            <aside
+            <motion.aside
+              {...rise(1)}
               className={cn(
                 "min-w-0 md:col-start-2 md:row-span-2 md:row-start-1",
                 !hasImage && "max-md:pt-10",
@@ -200,8 +210,8 @@ export function ItemDetailDialog({
                 <ItemDetailHeader item={item} />
                 <ItemActionCard {...actionProps} className="hidden md:block" />
               </div>
-            </aside>
-            <div className="min-w-0 space-y-8 md:col-start-1">
+            </motion.aside>
+            <motion.div {...rise(2)} className="min-w-0 space-y-8 md:col-start-1">
               {item.notes?.trim() ? (
                 <div className="border-t border-border pt-8 md:border-t-0 md:pt-2">
                   <ItemDetailNotes item={item} />
@@ -218,7 +228,7 @@ export function ItemDetailDialog({
                 onSubmitComment={handleAddComment}
                 onDeleteComment={handleDeleteComment}
               />
-            </div>
+            </motion.div>
           </div>
         </div>
 

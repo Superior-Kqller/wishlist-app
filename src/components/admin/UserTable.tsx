@@ -212,7 +212,18 @@ export function UserTable({ users, currentUserId, onRefresh }: UserTableProps) {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>{user.name}</TableCell>
+                    <TableCell>
+                      <div className="flex min-w-0 items-center gap-2.5">
+                        <UserAvatar
+                          avatarUrl={user.avatarUrl}
+                          name={user.name}
+                          userId={user.id}
+                          size="sm"
+                          className="shrink-0"
+                        />
+                        <span className="truncate">{user.name}</span>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Badge variant="outline">
                         {user.role === "ADMIN" ? t("Администратор") : t("Пользователь")}

@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { UserAvatar } from "@/components/UserAvatar";
 import { AvatarUploadDialog } from "./AvatarUploadDialog";
 import { FieldError } from "@/components/ui/field-error";
-import { fetcher } from "@/lib/utils";
+import { cn, fetcher } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getLanguageLocale } from "@/lib/i18n";
 import type { BirthdayAudience, BirthdayProfile } from "@/types";
@@ -602,7 +602,18 @@ export function ProfileForm({
           )}
         </SettingsSection>
 
-        <div className="flex justify-end">
+        {/* Панель сохранения липнет к низу (как в анкете предпочтений): форма из пяти
+            разделов длинная, и кнопка в самом конце оставалась за прокруткой. */}
+        <div className="sticky bottom-[var(--bottom-nav-clearance)] z-20 flex items-center justify-between gap-3 !pb-4 bg-background after:absolute after:inset-x-0 after:top-full after:h-3 after:bg-background">
+          <p
+            role="status"
+            className={cn(
+              "text-sm text-muted-foreground transition-opacity duration-fast max-sm:sr-only",
+              hasChanges ? "opacity-100" : "opacity-0",
+            )}
+          >
+            {hasChanges ? t("Есть несохранённые изменения") : ""}
+          </p>
           <Button
             type="submit"
             size="lg"
