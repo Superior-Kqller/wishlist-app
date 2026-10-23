@@ -153,6 +153,9 @@ const en: Dictionary = {
   Пароль: "Password",
   "Введите пароль": "Enter password",
   "Неверный логин или пароль": "Invalid username or password",
+  "Слишком много попыток входа. Повторите через {minutes} мин.":
+    "Too many sign-in attempts. Try again in {minutes} min.",
+  "Не удалось войти. Попробуйте ещё раз.": "Could not sign in. Please try again.",
   "Что-то пошло не так": "Something went wrong",
   "Произошла ошибка. Попробуйте обновить страницу.": "An error occurred. Try refreshing the page.",
   "Неожиданная ошибка приложения": "Unexpected application error",

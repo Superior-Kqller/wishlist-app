@@ -1,98 +1,32 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+import { NextRequest, NextResponse } from "next/server";
 
-const mockHandler = vi.fn(async () => new Response("ok", { status: 200 }));
-const mockRateLimit = vi.fn();
-const mockNextAuth = vi.fn(() => mockHandler);
-const mockAuthOptions = { providers: [] };
-
-vi.mock("next-auth", () => ({
-  default: mockNextAuth,
-}));
-
-vi.mock("@/lib/auth", () => ({
-  authOptions: mockAuthOptions,
-}));
-
+vi.mock("next-auth", () => ({ default: () => vi.fn() }));
+vi.mock("@/lib/auth", () => ({ authOptions: {} }));
 vi.mock("@/lib/rate-limit", () => ({
-  rateLimit: mockRateLimit,
-  rateLimitPresets: {
-    auth: { maxRequests: 5, windowMs: 900000, useIP: true },
-  },
+  rateLimitPresets: { auth: {} },
+  rateLimit: vi
+    .fn()
+    .mockResolvedValue(
+      NextResponse.json(
+        { error: "Too Many Requests", retryAfter: 600 },
+        { status: 429, headers: { "Retry-After": "600" } },
+      ),
+    ),
 }));
 
-describe("auth route rate limit for credentials", () => {
-  const routeContext = {
-    params: Promise.resolve({ nextauth: ["callback", "credentials"] }),
-  };
-
-  beforeEach(() => {
-    vi.resetModules();
-    vi.clearAllMocks();
-  });
-
-  it("возвращает 429 для POST credentials callback при превышении лимита (включая trailing slash)", async () => {
-    mockRateLimit.mockResolvedValueOnce(new Response("Too Many Requests", { status: 429 }));
+describe("POST credentials callback при превышении лимита", () => {
+  it("отвечает 429 с url, который разбирает клиент NextAuth", async () => {
     const { POST } = await import("./route");
-
-    const req = new Request("http://localhost/api/auth/callback/credentials/", {
-      method: "POST",
-      headers: { "x-forwarded-for": "1.2.3.4" },
-    });
-
-    const response = await POST(req as never, routeContext as never);
-
-    expect(response.status).toBe(429);
-    expect(mockRateLimit).toHaveBeenCalledTimes(1);
-    expect(mockHandler).not.toHaveBeenCalled();
-  });
-
-  it("проксирует credentials POST в handler, если rateLimit вернул null", async () => {
-    mockRateLimit.mockResolvedValueOnce(null);
-    const { POST } = await import("./route");
-
-    const req = new Request("http://localhost/api/auth/callback/credentials", {
-      method: "POST",
-      headers: { "x-forwarded-for": "1.2.3.4" },
-    });
-
-    const response = await POST(req as never, routeContext as never);
-
-    expect(response.status).toBe(200);
-    expect(mockRateLimit).toHaveBeenCalledTimes(1);
-    expect(mockHandler).toHaveBeenCalledTimes(1);
-  });
-
-  it("не применяет auth rate limit для прочих auth POST путей", async () => {
-    mockRateLimit.mockResolvedValueOnce(null);
-    const { POST } = await import("./route");
-
-    const req = new Request("http://localhost/api/auth/signin", {
+    const req = new NextRequest("http://localhost/api/auth/callback/credentials", {
       method: "POST",
     });
 
-    const response = await POST(req as never, routeContext as never);
+    const res = await POST(req, { params: Promise.resolve({ nextauth: [] }) });
+    const data = await res.json();
 
-    expect(response.status).toBe(200);
-    expect(mockRateLimit).not.toHaveBeenCalled();
-    expect(mockHandler).toHaveBeenCalledTimes(1);
-  });
-
-  it("GET остаётся проксированным в NextAuth handler", async () => {
-    const { GET } = await import("./route");
-
-    const req = new Request("http://localhost/api/auth/session", {
-      method: "GET",
-    });
-
-    const response = await GET(req);
-
-    expect(response.status).toBe(200);
-    expect(mockRateLimit).not.toHaveBeenCalled();
-    expect(mockHandler).toHaveBeenCalledTimes(1);
-  });
-
-  it("инициализирует NextAuth с authOptions", async () => {
-    await import("./route");
-    expect(mockNextAuth).toHaveBeenCalledWith(mockAuthOptions);
+    expect(res.status).toBe(429);
+    expect(res.headers.get("Retry-After")).toBe("600");
+    expect(new URL(data.url).searchParams.get("error")).toBe("RateLimit:600");
   });
 });

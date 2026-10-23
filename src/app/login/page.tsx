@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn, useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { BrandLockup } from "@/components/BrandLockup";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { useI18n } from "@/components/i18n/language-provider";
 import { safeCallbackPath } from "@/lib/deep-links";
+
+const SIGN_IN_TIMEOUT_MS = 15_000;
 
 /** Страница, с которой отправили на вход, — например, форма из букмарклета. */
 function callbackPath(): string {
@@ -25,6 +27,8 @@ export default function LoginPage() {
   // Счётчик неудачных попыток перезапускает покачивание полей на каждой ошибке.
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [loading, setLoading] = useState(false);
+  // Номер последней отправки: ответ устаревшей попытки не трогает состояние формы.
+  const attemptRef = useRef(0);
   const router = useRouter();
   const { status } = useSession();
 
@@ -37,20 +41,46 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
+    const attempt = ++attemptRef.current;
+    const isStale = () => attempt !== attemptRef.current;
 
-    const result = await signIn("credentials", {
-      username,
-      password,
-      redirect: false,
-    });
+    let succeeded = false;
+    try {
+      const result = await Promise.race([
+        signIn("credentials", { username, password, redirect: false }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("timeout")), SIGN_IN_TIMEOUT_MS),
+        ),
+      ]);
+      if (isStale()) return;
 
-    if (result?.error) {
-      setError(t("Неверный логин или пароль"));
-      setFailedAttempts((count) => count + 1);
-      setLoading(false);
-    } else {
-      router.push(callbackPath());
-      router.refresh();
+      if (result?.ok && !result.error) {
+        succeeded = true;
+        router.push(callbackPath());
+        router.refresh();
+        return;
+      }
+
+      const rateLimited = result?.error?.match(/^RateLimit:(\d+)$/);
+      if (rateLimited) {
+        setError(
+          t("Слишком много попыток входа. Повторите через {minutes} мин.", {
+            minutes: Math.max(1, Math.ceil(Number(rateLimited[1]) / 60)),
+          }),
+        );
+      } else if (result?.error === "CredentialsSignin") {
+        setError(t("Неверный логин или пароль"));
+      } else {
+        setError(t("Не удалось войти. Попробуйте ещё раз."));
+      }
+    } catch {
+      if (isStale()) return;
+      setError(t("Не удалось войти. Попробуйте ещё раз."));
+    } finally {
+      if (!succeeded && !isStale()) {
+        setFailedAttempts((count) => count + 1);
+        setLoading(false);
+      }
     }
   };
 
