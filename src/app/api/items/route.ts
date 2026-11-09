@@ -15,9 +15,11 @@ import {
 } from "@/lib/wishlist/item-sort";
 import {
   buildCategoryCondition,
+  buildPriceCondition,
   buildPurchasedCondition,
   parseCategoriesParam,
 } from "@/lib/wishlist/item-filters";
+import { parsePrice } from "@/lib/home/wishlist-filters-url";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { unauthorizedResponse } from "@/lib/api-responses";
@@ -66,6 +68,12 @@ export async function GET(req: NextRequest) {
 
   const categoryCondition = buildCategoryCondition(categories);
   if (categoryCondition) conditions.push(categoryCondition);
+
+  const priceCondition = buildPriceCondition(
+    parsePrice(searchParams.get("priceMin")),
+    parsePrice(searchParams.get("priceMax")),
+  );
+  if (priceCondition) conditions.push(priceCondition);
 
   // Точное совпадение ссылки — форма добавления предупреждает о дубле.
   const urlParam = searchParams.get("url")?.trim();

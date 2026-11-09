@@ -24,6 +24,9 @@ export type WishlistFiltersState = {
   view: WishlistViewMode | null;
   showPurchased: boolean;
   categories: string[];
+  /** Границы цены включительно; `null` — граница не задана. */
+  priceMin: number | null;
+  priceMax: number | null;
 };
 
 type ReadableParams = { get(name: string): string | null };
@@ -40,7 +43,16 @@ export function parseWishlistFilters(params: ReadableParams): WishlistFiltersSta
     view: parseView(params.get("view")),
     showPurchased: params.get("purchased") === "show",
     categories: categories ? categories.split(",").filter(Boolean) : [],
+    priceMin: parsePrice(params.get("priceMin")),
+    priceMax: parsePrice(params.get("priceMax")),
   };
+}
+
+/** Цена из ссылки: только неотрицательное конечное число, остальное — «не задано». */
+export function parsePrice(value: string | null | undefined): number | null {
+  if (!value?.trim()) return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
 function parseView(value: string | null): WishlistViewMode | null {
@@ -58,6 +70,8 @@ export function serializeWishlistFilters(state: WishlistFiltersState): string {
     view: state.view,
     purchased: state.showPurchased ? "show" : null,
     categories: state.categories.length > 0 ? state.categories.join(",") : null,
+    priceMin: state.priceMin !== null ? String(state.priceMin) : null,
+    priceMax: state.priceMax !== null ? String(state.priceMax) : null,
   };
   for (const [key, value] of Object.entries(values)) {
     if (value) params.set(key, value);

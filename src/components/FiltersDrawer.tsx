@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { parsePrice } from "@/lib/home/wishlist-filters-url";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +42,9 @@ interface FiltersDrawerProps {
   selectedCategories: string[];
   onToggleCategory: (categoryId: string) => void;
   onClearCategories: () => void;
+  priceMin: number | null;
+  priceMax: number | null;
+  onPriceChange: (min: number | null, max: number | null) => void;
   activeFilterCount: number;
   resultCount: number;
   onClearAllFilters: () => void;
@@ -73,6 +78,9 @@ export function FiltersDrawer({
   selectedCategories,
   onToggleCategory,
   onClearCategories,
+  priceMin,
+  priceMax,
+  onPriceChange,
   activeFilterCount,
   resultCount,
   onClearAllFilters,
@@ -84,6 +92,19 @@ export function FiltersDrawer({
   }, [lists, usersWithStats, currentUserId, selectedUserId]);
 
   const isPhone = useMediaQuery("(max-width: 639px)");
+
+  // Границы цены применяются по уходу из поля или Enter: в адрес не пишем по цифре.
+  const [minDraft, setMinDraft] = useState(priceMin?.toString() ?? "");
+  const [maxDraft, setMaxDraft] = useState(priceMax?.toString() ?? "");
+  useEffect(() => {
+    setMinDraft(priceMin?.toString() ?? "");
+    setMaxDraft(priceMax?.toString() ?? "");
+  }, [priceMin, priceMax]);
+  const applyPrice = () => {
+    const min = parsePrice(minDraft);
+    const max = parsePrice(maxDraft);
+    if (min !== priceMin || max !== priceMax) onPriceChange(min, max);
+  };
 
   const countBadge =
     activeFilterCount > 0 ? (
@@ -177,6 +198,36 @@ export function FiltersDrawer({
             />
           </span>
         </button>
+      </section>
+
+      <section className="space-y-2.5" aria-labelledby="mobile-filter-price">
+        <Label id="mobile-filter-price" className="text-xs font-semibold text-muted-foreground">
+          {t("Цена")}
+        </Label>
+        <div className="grid grid-cols-2 gap-2">
+          {(
+            [
+              ["min", t("от"), minDraft, setMinDraft],
+              ["max", t("до"), maxDraft, setMaxDraft],
+            ] as const
+          ).map(([key, label, value, setValue]) => (
+            <Input
+              key={key}
+              type="number"
+              inputMode="decimal"
+              min={0}
+              placeholder={label}
+              aria-label={`${t("Цена")}: ${label}`}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              onBlur={applyPrice}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") applyPrice();
+              }}
+              data-testid={`filter-price-${key}`}
+            />
+          ))}
+        </div>
       </section>
 
       {categories.length > 0 ? (

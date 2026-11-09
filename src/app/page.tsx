@@ -98,6 +98,8 @@ function HomePageContent() {
     view: chosenView,
     showPurchased,
     categories: selectedCategories,
+    priceMin,
+    priceMax,
   } = urlFilters;
   const listIdParam = searchParams.get("listId");
   // Не выбранный вид на телефоне — список: карточка со снимком занимает там
@@ -156,6 +158,8 @@ function HomePageContent() {
     sortBy,
     showPurchased,
     categories: effectiveSelectedCategories,
+    priceMin,
+    priceMax,
   });
   const {
     data: listsData,
@@ -386,8 +390,23 @@ function HomePageContent() {
           syncFiltersToUrl({ categories: selectedCategories.filter((id) => id !== categoryId) }),
       });
     });
+    if (priceMin !== null || priceMax !== null) {
+      const range =
+        priceMin !== null && priceMax !== null
+          ? `${priceMin}–${priceMax}`
+          : priceMin !== null
+            ? `${t("от")} ${priceMin}`
+            : `${t("до")} ${priceMax}`;
+      chips.push({
+        key: "price",
+        label: `${t("Цена")}: ${range}`,
+        onRemove: () => syncFiltersToUrl({ priceMin: null, priceMax: null }),
+      });
+    }
     return chips;
   }, [
+    priceMin,
+    priceMax,
     selectedListName,
     showPurchased,
     sortBy,
@@ -603,6 +622,9 @@ function HomePageContent() {
     selectedCategories: effectiveSelectedCategories,
     onToggleCategory: handleToggleCategory,
     onClearCategories: handleClearCategories,
+    priceMin,
+    priceMax,
+    onPriceChange: (min, max) => syncFiltersToUrl({ priceMin: min, priceMax: max }),
     sortBy,
     onSortChange: setSortBy,
     showPurchased,

@@ -25,6 +25,20 @@ export function parseCategoriesParam(raw: string | null | undefined): string[] {
   return [...unique].slice(0, MAX_CATEGORY_FILTERS);
 }
 
+/** Цена в пределах [min, max]; желания без цены под такой отбор не попадают. */
+export function buildPriceCondition(
+  min: number | null,
+  max: number | null,
+): Prisma.ItemWhereInput | null {
+  if (min === null && max === null) return null;
+  return {
+    price: {
+      ...(min !== null ? { gte: min } : {}),
+      ...(max !== null ? { lte: max } : {}),
+    },
+  };
+}
+
 export function buildCategoryCondition(categories: string[]): Prisma.ItemWhereInput | null {
   if (categories.length === 0) return null;
   return { category: { in: categories } };

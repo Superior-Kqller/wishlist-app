@@ -17,6 +17,8 @@ describe("parseWishlistFilters", () => {
       view: "table",
       showPurchased: true,
       categories: ["books", "toys"],
+      priceMin: null,
+      priceMax: null,
     });
   });
 
@@ -29,6 +31,8 @@ describe("parseWishlistFilters", () => {
       view: null,
       showPurchased: false,
       categories: [],
+      priceMin: null,
+      priceMax: null,
     });
   });
 
@@ -59,5 +63,20 @@ describe("serializeWishlistFilters", () => {
     const query =
       "userId=me&listId=l1&search=книга&sort=price-low&view=table&purchased=show&categories=books,toys";
     expect(parse(serializeWishlistFilters(parse(query)))).toEqual(parse(query));
+  });
+});
+
+describe("цена в ссылке", () => {
+  it("читает границы и возвращает их в ту же ссылку", () => {
+    const state = parse("priceMin=1000&priceMax=5000");
+    expect(state.priceMin).toBe(1000);
+    expect(state.priceMax).toBe(5000);
+    expect(serializeWishlistFilters(state)).toBe("priceMin=1000&priceMax=5000");
+  });
+
+  it("мусор и отрицательные значения считаются незаданными", () => {
+    const state = parse("priceMin=abc&priceMax=-5");
+    expect(state.priceMin).toBeNull();
+    expect(state.priceMax).toBeNull();
   });
 });

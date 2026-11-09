@@ -17,6 +17,8 @@ type WishlistFeedQuery = {
   sortBy: string;
   showPurchased: boolean;
   categories: string[];
+  priceMin: number | null;
+  priceMax: number | null;
 };
 
 export function useInfiniteWishlistItems({
@@ -26,6 +28,8 @@ export function useInfiniteWishlistItems({
   sortBy,
   showPurchased,
   categories,
+  priceMin,
+  priceMax,
 }: WishlistFeedQuery) {
   // Порядок и состав страницы задаёт сервер, поэтому оба входят в ключ SWR.
   const categoriesKey = categories.join(",");
@@ -40,6 +44,8 @@ export function useInfiniteWishlistItems({
       if (sortBy) params.set("sort", sortBy);
       if (showPurchased) params.set("purchased", "show");
       if (categoriesKey) params.set("categories", categoriesKey);
+      if (priceMin !== null) params.set("priceMin", String(priceMin));
+      if (priceMax !== null) params.set("priceMax", String(priceMax));
       params.set("limit", String(WISHLIST_ITEMS_PAGE_SIZE));
       if (previousPageData?.pagination?.nextCursor) {
         params.set("cursor", previousPageData.pagination.nextCursor);
@@ -53,6 +59,8 @@ export function useInfiniteWishlistItems({
       sortBy,
       showPurchased,
       categoriesKey,
+      priceMin,
+      priceMax,
     ],
   );
 
