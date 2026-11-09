@@ -321,6 +321,21 @@ function HomePageContent() {
       .catch(() => toast.error(t("Желание не найдено")));
   }, [currentUserId, router, searchParams, t]);
 
+  // Открытое окно желания занимает запись в истории: жест/кнопка «назад» (в PWA —
+  // единственный выход) закрывает окно, а не уводит с сайта.
+  const detailOpen = !!detailItem;
+  useEffect(() => {
+    if (!detailOpen) return;
+    window.history.pushState({ detailDialog: true }, "", window.location.href);
+    const onPop = () => setDetailItem(null);
+    window.addEventListener("popstate", onPop);
+    return () => {
+      window.removeEventListener("popstate", onPop);
+      // Закрыли кнопкой, а не «назад» — убираем свою запись, чтобы не осталось мёртвого шага.
+      if (window.history.state?.detailDialog) window.history.back();
+    };
+  }, [detailOpen]);
+
   const selectedListName = useMemo(
     () => lists.find((list) => list.id === selectedListId)?.name ?? null,
     [lists, selectedListId],
