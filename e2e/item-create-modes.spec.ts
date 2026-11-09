@@ -159,3 +159,21 @@ test("editing opens the full form without link autofill", async ({ page }) => {
   await expect(dialog.getByRole("button", { name: "По ссылке", exact: true })).toHaveCount(0);
   await expect(dialog.getByRole("button", { name: "Заполнить по ссылке" })).toHaveCount(0);
 });
+
+test("закрытие формы с набранным текстом спрашивает, отбросить ли его", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("add-item-card").click();
+
+  const dialog = page.getByRole("dialog", { name: "Добавить желание" });
+  await dialog.getByRole("button", { name: "Вручную", exact: true }).click();
+  await dialog.getByLabel("Название").fill("Черновик");
+
+  await dialog.getByRole("button", { name: "Отмена" }).click();
+  const confirm = page.getByRole("dialog", { name: "Отбросить изменения?" });
+  await confirm.getByRole("button", { name: "Продолжить редактирование" }).click();
+  await expect(dialog.getByLabel("Название")).toHaveValue("Черновик");
+
+  await dialog.getByRole("button", { name: "Отмена" }).click();
+  await confirm.getByRole("button", { name: "Отбросить", exact: true }).click();
+  await expect(dialog).toBeHidden();
+});

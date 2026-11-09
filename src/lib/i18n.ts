@@ -564,6 +564,9 @@ const en: Dictionary = {
   "Telegram отключён": "Telegram disconnected",
   Отключить: "Disconnect",
   "Нет изменений для сохранения": "No changes to save",
+  "Отбросить изменения?": "Discard changes?",
+  "Введённые данные не сохранятся.": "What you entered will not be saved.",
+  Отбросить: "Discard",
   "Ошибка при обновлении профиля": "Could not update profile",
   "Профиль обновлен": "Profile updated",
   "Подсказки для подарков: что нравится, что лучше не покупать и какие детали важно проверить перед покупкой.":
