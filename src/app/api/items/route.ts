@@ -67,6 +67,10 @@ export async function GET(req: NextRequest) {
   const categoryCondition = buildCategoryCondition(categories);
   if (categoryCondition) conditions.push(categoryCondition);
 
+  // Точное совпадение ссылки — форма добавления предупреждает о дубле.
+  const urlParam = searchParams.get("url")?.trim();
+  if (urlParam) conditions.push({ url: urlParam });
+
   if (search) {
     conditions.push({
       OR: [

@@ -166,6 +166,7 @@ export function ItemFormDialog({
   const [createMode, setCreateMode] = useState<CreateMode>("link");
   const [linkStage, setLinkStage] = useState<LinkStage>("input");
   const [parseError, setParseError] = useState<string | null>(null);
+  const [duplicateTitle, setDuplicateTitle] = useState<string | null>(null);
   const autoFillOnceDoneRef = useRef(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const [fieldErrors, setFieldErrors] = useState<{ title?: string; price?: string }>({});
@@ -190,6 +191,7 @@ export function ItemFormDialog({
     setNotes(initial.notes);
     setImageUrl(initial.imageUrl);
     setParseError(null);
+    setDuplicateTitle(null);
   }, [initial]);
 
   useEffect(() => {
@@ -249,6 +251,13 @@ export function ItemFormDialog({
       }
       setLinkStage("review");
       toast.success(t("Поля заполнены по ссылке"));
+      // Дубль — не ошибка, а подсказка: ссылку всё равно можно добавить.
+      fetch(`/api/items?userId=me&purchased=show&limit=1&url=${encodeURIComponent(u)}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d: { items?: { title: string }[] } | null) =>
+          setDuplicateTitle(d?.items?.[0]?.title ?? null),
+        )
+        .catch(() => {});
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : t("Не удалось прочитать страницу по ссылке");
       setParseError(msg);
@@ -441,6 +450,14 @@ export function ItemFormDialog({
                     className="mx-4 mt-4 rounded-lg border border-success/32 bg-success/10 px-3 py-2 text-sm text-foreground sm:mx-5"
                   >
                     {t("Данные получены. Проверьте и дополните поля перед добавлением.")}
+                  </div>
+                ) : null}
+                {!isEdit && duplicateTitle ? (
+                  <div
+                    role="status"
+                    className="mx-4 mt-3 rounded-lg border border-warning/32 bg-warning/10 px-3 py-2 text-sm text-foreground sm:mx-5"
+                  >
+                    {t("Эта ссылка уже есть в ваших желаниях")}: «{duplicateTitle}»
                   </div>
                 ) : null}
                 <div className="grid min-h-0 lg:grid-cols-[minmax(0,0.95fr)_minmax(19rem,0.72fr)]">

@@ -565,6 +565,7 @@ const en: Dictionary = {
   Отключить: "Disconnect",
   "Нет изменений для сохранения": "No changes to save",
   "Нет соединения — изменения не сохранятся": "You are offline — changes will not be saved",
+  "Эта ссылка уже есть в ваших желаниях": "This link is already in your wishes",
   "Отбросить изменения?": "Discard changes?",
   "Введённые данные не сохранятся.": "What you entered will not be saved.",
   Отбросить: "Discard",
