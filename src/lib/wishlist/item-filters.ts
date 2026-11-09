@@ -29,13 +29,19 @@ export function parseCategoriesParam(raw: string | null | undefined): string[] {
 export function buildPriceCondition(
   min: number | null,
   max: number | null,
+  currency: string | null = null,
 ): Prisma.ItemWhereInput | null {
-  if (min === null && max === null) return null;
+  if (min === null && max === null && currency === null) return null;
   return {
-    price: {
-      ...(min !== null ? { gte: min } : {}),
-      ...(max !== null ? { lte: max } : {}),
-    },
+    ...(currency !== null ? { currency } : {}),
+    ...(min !== null || max !== null
+      ? {
+          price: {
+            ...(min !== null ? { gte: min } : {}),
+            ...(max !== null ? { lte: max } : {}),
+          },
+        }
+      : {}),
   };
 }
 

@@ -20,6 +20,7 @@ import {
   parseCategoriesParam,
 } from "@/lib/wishlist/item-filters";
 import { parsePrice } from "@/lib/home/wishlist-filters-url";
+import { parseCurrency } from "@/lib/currencies";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { unauthorizedResponse } from "@/lib/api-responses";
@@ -72,6 +73,7 @@ export async function GET(req: NextRequest) {
   const priceCondition = buildPriceCondition(
     parsePrice(searchParams.get("priceMin")),
     parsePrice(searchParams.get("priceMax")),
+    parseCurrency(searchParams.get("currency")),
   );
   if (priceCondition) conditions.push(priceCondition);
 

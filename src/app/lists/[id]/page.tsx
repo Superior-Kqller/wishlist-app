@@ -151,6 +151,7 @@ export default function ListDetailPage({ params }: { params: Promise<{ id: strin
     categories: [],
     priceMin: null,
     priceMax: null,
+    currency: null,
   });
   const refresh = useCallback(async () => {
     await Promise.all([mutateItems(), mutateList()]);

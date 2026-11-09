@@ -529,6 +529,7 @@ const en: Dictionary = {
     "An item without a list will be hidden. Attach it to a list to make it visible.",
   "Ориентировочная цена": "Estimated price",
   Валюта: "Currency",
+  "Любая валюта": "Any currency",
   Изображение: "Image",
   "Изображение товара": "Item image",
   Предпросмотр: "Preview",

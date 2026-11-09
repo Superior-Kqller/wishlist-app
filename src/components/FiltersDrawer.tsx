@@ -2,6 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CURRENCIES } from "@/lib/currencies";
 import { parsePrice } from "@/lib/home/wishlist-filters-url";
 import {
   Dialog,
@@ -44,7 +52,8 @@ interface FiltersDrawerProps {
   onClearCategories: () => void;
   priceMin: number | null;
   priceMax: number | null;
-  onPriceChange: (min: number | null, max: number | null) => void;
+  currency: string | null;
+  onPriceChange: (min: number | null, max: number | null, currency: string | null) => void;
   activeFilterCount: number;
   resultCount: number;
   onClearAllFilters: () => void;
@@ -80,6 +89,7 @@ export function FiltersDrawer({
   onClearCategories,
   priceMin,
   priceMax,
+  currency,
   onPriceChange,
   activeFilterCount,
   resultCount,
@@ -103,8 +113,8 @@ export function FiltersDrawer({
   const applyPrice = useCallback(() => {
     const min = parsePrice(minDraft);
     const max = parsePrice(maxDraft);
-    if (min !== priceMin || max !== priceMax) onPriceChange(min, max);
-  }, [minDraft, maxDraft, priceMin, priceMax, onPriceChange]);
+    if (min !== priceMin || max !== priceMax) onPriceChange(min, max, currency);
+  }, [minDraft, maxDraft, priceMin, priceMax, currency, onPriceChange]);
   // Ещё и по паузе в наборе: на iOS нажатие «Показать» не всегда снимает фокус с поля.
   useEffect(() => {
     const id = setTimeout(applyPrice, 700);
@@ -233,6 +243,24 @@ export function FiltersDrawer({
             />
           ))}
         </div>
+        <Select
+          value={currency ?? "any"}
+          onValueChange={(v) =>
+            onPriceChange(parsePrice(minDraft), parsePrice(maxDraft), v === "any" ? null : v)
+          }
+        >
+          <SelectTrigger aria-label={t("Валюта")} data-testid="filter-currency">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="any">{t("Любая валюта")}</SelectItem>
+            {CURRENCIES.map((c) => (
+              <SelectItem key={c.value} value={c.value}>
+                {c.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </section>
 
       {categories.length > 0 ? (

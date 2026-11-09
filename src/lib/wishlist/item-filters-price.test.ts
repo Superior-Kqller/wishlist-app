@@ -12,3 +12,10 @@ describe("buildPriceCondition", () => {
     expect(buildPriceCondition(0, 500)).toEqual({ price: { gte: 0, lte: 500 } });
   });
 });
+
+describe("buildPriceCondition с валютой", () => {
+  it("валюта сама по себе даёт условие, вместе с ценой — оба", () => {
+    expect(buildPriceCondition(null, null, "USD")).toEqual({ currency: "USD" });
+    expect(buildPriceCondition(10, null, "USD")).toEqual({ currency: "USD", price: { gte: 10 } });
+  });
+});

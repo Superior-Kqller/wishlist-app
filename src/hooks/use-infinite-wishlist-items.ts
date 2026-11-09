@@ -19,6 +19,7 @@ type WishlistFeedQuery = {
   categories: string[];
   priceMin: number | null;
   priceMax: number | null;
+  currency: string | null;
 };
 
 export function useInfiniteWishlistItems({
@@ -30,6 +31,7 @@ export function useInfiniteWishlistItems({
   categories,
   priceMin,
   priceMax,
+  currency,
 }: WishlistFeedQuery) {
   // Порядок и состав страницы задаёт сервер, поэтому оба входят в ключ SWR.
   const categoriesKey = categories.join(",");
@@ -46,6 +48,7 @@ export function useInfiniteWishlistItems({
       if (categoriesKey) params.set("categories", categoriesKey);
       if (priceMin !== null) params.set("priceMin", String(priceMin));
       if (priceMax !== null) params.set("priceMax", String(priceMax));
+      if (currency) params.set("currency", currency);
       params.set("limit", String(WISHLIST_ITEMS_PAGE_SIZE));
       if (previousPageData?.pagination?.nextCursor) {
         params.set("cursor", previousPageData.pagination.nextCursor);
@@ -61,6 +64,7 @@ export function useInfiniteWishlistItems({
       categoriesKey,
       priceMin,
       priceMax,
+      currency,
     ],
   );
 

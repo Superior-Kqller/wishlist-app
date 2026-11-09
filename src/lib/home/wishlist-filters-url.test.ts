@@ -19,6 +19,7 @@ describe("parseWishlistFilters", () => {
       categories: ["books", "toys"],
       priceMin: null,
       priceMax: null,
+      currency: null,
     });
   });
 
@@ -33,6 +34,7 @@ describe("parseWishlistFilters", () => {
       categories: [],
       priceMin: null,
       priceMax: null,
+      currency: null,
     });
   });
 

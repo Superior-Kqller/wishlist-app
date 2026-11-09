@@ -22,12 +22,12 @@ const buttonVariants = cva(
         link: "underline-draw text-foreground",
       },
       size: {
-        default: "min-h-11 px-4 py-2 sm:min-h-10",
-        sm: "min-h-11 px-3 sm:min-h-9",
+        default: "min-h-11 px-4 py-2",
+        sm: "min-h-11 px-3",
         lg: "min-h-12 px-6 text-base",
-        icon: "h-11 w-11 rounded-full sm:h-10 sm:w-10",
+        icon: "h-11 w-11 rounded-full",
         /** Компактные иконки в полосе фильтров */
-        iconToolbar: "h-11 w-11 rounded-full sm:h-9 sm:w-9",
+        iconToolbar: "h-11 w-11 rounded-full",
       },
     },
     defaultVariants: {

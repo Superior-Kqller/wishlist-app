@@ -100,6 +100,7 @@ function HomePageContent() {
     categories: selectedCategories,
     priceMin,
     priceMax,
+    currency,
   } = urlFilters;
   const listIdParam = searchParams.get("listId");
   // Не выбранный вид на телефоне — список: карточка со снимком занимает там
@@ -160,6 +161,7 @@ function HomePageContent() {
     categories: effectiveSelectedCategories,
     priceMin,
     priceMax,
+    currency,
   });
   const {
     data: listsData,
@@ -390,23 +392,27 @@ function HomePageContent() {
           syncFiltersToUrl({ categories: selectedCategories.filter((id) => id !== categoryId) }),
       });
     });
-    if (priceMin !== null || priceMax !== null) {
-      const range =
+    if (priceMin !== null || priceMax !== null || currency) {
+      const bounds =
         priceMin !== null && priceMax !== null
           ? `${priceMin}–${priceMax}`
           : priceMin !== null
             ? `${t("от")} ${priceMin}`
             : `${t("до")} ${priceMax}`;
+      const range = [priceMin !== null || priceMax !== null ? bounds : null, currency]
+        .filter(Boolean)
+        .join(" ");
       chips.push({
         key: "price",
         label: `${t("Цена")}: ${range}`,
-        onRemove: () => syncFiltersToUrl({ priceMin: null, priceMax: null }),
+        onRemove: () => syncFiltersToUrl({ priceMin: null, priceMax: null, currency: null }),
       });
     }
     return chips;
   }, [
     priceMin,
     priceMax,
+    currency,
     selectedListName,
     showPurchased,
     sortBy,
@@ -624,7 +630,9 @@ function HomePageContent() {
     onClearCategories: handleClearCategories,
     priceMin,
     priceMax,
-    onPriceChange: (min, max) => syncFiltersToUrl({ priceMin: min, priceMax: max }),
+    currency,
+    onPriceChange: (min, max, nextCurrency) =>
+      syncFiltersToUrl({ priceMin: min, priceMax: max, currency: nextCurrency }),
     sortBy,
     onSortChange: setSortBy,
     showPurchased,

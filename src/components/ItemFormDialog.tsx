@@ -1,5 +1,6 @@
 "use client";
 
+import { CURRENCIES } from "@/lib/currencies";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   Dialog,
@@ -56,13 +57,6 @@ interface ItemFormDialogProps {
   /** Нельзя сохранить без подборки; скрыть пункт «Без подборки» */
   listPickerRequired?: boolean;
 }
-
-const CURRENCIES = [
-  { value: "RUB", label: "₽ RUB" },
-  { value: "USD", label: "$ USD" },
-  { value: "EUR", label: "€ EUR" },
-  { value: "CNY", label: "¥ CNY" },
-];
 
 const PRIORITY_OPTIONS: WishlistPriority[] = [1, 2, 3, 4, 5];
 

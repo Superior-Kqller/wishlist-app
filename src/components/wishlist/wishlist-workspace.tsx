@@ -92,7 +92,8 @@ export type WishlistFilters = {
   onClearCategories: () => void;
   priceMin: number | null;
   priceMax: number | null;
-  onPriceChange: (min: number | null, max: number | null) => void;
+  currency: string | null;
+  onPriceChange: (min: number | null, max: number | null, currency: string | null) => void;
   sortBy: string;
   onSortChange: (value: string) => void;
   showPurchased: boolean;
@@ -198,6 +199,7 @@ export function WishlistWorkspace({
     onClearCategories,
     priceMin,
     priceMax,
+    currency,
     onPriceChange,
     sortBy,
     onSortChange,
@@ -589,6 +591,7 @@ export function WishlistWorkspace({
           onClearCategories={onClearCategories}
           priceMin={priceMin}
           priceMax={priceMax}
+          currency={currency}
           onPriceChange={onPriceChange}
           activeFilterCount={activeFilterCount}
           resultCount={items.length}

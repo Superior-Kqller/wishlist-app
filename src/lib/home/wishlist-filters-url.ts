@@ -1,3 +1,4 @@
+import { parseCurrency } from "@/lib/currencies";
 import { DEFAULT_WISHLIST_SORT, parseWishlistSort } from "@/lib/wishlist/item-sort";
 
 /*
@@ -27,6 +28,8 @@ export type WishlistFiltersState = {
   /** Границы цены включительно; `null` — граница не задана. */
   priceMin: number | null;
   priceMax: number | null;
+  /** Валюта цен; `null` — любая. */
+  currency: string | null;
 };
 
 type ReadableParams = { get(name: string): string | null };
@@ -45,6 +48,7 @@ export function parseWishlistFilters(params: ReadableParams): WishlistFiltersSta
     categories: categories ? categories.split(",").filter(Boolean) : [],
     priceMin: parsePrice(params.get("priceMin")),
     priceMax: parsePrice(params.get("priceMax")),
+    currency: parseCurrency(params.get("currency")),
   };
 }
 
@@ -72,6 +76,7 @@ export function serializeWishlistFilters(state: WishlistFiltersState): string {
     categories: state.categories.length > 0 ? state.categories.join(",") : null,
     priceMin: state.priceMin !== null ? String(state.priceMin) : null,
     priceMax: state.priceMax !== null ? String(state.priceMax) : null,
+    currency: state.currency,
   };
   for (const [key, value] of Object.entries(values)) {
     if (value) params.set(key, value);
