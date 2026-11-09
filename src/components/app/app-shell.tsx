@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { OfflineNotice } from "@/components/app/offline-notice";
 import { cn } from "@/lib/utils";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -12,6 +13,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-canvas flex min-h-svh flex-col text-foreground">
       {showAuthenticatedShell ? <Header /> : null}
+      {showAuthenticatedShell ? <OfflineNotice /> : null}
       {/* Запас под нижнюю панель разделов: она стоит поверх контента до `lg`. */}
       <div
         className={cn(
