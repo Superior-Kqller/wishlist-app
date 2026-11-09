@@ -79,8 +79,18 @@ describe("fetcher", () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 500,
+      json: () => Promise.reject(new Error("not json")),
     });
 
     await expect(fetcher("/api/items")).rejects.toThrow("Ошибка загрузки");
+  });
+
+  it("показывает текст ошибки сервера", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      json: () => Promise.resolve({ error: "Нет доступа" }),
+    });
+
+    await expect(fetcher("/api/items")).rejects.toThrow("Нет доступа");
   });
 });

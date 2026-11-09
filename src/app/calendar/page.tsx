@@ -41,7 +41,7 @@ import {
 } from "@/lib/calendar/client-calendar";
 import { formatLocalDate } from "@/lib/calendar/local-date";
 import { occurrenceReminderKey } from "@/lib/calendar/reminder-event-key";
-import { responseError } from "@/lib/response-error";
+import { apiRequest } from "@/lib/response-error";
 
 const FILTERS: Array<{ value: CalendarFilter; label: string }> = [
   { value: "ALL", label: "Все события" },
@@ -466,16 +466,18 @@ export default function CalendarPage() {
   async function toggleReminderMute(occurrence: CalendarOccurrence) {
     const muted = isMuted(occurrence);
     try {
-      const res = await fetch("/api/calendar/reminder-mutes", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sourceType: occurrence.type,
-          sourceId: occurrence.sourceId,
-          muted: !muted,
-        }),
-      });
-      if (!res.ok) throw await responseError(res, t("Не удалось изменить напоминания"));
+      await apiRequest(
+        "/api/calendar/reminder-mutes",
+        {
+          method: "PUT",
+          body: {
+            sourceType: occurrence.type,
+            sourceId: occurrence.sourceId,
+            muted: !muted,
+          },
+        },
+        t("Не удалось изменить напоминания"),
+      );
       toast.success(muted ? t("Напоминания включены") : t("Напоминания выключены"));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("Не удалось изменить напоминания"));

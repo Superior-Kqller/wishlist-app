@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { validatePasswordComplexity } from "@/lib/password-validation";
 import { SettingsSection } from "@/components/settings/ProfileForm";
 import { useI18n } from "@/components/i18n/language-provider";
-import { responseError } from "@/lib/response-error";
+import { apiRequest } from "@/lib/response-error";
 
 interface PasswordFormProps {
   userId: string;
@@ -55,13 +55,11 @@ export function PasswordForm({ userId }: PasswordFormProps) {
 
     setSaving(true);
     try {
-      const res = await fetch(`/api/users/${userId}/password`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword, password }),
-      });
-
-      if (!res.ok) throw await responseError(res, t("Ошибка при изменении пароля"));
+      await apiRequest(
+        `/api/users/${userId}/password`,
+        { method: "PATCH", body: { currentPassword, password } },
+        t("Ошибка при изменении пароля"),
+      );
 
       toast.success(t("Пароль изменен"));
       flashDone();

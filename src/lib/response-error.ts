@@ -23,3 +23,24 @@ export async function readErrorMessage(res: Response): Promise<string | null> {
 export async function responseError(res: Response, fallback: string): Promise<Error> {
   return new Error((await readErrorMessage(res)) ?? fallback);
 }
+
+/**
+ * Запрос к собственному API: не-2xx превращается в `Error` с текстом сервера
+ * (или `fallback`). Объект в `body` уходит как JSON, `FormData` — как есть.
+ */
+export async function apiRequest(
+  url: string,
+  { method = "GET", body }: { method?: string; body?: unknown },
+  fallback: string,
+): Promise<Response> {
+  const res = await fetch(
+    url,
+    body === undefined
+      ? { method }
+      : body instanceof FormData
+        ? { method, body }
+        : { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) },
+  );
+  if (!res.ok) throw await responseError(res, fallback);
+  return res;
+}

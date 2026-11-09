@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import { User, UpdateUserPayload } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
 import { uiLayout } from "@/lib/ui-contract";
-import { responseError } from "@/lib/response-error";
+import { apiRequest } from "@/lib/response-error";
 
 interface EditUserDialogProps {
   open: boolean;
@@ -83,13 +83,11 @@ export function EditUserDialog({
         return;
       }
 
-      const res = await fetch(`/api/users/${user.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw await responseError(res, t("Ошибка при обновлении пользователя"));
+      await apiRequest(
+        `/api/users/${user.id}`,
+        { method: "PATCH", body: payload },
+        t("Ошибка при обновлении пользователя"),
+      );
 
       toast.success(t("Пользователь обновлен"));
       onSuccess();

@@ -38,7 +38,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
 import { ProductCategoryIcon } from "@/lib/category-icons";
 import { uiLayout } from "@/lib/ui-contract";
-import { responseError } from "@/lib/response-error";
+import { apiRequest } from "@/lib/response-error";
 import { SegmentGlide } from "@/components/ui/segment-glide";
 
 interface ItemFormDialogProps {
@@ -176,12 +176,11 @@ export function ItemFormDialog({
     setParseError(null);
     setParsingUrl(true);
     try {
-      const res = await fetch("/api/parse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: u }),
-      });
-      if (!res.ok) throw await responseError(res, t("Не удалось получить данные по ссылке"));
+      const res = await apiRequest(
+        "/api/parse",
+        { method: "POST", body: { url: u } },
+        t("Не удалось получить данные по ссылке"),
+      );
       const data: {
         title?: string;
         price?: number | null;

@@ -34,7 +34,7 @@ import type {
   PersonalEventInput,
   PersonalEventRecurrence,
 } from "@/lib/calendar/personal-events";
-import { responseError } from "@/lib/response-error";
+import { apiRequest } from "@/lib/response-error";
 
 interface AudienceUser {
   id: string;
@@ -96,15 +96,11 @@ export function PersonalEventsPanel() {
   const save = async () => {
     setSaving(true);
     try {
-      const response = await fetch(
+      await apiRequest(
         editingId ? `/api/calendar/events/${editingId}` : "/api/calendar/events",
-        {
-          method: editingId ? "PATCH" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        },
+        { method: editingId ? "PATCH" : "POST", body: form },
+        t("Не удалось сохранить событие"),
       );
-      if (!response.ok) throw await responseError(response, t("Не удалось сохранить событие"));
       await refresh();
       setOpen(false);
       toast.success(editingId ? t("Событие изменено") : t("Событие создано"));

@@ -24,7 +24,7 @@ import { passwordSchema, validatePasswordComplexity } from "@/lib/password-valid
 import { CreateUserPayload } from "@/types";
 import { useI18n } from "@/components/i18n/language-provider";
 import { uiLayout } from "@/lib/ui-contract";
-import { responseError } from "@/lib/response-error";
+import { apiRequest } from "@/lib/response-error";
 
 interface CreateUserDialogProps {
   open: boolean;
@@ -75,18 +75,19 @@ export function CreateUserDialog({ open, onOpenChange, onSuccess }: CreateUserDi
 
     setSaving(true);
     try {
-      const res = await fetch("/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: username.trim(),
-          password,
-          name: name.trim(),
-          role,
-        } as CreateUserPayload),
-      });
-
-      if (!res.ok) throw await responseError(res, t("Ошибка при создании пользователя"));
+      await apiRequest(
+        "/api/users",
+        {
+          method: "POST",
+          body: {
+            username: username.trim(),
+            password,
+            name: name.trim(),
+            role,
+          } as CreateUserPayload,
+        },
+        t("Ошибка при создании пользователя"),
+      );
 
       toast.success(t("Пользователь создан"));
       onSuccess();

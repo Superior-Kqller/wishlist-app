@@ -18,7 +18,7 @@ import { Loader2, Upload, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/components/i18n/language-provider";
 import { uiLayout } from "@/lib/ui-contract";
-import { responseError } from "@/lib/response-error";
+import { apiRequest } from "@/lib/response-error";
 
 interface AvatarUploadDialogProps {
   open: boolean;
@@ -92,12 +92,11 @@ export function AvatarUploadDialog({
         const formData = new FormData();
         formData.append("avatar", selectedFile);
 
-        const res = await fetch("/api/users/me/avatar", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!res.ok) throw await responseError(res, t("Ошибка при загрузке файла"));
+        await apiRequest(
+          "/api/users/me/avatar",
+          { method: "POST", body: formData },
+          t("Ошибка при загрузке файла"),
+        );
 
         toast.success(t("Аватар загружен"));
       } else if (uploadMethod === "url" && url.trim()) {
@@ -111,13 +110,11 @@ export function AvatarUploadDialog({
         }
 
         // Обновление через PATCH
-        const res = await fetch("/api/users/me", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ avatarUrl: url.trim() }),
-        });
-
-        if (!res.ok) throw await responseError(res, t("Ошибка при обновлении аватара"));
+        await apiRequest(
+          "/api/users/me",
+          { method: "PATCH", body: { avatarUrl: url.trim() } },
+          t("Ошибка при обновлении аватара"),
+        );
 
         toast.success(t("Аватар обновлен"));
       } else {
@@ -146,13 +143,11 @@ export function AvatarUploadDialog({
   const handleRemove = async () => {
     setUploading(true);
     try {
-      const res = await fetch("/api/users/me", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ avatarUrl: "" }),
-      });
-
-      if (!res.ok) throw await responseError(res, t("Ошибка при удалении аватара"));
+      await apiRequest(
+        "/api/users/me",
+        { method: "PATCH", body: { avatarUrl: "" } },
+        t("Ошибка при удалении аватара"),
+      );
 
       toast.success(t("Аватар удален"));
       onSuccess();

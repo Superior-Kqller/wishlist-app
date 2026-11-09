@@ -176,7 +176,7 @@ const POLL_RETRY_MS = 5000;
  * режет входящие от Telegram. Один процесс на токен: второй получит 409 Conflict.
  * Не бросает — запущен без ожидания, и ошибка уронила бы весь сервер.
  */
-export async function pollTelegramUpdates(
+async function pollTelegramUpdates(
   onUpdate: (update: TelegramUpdate) => Promise<void>,
   signal?: AbortSignal,
 ): Promise<void> {

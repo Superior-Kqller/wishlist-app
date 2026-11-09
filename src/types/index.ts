@@ -114,7 +114,7 @@ export interface User {
   };
 }
 
-export interface UserStats {
+interface UserStats {
   totalItems: number;
   unpurchasedItems: number;
   pricesByCurrency?: Record<string, { unpurchased: number; purchased: number }>;

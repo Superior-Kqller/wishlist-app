@@ -25,7 +25,7 @@ import { getLanguageLocale } from "@/lib/i18n";
 import type { BirthdayAudience, BirthdayProfile } from "@/types";
 import type { ProfileGender } from "@/lib/calendar/calendar-events";
 import type { TelegramLinkStatus } from "@/lib/telegram/link-status";
-import { responseError } from "@/lib/response-error";
+import { apiRequest } from "@/lib/response-error";
 
 interface AudienceOption {
   id: string;
@@ -73,8 +73,11 @@ function TelegramConnection({
     if (tab) tab.opener = null;
     setBusy(true);
     try {
-      const res = await fetch("/api/users/me/telegram-link", { method: "POST" });
-      if (!res.ok) throw await responseError(res, t("Не удалось получить ссылку на бота"));
+      const res = await apiRequest(
+        "/api/users/me/telegram-link",
+        { method: "POST" },
+        t("Не удалось получить ссылку на бота"),
+      );
       const { url } = (await res.json()) as { url: string };
       if (tab) tab.location.href = url;
       else window.location.assign(url);
@@ -89,12 +92,11 @@ function TelegramConnection({
   async function disconnect() {
     setBusy(true);
     try {
-      const res = await fetch("/api/users/me", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ telegramId: null }),
-      });
-      if (!res.ok) throw await responseError(res, t("Не удалось отключить Telegram"));
+      await apiRequest(
+        "/api/users/me",
+        { method: "PATCH", body: { telegramId: null } },
+        t("Не удалось отключить Telegram"),
+      );
       toast.success(t("Telegram отключён"));
       onChange();
     } catch (err: unknown) {
@@ -329,28 +331,29 @@ export function ProfileForm({
 
     setSaving(true);
     try {
-      const res = await fetch("/api/users/me", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          telegramNotificationsEnabled,
-          calendarNotificationsEnabled,
-          gender: gender || null,
-          thematicHolidayConsent,
-          birthday: birthdayEnabled
-            ? {
-                day: Number(birthdayDay),
-                month: Number(birthdayMonth),
-                year: birthdayYear ? Number(birthdayYear) : null,
-                audience: birthdayAudience,
-                selectedViewerIds: birthdayAudience === "SELECTED" ? selectedViewerIds : [],
-              }
-            : null,
-        }),
-      });
-
-      if (!res.ok) throw await responseError(res, t("Ошибка при обновлении профиля"));
+      await apiRequest(
+        "/api/users/me",
+        {
+          method: "PATCH",
+          body: {
+            name: name.trim(),
+            telegramNotificationsEnabled,
+            calendarNotificationsEnabled,
+            gender: gender || null,
+            thematicHolidayConsent,
+            birthday: birthdayEnabled
+              ? {
+                  day: Number(birthdayDay),
+                  month: Number(birthdayMonth),
+                  year: birthdayYear ? Number(birthdayYear) : null,
+                  audience: birthdayAudience,
+                  selectedViewerIds: birthdayAudience === "SELECTED" ? selectedViewerIds : [],
+                }
+              : null,
+          },
+        },
+        t("Ошибка при обновлении профиля"),
+      );
 
       toast.success(t("Профиль обновлен"));
       flashDone();

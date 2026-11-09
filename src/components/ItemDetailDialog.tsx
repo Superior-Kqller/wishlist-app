@@ -20,7 +20,7 @@ import {
 import { ItemActivitySection } from "@/components/wishlist/item-detail/item-activity-section";
 import { useI18n } from "@/components/i18n/language-provider";
 import { getPurchaseToggleTarget, type ItemStatus } from "@/lib/item-status";
-import { responseError } from "@/lib/response-error";
+import { apiRequest } from "@/lib/response-error";
 
 const fetcher = (url: string) =>
   fetch(url).then((r) => {
@@ -79,12 +79,11 @@ export function ItemDetailDialog({
 
     setSubmittingComment(true);
     try {
-      const res = await fetch(`/api/items/${item.id}/comments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-      if (!res.ok) throw await responseError(res, t("Ошибка при отправке"));
+      await apiRequest(
+        `/api/items/${item.id}/comments`,
+        { method: "POST", body: { text } },
+        t("Ошибка при отправке"),
+      );
       setCommentText("");
       mutateComments();
     } catch (err) {
@@ -98,10 +97,11 @@ export function ItemDetailDialog({
     if (!item) return;
     setDeletingCommentId(commentId);
     try {
-      const res = await fetch(`/api/items/${item.id}/comments/${commentId}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw await responseError(res, t("Не удалось удалить"));
+      await apiRequest(
+        `/api/items/${item.id}/comments/${commentId}`,
+        { method: "DELETE" },
+        t("Не удалось удалить"),
+      );
       toast.success(t("Комментарий удалён"));
       mutateComments();
     } catch (err) {

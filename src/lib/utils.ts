@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { type Language, getLanguageLocale } from "@/lib/i18n";
+import { responseError } from "@/lib/response-error";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -62,7 +63,7 @@ export function formatStatsSummary(
 }
 
 export const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error("Ошибка загрузки");
+  fetch(url).then(async (r) => {
+    if (!r.ok) throw await responseError(r, "Ошибка загрузки");
     return r.json();
   });

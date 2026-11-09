@@ -61,7 +61,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { getWishWord } from "@/lib/i18n";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
 import { UpcomingCalendarCard } from "@/components/calendar/UpcomingCalendarCard";
-import { responseError } from "@/lib/response-error";
+import { apiRequest } from "@/lib/response-error";
 
 function HomePageContent() {
   const { t, language } = useI18n();
@@ -429,8 +429,7 @@ function HomePageContent() {
   const confirmDeleteList = useCallback(async () => {
     if (!listDeleteTarget) return;
     const { id } = listDeleteTarget;
-    const res = await fetch(`/api/lists/${id}`, { method: "DELETE" });
-    if (!res.ok) throw await responseError(res, t("Не удалось удалить подборку"));
+    await apiRequest(`/api/lists/${id}`, { method: "DELETE" }, t("Не удалось удалить подборку"));
     toast.success(t("Подборка удалена"));
     await mutateLists();
     await mutateItems();

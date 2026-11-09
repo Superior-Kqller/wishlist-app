@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { MemberList } from "@/components/wishlist/member-list";
 import { useI18n } from "@/components/i18n/language-provider";
 import { uiLayout } from "@/lib/ui-contract";
-import { responseError } from "@/lib/response-error";
+import { apiRequest } from "@/lib/response-error";
 
 interface ListFormDialogProps {
   open: boolean;
@@ -79,13 +79,19 @@ export function ListFormDialog({
       if (file) {
         const body = new FormData();
         body.append("cover", file);
-        const res = await fetch(`/api/lists/${list.id}/cover`, { method: "POST", body });
-        if (!res.ok) throw await responseError(res, t("Не удалось загрузить обложку"));
+        const res = await apiRequest(
+          `/api/lists/${list.id}/cover`,
+          { method: "POST", body },
+          t("Не удалось загрузить обложку"),
+        );
         setCoverUrl((await res.json()).coverUrl);
         toast.success(t("Обложка обновлена"));
       } else {
-        const res = await fetch(`/api/lists/${list.id}/cover`, { method: "DELETE" });
-        if (!res.ok) throw await responseError(res, t("Не удалось загрузить обложку"));
+        await apiRequest(
+          `/api/lists/${list.id}/cover`,
+          { method: "DELETE" },
+          t("Не удалось загрузить обложку"),
+        );
         setCoverUrl(null);
         toast.success(t("Обложка убрана"));
       }
@@ -109,20 +115,18 @@ export function ListFormDialog({
     setSaving(true);
     try {
       if (isEdit) {
-        const res = await fetch(`/api/lists/${list.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: name.trim(), viewerIds }),
-        });
-        if (!res.ok) throw await responseError(res, t("Ошибка при обновлении"));
+        await apiRequest(
+          `/api/lists/${list.id}`,
+          { method: "PATCH", body: { name: name.trim(), viewerIds } },
+          t("Ошибка при обновлении"),
+        );
         toast.success(t("Подборка обновлена"));
       } else {
-        const res = await fetch("/api/lists", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: name.trim(), viewerIds }),
-        });
-        if (!res.ok) throw await responseError(res, t("Ошибка при создании"));
+        await apiRequest(
+          "/api/lists",
+          { method: "POST", body: { name: name.trim(), viewerIds } },
+          t("Ошибка при создании"),
+        );
         toast.success(t("Подборка создана"));
       }
       onSuccess();

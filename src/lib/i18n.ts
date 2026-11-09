@@ -979,10 +979,3 @@ export function getWishWord(language: Language, count: number): string {
     ru: { one: "желание", few: "желания", many: "желаний" },
   });
 }
-
-export function getItemWord(language: Language, count: number): string {
-  return pluralize(language, count, {
-    en: { one: "item", other: "items" },
-    ru: { one: "товар", few: "товара", many: "товаров" },
-  });
-}

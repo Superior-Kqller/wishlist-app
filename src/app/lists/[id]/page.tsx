@@ -19,7 +19,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { useInfiniteWishlistItems } from "@/hooks/use-infinite-wishlist-items";
 import { useWishlistItemEditor } from "@/hooks/use-wishlist-item-editor";
 import { getWishWord } from "@/lib/i18n";
-import { responseError } from "@/lib/response-error";
+import { apiRequest } from "@/lib/response-error";
 import { uiState } from "@/lib/ui-contract";
 import { cn, fetcher } from "@/lib/utils";
 import type {
@@ -168,12 +168,11 @@ export default function ListDetailPage({ params }: { params: Promise<{ id: strin
 
   const renameList = async (name: string) => {
     try {
-      const res = await fetch(`/api/lists/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
-      });
-      if (!res.ok) throw await responseError(res, t("Ошибка при сохранении"));
+      await apiRequest(
+        `/api/lists/${id}`,
+        { method: "PATCH", body: { name } },
+        t("Ошибка при сохранении"),
+      );
       toast.success(t("Сохранено!"));
       await Promise.all([mutateList(), globalMutate("/api/lists")]);
     } catch (err) {
@@ -184,8 +183,7 @@ export default function ListDetailPage({ params }: { params: Promise<{ id: strin
 
   // Ошибку не глотаем: её показывает ConfirmDialog, оставаясь открытым.
   const confirmDelete = async () => {
-    const res = await fetch(`/api/lists/${id}`, { method: "DELETE" });
-    if (!res.ok) throw await responseError(res, t("Не удалось удалить подборку"));
+    await apiRequest(`/api/lists/${id}`, { method: "DELETE" }, t("Не удалось удалить подборку"));
     toast.success(t("Подборка удалена"));
     await globalMutate("/api/lists");
     router.push("/lists");

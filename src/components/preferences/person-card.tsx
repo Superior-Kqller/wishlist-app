@@ -34,7 +34,7 @@ export function useOccasionParts() {
 }
 
 /** Любимые цвета рядом точек: «лицо» человека в цвете, без полосы-шапки. */
-export function ColorDots({ colors, max = 6 }: { colors: string[]; max?: number }) {
+function ColorDots({ colors, max = 6 }: { colors: string[]; max?: number }) {
   const { t } = useI18n();
   const known = colors.filter((name) => getPreferenceColor(name));
   if (known.length === 0) return null;
