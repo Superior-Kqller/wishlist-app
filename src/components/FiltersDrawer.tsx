@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { parsePrice } from "@/lib/home/wishlist-filters-url";
 import {
@@ -100,11 +100,16 @@ export function FiltersDrawer({
     setMinDraft(priceMin?.toString() ?? "");
     setMaxDraft(priceMax?.toString() ?? "");
   }, [priceMin, priceMax]);
-  const applyPrice = () => {
+  const applyPrice = useCallback(() => {
     const min = parsePrice(minDraft);
     const max = parsePrice(maxDraft);
     if (min !== priceMin || max !== priceMax) onPriceChange(min, max);
-  };
+  }, [minDraft, maxDraft, priceMin, priceMax, onPriceChange]);
+  // Ещё и по паузе в наборе: на iOS нажатие «Показать» не всегда снимает фокус с поля.
+  useEffect(() => {
+    const id = setTimeout(applyPrice, 700);
+    return () => clearTimeout(id);
+  }, [applyPrice]);
 
   const countBadge =
     activeFilterCount > 0 ? (

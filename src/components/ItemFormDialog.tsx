@@ -689,7 +689,7 @@ export function ItemFormDialog({
                               />
                               <span className="min-w-0 flex-1">
                                 <span className="block truncate">{label}</span>
-                                <span className="block truncate text-[11px] font-medium text-muted-foreground-subtle sm:text-xs">
+                                <span className="block truncate text-xs font-medium text-muted-foreground-subtle">
                                   {t("Уровень")} {value}
                                   {/* В две колонки телефона пояснение обрезалось на полуслове. */}
                                   <span className="max-sm:hidden"> · {shortLabel}</span>

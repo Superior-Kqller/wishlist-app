@@ -67,7 +67,7 @@ export function PreferenceHintChip({
     <span className={preferenceChipClass(tone)}>
       {hint.kind === "color" ? <PreferenceColorDot value={hint.value} size="sm" /> : null}
       {kindLabel ? (
-        <span className="shrink-0 text-[11px] text-muted-foreground">{t(kindLabel)}</span>
+        <span className="shrink-0 text-xs text-muted-foreground">{t(kindLabel)}</span>
       ) : null}
       <span className="min-w-0 whitespace-normal text-foreground/90 [overflow-wrap:anywhere]">
         {t(hint.value)}

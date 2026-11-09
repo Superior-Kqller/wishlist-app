@@ -35,7 +35,7 @@ export function MemberList({ users, viewerIds, ownerId, emptyLabel }: MemberList
           <UserAvatar avatarUrl={user.avatarUrl} name={user.name} userId={user.id} size="sm" />
           <span className="max-w-[8rem] truncate text-sm text-foreground">{user.name}</span>
           {ownerId === user.id ? (
-            <Badge variant="secondary" className="text-[10px]">
+            <Badge variant="secondary" className="text-xs">
               {t("Владелец")}
             </Badge>
           ) : null}

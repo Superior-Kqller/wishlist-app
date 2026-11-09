@@ -40,7 +40,7 @@ export function BrandLockup({ className, compact = false }: BrandLockupProps) {
         </span>
         <span
           className={cn(
-            "line-clamp-1 max-w-[65vw] text-[9px] text-muted-foreground-subtle sm:max-w-none sm:text-[11px]",
+            "line-clamp-1 max-w-[65vw] text-xs text-muted-foreground-subtle sm:max-w-none",
             // В шапке знак стоит один: подпись — для первой встречи на входе.
             compact && "hidden",
           )}

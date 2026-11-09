@@ -164,7 +164,7 @@ export const ProductRow = memo(function ProductRow({
               name={ownerName}
               userId={ownerId}
               size="sm"
-              className="h-7 w-7 shrink-0 text-[10px]"
+              className="h-7 w-7 shrink-0 text-xs"
             />
             <span className="truncate text-xs text-muted-foreground">{ownerName}</span>
           </div>
@@ -180,7 +180,7 @@ export const ProductRow = memo(function ProductRow({
       {showCategoryColumn ? (
         <TableCell>
           {item.category ? (
-            <Badge variant="outline" className="max-w-[10rem] gap-1.5 truncate text-[10px]">
+            <Badge variant="outline" className="max-w-[10rem] gap-1.5 truncate text-xs">
               <ProductCategoryIcon category={item.category} className="size-3.5 shrink-0" />
               {categoryLabel}
             </Badge>
