@@ -69,8 +69,6 @@ export function ItemDetailDialog({
   if (!item) return null;
 
   const canManage = currentUserId === item.userId;
-  // Фото показывается, только когда снимок есть: пустая плитка читалась «не догрузилось».
-  const hasImage = Boolean(item.images?.[0]);
 
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,17 +191,12 @@ export function ItemDetailDialog({
            * с `md` карточка встаёт справа на две строки и липнет к верху.
            */}
           <div className="grid gap-x-12 gap-y-6 px-4 pb-8 sm:px-8 md:grid-cols-[minmax(0,1fr)_20rem] md:grid-rows-[auto_1fr] md:pt-14">
-            {hasImage ? (
-              <motion.div {...rise(0)} className="max-md:-mx-4 sm:max-md:-mx-8">
-                <ItemMediaSection item={item} className="max-md:w-auto max-md:rounded-none" />
-              </motion.div>
-            ) : null}
+            <motion.div {...rise(0)} className="max-md:-mx-4 sm:max-md:-mx-8">
+              <ItemMediaSection item={item} className="max-md:w-auto max-md:rounded-none" />
+            </motion.div>
             <motion.aside
               {...rise(1)}
-              className={cn(
-                "min-w-0 md:col-start-2 md:row-span-2 md:row-start-1",
-                !hasImage && "max-md:pt-10",
-              )}
+              className="min-w-0 md:col-start-2 md:row-span-2 md:row-start-1"
               aria-label={t("Действия")}
             >
               <div className="md:sticky md:top-0 md:rounded-xl md:border md:border-border md:bg-card md:p-6 md:shadow-[var(--shadow-float)]">

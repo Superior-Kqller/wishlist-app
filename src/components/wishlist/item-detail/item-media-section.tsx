@@ -5,6 +5,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { WishlistItem } from "@/types";
 import { isItemPurchased } from "@/lib/item-status";
+import { WishPortrait } from "../wish-portrait";
 
 /** Снимок заполняет плитку, если его пропорции отличаются от неё не больше чем на четверть. */
 const fits = (ratio: number, tile: number) => ratio >= tile * 0.8 && ratio <= tile * 1.25;
@@ -15,7 +16,9 @@ const fits = (ratio: number, tile: number) => ratio >= tile * 0.8 && ratio <= ti
  * снимок близких пропорций занимает плитку целиком, вытянутый вписывается с
  * полями 24px. Раньше любой снимок стоял с полями 32px, и магазинное фото со
  * своим фоном читалось картинкой в картинке.
- * Снимок не загрузился — плитки нет совсем: пустой кадр читался «не догрузилось».
+ * Снимка нет или он не загрузился — на плитке «портрет», как в сетке: пустой
+ * кадр читался «не догрузилось». На телефоне такая плитка ниже (16:9), чтобы
+ * рисунок не отодвигал название на целый экран.
  */
 export function ItemMediaSection({ item, className }: { item: WishlistItem; className?: string }) {
   const [imageError, setImageError] = useState(false);
@@ -27,7 +30,18 @@ export function ItemMediaSection({ item, className }: { item: WishlistItem; clas
     setRatio(null);
   }, [item.id]);
 
-  if (!mainImage || imageError) return null;
+  if (!mainImage || imageError) {
+    return (
+      <div
+        className={cn(
+          "flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl bg-[hsl(var(--surface-3))] md:aspect-[4/3]",
+          className,
+        )}
+      >
+        <WishPortrait seed={item.title} className="h-[72%]" />
+      </div>
+    );
+  }
 
   const fillMobile = ratio != null && fits(ratio, 1);
   const fillDesktop = ratio != null && fits(ratio, 4 / 3);

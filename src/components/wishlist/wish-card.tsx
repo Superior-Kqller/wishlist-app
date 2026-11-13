@@ -12,6 +12,7 @@ import { useI18n } from "@/components/i18n/language-provider";
 import { getProductCategoryLabel } from "@/lib/categories";
 import { isItemPurchased, type ItemStatus } from "@/lib/item-status";
 import { ItemActionsMenu } from "./item-actions-menu";
+import { WishPortrait } from "./wish-portrait";
 
 interface WishCardProps {
   item: WishlistItem;
@@ -139,7 +140,11 @@ export const WishCard = memo(function WishCard({
           ) : (
             // Угол плитки занят плашкой важности; категория подписана под названием.
             <div className="flex size-full flex-col justify-end p-4">
-              <div className="min-w-0 space-y-1.5">
+              <WishPortrait
+                seed={item.title}
+                className="absolute left-1/2 top-[46%] w-[64%] -translate-x-1/2 -translate-y-1/2"
+              />
+              <div className="relative min-w-0 space-y-1.5">
                 {item.notes ? (
                   <p className="line-clamp-4 text-sm leading-snug text-[hsl(var(--foreground)/0.8)]">
                     {item.notes}
