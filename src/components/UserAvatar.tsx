@@ -29,7 +29,8 @@ export function UserAvatar({ avatarUrl, name, userId, size = "md", className }: 
   // Показываем изображение только если есть avatarUrl и не было ошибки загрузки
   if (avatarUrl && !imageError) {
     return (
-      <div className={cn("relative rounded-full overflow-hidden", sizeClass, className)}>
+      // span, не div: аватар стоит внутри <p>, <span> и кнопок
+      <span className={cn("relative block rounded-full overflow-hidden", sizeClass, className)}>
         <Image
           src={avatarUrl}
           alt={name}
@@ -39,13 +40,13 @@ export function UserAvatar({ avatarUrl, name, userId, size = "md", className }: 
           onError={() => setImageError(true)}
           unoptimized={avatarUrl.startsWith("/uploads/")} // Отключаем оптимизацию для локальных файлов
         />
-      </div>
+      </span>
     );
   }
 
   // Fallback на инициалы если нет avatarUrl или была ошибка загрузки
   return (
-    <div
+    <span
       className={cn(
         "rounded-full flex items-center justify-center text-avatar-foreground font-medium",
         colorClass,
@@ -55,6 +56,6 @@ export function UserAvatar({ avatarUrl, name, userId, size = "md", className }: 
       title={name}
     >
       {initials}
-    </div>
+    </span>
   );
 }
