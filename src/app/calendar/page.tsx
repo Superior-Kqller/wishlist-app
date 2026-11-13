@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/components/i18n/language-provider";
 import { PersonalEventsPanel } from "@/components/calendar/PersonalEventsPanel";
+import { SantaPanel } from "@/components/calendar/SantaPanel";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { RetryNotice } from "@/components/ui/retry-notice";
@@ -644,6 +645,7 @@ export default function CalendarPage() {
               />
             </div>
             <PersonalEventsPanel />
+            <SantaPanel />
           </aside>
         </div>
       </PageMain>

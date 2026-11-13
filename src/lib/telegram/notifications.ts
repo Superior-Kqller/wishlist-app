@@ -151,3 +151,42 @@ export async function notifyStatusTransition(input: NotifyStatusTransitionInput)
     });
   }
 }
+
+interface NotifySantaDrawInput {
+  id: string;
+  title: string;
+  eventDate: string;
+  budget: string | null;
+  pairs: Array<{ giverId: string; receiverId: string; receiverName: string }>;
+}
+
+/** Каждому участнику — личное сообщение с его поздравляемым; чужие пары не упоминаются. */
+export async function notifySantaDraw(input: NotifySantaDrawInput): Promise<void> {
+  const date = new Date(`${input.eventDate}T12:00:00`).toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long",
+  });
+  const results = await Promise.allSettled(
+    input.pairs.map((pair) => {
+      const links = appLinks([
+        { text: "Открыть вишлист", path: `/?userId=${encodeURIComponent(pair.receiverId)}` },
+      ]);
+      const lines = [
+        `🎅 Тайный Санта: ${input.title}`,
+        `🎁 Вы дарите: ${pair.receiverName}`,
+        `📅 ${date}`,
+        ...(input.budget ? [`💰 ${input.budget}`] : []),
+        ...links.lines,
+      ];
+      return sendTelegramToUser(pair.giverId, {
+        text: lines.join("\n"),
+        replyMarkup: links.replyMarkup,
+      });
+    }),
+  );
+  for (const result of results) {
+    if (result.status === "rejected") {
+      sanitizeError("Telegram santa notification send error", result.reason, { drawId: input.id });
+    }
+  }
+}

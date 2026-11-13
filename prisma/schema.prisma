@@ -81,6 +81,9 @@ model User {
   lists         List[]
   listViewers   ListViewer[]
   itemComments  ItemComment[]
+  santaDraws    SantaDraw[]
+  santaGiving   SantaAssignment[] @relation("SantaGiver")
+  santaReceiving SantaAssignment[] @relation("SantaReceiver")
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
@@ -248,4 +251,30 @@ model ItemComment {
   @@index([itemId])
   @@index([userId])
   @@index([itemId, createdAt])
+}
+
+/// Жеребьёвка «Тайного Санты»: пары создаются сразу и не меняются.
+model SantaDraw {
+  id          String            @id @default(cuid())
+  title       String            @db.VarChar(200)
+  organizerId String
+  organizer   User              @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  eventDate   String            @db.VarChar(10)
+  budget      String?           @db.VarChar(100)
+  assignments SantaAssignment[]
+  createdAt   DateTime          @default(now())
+
+  @@index([organizerId])
+}
+
+model SantaAssignment {
+  drawId     String
+  draw       SantaDraw @relation(fields: [drawId], references: [id], onDelete: Cascade)
+  giverId    String
+  giver      User      @relation("SantaGiver", fields: [giverId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User      @relation("SantaReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@id([drawId, giverId])
+  @@index([giverId])
 }
